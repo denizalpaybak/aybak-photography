@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        overflow: hidden;
+    }
+
+    body {
+        cursor: pointer;
+    }
+
+
+    /* =========================
+       LEFT INFORMATION
+       ========================= */
+
+    .info {
+        position: fixed;
+        top: 32px;
+        left: 48px;
+        z-index: 10;
+
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.15;
+    }
+
+
+    /* =========================
+       LOGO
+       ========================= */
+
+    .logo {
+        position: relative;
+        display: block;
+
+        width: 190px;
+        height: 52px;
+
+        margin: 0;
+        padding: 0;
+
+        color: inherit;
+        text-decoration: none;
+
+        cursor: pointer;
+    }
+
+
+    .logo-name {
+        position: absolute;
+
+        top: 0;
+        left: 0;
+
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.15;
+
+        white-space: nowrap;
+    }
+
+
+    .logo-aybak {
+        position: absolute;
+
+        top: 17px;
+        left: 0;
+
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.15;
+        letter-spacing: 0;
+
+        white-space: nowrap;
+    }
+
+
+    .logo-aybak span {
+        display: inline-block;
+    }
+
+
+    /* =========================
+       CONTACT / SOCIAL
+       ========================= */
+
+    .contact {
+        margin: 0;
+        padding: 0;
+    }
+
+    .social {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+
+        margin: 0;
+        padding: 0;
+    }
+
+    .info a {
+        color: inherit;
+        text-decoration: none;
+        font-weight: 400;
+    }
+
+    .info a:hover {
+        text-decoration: underline;
+    }
+
+
+    /* =========================
+       SLIDESHOW
+       ========================= */
+
+    #slideshow {
+        position: fixed;
+        inset: 0;
+
+        width: 100vw;
+        height: 100vh;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        pointer-events: none;
+    }
+
+
+    .slide {
+        position: absolute;
+
+        width: auto;
+        height: auto;
+
+        max-width: 70vw;
+        max-height: 80vh;
+
+        object-fit: contain;
+
+        opacity: 0;
+    }
+
+
+    .slide.active {
+        opacity: 1;
+    }
+
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    @media (max-width: 600px) {
+
+        .info {
+            top: 20px;
+            left: 24px;
+            font-size: 13px;
+        }
+
+        .logo {
+            width: 160px;
+            height: 45px;
+            margin-bottom: 0;
+        }
+
+        .logo-name {
+            font-size: 13px;
+        }
+
+        .logo-aybak {
+            top: 15px;
+            font-size: 13px;
+        }
+
+        .slide {
+            max-width: 84vw;
+            max-height: 72vh;
+        }
+
+    }
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="info">
+
+    <a
+        class="logo"
+        href="https://denizalpaybak.com/"
+        target="_self"
+    >
+
+        <span
+            class="logo-name"
+            id="logo-name"
+        >
+            Denizalp
+        </span>
+
+        <span class="logo-aybak">
+
+            <span id="letter-a">a</span>
+            <span id="letter-y">y</span>
+            <span id="letter-b">b</span>
+            <span id="letter-a2">a</span>
+            <span id="letter-k">k</span>
+
+        </span>
+
+    </a>
+
+
+    <div class="contact">
+
+        <a
+            href="mailto:d@denizalpaybak.com"
+            target="_blank"
+            rel="noopener"
+        >
+            d@denizalpaybak.com
+        </a>
+
+    </div>
+
+
+    <div class="social">
+
+        <a
+            href="https://www.instagram.com/denizalpaybak/"
+            target="_blank"
+            rel="noopener"
+        >
+            instagram @denizalpaybak
+        </a>
+
+        <a
+            href="https://models.com/people/denizalp-aybak"
+            target="_blank"
+            rel="noopener"
+        >
+            models.com
+        </a>
+
+    </div>
+
+</div>
+
+
+<div id="slideshow"></div>
+
+
+<script>
+
+
+    /* =====================================================
+       GITHUB PHOTO SETTINGS
+       ===================================================== */
+
+    const GITHUB_USERNAME =
+        "denizalpaybak";
+
+    const GITHUB_REPOSITORY =
+        "aybak-photography";
+
+    const GITHUB_BRANCH =
+        "main";
+
+    /*
+        Photos are directly inside
+        the root of the repository.
+    */
+
+    const GITHUB_FOLDER = "";
+
+
+    /* =====================================================
+       SLIDESHOW
+       ===================================================== */
+
+    const slideshow =
+        document.getElementById("slideshow");
+
+    let slides = [];
+
+    let current = 0;
+
+    let manualMode = false;
+
+
+    async function loadPhotos() {
+
+        try {
+
+            const apiUrl =
+                `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/contents/${GITHUB_FOLDER}`;
+
+
+            const response =
+                await fetch(apiUrl);
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "GitHub repository could not be accessed."
+                );
+
+            }
+
+
+            const files =
+                await response.json();
+
+
+            /*
+                Only numbered JPG files are accepted.
+
+                Examples:
+
+                001.jpg
+                002.jpg
+                017.jpg
+                999.jpg
+            */
+
+            const photos =
+                files
+                .filter(file => {
+
+                    return (
+                        file.type === "file" &&
+                        /^\d+\.jpg$/i.test(file.name)
+                    );
+
+                })
+                .sort((a, b) => {
+
+                    const numberA =
+                        parseInt(
+                            a.name.replace(
+                                /\.jpg$/i,
+                                ""
+                            ),
+                            10
+                        );
+
+                    const numberB =
+                        parseInt(
+                            b.name.replace(
+                                /\.jpg$/i,
+                                ""
+                            ),
+                            10
+                        );
+
+                    /*
+                        Largest number first.
+
+                        017
+                        011
+                        005
+                        002
+                        001
+                    */
+
+                    return numberB - numberA;
+
+                });
+
+
+            if (photos.length === 0) {
+
+                console.warn(
+                    "No numbered JPG photographs found."
+                );
+
+                return;
+
+            }
+
+
+            /*
+                Create slides.
+            */
+
+            photos.forEach(
+                (file, index) => {
+
+                    const img =
+                        document.createElement("img");
+
+                    img.className =
+                        "slide";
+
+                    img.src =
+                        `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/${GITHUB_BRANCH}/${file.name}`;
+
+                    img.alt = "";
+
+
+                    /*
+                        Highest-numbered image
+                        appears first.
+                    */
+
+                    if (index === 0) {
+
+                        img.classList.add(
+                            "active"
+                        );
+
+                    }
+
+
+                    slideshow.appendChild(img);
+
+                }
+            );
+
+
+            slides =
+                document.querySelectorAll(
+                    ".slide"
+                );
+
+            current = 0;
+
+
+        } catch (error) {
+
+            console.error(
+                "Could not load photographs:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+        Load photos when the page opens.
+    */
+
+    loadPhotos();
+
+
+    /*
+        Change photograph.
+    */
+
+    function nextSlide() {
+
+        if (slides.length <= 1) {
+
+            return;
+
+        }
+
+
+        slides[current]
+            .classList
+            .remove("active");
+
+
+        current =
+            (current + 1) %
+            slides.length;
+
+
+        slides[current]
+            .classList
+            .add("active");
+
+    }
+
+
+    /*
+        Automatic slideshow.
+
+        No fade.
+        No transition.
+    */
+
+    setInterval(() => {
+
+        if (!manualMode) {
+
+            nextSlide();
+
+        }
+
+    }, 3000);
+
+
+    /*
+        Clicking the page:
+
+        First click:
+        stop autoplay.
+
+        Later clicks:
+        next photograph.
+
+        Clicking links does not trigger this.
+    */
+
+    document.body.addEventListener(
+        "click",
+        (event) => {
+
+            if (
+                event.target.closest("a")
+            ) {
+
+                return;
+
+            }
+
+
+            if (!manualMode) {
+
+                manualMode = true;
+
+                return;
+
+            }
+
+
+            nextSlide();
+
+        }
+    );
+
+
+    /* =====================================================
+       LOGO ANIMATION
+       ===================================================== */
+
+    const logo =
+        document.querySelector(".logo");
+
+    const logoName =
+        document.getElementById(
+            "logo-name"
+        );
+
+
+    const letters = [
+
+        document.getElementById(
+            "letter-a"
+        ),
+
+        document.getElementById(
+            "letter-y"
+        ),
+
+        document.getElementById(
+            "letter-b"
+        ),
+
+        document.getElementById(
+            "letter-a2"
+        ),
+
+        document.getElementById(
+            "letter-k"
+        )
+
+    ];
+
+
+    const lowercase = [
+        "a",
+        "y",
+        "b",
+        "a",
+        "k"
+    ];
+
+
+    const uppercase = [
+        "A",
+        "Y",
+        "B",
+        "A",
+        "K"
+    ];
+
+
+    /*
+        State 0
+
+        Denizalp
+        aybak
+
+
+        State 1
+
+        denizalp
+        Aybak
+
+
+        State 2
+
+        denizalp
+        AYbak
+
+
+        State 3
+
+        denizalp
+        AYBak
+
+
+        State 4
+
+        denizalp
+        AYBAk
+
+
+        State 5
+
+        denizalp
+        AYBAK
+    */
+
+    let logoState = 0;
+
+    let logoTarget = 0;
+
+    let logoTimer = null;
+
+
+    function setLogoState(state) {
+
+        logoState = state;
+
+
+        /*
+            Capital D exists only
+            in the original state.
+        */
+
+        if (state === 0) {
+
+            logoName.textContent =
+                "Denizalp";
+
+        } else {
+
+            logoName.textContent =
+                "denizalp";
+
+        }
+
+
+        /*
+            Uppercase letters are
+            revealed one by one.
+        */
+
+        for (
+            let i = 0;
+            i < letters.length;
+            i++
+        ) {
+
+            if (i < state) {
+
+                letters[i].textContent =
+                    uppercase[i];
+
+            } else {
+
+                letters[i].textContent =
+                    lowercase[i];
+
+            }
+
+        }
+
+    }
+
+
+    function cancelLogoAnimation() {
+
+        if (logoTimer !== null) {
+
+            clearTimeout(
+                logoTimer
+            );
+
+            logoTimer = null;
+
+        }
+
+    }
+
+
+    function moveLogo() {
+
+        if (
+            logoState ===
+            logoTarget
+        ) {
+
+            logoTimer = null;
+
+            return;
+
+        }
+
+
+        if (
+            logoState <
+            logoTarget
+        ) {
+
+            setLogoState(
+                logoState + 1
+            );
+
+        } else {
+
+            setLogoState(
+                logoState - 1
+            );
+
+        }
+
+
+        logoTimer =
+            setTimeout(
+                moveLogo,
+                120
+            );
+
+    }
+
+
+    function animateTo(target) {
+
+        logoTarget = target;
+
+        cancelLogoAnimation();
+
+        moveLogo();
+
+    }
+
+
+    /* =====================================================
+       DESKTOP
+       ===================================================== */
+
+    logo.addEventListener(
+        "mouseenter",
+        () => {
+
+            if (
+                window.matchMedia(
+                    "(min-width: 601px)"
+                ).matches
+            ) {
+
+                animateTo(5);
+
+            }
+
+        }
+    );
+
+
+    logo.addEventListener(
+        "mouseleave",
+        () => {
+
+            if (
+                window.matchMedia(
+                    "(min-width: 601px)"
+                ).matches
+            ) {
+
+                animateTo(0);
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    let mobileCycleTimer = null;
+
+
+    function startMobileCycle() {
+
+        /*
+            Original state remains
+            visible for 2 seconds.
+        */
+
+        mobileCycleTimer =
+            setTimeout(
+                () => {
+
+
+                    /*
+                        Animate toward:
+
+                        denizalp
+                        AYBAK
+                    */
+
+                    animateTo(5);
+
+
+                    /*
+                        Hold AYBAK
+                        for 2 seconds.
+                    */
+
+                    mobileCycleTimer =
+                        setTimeout(
+                            () => {
+
+
+                                /*
+                                    Return to:
+
+                                    Denizalp
+                                    aybak
+                                */
+
+                                animateTo(0);
+
+
+                                /*
+                                    Wait for the reverse
+                                    animation to finish,
+                                    then hold for 2 seconds
+                                    and repeat.
+                                */
+
+                                mobileCycleTimer =
+                                    setTimeout(
+                                        () => {
+
+                                            startMobileCycle();
+
+                                        },
+                                        600 + 2000
+                                    );
+
+
+                            },
+                            600 + 2000
+                        );
+
+
+                },
+                2000
+            );
+
+    }
+
+
+    /*
+        Mobile always starts with:
+
+        Denizalp
+        aybak
+    */
+
+    if (
+        window.matchMedia(
+            "(max-width: 600px)"
+        ).matches
+    ) {
+
+        setLogoState(0);
+
+        startMobileCycle();
+
+    }
+
+
+</script>
+
+</body>
+</html>
