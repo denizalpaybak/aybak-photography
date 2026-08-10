@@ -88,14 +88,16 @@
         font-size: 15px;
         font-weight: 400;
         line-height: 1.15;
-        letter-spacing: 0;
+
+        /* Normal spacing */
+        letter-spacing: normal;
 
         white-space: nowrap;
     }
 
 
     .logo-aybak span {
-        display: inline-block;
+        display: inline;
     }
 
 
@@ -192,6 +194,7 @@
         .logo-aybak {
             top: 15px;
             font-size: 13px;
+            letter-spacing: normal;
         }
 
         .slide {
@@ -225,11 +228,7 @@
 
         <span class="logo-aybak">
 
-            <span id="letter-a">a</span>
-            <span id="letter-y">y</span>
-            <span id="letter-b">b</span>
-            <span id="letter-a2">a</span>
-            <span id="letter-k">k</span>
+            <span id="letter-a">a</span><span id="letter-y">y</span><span id="letter-b">b</span><span id="letter-a2">a</span><span id="letter-k">k</span>
 
         </span>
 
@@ -291,12 +290,8 @@
     const GITHUB_BRANCH =
         "main";
 
-    /*
-        Photos are directly inside
-        the root of the repository.
-    */
-
-    const GITHUB_FOLDER = "";
+    const GITHUB_FOLDER =
+        "";
 
 
     /* =====================================================
@@ -338,17 +333,6 @@
                 await response.json();
 
 
-            /*
-                Only numbered JPG files are accepted.
-
-                Examples:
-
-                001.jpg
-                002.jpg
-                017.jpg
-                999.jpg
-            */
-
             const photos =
                 files
                 .filter(file => {
@@ -379,16 +363,6 @@
                             10
                         );
 
-                    /*
-                        Largest number first.
-
-                        017
-                        011
-                        005
-                        002
-                        001
-                    */
-
                     return numberB - numberA;
 
                 });
@@ -405,10 +379,6 @@
             }
 
 
-            /*
-                Create slides.
-            */
-
             photos.forEach(
                 (file, index) => {
 
@@ -423,11 +393,6 @@
 
                     img.alt = "";
 
-
-                    /*
-                        Highest-numbered image
-                        appears first.
-                    */
 
                     if (index === 0) {
 
@@ -464,16 +429,8 @@
     }
 
 
-    /*
-        Load photos when the page opens.
-    */
-
     loadPhotos();
 
-
-    /*
-        Change photograph.
-    */
 
     function nextSlide() {
 
@@ -501,13 +458,6 @@
     }
 
 
-    /*
-        Automatic slideshow.
-
-        No fade.
-        No transition.
-    */
-
     setInterval(() => {
 
         if (!manualMode) {
@@ -518,18 +468,6 @@
 
     }, 3000);
 
-
-    /*
-        Clicking the page:
-
-        First click:
-        stop autoplay.
-
-        Later clicks:
-        next photograph.
-
-        Clicking links does not trigger this.
-    */
 
     document.body.addEventListener(
         "click",
@@ -615,43 +553,6 @@
     ];
 
 
-    /*
-        State 0
-
-        Denizalp
-        aybak
-
-
-        State 1
-
-        denizalp
-        Aybak
-
-
-        State 2
-
-        denizalp
-        AYbak
-
-
-        State 3
-
-        denizalp
-        AYBak
-
-
-        State 4
-
-        denizalp
-        AYBAk
-
-
-        State 5
-
-        denizalp
-        AYBAK
-    */
-
     let logoState = 0;
 
     let logoTarget = 0;
@@ -663,11 +564,6 @@
 
         logoState = state;
 
-
-        /*
-            Capital D exists only
-            in the original state.
-        */
 
         if (state === 0) {
 
@@ -681,11 +577,6 @@
 
         }
 
-
-        /*
-            Uppercase letters are
-            revealed one by one.
-        */
 
         for (
             let i = 0;
@@ -826,52 +717,19 @@
 
     function startMobileCycle() {
 
-        /*
-            Original state remains
-            visible for 2 seconds.
-        */
-
         mobileCycleTimer =
             setTimeout(
                 () => {
 
-
-                    /*
-                        Animate toward:
-
-                        denizalp
-                        AYBAK
-                    */
-
                     animateTo(5);
 
-
-                    /*
-                        Hold AYBAK
-                        for 2 seconds.
-                    */
 
                     mobileCycleTimer =
                         setTimeout(
                             () => {
 
-
-                                /*
-                                    Return to:
-
-                                    Denizalp
-                                    aybak
-                                */
-
                                 animateTo(0);
 
-
-                                /*
-                                    Wait for the reverse
-                                    animation to finish,
-                                    then hold for 2 seconds
-                                    and repeat.
-                                */
 
                                 mobileCycleTimer =
                                     setTimeout(
@@ -895,13 +753,6 @@
 
     }
 
-
-    /*
-        Mobile always starts with:
-
-        Denizalp
-        aybak
-    */
 
     if (
         window.matchMedia(
