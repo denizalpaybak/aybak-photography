@@ -1,215 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Denizalp Aybak — Photography</title>
+
 <style>
 
-    * {
-        box-sizing: border-box;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    html,
-    body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        background: transparent;
-        overflow: hidden;
-    }
+html,
+body {
+    margin: 0;
+    padding: 0;
 
-    body {
-        cursor: pointer;
-    }
+    width: 100%;
+    height: 100%;
+
+    background: transparent;
+
+    overflow: hidden;
+}
+
+body {
+    cursor: pointer;
+}
 
 
-    /* =========================
-       LEFT INFORMATION
-       ========================= */
+/* =========================
+   LEFT INFORMATION
+   ========================= */
+
+.info {
+    position: fixed;
+
+    top: 32px;
+    left: 48px;
+
+    z-index: 10;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+
+/* =========================
+   LOGO
+   ========================= */
+
+.logo {
+    position: relative;
+    display: block;
+
+    width: 190px;
+    height: 52px;
+
+    margin: 0;
+    padding: 0;
+
+    color: inherit;
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.logo-name {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.15;
+
+    white-space: nowrap;
+}
+
+.logo-aybak {
+    position: absolute;
+
+    top: 17px;
+    left: 0;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.15;
+
+    letter-spacing: normal;
+
+    white-space: nowrap;
+}
+
+.logo-aybak span {
+    display: inline;
+}
+
+
+/* =========================
+   CONTACT / SOCIAL
+   ========================= */
+
+.contact {
+    margin: 0;
+    padding: 0;
+}
+
+.social {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+    margin: 0;
+    padding: 0;
+}
+
+.info a {
+    color: inherit;
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.info a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================
+   SECTION SWITCH
+   ========================= */
+
+.section-switch {
+    position: fixed;
+
+    top: 32px;
+    right: 48px;
+
+    z-index: 20;
+
+    color: #000;
+    text-decoration: none;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.15;
+
+    white-space: nowrap;
+}
+
+
+/* =========================
+   SLIDESHOW
+   ========================= */
+
+#slideshow {
+    position: fixed;
+    inset: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
+}
+
+.slide {
+    position: absolute;
+
+    width: auto;
+    height: auto;
+
+    max-width: 70vw;
+    max-height: 80vh;
+
+    object-fit: contain;
+
+    opacity: 0;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 600px) {
 
     .info {
-        position: fixed;
-        top: 32px;
-        left: 48px;
-        z-index: 10;
+        top: 20px;
+        left: 24px;
 
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 15px;
-        font-weight: 400;
-        line-height: 1.15;
+        font-size: 13px;
     }
-
-
-    /* =========================
-       LOGO
-       ========================= */
 
     .logo {
-        position: relative;
-        display: block;
+        width: 160px;
+        height: 45px;
 
-        width: 190px;
-        height: 52px;
-
-        margin: 0;
-        padding: 0;
-
-        color: inherit;
-        text-decoration: none;
-
-        cursor: pointer;
+        margin-bottom: 0;
     }
-
 
     .logo-name {
-        position: absolute;
-
-        top: 0;
-        left: 0;
-
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 15px;
-        font-weight: 400;
-        line-height: 1.15;
-
-        white-space: nowrap;
+        font-size: 13px;
     }
-
 
     .logo-aybak {
-        position: absolute;
+        top: 15px;
 
-        top: 17px;
-        left: 0;
+        font-size: 13px;
 
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 15px;
-        font-weight: 400;
-        line-height: 1.15;
-
-        /* Normal spacing */
         letter-spacing: normal;
-
-        white-space: nowrap;
     }
 
+    .section-switch {
+        top: 20px;
+        right: 24px;
 
-    .logo-aybak span {
-        display: inline;
+        font-size: 13px;
     }
-
-
-    /* =========================
-       CONTACT / SOCIAL
-       ========================= */
-
-    .contact {
-        margin: 0;
-        padding: 0;
-    }
-
-    .social {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-
-        margin: 0;
-        padding: 0;
-    }
-
-    .info a {
-        color: inherit;
-        text-decoration: none;
-        font-weight: 400;
-    }
-
-    .info a:hover {
-        text-decoration: underline;
-    }
-
-
-    /* =========================
-       SLIDESHOW
-       ========================= */
-
-    #slideshow {
-        position: fixed;
-        inset: 0;
-
-        width: 100vw;
-        height: 100vh;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        pointer-events: none;
-    }
-
 
     .slide {
-        position: absolute;
-
-        width: auto;
-        height: auto;
-
-        max-width: 70vw;
-        max-height: 80vh;
-
-        object-fit: contain;
-
-        opacity: 0;
+        max-width: 84vw;
+        max-height: 72vh;
     }
 
-
-    .slide.active {
-        opacity: 1;
-    }
-
-
-    /* =========================
-       MOBILE
-       ========================= */
-
-    @media (max-width: 600px) {
-
-        .info {
-            top: 20px;
-            left: 24px;
-            font-size: 13px;
-        }
-
-        .logo {
-            width: 160px;
-            height: 45px;
-            margin-bottom: 0;
-        }
-
-        .logo-name {
-            font-size: 13px;
-        }
-
-        .logo-aybak {
-            top: 15px;
-            font-size: 13px;
-            letter-spacing: normal;
-        }
-
-        .slide {
-            max-width: 84vw;
-            max-height: 72vh;
-        }
-
-    }
+}
 
 </style>
+
 </head>
 
 
 <body>
 
+
+<!-- LEFT -->
 
 <div class="info">
 
@@ -271,79 +311,101 @@
 </div>
 
 
+<!-- RIGHT SWITCH -->
+
+<a
+    class="section-switch"
+    id="section-switch"
+    href="https://film.denizalpaybak.com/"
+>
+    <span id="section-switch-text">film</span>
+</a>
+
+
+<!-- SLIDESHOW -->
+
 <div id="slideshow"></div>
 
 
 <script>
 
 
-    /* =====================================================
-       GITHUB PHOTO SETTINGS
-       ===================================================== */
+/* =====================================================
+   GITHUB PHOTO SETTINGS
+   ===================================================== */
 
-    const GITHUB_USERNAME =
-        "denizalpaybak";
+const GITHUB_USERNAME =
+    "denizalpaybak";
 
-    const GITHUB_REPOSITORY =
-        "aybak-photography";
+const GITHUB_REPOSITORY =
+    "aybak-photography";
 
-    const GITHUB_BRANCH =
-        "main";
+const GITHUB_BRANCH =
+    "main";
 
-    const GITHUB_FOLDER =
-        "";
-
-
-    /* =====================================================
-       SLIDESHOW
-       ===================================================== */
-
-    const slideshow =
-        document.getElementById("slideshow");
-
-    let slides = [];
-
-    let current = 0;
-
-    let manualMode = false;
+const GITHUB_FOLDER =
+    "";
 
 
-    async function loadPhotos() {
+/* =====================================================
+   SLIDESHOW
+   ===================================================== */
 
-        try {
+const slideshow =
+    document.getElementById(
+        "slideshow"
+    );
 
-            const apiUrl =
-                `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/contents/${GITHUB_FOLDER}`;
+let slides = [];
 
+let current = 0;
 
-            const response =
-                await fetch(apiUrl);
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "GitHub repository could not be accessed."
-                );
-
-            }
+let manualMode = false;
 
 
-            const files =
-                await response.json();
+async function loadPhotos() {
+
+    try {
+
+        const apiUrl =
+            `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/contents/${GITHUB_FOLDER}`;
 
 
-            const photos =
-                files
-                .filter(file => {
+        const response =
+            await fetch(apiUrl);
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                "GitHub repository could not be accessed."
+            );
+
+        }
+
+
+        const files =
+            await response.json();
+
+
+        const photos =
+            files
+            .filter(
+                file => {
 
                     return (
                         file.type === "file" &&
-                        /^\d+\.jpg$/i.test(file.name)
+                        /^\d+\.jpg$/i.test(
+                            file.name
+                        )
                     );
 
-                })
-                .sort((a, b) => {
+                }
+            )
+            .sort(
+                (a, b) => {
 
                     const numberA =
                         parseInt(
@@ -363,267 +425,138 @@
                             10
                         );
 
-                    return numberB - numberA;
-
-                });
-
-
-            if (photos.length === 0) {
-
-                console.warn(
-                    "No numbered JPG photographs found."
-                );
-
-                return;
-
-            }
-
-
-            photos.forEach(
-                (file, index) => {
-
-                    const img =
-                        document.createElement("img");
-
-                    img.className =
-                        "slide";
-
-                    img.src =
-                        `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/${GITHUB_BRANCH}/${file.name}`;
-
-                    img.alt = "";
-
-
-                    if (index === 0) {
-
-                        img.classList.add(
-                            "active"
-                        );
-
-                    }
-
-
-                    slideshow.appendChild(img);
+                    return (
+                        numberB -
+                        numberA
+                    );
 
                 }
             );
 
 
-            slides =
-                document.querySelectorAll(
-                    ".slide"
-                );
-
-            current = 0;
-
-
-        } catch (error) {
-
-            console.error(
-                "Could not load photographs:",
-                error
-            );
-
-        }
-
-    }
-
-
-    loadPhotos();
-
-
-    function nextSlide() {
-
-        if (slides.length <= 1) {
+        if (
+            photos.length === 0
+        ) {
 
             return;
 
         }
 
 
-        slides[current]
-            .classList
-            .remove("active");
+        photos.forEach(
+            (file, index) => {
+
+                const img =
+                    document.createElement(
+                        "img"
+                    );
 
 
-        current =
-            (current + 1) %
-            slides.length;
+                img.className =
+                    "slide";
 
 
-        slides[current]
-            .classList
-            .add("active");
-
-    }
+                img.src =
+                    `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/${GITHUB_BRANCH}/${file.name}`;
 
 
-    setInterval(() => {
-
-        if (!manualMode) {
-
-            nextSlide();
-
-        }
-
-    }, 3000);
+                img.alt = "";
 
 
-    document.body.addEventListener(
-        "click",
-        (event) => {
+                if (
+                    index === 0
+                ) {
 
-            if (
-                event.target.closest("a")
-            ) {
+                    img.classList.add(
+                        "active"
+                    );
 
-                return;
+                }
+
+
+                slideshow.appendChild(
+                    img
+                );
 
             }
-
-
-            if (!manualMode) {
-
-                manualMode = true;
-
-                return;
-
-            }
-
-
-            nextSlide();
-
-        }
-    );
-
-
-    /* =====================================================
-       LOGO ANIMATION
-       ===================================================== */
-
-    const logo =
-        document.querySelector(".logo");
-
-    const logoName =
-        document.getElementById(
-            "logo-name"
         );
 
 
-    const letters = [
-
-        document.getElementById(
-            "letter-a"
-        ),
-
-        document.getElementById(
-            "letter-y"
-        ),
-
-        document.getElementById(
-            "letter-b"
-        ),
-
-        document.getElementById(
-            "letter-a2"
-        ),
-
-        document.getElementById(
-            "letter-k"
-        )
-
-    ];
-
-
-    const lowercase = [
-        "a",
-        "y",
-        "b",
-        "a",
-        "k"
-    ];
-
-
-    const uppercase = [
-        "A",
-        "Y",
-        "B",
-        "A",
-        "K"
-    ];
-
-
-    let logoState = 0;
-
-    let logoTarget = 0;
-
-    let logoTimer = null;
-
-
-    function setLogoState(state) {
-
-        logoState = state;
-
-
-        if (state === 0) {
-
-            logoName.textContent =
-                "Denizalp";
-
-        } else {
-
-            logoName.textContent =
-                "denizalp";
-
-        }
-
-
-        for (
-            let i = 0;
-            i < letters.length;
-            i++
-        ) {
-
-            if (i < state) {
-
-                letters[i].textContent =
-                    uppercase[i];
-
-            } else {
-
-                letters[i].textContent =
-                    lowercase[i];
-
-            }
-
-        }
-
-    }
-
-
-    function cancelLogoAnimation() {
-
-        if (logoTimer !== null) {
-
-            clearTimeout(
-                logoTimer
+        slides =
+            document.querySelectorAll(
+                ".slide"
             );
 
-            logoTimer = null;
 
-        }
+        current = 0;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+loadPhotos();
+
+
+function nextSlide() {
+
+    if (
+        slides.length <= 1
+    ) {
+
+        return;
 
     }
 
 
-    function moveLogo() {
+    slides[current]
+        .classList
+        .remove("active");
+
+
+    current =
+        (current + 1) %
+        slides.length;
+
+
+    slides[current]
+        .classList
+        .add("active");
+
+}
+
+
+setInterval(
+    () => {
 
         if (
-            logoState ===
-            logoTarget
+            !manualMode
         ) {
 
-            logoTimer = null;
+            nextSlide();
+
+        }
+
+    },
+    3000
+);
+
+
+document.body.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target.closest("a")
+        ) {
 
             return;
 
@@ -631,141 +564,372 @@
 
 
         if (
-            logoState <
-            logoTarget
+            !manualMode
         ) {
 
-            setLogoState(
-                logoState + 1
-            );
+            manualMode = true;
 
-        } else {
-
-            setLogoState(
-                logoState - 1
-            );
+            return;
 
         }
 
 
-        logoTimer =
-            setTimeout(
-                moveLogo,
-                120
-            );
+        nextSlide();
+
+    }
+);
+
+
+/* =====================================================
+   LOGO ANIMATION
+   ===================================================== */
+
+const logo =
+    document.querySelector(".logo");
+
+const logoName =
+    document.getElementById(
+        "logo-name"
+    );
+
+const letters = [
+    document.getElementById("letter-a"),
+    document.getElementById("letter-y"),
+    document.getElementById("letter-b"),
+    document.getElementById("letter-a2"),
+    document.getElementById("letter-k")
+];
+
+const lowercase = [
+    "a",
+    "y",
+    "b",
+    "a",
+    "k"
+];
+
+const uppercase = [
+    "A",
+    "Y",
+    "B",
+    "A",
+    "K"
+];
+
+let logoState = 0;
+
+let logoTarget = 0;
+
+let logoTimer = null;
+
+
+function setLogoState(state) {
+
+    logoState = state;
+
+
+    logoName.textContent =
+        state === 0
+            ? "Denizalp"
+            : "denizalp";
+
+
+    for (
+        let i = 0;
+        i < letters.length;
+        i++
+    ) {
+
+        letters[i].textContent =
+            i < state
+                ? uppercase[i]
+                : lowercase[i];
+
+    }
+
+}
+
+
+function moveLogo() {
+
+    if (
+        logoState === logoTarget
+    ) {
+
+        logoTimer = null;
+
+        return;
 
     }
 
 
-    function animateTo(target) {
-
-        logoTarget = target;
-
-        cancelLogoAnimation();
-
-        moveLogo();
-
-    }
-
-
-    /* =====================================================
-       DESKTOP
-       ===================================================== */
-
-    logo.addEventListener(
-        "mouseenter",
-        () => {
-
-            if (
-                window.matchMedia(
-                    "(min-width: 601px)"
-                ).matches
-            ) {
-
-                animateTo(5);
-
-            }
-
-        }
+    setLogoState(
+        logoState < logoTarget
+            ? logoState + 1
+            : logoState - 1
     );
 
 
-    logo.addEventListener(
-        "mouseleave",
-        () => {
+    logoTimer =
+        setTimeout(
+            moveLogo,
+            120
+        );
 
-            if (
-                window.matchMedia(
-                    "(min-width: 601px)"
-                ).matches
-            ) {
-
-                animateTo(0);
-
-            }
-
-        }
-    );
+}
 
 
-    /* =====================================================
-       MOBILE
-       ===================================================== */
+function animateTo(target) {
 
-    let mobileCycleTimer = null;
-
-
-    function startMobileCycle() {
-
-        mobileCycleTimer =
-            setTimeout(
-                () => {
-
-                    animateTo(5);
-
-
-                    mobileCycleTimer =
-                        setTimeout(
-                            () => {
-
-                                animateTo(0);
-
-
-                                mobileCycleTimer =
-                                    setTimeout(
-                                        () => {
-
-                                            startMobileCycle();
-
-                                        },
-                                        600 + 2000
-                                    );
-
-
-                            },
-                            600 + 2000
-                        );
-
-
-                },
-                2000
-            );
-
-    }
+    logoTarget = target;
 
 
     if (
-        window.matchMedia(
-            "(max-width: 600px)"
-        ).matches
+        logoTimer !== null
     ) {
 
-        setLogoState(0);
-
-        startMobileCycle();
+        clearTimeout(
+            logoTimer
+        );
 
     }
 
+
+    moveLogo();
+
+}
+
+
+/* DESKTOP */
+
+logo.addEventListener(
+    "mouseenter",
+    () => {
+
+        if (
+            window.matchMedia(
+                "(min-width: 601px)"
+            ).matches
+        ) {
+
+            animateTo(5);
+
+        }
+
+    }
+);
+
+
+logo.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            window.matchMedia(
+                "(min-width: 601px)"
+            ).matches
+        ) {
+
+            animateTo(0);
+
+        }
+
+    }
+);
+
+
+/* MOBILE */
+
+function mobileLogoCycle() {
+
+    setTimeout(
+        () => {
+
+            animateTo(5);
+
+
+            setTimeout(
+                () => {
+
+                    animateTo(0);
+
+
+                    setTimeout(
+                        mobileLogoCycle,
+                        2600
+                    );
+
+                },
+                2600
+            );
+
+        },
+        2000
+    );
+
+}
+
+
+if (
+    window.matchMedia(
+        "(max-width: 600px)"
+    ).matches
+) {
+
+    setLogoState(0);
+
+    mobileLogoCycle();
+
+}
+
+
+/* =====================================================
+   SECTION SWITCH ANIMATION
+   DESKTOP ONLY
+   ===================================================== */
+
+const sectionSwitch =
+    document.getElementById(
+        "section-switch"
+    );
+
+const sectionSwitchText =
+    document.getElementById(
+        "section-switch-text"
+    );
+
+const switchWord =
+    "film";
+
+let switchState = 0;
+
+let switchTarget = 0;
+
+let switchTimer = null;
+
+
+function renderSwitch() {
+
+    let result = "";
+
+
+    for (
+        let i = 0;
+        i < switchWord.length;
+        i++
+    ) {
+
+        result +=
+            i < switchState
+                ? switchWord[i]
+                    .toUpperCase()
+                : switchWord[i]
+                    .toLowerCase();
+
+    }
+
+
+    sectionSwitchText
+        .textContent =
+        result;
+
+}
+
+
+function moveSwitch() {
+
+    if (
+        switchState ===
+        switchTarget
+    ) {
+
+        switchTimer = null;
+
+        return;
+
+    }
+
+
+    switchState +=
+        switchState <
+        switchTarget
+            ? 1
+            : -1;
+
+
+    renderSwitch();
+
+
+    switchTimer =
+        setTimeout(
+            moveSwitch,
+            120
+        );
+
+}
+
+
+function animateSwitchTo(
+    target
+) {
+
+    switchTarget =
+        target;
+
+
+    if (
+        switchTimer !== null
+    ) {
+
+        clearTimeout(
+            switchTimer
+        );
+
+    }
+
+
+    moveSwitch();
+
+}
+
+
+sectionSwitch.addEventListener(
+    "mouseenter",
+    () => {
+
+        if (
+            window.innerWidth >
+            600
+        ) {
+
+            animateSwitchTo(
+                switchWord.length
+            );
+
+        }
+
+    }
+);
+
+
+sectionSwitch.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            window.innerWidth >
+            600
+        ) {
+
+            animateSwitchTo(0);
+
+        }
+
+    }
+);
+
+
+renderSwitch();
 
 </script>
 
