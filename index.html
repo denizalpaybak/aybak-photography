@@ -43,6 +43,10 @@ body {
     text-size-adjust: 100%;
 }
 
+button {
+    font: inherit;
+}
+
 
 /* =====================================================
    VARIABLES
@@ -61,19 +65,17 @@ body {
     --meta-gap: 6px;
 
     /*
-        Desktop image may use considerably
-        more screen space than before.
+        Desktop slideshow is intentionally large.
     */
-    --image-max-width: 64vw;
-    --image-max-height: 74vh;
+    --image-max-width: 72vw;
+    --image-max-height: 80vh;
 
     /*
-        This zone determines metadata Y.
-
-        Actual photograph may be shorter,
-        but metadata Y NEVER follows it.
+        Fixed slideshow visual zone.
+        Metadata Y is attached to this,
+        never to image height.
     */
-    --visual-height: 74vh;
+    --visual-height: 78vh;
 
     --meta-top-gap: 9px;
 
@@ -204,17 +206,6 @@ body {
     pointer-events: none;
 }
 
-
-/* =====================================================
-   PROJECT BLOCK
-
-   Full stage dimensions.
-
-   This lets metadata use an absolute,
-   fixed Y while its X can follow the
-   actual photograph.
-   ===================================================== */
-
 #project-block {
     position: absolute;
 
@@ -248,7 +239,7 @@ body {
 
 
 /* =====================================================
-   SINGLE IMAGE
+   SLIDESHOW IMAGE
    ===================================================== */
 
 #spread {
@@ -256,9 +247,6 @@ body {
 
     align-items: center;
     justify-content: center;
-
-    width: auto;
-    height: auto;
 
     pointer-events: none;
 }
@@ -268,9 +256,6 @@ body {
 
     align-items: center;
     justify-content: center;
-
-    width: auto;
-    height: auto;
 
     pointer-events: none;
 }
@@ -293,13 +278,13 @@ body {
 /* =====================================================
    PROJECT META
 
-   TOP NEVER changes in JS.
+   Vertical position never changes.
 
-   JS changes only:
-   left
-   width
+   JS only changes:
+   - left
+   - width
 
-   based on actual rendered photograph.
+   So metadata follows image horizontally only.
    ===================================================== */
 
 #project-meta {
@@ -341,65 +326,61 @@ body {
     grid-column: 1;
     grid-row: 1;
 
-    text-align: left;
-
     white-space: nowrap;
+
+    text-align: left;
 }
 
 #project-date {
     grid-column: 1;
     grid-row: 2;
 
-    text-align: left;
-
     white-space: nowrap;
+
+    text-align: left;
 }
 
 
 /* =====================================================
-   COUNTER
+   META RIGHT
    ===================================================== */
 
 #project-counter {
     grid-column: 2;
     grid-row: 1;
 
-    display: flex;
+    display: inline-flex;
 
-    justify-content: flex-end;
     align-items: baseline;
+    justify-content: flex-end;
 
     padding-left: 28px;
 
-    text-align: right;
-
     white-space: nowrap;
+
+    text-align: right;
 }
 
-
-/*
-    Character spans are inline.
-
-    Digits use a fixed two-character region
-    so counter width never jumps.
-*/
-
-.counter-current {
+#counter-current,
+#counter-total {
     display: inline-flex;
-
-    justify-content: flex-end;
-
-    min-width: 2ch;
 }
 
-.counter-separator,
-.counter-total {
+.counter-digit {
     display: inline-block;
+
+    min-width: 1ch;
+
+    text-align: center;
+}
+
+#counter-separator {
+    white-space: pre;
 }
 
 
 /* =====================================================
-   VIEW ALL
+   VIEW ALL BUTTON
    ===================================================== */
 
 #view-all-button {
@@ -420,7 +401,7 @@ body {
     background: transparent;
     color: inherit;
 
-    font: inherit;
+    line-height: inherit;
 
     text-align: right;
 
@@ -433,16 +414,20 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
+#view-all-button:hover,
+#view-all-button:focus,
+#view-all-button:active {
+    outline: 0;
+    text-decoration: none;
+}
 
-/*
-    In VIEW ALL mode the same button
-    occupies the upper-right slot.
-*/
 
-body.project-all-mode
-#view-all-button {
-    grid-column: 2;
-    grid-row: 1;
+/* =====================================================
+   VIEW ALL MODE
+   ===================================================== */
+
+body.project-all-mode #spread {
+    visibility: hidden;
 }
 
 
@@ -457,24 +442,13 @@ body.project-all-mode
 
     display: none;
 
-    pointer-events: auto;
-
     overflow: hidden;
+
+    pointer-events: auto;
 }
 
-body.project-all-mode
-#project-all-view {
+body.project-all-mode #project-all-view {
     display: block;
-}
-
-
-/* =====================================================
-   HIDE SINGLE IMAGE IN VIEW ALL
-   ===================================================== */
-
-body.project-all-mode
-#spread {
-    visibility: hidden;
 }
 
 
@@ -498,7 +472,7 @@ body.project-all-mode
 
 
 /* =====================================================
-   VIEW ALL THUMB
+   PROJECT ALL THUMB
    ===================================================== */
 
 .project-all-thumb {
@@ -573,8 +547,6 @@ body.project-all-mode
 
     background: transparent;
     color: #000;
-
-    font: inherit;
 
     font-size: var(--font-size);
     line-height: var(--line-height);
@@ -665,7 +637,7 @@ body.project-all-mode
 
     align-items: flex-start;
 
-    gap: 44px;
+    gap: 52px;
 
     width: max-content;
 
@@ -685,12 +657,12 @@ body.project-all-mode
     flex:
         0
         0
-        210px;
+        260px;
 
     display: flex;
     flex-direction: column;
 
-    width: 210px;
+    width: 260px;
 
     margin: 0;
     padding: 0;
@@ -699,8 +671,6 @@ body.project-all-mode
 
     background: transparent;
     color: #000;
-
-    font: inherit;
 
     text-align: left;
 
@@ -721,7 +691,7 @@ body.project-all-mode
     justify-content: center;
 
     width: 100%;
-    height: 280px;
+    height: 340px;
 }
 
 .project-card img {
@@ -754,8 +724,6 @@ body.project-all-mode
     font-size: var(--font-size);
     line-height: var(--line-height);
 
-    text-transform: lowercase;
-
     pointer-events: none;
 }
 
@@ -771,9 +739,39 @@ body.project-all-mode
    INDEX MODE
    ===================================================== */
 
-body.index-mode
-#project-stage {
+body.index-mode #project-stage {
     visibility: hidden;
+}
+
+
+/* =====================================================
+   TABLET
+   ===================================================== */
+
+@media
+    (max-width: 1100px)
+    and (min-width: 601px) {
+
+    :root {
+
+        --image-max-width: 72vw;
+        --image-max-height: 76vh;
+
+    }
+
+    .project-card {
+        flex:
+            0
+            0
+            220px;
+
+        width: 220px;
+    }
+
+    .card-image-wrap {
+        height: 290px;
+    }
+
 }
 
 
@@ -795,10 +793,8 @@ body.index-mode
         --meta-gap: 5px;
 
         /*
-            EXACT alignment:
-
-            left image edge = Denizalp left
-            right image edge = film right
+            Full available width:
+            Denizalp left -> film right.
         */
         --image-max-width:
             calc(
@@ -806,15 +802,13 @@ body.index-mode
                 var(--side) * 2
             );
 
-        --image-max-height: none;
-
         --visual-height:
             calc(
                 100% -
-                48px
+                58px
             );
 
-        --meta-top-gap: 7px;
+        --meta-top-gap: 8px;
 
     }
 
@@ -849,7 +843,7 @@ body.index-mode
         height:
             calc(
                 100% -
-                48px
+                58px
             );
 
         transform: none;
@@ -857,7 +851,8 @@ body.index-mode
 
 
     /*
-        Force exact desired mobile width.
+        Preserve aspect ratio while using as much
+        horizontal width as the available stage allows.
     */
 
     .spread-image {
@@ -867,50 +862,46 @@ body.index-mode
                 var(--side) * 2
             );
 
+        height: auto;
+
         max-width:
             calc(
                 100vw -
                 var(--side) * 2
             );
 
-        height: auto;
+        /*
+            Prevent portrait image entering metadata.
+        */
+        max-height:
+            calc(
+                100% -
+                4px
+            );
 
-        max-height: none;
+        object-fit: contain;
     }
 
-
-    /*
-        Fixed metadata Y.
-        X is still synced to actual image.
-    */
 
     #project-meta {
         top:
             calc(
                 100% -
-                48px +
+                58px +
                 var(--meta-top-gap)
             );
     }
 
 
     #project-counter {
-        padding-left: 18px;
+        padding-left: 16px;
     }
 
-
-    /* =================================================
-       VIEW ALL
-       ================================================= */
 
     #project-all-grid {
         gap: 6px;
     }
 
-
-    /* =================================================
-       INDEX
-       ================================================= */
 
     #index-scroller {
         bottom:
@@ -944,24 +935,6 @@ body.index-mode
 
 
 /* =====================================================
-   TABLET
-   ===================================================== */
-
-@media
-    (max-width: 1100px)
-    and (min-width: 601px) {
-
-    :root {
-
-        --image-max-width: 66vw;
-        --image-max-height: 72vh;
-
-    }
-
-}
-
-
-/* =====================================================
    SHORT LANDSCAPE
    ===================================================== */
 
@@ -980,10 +953,10 @@ body.index-mode
 
         --meta-gap: 5px;
 
-        --image-max-width: 62vw;
-        --image-max-height: 66vh;
+        --image-max-width: 68vw;
+        --image-max-height: 70vh;
 
-        --visual-height: 66vh;
+        --visual-height: 70vh;
 
         --meta-top-gap: 7px;
 
@@ -1108,19 +1081,11 @@ body.index-mode
 
             <span id="project-counter">
 
-                <span
-                    class="counter-current"
-                    id="counter-current"
-                ></span>
+                <span id="counter-current"></span>
 
-                <span
-                    class="counter-separator"
-                > / </span>
+                <span id="counter-separator"> / </span>
 
-                <span
-                    class="counter-total"
-                    id="counter-total"
-                ></span>
+                <span id="counter-total"></span>
 
             </span>
 
@@ -1143,7 +1108,7 @@ body.index-mode
 
 
 <!-- ===================================================
-     PROJECT VIEW ALL
+     PROJECT ALL
      =================================================== -->
 
 <div id="project-all-view">
@@ -1203,23 +1168,28 @@ const SLIDE_DURATION =
 
 
 /*
-    Character morph.
+    Different-character slot morph.
 */
 
-const CHARACTER_MORPH_DURATION =
-    260;
+const SLOT_OUT_DURATION =
+    105;
+
+
+const SLOT_IN_DURATION =
+    145;
 
 
 /*
-    Case morph.
+    Case animation:
+    total duration independent of word length.
 */
 
-const CASE_MORPH_DURATION =
-    390;
+const CASE_DURATION =
+    480;
 
 
 /*
-    Navigation.
+    Existing navigation typography.
 */
 
 const INDEX_TRANSITION_DURATION =
@@ -1239,7 +1209,7 @@ const INDEX_WHEEL_MULTIPLIER =
 
 
 const INDEX_KEY_STEP =
-    240;
+    280;
 
 
 /* =====================================================
@@ -1265,12 +1235,6 @@ const projectStage =
 const projectBlock =
     document.getElementById(
         "project-block"
-    );
-
-
-const visualZone =
-    document.getElementById(
-        "visual-zone"
     );
 
 
@@ -1412,12 +1376,16 @@ let savedIndexScrollLeft =
     0;
 
 
-/*
-    View all hover state.
-*/
+/* =====================================================
+   VIEW BUTTON HOVER
+   ===================================================== */
 
-let viewAllHovered =
+let viewButtonHovered =
     false;
+
+
+let viewButtonAnimationToken =
+    0;
 
 
 /* =====================================================
@@ -1465,7 +1433,7 @@ const imageCache =
 
 
 /* =====================================================
-   URL
+   PHOTO URL
    ===================================================== */
 
 function getPhotoUrl(
@@ -1609,10 +1577,6 @@ function normalizeProjectIndex(
 }
 
 
-/* =====================================================
-   COUNTER TEXT
-   ===================================================== */
-
 function getCurrentText(
     index
 ) {
@@ -1642,7 +1606,7 @@ function getTotalText(
 
 
 /* =====================================================
-   HEADER MEASUREMENT
+   INDEX TOP
    ===================================================== */
 
 function updateIndexContentTop() {
@@ -1672,33 +1636,119 @@ function updateIndexContentTop() {
 
 
 /* =====================================================
-   CHARACTER-LEVEL MORPH
-
-   IMPORTANT:
-
-   old: 01
-   new: 02
-
-   position 0:
-   0 === 0
-   -> untouched
-
-   position 1:
-   1 !== 2
-   -> only this character changes
-
-   Same principle for project title/date.
+   WAIT
    ===================================================== */
 
-function morphCharacters(
+function wait(
+    milliseconds
+) {
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                milliseconds
+            )
+    );
+
+}
+
+
+/* =====================================================
+   CHARACTER SLOT WIDTH
+   ===================================================== */
+
+function measureCharacterWidth(
+    character,
+    element
+) {
+
+    const span =
+        document.createElement(
+            "span"
+        );
+
+
+    const computed =
+        getComputedStyle(
+            element
+        );
+
+
+    span.style.position =
+        "absolute";
+
+
+    span.style.visibility =
+        "hidden";
+
+
+    span.style.whiteSpace =
+        "pre";
+
+
+    span.style.fontFamily =
+        computed.fontFamily;
+
+
+    span.style.fontSize =
+        computed.fontSize;
+
+
+    span.style.fontWeight =
+        computed.fontWeight;
+
+
+    span.style.fontStyle =
+        computed.fontStyle;
+
+
+    span.textContent =
+        character === " "
+            ? "\u00a0"
+            : character;
+
+
+    document.body.appendChild(
+        span
+    );
+
+
+    const width =
+        span.getBoundingClientRect().width;
+
+
+    span.remove();
+
+
+    return width;
+
+}
+
+
+/* =====================================================
+   POSITION-PRESERVING TEXT MORPH
+
+   Same-position identical characters never move.
+
+   Different character:
+   OLD -> blank -> NEW
+
+   Example:
+   01
+   0_
+   02
+   ===================================================== */
+
+async function morphTextSlots(
     element,
-    nextText,
-    duration =
-        CHARACTER_MORPH_DURATION
+    nextText
 ) {
 
     const oldText =
-        element.textContent;
+        element.dataset.rawText !== undefined
+            ? element.dataset.rawText
+            : element.textContent;
 
 
     if (
@@ -1706,71 +1756,386 @@ function morphCharacters(
         nextText
     ) {
 
-        return Promise.resolve();
+        element.dataset.rawText =
+            nextText;
+
+
+        return;
 
     }
 
 
-    /*
-        Keep element width stable for duration
-        so neighbouring UI does not jitter.
-    */
-
-    const oldWidth =
-        element.getBoundingClientRect().width;
-
-
-    if (
-        oldWidth > 0
-    ) {
-
-        element.style.minWidth =
-            `${oldWidth}px`;
-
-    }
-
-
-    const maxLength =
+    const length =
         Math.max(
             oldText.length,
             nextText.length
         );
 
 
-    const from =
-        oldText.padEnd(
-            maxLength,
-            " "
-        ).split(
-            ""
-        );
+    const oldChars =
+        oldText
+            .padEnd(
+                length,
+                " "
+            )
+            .split(
+                ""
+            );
 
 
-    const to =
-        nextText.padEnd(
-            maxLength,
-            " "
-        ).split(
-            ""
-        );
+    const newChars =
+        nextText
+            .padEnd(
+                length,
+                " "
+            )
+            .split(
+                ""
+            );
 
 
-    const changingPositions =
+    element.innerHTML =
+        "";
+
+
+    const slots =
         [];
 
 
     for (
         let i = 0;
-        i < maxLength;
+        i < length;
+        i++
+    ) {
+
+        const slot =
+            document.createElement(
+                "span"
+            );
+
+
+        slot.style.display =
+            "inline-block";
+
+
+        slot.style.whiteSpace =
+            "pre";
+
+
+        /*
+            Fix each slot to the larger width of
+            old/new character during animation.
+        */
+
+        const width =
+            Math.max(
+                measureCharacterWidth(
+                    oldChars[i],
+                    element
+                ),
+                measureCharacterWidth(
+                    newChars[i],
+                    element
+                )
+            );
+
+
+        slot.style.width =
+            `${width}px`;
+
+
+        slot.textContent =
+            oldChars[i] === " "
+                ? "\u00a0"
+                : oldChars[i];
+
+
+        element.appendChild(
+            slot
+        );
+
+
+        slots.push(
+            slot
+        );
+
+    }
+
+
+    /*
+        Phase 1:
+        only changed positions disappear.
+    */
+
+    await Promise.all(
+
+        slots.map(
+            async (
+                slot,
+                index
+            ) => {
+
+                if (
+                    oldChars[index] ===
+                    newChars[index]
+                ) {
+
+                    return;
+
+                }
+
+
+                await wait(
+                    SLOT_OUT_DURATION
+                );
+
+
+                slot.textContent =
+                    "\u00a0";
+
+            }
+        )
+
+    );
+
+
+    /*
+        Phase 2:
+        changed positions become new chars.
+    */
+
+    await Promise.all(
+
+        slots.map(
+            async (
+                slot,
+                index
+            ) => {
+
+                if (
+                    oldChars[index] ===
+                    newChars[index]
+                ) {
+
+                    return;
+
+                }
+
+
+                await wait(
+                    SLOT_IN_DURATION
+                );
+
+
+                slot.textContent =
+                    newChars[index] === " "
+                        ? "\u00a0"
+                        : newChars[index];
+
+            }
+        )
+
+    );
+
+
+    element.textContent =
+        nextText;
+
+
+    element.dataset.rawText =
+        nextText;
+
+}
+
+
+/* =====================================================
+   DIGIT SLOTS
+
+   Counter keeps exact digit geometry.
+   ===================================================== */
+
+function initialiseDigitSlots(
+    element,
+    text
+) {
+
+    element.innerHTML =
+        "";
+
+
+    for (
+        const character
+        of text
+    ) {
+
+        const span =
+            document.createElement(
+                "span"
+            );
+
+
+        span.className =
+            "counter-digit";
+
+
+        span.textContent =
+            character;
+
+
+        span.dataset.value =
+            character;
+
+
+        element.appendChild(
+            span
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   DIGIT MORPH
+
+   01 -> 02:
+
+   first 0 untouched
+   second 1 -> blank -> 2
+   ===================================================== */
+
+async function morphDigits(
+    element,
+    nextText
+) {
+
+    let slots =
+        Array.from(
+            element.querySelectorAll(
+                ".counter-digit"
+            )
+        );
+
+
+    if (
+        slots.length !==
+        nextText.length
+    ) {
+
+        initialiseDigitSlots(
+            element,
+            nextText
+        );
+
+
+        return;
+
+    }
+
+
+    const jobs =
+        [];
+
+
+    slots.forEach(
+        (
+            slot,
+            index
+        ) => {
+
+            const oldCharacter =
+                slot.dataset.value;
+
+
+            const nextCharacter =
+                nextText[index];
+
+
+            if (
+                oldCharacter ===
+                nextCharacter
+            ) {
+
+                return;
+
+            }
+
+
+            jobs.push(
+                (
+                    async () => {
+
+                        await wait(
+                            SLOT_OUT_DURATION
+                        );
+
+
+                        slot.textContent =
+                            "\u00a0";
+
+
+                        await wait(
+                            SLOT_IN_DURATION
+                        );
+
+
+                        slot.textContent =
+                            nextCharacter;
+
+
+                        slot.dataset.value =
+                            nextCharacter;
+
+                    }
+                )()
+            );
+
+        }
+    );
+
+
+    await Promise.all(
+        jobs
+    );
+
+}
+
+
+/* =====================================================
+   PREFIX CASE MORPH
+
+   view all
+   View all
+   VIew all
+   VIEw all
+   VIEW all
+   VIEW All
+   ...
+   VIEW ALL
+
+   Total duration is always the same.
+   ===================================================== */
+
+function getLetterPositions(
+    text
+) {
+
+    const positions =
+        [];
+
+
+    for (
+        let i = 0;
+        i < text.length;
         i++
     ) {
 
         if (
-            from[i] !==
-            to[i]
+            text[i].toLowerCase() !==
+            text[i].toUpperCase()
         ) {
 
-            changingPositions.push(
+            positions.push(
                 i
             );
 
@@ -1779,21 +2144,280 @@ function morphCharacters(
     }
 
 
+    return positions;
+
+}
+
+
+function renderPrefixCase(
+    baseText,
+    upperCount
+) {
+
+    const positions =
+        getLetterPositions(
+            baseText
+        );
+
+
+    const positionSet =
+        new Set(
+            positions.slice(
+                0,
+                upperCount
+            )
+        );
+
+
+    return baseText
+        .split(
+            ""
+        )
+        .map(
+            (
+                character,
+                index
+            ) => {
+
+                if (
+                    positionSet.has(
+                        index
+                    )
+                ) {
+
+                    return character
+                        .toUpperCase();
+
+                }
+
+
+                return character
+                    .toLowerCase();
+
+            }
+        )
+        .join(
+            ""
+        );
+
+}
+
+
+/* =====================================================
+   CASE MORPH CONTROLLER
+   ===================================================== */
+
+function animatePrefixCase(
+    element,
+    baseText,
+    toUpper,
+    duration =
+        CASE_DURATION
+) {
+
+    const token =
+        ++viewButtonAnimationToken;
+
+
+    const positions =
+        getLetterPositions(
+            baseText
+        );
+
+
+    const total =
+        positions.length;
+
+
+    const currentText =
+        element.textContent;
+
+
+    let currentUpper =
+        0;
+
+
+    /*
+        Estimate current state from text.
+    */
+
+    positions.forEach(
+        position => {
+
+            const char =
+                currentText[
+                    position
+                ];
+
+
+            if (
+                char &&
+                char ===
+                char.toUpperCase() &&
+                char !==
+                char.toLowerCase()
+            ) {
+
+                currentUpper++;
+
+            }
+
+        }
+    );
+
+
+    const target =
+        toUpper
+            ? total
+            : 0;
+
+
     if (
-        changingPositions.length === 0
+        currentUpper ===
+        target
     ) {
 
         element.textContent =
-            nextText;
-
-
-        element.style.minWidth =
-            "";
+            renderPrefixCase(
+                baseText,
+                target
+            );
 
 
         return Promise.resolve();
 
     }
+
+
+    const start =
+        performance.now();
+
+
+    return new Promise(
+        resolve => {
+
+            function frame(
+                now
+            ) {
+
+                if (
+                    token !==
+                    viewButtonAnimationToken
+                ) {
+
+                    resolve();
+
+
+                    return;
+
+                }
+
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        duration
+                    );
+
+
+                const state =
+                    Math.round(
+                        currentUpper +
+                        (
+                            target -
+                            currentUpper
+                        ) *
+                        progress
+                    );
+
+
+                element.textContent =
+                    renderPrefixCase(
+                        baseText,
+                        state
+                    );
+
+
+                if (
+                    progress < 1
+                ) {
+
+                    requestAnimationFrame(
+                        frame
+                    );
+
+                }
+
+                else {
+
+                    element.textContent =
+                        renderPrefixCase(
+                            baseText,
+                            target
+                        );
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            requestAnimationFrame(
+                frame
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   GENERIC CASE MORPH FOR PROJECT TEXT
+   ===================================================== */
+
+function animateElementCase(
+    element,
+    toUpper,
+    duration =
+        CASE_DURATION
+) {
+
+    const baseText =
+        element.dataset.caseBase ||
+        element.textContent.toLowerCase();
+
+
+    element.dataset.caseBase =
+        baseText;
+
+
+    const positions =
+        getLetterPositions(
+            baseText
+        );
+
+
+    const total =
+        positions.length;
+
+
+    const startCount =
+        toUpper
+            ? 0
+            : total;
+
+
+    const targetCount =
+        toUpper
+            ? total
+            : 0;
 
 
     const start =
@@ -1818,256 +2442,21 @@ function morphCharacters(
                     );
 
 
-                const current =
-                    from.slice();
-
-
-                /*
-                    Different positions transform
-                    at slightly staggered moments.
-
-                    Identical positions never change.
-                */
-
-                changingPositions
-                    .forEach(
-                        (
-                            position,
-                            order
-                        ) => {
-
-                            const localDelay =
-                                (
-                                    order /
-                                    Math.max(
-                                        1,
-                                        changingPositions.length
-                                    )
-                                ) *
-                                0.28;
-
-
-                            const localProgress =
-                                Math.max(
-                                    0,
-                                    Math.min(
-                                        1,
-                                        (
-                                            progress -
-                                            localDelay
-                                        ) /
-                                        (
-                                            1 -
-                                            localDelay
-                                        )
-                                    )
-                                );
-
-
-                            if (
-                                localProgress <
-                                0.5
-                            ) {
-
-                                current[
-                                    position
-                                ] =
-                                    from[
-                                        position
-                                    ];
-
-                            }
-
-                            else {
-
-                                current[
-                                    position
-                                ] =
-                                    to[
-                                        position
-                                    ];
-
-                            }
-
-                        }
-                    );
-
-
-                element.textContent =
-                    current
-                        .join(
-                            ""
-                        )
-                        .replace(
-                            /\s+$/,
-                            ""
-                        );
-
-
-                if (
-                    progress < 1
-                ) {
-
-                    requestAnimationFrame(
-                        frame
-                    );
-
-                }
-
-                else {
-
-                    element.textContent =
-                        nextText;
-
-
-                    element.style.minWidth =
-                        "";
-
-
-                    resolve();
-
-                }
-
-            }
-
-
-            requestAnimationFrame(
-                frame
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   CASE MORPH
-
-   view all:
-   vogue -> VOGUE
-
-   No deletion.
-   Only capitalization changes.
-   ===================================================== */
-
-function morphCase(
-    element,
-    targetUpper
-) {
-
-    const source =
-        element.textContent;
-
-
-    const base =
-        source.toLowerCase();
-
-
-    const target =
-        targetUpper
-            ? source.toUpperCase()
-            : source.toLowerCase();
-
-
-    if (
-        source ===
-        target
-    ) {
-
-        return Promise.resolve();
-
-    }
-
-
-    const positions =
-        [];
-
-
-    for (
-        let i = 0;
-        i < source.length;
-        i++
-    ) {
-
-        if (
-            source[i] !==
-            target[i]
-        ) {
-
-            positions.push(
-                i
-            );
-
-        }
-
-    }
-
-
-    const start =
-        performance.now();
-
-
-    return new Promise(
-        resolve => {
-
-            function frame(
-                now
-            ) {
-
-                const progress =
-                    Math.min(
-                        1,
-                        (
-                            now -
-                            start
-                        ) /
-                        CASE_MORPH_DURATION
-                    );
-
-
                 const count =
                     Math.round(
-                        positions.length *
+                        startCount +
+                        (
+                            targetCount -
+                            startCount
+                        ) *
                         progress
                     );
 
 
-                const chars =
-                    source.split(
-                        ""
-                    );
-
-
-                for (
-                    let i = 0;
-                    i < count;
-                    i++
-                ) {
-
-                    const position =
-                        positions[
-                            targetUpper
-                                ? i
-                                : positions.length -
-                                    1 -
-                                    i
-                        ];
-
-
-                    chars[
-                        position
-                    ] =
-                        target[
-                            position
-                        ];
-
-                }
-
-
                 element.textContent =
-                    chars.join(
-                        ""
+                    renderPrefixCase(
+                        baseText,
+                        count
                     );
 
 
@@ -2084,7 +2473,10 @@ function morphCase(
                 else {
 
                     element.textContent =
-                        target;
+                        renderPrefixCase(
+                            baseText,
+                            targetCount
+                        );
 
 
                     resolve();
@@ -2105,7 +2497,7 @@ function morphCase(
 
 
 /* =====================================================
-   IMAGE RENDER
+   RENDER IMAGE
    ===================================================== */
 
 function renderImage(
@@ -2157,11 +2549,7 @@ function renderImage(
 
 
 /* =====================================================
-   META HORIZONTAL SYNC
-
-   Image changes:
-   X follows actual photo.
-   Y stays fixed in CSS.
+   META X SYNC
    ===================================================== */
 
 function syncMetadataHorizontal() {
@@ -2222,7 +2610,7 @@ function syncMetadataHorizontal() {
 
 
 /* =====================================================
-   WAIT FOR PAINT
+   PAINT THEN SYNC
    ===================================================== */
 
 function syncMetadataAfterRender() {
@@ -2241,7 +2629,9 @@ function syncMetadataAfterRender() {
 
 
 /* =====================================================
-   PROJECT META UPDATE
+   UPDATE META
+
+   Same chars in same position never animate.
    ===================================================== */
 
 async function updateMetadata(
@@ -2260,63 +2650,38 @@ async function updateMetadata(
         targetProjectIndex;
 
 
-    const animations =
-        [];
+    const jobs =
+        [
 
-
-    /*
-        CURRENT:
-        always compare character-by-character.
-    */
-
-    animations.push(
-
-        morphCharacters(
-            counterCurrent,
-            getCurrentText(
-                targetFrameIndex
+            morphDigits(
+                counterCurrent,
+                getCurrentText(
+                    targetFrameIndex
+                )
             )
-        )
 
-    );
+        ];
 
-
-    /*
-        TOTAL:
-        only project change can alter it.
-    */
 
     if (
         projectChanged
     ) {
 
-        animations.push(
+        jobs.push(
 
-            morphCharacters(
+            morphDigits(
                 counterTotal,
                 getTotalText(
                     project.images.length
                 )
-            )
+            ),
 
-        );
-
-
-        /*
-            Project title/date also morph
-            by position.
-
-            Identical characters stay untouched.
-        */
-
-        animations.push(
-
-            morphCharacters(
+            morphTextSlots(
                 projectTitle,
                 project.title.toLowerCase()
             ),
 
-            morphCharacters(
+            morphTextSlots(
                 projectDate,
                 (
                     project.date ||
@@ -2330,7 +2695,7 @@ async function updateMetadata(
 
 
     await Promise.all(
-        animations
+        jobs
     );
 
 
@@ -2347,7 +2712,8 @@ async function updateMetadata(
 function preloadAhead() {
 
     if (
-        projects.length === 0
+        projects.length ===
+        0
     ) {
 
         return;
@@ -2469,10 +2835,6 @@ async function showFrame(
             );
 
 
-        /*
-            Update state first.
-        */
-
         projectIndex =
             normalizedProject;
 
@@ -2485,10 +2847,6 @@ async function showFrame(
             loadedImage
         );
 
-
-        /*
-            Actual image width may change.
-        */
 
         syncMetadataAfterRender();
 
@@ -2529,7 +2887,7 @@ async function showFrame(
 
 
 /* =====================================================
-   NEXT
+   NEXT / PREVIOUS
    ===================================================== */
 
 async function nextFrame() {
@@ -2571,10 +2929,6 @@ async function nextFrame() {
 
 }
 
-
-/* =====================================================
-   PREVIOUS
-   ===================================================== */
 
 async function previousFrame() {
 
@@ -2687,13 +3041,12 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
-   SPACE = CLICK BEHAVIOUR — DESKTOP
+   PRIMARY SLIDE ACTION
 
-   First Space:
-   stop autoplay
+   Same as clicking right 75%.
 
-   Subsequent Space:
-   next frame
+   First action stops autoplay.
+   Next action advances.
    ===================================================== */
 
 async function performPrimarySlideAction() {
@@ -2729,15 +3082,162 @@ async function performPrimarySlideAction() {
 
 
 /* =====================================================
+   VIEW ALL COUNTER
+
+   03 / 12
+   ->
+   all / 12
+   ===================================================== */
+
+async function enterAllCounter() {
+
+    /*
+        Keep total completely untouched.
+    */
+
+    counterCurrent.innerHTML =
+        "";
+
+
+    const text =
+        document.createElement(
+            "span"
+        );
+
+
+    text.textContent =
+        "all";
+
+
+    counterCurrent.appendChild(
+        text
+    );
+
+}
+
+
+/* =====================================================
+   RESTORE COUNTER FROM ALL
+   ===================================================== */
+
+function restoreCounterSlots() {
+
+    initialiseDigitSlots(
+        counterCurrent,
+        getCurrentText(
+            frameIndex
+        )
+    );
+
+
+    initialiseDigitSlots(
+        counterTotal,
+        getTotalText(
+            currentProject()
+                .images
+                .length
+        )
+    );
+
+}
+
+
+/* =====================================================
+   VIEW BUTTON TARGET
+   ===================================================== */
+
+function getViewButtonBase() {
+
+    return projectAllMode
+        ? "close"
+        : "view all";
+
+}
+
+
+function updateViewButtonCase() {
+
+    const base =
+        getViewButtonBase();
+
+
+    return animatePrefixCase(
+        viewAllButton,
+        base,
+        (
+            window.matchMedia(
+                "(hover: hover)"
+            ).matches &&
+            viewButtonHovered
+        )
+    );
+
+}
+
+
+/* =====================================================
+   VIEW BUTTON HOVER
+   ===================================================== */
+
+viewAllButton.addEventListener(
+    "mouseenter",
+    () => {
+
+        if (
+            !window.matchMedia(
+                "(hover: hover)"
+            ).matches
+        ) {
+
+            return;
+
+        }
+
+
+        viewButtonHovered =
+            true;
+
+
+        updateViewButtonCase();
+
+    }
+);
+
+
+viewAllButton.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            !window.matchMedia(
+                "(hover: hover)"
+            ).matches
+        ) {
+
+            return;
+
+        }
+
+
+        viewButtonHovered =
+            false;
+
+
+        updateViewButtonCase();
+
+    }
+);
+
+
+/* =====================================================
    VIEW ALL BOUNDS
 
-   Horizontal:
+   X:
    Denizalp left -> film right.
 
-   Vertical:
-   below info
-   ->
-   safely ABOVE project metadata.
+   Y:
+   safely below info
+   and safely above metadata.
    ===================================================== */
 
 function syncProjectAllBounds() {
@@ -2759,11 +3259,15 @@ function syncProjectAllBounds() {
         projectMeta.getBoundingClientRect();
 
 
+    const rootStyle =
+        getComputedStyle(
+            document.documentElement
+        );
+
+
     const side =
         parseFloat(
-            getComputedStyle(
-                document.documentElement
-            ).getPropertyValue(
+            rootStyle.getPropertyValue(
                 "--side"
             )
         ) || 24;
@@ -2771,14 +3275,14 @@ function syncProjectAllBounds() {
 
     const topGap =
         window.innerWidth <= 600
-            ? 24
+            ? 22
             : 28;
 
 
     const bottomGap =
         window.innerWidth <= 600
-            ? 18
-            : 24;
+            ? 16
+            : 22;
 
 
     const top =
@@ -2789,9 +3293,7 @@ function syncProjectAllBounds() {
 
 
     const bottom =
-        Math.max(
-            top +
-            80,
+        Math.floor(
             metaRect.top -
             bottomGap
         );
@@ -2841,14 +3343,9 @@ function calculateProjectAllLayout(
     let best =
         {
 
-            columns:
-                1,
-
-            rows:
-                count,
-
-            score:
-                0
+            columns: 1,
+            rows: count,
+            score: 0
 
         };
 
@@ -2904,16 +3401,11 @@ function calculateProjectAllLayout(
             rows;
 
 
-        /*
-            Reward layouts that create large,
-            reasonably balanced cells.
-        */
-
         const score =
             Math.min(
                 cellWidth,
                 cellHeight *
-                1.2
+                1.15
             );
 
 
@@ -2941,10 +3433,6 @@ function calculateProjectAllLayout(
 }
 
 
-/* =====================================================
-   APPLY VIEW ALL GRID
-   ===================================================== */
-
 function layoutProjectAllGrid() {
 
     if (
@@ -2959,13 +3447,11 @@ function layoutProjectAllGrid() {
     syncProjectAllBounds();
 
 
-    const project =
-        currentProject();
-
-
     const layout =
         calculateProjectAllLayout(
-            project.images.length
+            currentProject()
+                .images
+                .length
         );
 
 
@@ -2980,7 +3466,7 @@ function layoutProjectAllGrid() {
 
 
 /* =====================================================
-   BUILD VIEW ALL GRID
+   BUILD VIEW ALL
    ===================================================== */
 
 function buildProjectAllGrid() {
@@ -3064,119 +3550,6 @@ function buildProjectAllGrid() {
 
 
 /* =====================================================
-   VIEW ALL BUTTON TARGET STATE
-   ===================================================== */
-
-function getViewButtonTarget() {
-
-    const desktopHoverAvailable =
-        window.matchMedia(
-            "(hover: hover)"
-        ).matches;
-
-
-    if (
-        projectAllMode
-    ) {
-
-        if (
-            desktopHoverAvailable &&
-            viewAllHovered
-        ) {
-
-            return "CLOSE";
-
-        }
-
-
-        return "close";
-
-    }
-
-
-    if (
-        desktopHoverAvailable &&
-        viewAllHovered
-    ) {
-
-        return "VIEW ALL";
-
-    }
-
-
-    return "view all";
-
-}
-
-
-/* =====================================================
-   UPDATE VIEW BUTTON
-
-   Uses position-preserving character morph,
-   not delete/retype.
-   ===================================================== */
-
-async function updateViewButton() {
-
-    await morphCharacters(
-        viewAllButton,
-        getViewButtonTarget()
-    );
-
-}
-
-
-/* =====================================================
-   VIEW ALL HOVER
-   ===================================================== */
-
-viewAllButton.addEventListener(
-    "mouseenter",
-    async () => {
-
-        if (
-            window.innerWidth <= 600
-        ) {
-
-            return;
-
-        }
-
-
-        viewAllHovered =
-            true;
-
-
-        await updateViewButton();
-
-    }
-);
-
-
-viewAllButton.addEventListener(
-    "mouseleave",
-    async () => {
-
-        if (
-            window.innerWidth <= 600
-        ) {
-
-            return;
-
-        }
-
-
-        viewAllHovered =
-            false;
-
-
-        await updateViewButton();
-
-    }
-);
-
-
-/* =====================================================
    ENTER VIEW ALL
    ===================================================== */
 
@@ -3219,9 +3592,35 @@ async function enterProjectAll() {
 
 
     /*
-        View-all bounds depend on metadata,
-        so calculate after mode is active.
+        Title/date become uppercase progressively.
+
+        view all -> CLOSE if still hovered,
+        otherwise close.
+
+        current counter -> all
+        total stays unchanged.
     */
+
+    await Promise.all(
+        [
+
+            animateElementCase(
+                projectTitle,
+                true
+            ),
+
+            animateElementCase(
+                projectDate,
+                true
+            ),
+
+            enterAllCounter(),
+
+            updateViewButtonCase()
+
+        ]
+    );
+
 
     requestAnimationFrame(
         () => {
@@ -3234,45 +3633,6 @@ async function enterProjectAll() {
     );
 
 
-    /*
-        Title/date:
-        TRUE case morph.
-
-        Counter disappears.
-
-        view all -> CLOSE / close
-        according to hover state.
-    */
-
-    await Promise.all(
-        [
-
-            morphCase(
-                projectTitle,
-                true
-            ),
-
-            morphCase(
-                projectDate,
-                true
-            ),
-
-            morphCharacters(
-                counterCurrent,
-                ""
-            ),
-
-            morphCharacters(
-                counterTotal,
-                ""
-            ),
-
-            updateViewButton()
-
-        ]
-    );
-
-
     projectViewAnimating =
         false;
 
@@ -3280,123 +3640,20 @@ async function enterProjectAll() {
 
 
 /* =====================================================
-   EXIT VIEW ALL
+   LEAVE VIEW ALL INTERNAL
+
+   resume:
+   whether autoplay state should resume.
    ===================================================== */
 
-async function exitProjectAll() {
+async function leaveProjectAll(
+    {
+        selectedIndex =
+            null,
 
-    if (
-        !projectAllMode ||
-        projectViewAnimating
-    ) {
-
-        return;
-
-    }
-
-
-    projectViewAnimating =
-        true;
-
-
-    const project =
-        currentProject();
-
-
-    /*
-        Change mode before resolving button target.
-
-        Because user is still hovering the same
-        physical button on desktop, target will
-        naturally become VIEW ALL.
-    */
-
-    projectAllMode =
-        false;
-
-
-    body.classList.remove(
-        "project-all-mode"
-    );
-
-
-    await Promise.all(
-        [
-
-            morphCase(
-                projectTitle,
-                false
-            ),
-
-            morphCase(
-                projectDate,
-                false
-            ),
-
-            morphCharacters(
-                counterCurrent,
-                getCurrentText(
-                    frameIndex
-                )
-            ),
-
-            morphCharacters(
-                counterTotal,
-                getTotalText(
-                    project.images.length
-                )
-            ),
-
-            updateViewButton()
-
-        ]
-    );
-
-
-    projectAllGrid.innerHTML =
-        "";
-
-
-    syncMetadataAfterRender();
-
-
-    if (
-        autoplayBeforeProjectAll
-    ) {
-
-        manualMode =
-            false;
-
-
-        scheduleNextSlide();
-
-    }
-
-    else {
-
-        manualMode =
-            true;
-
-
-        clearTimeout(
-            slideTimer
-        );
-
-    }
-
-
-    projectViewAnimating =
-        false;
-
-}
-
-
-/* =====================================================
-   VIEW ALL -> SELECT FRAME
-   ===================================================== */
-
-async function exitProjectAllToFrame(
-    selectedIndex
+        resume =
+            true
+    } = {}
 ) {
 
     if (
@@ -3417,22 +3674,34 @@ async function exitProjectAllToFrame(
         currentProject();
 
 
-    const loadedImage =
-        await preloadImage(
-            project.images[
-                selectedIndex
-            ]
+    if (
+        selectedIndex !==
+        null
+    ) {
+
+        const loadedImage =
+            await preloadImage(
+                project.images[
+                    selectedIndex
+                ]
+            );
+
+
+        frameIndex =
+            selectedIndex;
+
+
+        renderImage(
+            loadedImage
         );
 
-
-    frameIndex =
-        selectedIndex;
+    }
 
 
-    renderImage(
-        loadedImage
-    );
-
+    /*
+        Switch base state before button animation:
+        close -> view all.
+    */
 
     projectAllMode =
         false;
@@ -3443,34 +3712,27 @@ async function exitProjectAllToFrame(
     );
 
 
+    /*
+        Restore current digit slots.
+    */
+
+    restoreCounterSlots();
+
+
     await Promise.all(
         [
 
-            morphCase(
+            animateElementCase(
                 projectTitle,
                 false
             ),
 
-            morphCase(
+            animateElementCase(
                 projectDate,
                 false
             ),
 
-            morphCharacters(
-                counterCurrent,
-                getCurrentText(
-                    selectedIndex
-                )
-            ),
-
-            morphCharacters(
-                counterTotal,
-                getTotalText(
-                    project.images.length
-                )
-            ),
-
-            updateViewButton()
+            updateViewButtonCase()
 
         ]
     );
@@ -3486,15 +3748,99 @@ async function exitProjectAllToFrame(
     preloadAhead();
 
 
-    manualMode =
-        false;
+    if (
+        resume
+    ) {
+
+        if (
+            selectedIndex !==
+            null
+        ) {
+
+            /*
+                Thumbnail selection resumes autoplay.
+            */
+
+            manualMode =
+                false;
 
 
-    scheduleNextSlide();
+            scheduleNextSlide();
+
+        }
+
+        else if (
+            autoplayBeforeProjectAll
+        ) {
+
+            manualMode =
+                false;
+
+
+            scheduleNextSlide();
+
+        }
+
+        else {
+
+            manualMode =
+                true;
+
+
+            clearTimeout(
+                slideTimer
+            );
+
+        }
+
+    }
+
+    else {
+
+        clearTimeout(
+            slideTimer
+        );
+
+    }
 
 
     projectViewAnimating =
         false;
+
+}
+
+
+/* =====================================================
+   EXIT PROJECT ALL
+   ===================================================== */
+
+async function exitProjectAll() {
+
+    await leaveProjectAll(
+        {
+            resume: true
+        }
+    );
+
+}
+
+
+/* =====================================================
+   THUMB -> FRAME
+   ===================================================== */
+
+async function exitProjectAllToFrame(
+    selectedIndex
+) {
+
+    await leaveProjectAll(
+        {
+
+            selectedIndex,
+            resume: true
+
+        }
+    );
 
 }
 
@@ -3603,6 +3949,195 @@ function getChronologicalProjects() {
 
 
 /* =====================================================
+   INDEX CARD CASE ANIMATION
+   ===================================================== */
+
+function createCardCaseController(
+    element,
+    text
+) {
+
+    let frameId =
+        null;
+
+
+    let state =
+        0;
+
+
+    const positions =
+        getLetterPositions(
+            text
+        );
+
+
+    const total =
+        positions.length;
+
+
+    function render() {
+
+        element.textContent =
+            renderPrefixCase(
+                text,
+                state
+            );
+
+    }
+
+
+    function animateTo(
+        target
+    ) {
+
+        if (
+            frameId !==
+            null
+        ) {
+
+            cancelAnimationFrame(
+                frameId
+            );
+
+        }
+
+
+        const startState =
+            state;
+
+
+        const distance =
+            Math.abs(
+                target -
+                startState
+            );
+
+
+        if (
+            distance ===
+            0
+        ) {
+
+            render();
+
+
+            return;
+
+        }
+
+
+        /*
+            Same overall duration logic as
+            Film/Photography.
+        */
+
+        const duration =
+            CASE_DURATION *
+            (
+                distance /
+                Math.max(
+                    1,
+                    total
+                )
+            );
+
+
+        const start =
+            performance.now();
+
+
+        function frame(
+            now
+        ) {
+
+            const progress =
+                Math.min(
+                    1,
+                    (
+                        now -
+                        start
+                    ) /
+                    duration
+                );
+
+
+            state =
+                Math.round(
+                    startState +
+                    (
+                        target -
+                        startState
+                    ) *
+                    progress
+                );
+
+
+            render();
+
+
+            if (
+                progress < 1
+            ) {
+
+                frameId =
+                    requestAnimationFrame(
+                        frame
+                    );
+
+            }
+
+            else {
+
+                state =
+                    target;
+
+
+                render();
+
+
+                frameId =
+                    null;
+
+            }
+
+        }
+
+
+        frameId =
+            requestAnimationFrame(
+                frame
+            );
+
+    }
+
+
+    render();
+
+
+    return {
+
+        upper() {
+
+            animateTo(
+                total
+            );
+
+        },
+
+        lower() {
+
+            animateTo(
+                0
+            );
+
+        }
+
+    };
+
+}
+
+
+/* =====================================================
    BUILD INDEX
    ===================================================== */
 
@@ -3693,8 +4228,13 @@ function buildIndex() {
                     "card-title";
 
 
+                const titleBase =
+                    project.title
+                        .toLowerCase();
+
+
                 title.textContent =
-                    project.title;
+                    titleBase;
 
 
                 const date =
@@ -3708,8 +4248,10 @@ function buildIndex() {
 
 
                 date.textContent =
-                    project.date ||
-                    "";
+                    (
+                        project.date ||
+                        ""
+                    ).toLowerCase();
 
 
                 copy.append(
@@ -3724,6 +4266,54 @@ function buildIndex() {
                 );
 
 
+                /*
+                    Desktop hover over thumbnail OR title
+                    naturally means hover over card.
+                */
+
+                const titleCase =
+                    createCardCaseController(
+                        title,
+                        titleBase
+                    );
+
+
+                button.addEventListener(
+                    "mouseenter",
+                    () => {
+
+                        if (
+                            window.matchMedia(
+                                "(hover: hover)"
+                            ).matches
+                        ) {
+
+                            titleCase.upper();
+
+                        }
+
+                    }
+                );
+
+
+                button.addEventListener(
+                    "mouseleave",
+                    () => {
+
+                        if (
+                            window.matchMedia(
+                                "(hover: hover)"
+                            ).matches
+                        ) {
+
+                            titleCase.lower();
+
+                        }
+
+                    }
+                );
+
+
                 button.addEventListener(
                     "click",
                     event => {
@@ -3733,6 +4323,7 @@ function buildIndex() {
                         ) {
 
                             event.preventDefault();
+
 
                             event.stopPropagation();
 
@@ -3786,8 +4377,12 @@ function renderWordCase(
         result +=
             i <
             upperCount
-                ? word[i].toUpperCase()
-                : word[i];
+                ? word[
+                    i
+                ].toUpperCase()
+                : word[
+                    i
+                ];
 
     }
 
@@ -3798,7 +4393,7 @@ function renderWordCase(
 
 
 /* =====================================================
-   INDEX MORPH
+   INDEX WORD
    ===================================================== */
 
 const indexWord =
@@ -3858,7 +4453,8 @@ function morphIndexTo(
 
 
     if (
-        distance === 0
+        distance ===
+        0
     ) {
 
         return Promise.resolve();
@@ -3896,7 +4492,7 @@ function morphIndexTo(
                     );
 
 
-                const value =
+                const state =
                     Math.round(
                         startState +
                         (
@@ -3908,13 +4504,12 @@ function morphIndexTo(
 
 
                 renderIndexWord(
-                    value
+                    state
                 );
 
 
                 if (
-                    progress <
-                    1
+                    progress < 1
                 ) {
 
                     indexWordFrame =
@@ -4037,8 +4632,7 @@ async function enterIndex() {
 
     if (
         indexMode ||
-        interfaceAnimating ||
-        projectAllMode
+        interfaceAnimating
     ) {
 
         return;
@@ -4099,7 +4693,39 @@ async function enterIndex() {
 
 
 /* =====================================================
-   RETURN INDEX
+   INDEX FROM VIEW ALL
+
+   First restore slideshow metadata,
+   but DO NOT resume autoplay,
+   then enter INDEX.
+   ===================================================== */
+
+async function enterIndexFromProjectAll() {
+
+    if (
+        projectViewAnimating ||
+        interfaceAnimating
+    ) {
+
+        return;
+
+    }
+
+
+    await leaveProjectAll(
+        {
+            resume: false
+        }
+    );
+
+
+    await enterIndex();
+
+}
+
+
+/* =====================================================
+   RETURN FROM INDEX
    ===================================================== */
 
 async function returnFromIndex() {
@@ -4162,6 +4788,11 @@ async function returnFromIndex() {
 
         manualMode =
             true;
+
+
+        clearTimeout(
+            slideTimer
+        );
 
     }
 
@@ -4242,7 +4873,7 @@ async function exitIndexToProject(
 
 
 /* =====================================================
-   INDEX CLICK
+   INDEX BUTTON CLICK
    ===================================================== */
 
 indexButton.addEventListener(
@@ -4254,8 +4885,25 @@ indexButton.addEventListener(
 
         if (
             interfaceAnimating ||
+            projectViewAnimating
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+            New:
+            VIEW ALL -> INDEX is allowed.
+        */
+
+        if (
             projectAllMode
         ) {
+
+            await enterIndexFromProjectAll();
+
 
             return;
 
@@ -4393,7 +5041,7 @@ indexScroller.addEventListener(
 
 
 /* =====================================================
-   INDEX SCROLL SAVE
+   SAVE INDEX POSITION
    ===================================================== */
 
 indexScroller.addEventListener(
@@ -4425,8 +5073,7 @@ indexScroller.addEventListener(
     event => {
 
         if (
-            event.button !==
-            0
+            event.button !== 0
         ) {
 
             return;
@@ -4633,10 +5280,7 @@ body.addEventListener(
 
 
 /* =====================================================
-   GLOBAL KEYBOARD
-
-   Desktop SPACE behaves like
-   clicking the slideshow.
+   KEYBOARD
    ===================================================== */
 
 document.addEventListener(
@@ -4699,7 +5343,7 @@ document.addEventListener(
 
 
         /*
-            SPACE = main click behaviour.
+            SPACE = same as ordinary primary click.
         */
 
         if (
@@ -4754,7 +5398,7 @@ document.addEventListener(
 
 
 /* =====================================================
-   MOBILE TOUCH
+   TOUCH
    ===================================================== */
 
 document.addEventListener(
@@ -4801,8 +5445,10 @@ document.addEventListener(
             interfaceAnimating ||
             navigationAnimating ||
             projectViewAnimating ||
-            touchStartX === null ||
-            touchStartY === null
+            touchStartX ===
+            null ||
+            touchStartY ===
+            null
         ) {
 
             return;
@@ -4943,12 +5589,17 @@ function updateMobileStage() {
         info.getBoundingClientRect();
 
 
+    /*
+        Give the image as much vertical room as possible,
+        while reserving a guaranteed metadata zone.
+    */
+
     const gapAfterInfo =
-        30;
+        24;
 
 
     const bottomGap =
-        68;
+        54;
 
 
     let viewportTop =
@@ -4987,7 +5638,7 @@ function updateMobileStage() {
             infoRect.bottom +
             gapAfterInfo,
             viewportTop +
-            10
+            8
         );
 
 
@@ -5002,7 +5653,7 @@ function updateMobileStage() {
 
     projectStage.style.height =
         `${Math.max(
-            160,
+            220,
             stageBottom -
             stageTop
         )}px`;
@@ -5364,8 +6015,7 @@ function morphSwitchTo(
 
 
     if (
-        distance ===
-        0
+        distance === 0
     ) {
 
         return;
@@ -5400,7 +6050,7 @@ function morphSwitchTo(
             );
 
 
-        const value =
+        const state =
             Math.round(
                 startState +
                 (
@@ -5412,7 +6062,7 @@ function morphSwitchTo(
 
 
         renderSwitch(
-            value
+            state
         );
 
 
@@ -5672,13 +6322,13 @@ async function loadProjects() {
         );
 
 
-        projectTitle.textContent =
+        const initialTitle =
             projects[
                 0
             ].title.toLowerCase();
 
 
-        projectDate.textContent =
+        const initialDate =
             (
                 projects[
                     0
@@ -5687,18 +6337,46 @@ async function loadProjects() {
             ).toLowerCase();
 
 
-        counterCurrent.textContent =
+        projectTitle.textContent =
+            initialTitle;
+
+
+        projectTitle.dataset.rawText =
+            initialTitle;
+
+
+        projectTitle.dataset.caseBase =
+            initialTitle;
+
+
+        projectDate.textContent =
+            initialDate;
+
+
+        projectDate.dataset.rawText =
+            initialDate;
+
+
+        projectDate.dataset.caseBase =
+            initialDate;
+
+
+        initialiseDigitSlots(
+            counterCurrent,
             getCurrentText(
                 0
-            );
+            )
+        );
 
 
-        counterTotal.textContent =
+        initialiseDigitSlots(
+            counterTotal,
             getTotalText(
                 projects[
                     0
                 ].images.length
-            );
+            )
+        );
 
 
         viewAllButton.textContent =
@@ -5770,5 +6448,3 @@ loadProjects();
 
 </body>
 </html>
-
-<!-- redeploy -->
