@@ -17,17 +17,23 @@ html,
 body {
     margin: 0;
     padding: 0;
+
     width: 100%;
     height: 100%;
+
     background: #fff;
+    color: #000;
+
+    font-family: Arial, Helvetica, sans-serif;
+
     overflow: hidden;
+
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
 }
 
 body {
-    color: #000;
-    font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
 }
 
 
@@ -37,11 +43,14 @@ body {
 
 .info {
     position: fixed;
+
     top: 32px;
     left: 48px;
+
     z-index: 100;
 
     font-size: 15px;
+    font-weight: 400;
     line-height: 1.15;
 }
 
@@ -52,26 +61,34 @@ body {
     width: 190px;
     height: 52px;
 
+    margin: 0;
+    padding: 0;
+
     color: inherit;
     text-decoration: none;
+
+    cursor: pointer;
 }
 
 .logo-name {
     position: absolute;
+
     top: 0;
     left: 0;
+
     white-space: nowrap;
 }
 
 .logo-aybak {
     position: absolute;
+
     top: 17px;
     left: 0;
+
     white-space: nowrap;
 }
 
-.contact,
-.social {
+.contact {
     margin: 0;
     padding: 0;
 }
@@ -79,6 +96,9 @@ body {
 .social {
     display: flex;
     flex-direction: column;
+
+    margin: 0;
+    padding: 0;
 }
 
 .info a {
@@ -97,15 +117,20 @@ body {
 
 .section-switch {
     position: fixed;
+
     top: 32px;
     right: 48px;
+
     z-index: 100;
 
     color: #000;
     text-decoration: none;
 
     font-size: 15px;
+    font-weight: 400;
     line-height: 1.15;
+
+    white-space: nowrap;
 }
 
 
@@ -115,6 +140,7 @@ body {
 
 #project-stage {
     position: fixed;
+
     inset: 0;
 
     display: flex;
@@ -167,6 +193,8 @@ body {
 
     white-space: nowrap;
 
+    text-transform: lowercase;
+
     pointer-events: none;
 }
 
@@ -184,16 +212,16 @@ body {
 
     grid-template-columns:
         1.45fr
-        1fr
+        0.75fr
         auto
-        1fr
+        0.75fr
         1.45fr;
 
     align-items: center;
 
     width: auto;
 
-    margin-top: 3px;
+    margin-top: 4px;
 
     font-size: 15px;
     line-height: 1.15;
@@ -217,6 +245,9 @@ body {
 
 .slot-index {
     text-align: center;
+
+    padding-left: 28px;
+    padding-right: 28px;
 }
 
 .slot-next {
@@ -235,7 +266,7 @@ body {
     padding: 0;
 
     border: 0;
-    outline: 0;
+    outline: none;
 
     background: transparent;
 
@@ -252,14 +283,15 @@ body {
 
 .control-button:hover,
 .control-button:focus,
+.control-button:focus-visible,
 .control-button:active {
     text-decoration: none;
-    outline: 0;
+    outline: none;
 }
 
 #index-button.index-active {
-    cursor: default;
     pointer-events: none;
+    cursor: default;
 }
 
 
@@ -268,49 +300,74 @@ body {
    ===================================================== */
 
 #index-view {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 20;
+
     display: none;
 
-    width: 100%;
-
     padding:
-        138px
+        118px
         48px
-        70px;
+        58px;
 
     background: #fff;
+
+    overflow: hidden;
+
+    cursor: default;
 }
 
 #index-view.visible {
     display: block;
 }
 
+
+/*
+    Default desktop / large landscape:
+    14 works = 7 columns x 2 rows.
+*/
+
 #index-grid {
     display: grid;
 
     grid-template-columns:
-        repeat(4, minmax(0, 1fr));
+        repeat(7, minmax(0, 1fr));
+
+    grid-template-rows:
+        repeat(2, minmax(0, 1fr));
 
     gap:
-        48px
-        32px;
+        18px
+        22px;
 
     width: 100%;
+    height: 100%;
+
+    align-items: stretch;
 }
 
 .project-card {
     appearance: none;
     -webkit-appearance: none;
 
-    display: block;
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+    min-height: 0;
 
     width: 100%;
+    height: 100%;
 
     margin: 0;
     padding: 0;
 
     border: 0;
-    background: transparent;
 
+    background: transparent;
     color: #000;
 
     font: inherit;
@@ -322,22 +379,44 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
+.card-image-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 1 1 auto;
+
+    width: 100%;
+    min-height: 0;
+
+    overflow: hidden;
+}
+
 .project-card img {
     display: block;
 
     width: 100%;
-    height: auto;
+    height: 100%;
 
-    margin: 0 0 8px 0;
+    max-width: 100%;
+    max-height: 100%;
 
     object-fit: contain;
+}
+
+.card-copy {
+    flex: 0 0 auto;
+
+    margin-top: 5px;
+
+    text-transform: lowercase;
 }
 
 .card-title,
 .card-date {
     display: block;
 
-    font-size: 15px;
+    font-size: 12px;
     line-height: 1.15;
 }
 
@@ -347,19 +426,81 @@ body {
 
 
 /* =====================================================
+   INDEX STATE LABEL
+   ===================================================== */
+
+#index-mode-label {
+    position: fixed;
+
+    left: 50%;
+    bottom: 24px;
+
+    z-index: 110;
+
+    display: none;
+
+    transform: translateX(-50%);
+
+    font-size: 15px;
+    line-height: 1.15;
+
+    white-space: nowrap;
+
+    cursor: default;
+
+    pointer-events: none;
+}
+
+#index-mode-label.visible {
+    display: block;
+}
+
+
+/* =====================================================
    INDEX MODE
    ===================================================== */
 
-html.index-mode,
 body.index-mode {
-    height: auto;
-    min-height: 100%;
-
-    overflow-y: auto;
+    cursor: default;
 }
 
 body.index-mode #project-stage {
     visibility: hidden;
+}
+
+
+/* =====================================================
+   TABLET / MEDIUM PORTRAIT
+   ===================================================== */
+
+@media
+    (max-width: 1000px)
+    and (orientation: portrait) {
+
+    #index-view {
+        padding:
+            110px
+            32px
+            54px;
+    }
+
+    #index-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+        grid-template-rows:
+            repeat(4, minmax(0, 1fr));
+
+        gap:
+            14px
+            18px;
+    }
+
+    .card-title,
+    .card-date {
+        font-size: 11px;
+    }
+
 }
 
 
@@ -417,28 +558,54 @@ body.index-mode #project-stage {
     }
 
     #controls {
-        margin-top: 3px;
+        margin-top: 4px;
+
+        grid-template-columns:
+            1.4fr
+            0.7fr
+            auto
+            0.7fr
+            1.4fr;
+    }
+
+    .slot-index {
+        padding-left: 18px;
+        padding-right: 18px;
     }
 
 
     #index-view {
         padding:
-            112px
-            24px
-            48px;
+            100px
+            14px
+            46px;
     }
 
     #index-grid {
         grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+            repeat(3, minmax(0, 1fr));
+
+        grid-template-rows:
+            repeat(5, minmax(0, 1fr));
 
         gap:
-            34px
-            16px;
+            8px
+            10px;
+    }
+
+    .card-copy {
+        margin-top: 3px;
     }
 
     .card-title,
     .card-date {
+        font-size: 9px;
+        line-height: 1.08;
+    }
+
+    #index-mode-label {
+        bottom: 18px;
+
         font-size: 13px;
     }
 
@@ -496,26 +663,50 @@ body.index-mode #project-stage {
         font-size: 13px;
     }
 
+    .slot-index {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+
+    /*
+        Short landscape gets 5 columns x 3 rows.
+        Everything fits vertically.
+    */
 
     #index-view {
         padding:
-            100px
+            88px
             24px
-            48px
-            214px;
+            44px
+            205px;
     }
 
     #index-grid {
         grid-template-columns:
-            repeat(4, minmax(0, 1fr));
+            repeat(5, minmax(0, 1fr));
+
+        grid-template-rows:
+            repeat(3, minmax(0, 1fr));
 
         gap:
-            32px
-            20px;
+            9px
+            14px;
+    }
+
+    .card-copy {
+        margin-top: 3px;
     }
 
     .card-title,
     .card-date {
+        font-size: 9px;
+        line-height: 1.08;
+    }
+
+    #index-mode-label {
+        bottom: 16px;
+
         font-size: 13px;
     }
 
@@ -701,13 +892,18 @@ body.index-mode #project-stage {
 
 
 <!-- ===================================================
-     INDEX VIEW
+     INDEX
      =================================================== -->
 
 <div id="index-view">
 
     <div id="index-grid"></div>
 
+</div>
+
+
+<div id="index-mode-label">
+    INDEX
 </div>
 
 
@@ -817,6 +1013,11 @@ const indexView =
 const indexGrid =
     document.getElementById(
         "index-grid"
+    );
+
+const indexModeLabel =
+    document.getElementById(
+        "index-mode-label"
     );
 
 
@@ -992,7 +1193,7 @@ function normalizeProjectIndex(
 
 
 /* =====================================================
-   PRELOAD NEARBY
+   PRELOAD
    ===================================================== */
 
 function preloadAroundCurrent() {
@@ -1007,19 +1208,19 @@ function preloadAroundCurrent() {
         offset++
     ) {
 
-        const index =
+        const target =
             imageIndex +
             offset;
 
 
         if (
-            index <
+            target <
             project.images.length
         ) {
 
             preloadImage(
                 project.images[
-                    index
+                    target
                 ]
             ).catch(
                 () => {}
@@ -1073,10 +1274,6 @@ function preloadAroundCurrent() {
 }
 
 
-/* =====================================================
-   PRELOAD INDEX COVERS
-   ===================================================== */
-
 function preloadCovers() {
 
     projects.forEach(
@@ -1122,6 +1319,7 @@ function syncProjectWidths() {
 
         projectMeta.style.width =
             `${width}px`;
+
 
         controls.style.width =
             `${width}px`;
@@ -1173,7 +1371,7 @@ function updateMetadata() {
 
 
 /* =====================================================
-   GENERIC TEXT DELETE / REVEAL
+   TEXT ANIMATION
    ===================================================== */
 
 const textAnimations =
@@ -1344,9 +1542,12 @@ function renderIndexCase(
         result +=
             i <
             upperCount
-                ? word[i]
-                    .toUpperCase()
-                : word[i];
+                ? word[
+                    i
+                ].toUpperCase()
+                : word[
+                    i
+                ];
 
     }
 
@@ -1441,7 +1642,7 @@ function animateIndexCase(
 
 
 /* =====================================================
-   FIRST / LAST FRAME CONTROL STATES
+   FRAME CONTROL STATES
    ===================================================== */
 
 let previousVisible =
@@ -1570,7 +1771,7 @@ async function showImage(
         ];
 
 
-    const boundedImageIndex =
+    const targetImageIndex =
         Math.max(
             0,
             Math.min(
@@ -1583,7 +1784,7 @@ async function showImage(
 
     const filename =
         project.images[
-            boundedImageIndex
+            targetImageIndex
         ];
 
 
@@ -1598,8 +1799,9 @@ async function showImage(
         projectIndex =
             targetProjectIndex;
 
+
         imageIndex =
-            boundedImageIndex;
+            targetImageIndex;
 
 
         currentPhoto.src =
@@ -1641,7 +1843,7 @@ async function showImage(
 
 
 /* =====================================================
-   PROJECT NAVIGATION
+   WORK NAVIGATION
    ===================================================== */
 
 async function goPreviousWork() {
@@ -1649,15 +1851,9 @@ async function goPreviousWork() {
     stopAutoSlideshow();
 
 
-    const target =
-        normalizeProjectIndex(
-            projectIndex -
-            1
-        );
-
-
     await showImage(
-        target,
+        projectIndex -
+        1,
         0
     );
 
@@ -1669,15 +1865,9 @@ async function goNextWork() {
     stopAutoSlideshow();
 
 
-    const target =
-        normalizeProjectIndex(
-            projectIndex +
-            1
-        );
-
-
     await showImage(
-        target,
+        projectIndex +
+        1,
         0
     );
 
@@ -1742,6 +1932,49 @@ async function goNextFrame() {
 
 
 /* =====================================================
+   GENERAL FORWARD NAVIGATION
+
+   Used by:
+   - autoplay
+   - body click after autoplay is stopped
+
+   It crosses the project boundary.
+   ===================================================== */
+
+async function advanceForward() {
+
+    const project =
+        currentProject();
+
+
+    if (
+        imageIndex <
+        project.images.length -
+        1
+    ) {
+
+        await showImage(
+            projectIndex,
+            imageIndex +
+            1
+        );
+
+    }
+
+    else {
+
+        await showImage(
+            projectIndex +
+            1,
+            0
+        );
+
+    }
+
+}
+
+
+/* =====================================================
    AUTOPLAY
    ===================================================== */
 
@@ -1766,33 +1999,7 @@ function scheduleNextSlide() {
         setTimeout(
             async () => {
 
-                const project =
-                    currentProject();
-
-
-                if (
-                    imageIndex <
-                    project.images.length -
-                    1
-                ) {
-
-                    await showImage(
-                        projectIndex,
-                        imageIndex +
-                        1
-                    );
-
-                }
-
-                else {
-
-                    await showImage(
-                        projectIndex +
-                        1,
-                        0
-                    );
-
-                }
+                await advanceForward();
 
 
                 scheduleNextSlide();
@@ -1829,6 +2036,115 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
+   INDEX SORT
+   ===================================================== */
+
+function getChronologicalProjects() {
+
+    return projects
+        .map(
+            (
+                project,
+                originalIndex
+            ) => ({
+                project,
+                originalIndex
+            })
+        )
+        .sort(
+            (
+                a,
+                b
+            ) => {
+
+                const dateA =
+                    a.project.sortDate ||
+                    "";
+
+
+                const dateB =
+                    b.project.sortDate ||
+                    "";
+
+
+                /*
+                    Undated works always last.
+                */
+
+                if (
+                    !dateA &&
+                    !dateB
+                ) {
+
+                    return (
+                        a.originalIndex -
+                        b.originalIndex
+                    );
+
+                }
+
+
+                if (
+                    !dateA
+                ) {
+
+                    return 1;
+
+                }
+
+
+                if (
+                    !dateB
+                ) {
+
+                    return -1;
+
+                }
+
+
+                /*
+                    YYYY-MM strings sort
+                    chronologically.
+                    Newest first.
+                */
+
+                if (
+                    dateA >
+                    dateB
+                ) {
+
+                    return -1;
+
+                }
+
+
+                if (
+                    dateA <
+                    dateB
+                ) {
+
+                    return 1;
+
+                }
+
+
+                /*
+                    Preserve slideshow order
+                    for identical dates.
+                */
+
+                return (
+                    a.originalIndex -
+                    b.originalIndex
+                );
+
+            }
+        );
+
+}
+
+
+/* =====================================================
    BUILD INDEX
    ===================================================== */
 
@@ -1838,11 +2154,20 @@ function buildIndex() {
         "";
 
 
-    projects.forEach(
-        (
-            project,
-            index
-        ) => {
+    const chronological =
+        getChronologicalProjects();
+
+
+    chronological.forEach(
+        item => {
+
+            const project =
+                item.project;
+
+
+            const originalIndex =
+                item.originalIndex;
+
 
             const button =
                 document.createElement(
@@ -1856,6 +2181,16 @@ function buildIndex() {
 
             button.type =
                 "button";
+
+
+            const imageWrap =
+                document.createElement(
+                    "span"
+                );
+
+
+            imageWrap.className =
+                "card-image-wrap";
 
 
             const img =
@@ -1875,7 +2210,22 @@ function buildIndex() {
 
 
             img.loading =
-                "lazy";
+                "eager";
+
+
+            imageWrap.appendChild(
+                img
+            );
+
+
+            const copy =
+                document.createElement(
+                    "span"
+                );
+
+
+            copy.className =
+                "card-copy";
 
 
             const title =
@@ -1907,19 +2257,27 @@ function buildIndex() {
                 "";
 
 
-            button.append(
-                img,
+            copy.append(
                 title,
                 date
             );
 
 
+            button.append(
+                imageWrap,
+                copy
+            );
+
+
             button.addEventListener(
                 "click",
-                () => {
+                event => {
+
+                    event.stopPropagation();
+
 
                     exitIndexToProject(
-                        index
+                        originalIndex
                     );
 
                 }
@@ -1998,21 +2356,11 @@ async function enterIndex() {
         ];
 
 
-    /*
-        Grid appears midway through
-        the toolbar transformation.
-    */
-
     setTimeout(
         () => {
 
             indexMode =
                 true;
-
-
-            html.classList.add(
-                "index-mode"
-            );
 
 
             body.classList.add(
@@ -2022,12 +2370,6 @@ async function enterIndex() {
 
             indexView.classList.add(
                 "visible"
-            );
-
-
-            window.scrollTo(
-                0,
-                0
             );
 
         },
@@ -2041,6 +2383,18 @@ async function enterIndex() {
     );
 
 
+    /*
+        The project toolbar is now hidden
+        with the project stage, so a separate
+        fixed INDEX state remains visible
+        at the bottom.
+    */
+
+    indexModeLabel.classList.add(
+        "visible"
+    );
+
+
     interfaceAnimating =
         false;
 
@@ -2048,7 +2402,7 @@ async function enterIndex() {
 
 
 /* =====================================================
-   EXIT INDEX THROUGH THUMBNAIL
+   EXIT INDEX
    ===================================================== */
 
 async function exitIndexToProject(
@@ -2069,10 +2423,6 @@ async function exitIndexToProject(
         true;
 
 
-    /*
-        Start loading chosen work immediately.
-    */
-
     const targetProject =
         projects[
             targetProjectIndex
@@ -2088,9 +2438,13 @@ async function exitIndexToProject(
 
 
     /*
-        Remove grid as reverse toolbar
-        transformation begins.
+        INDEX state disappears first.
     */
+
+    indexModeLabel.classList.remove(
+        "visible"
+    );
+
 
     indexView.classList.remove(
         "visible"
@@ -2099,11 +2453,6 @@ async function exitIndexToProject(
 
     indexMode =
         false;
-
-
-    html.classList.remove(
-        "index-mode"
-    );
 
 
     body.classList.remove(
@@ -2120,6 +2469,10 @@ async function exitIndexToProject(
         1;
 
 
+    /*
+        Reverse toolbar animation.
+    */
+
     const animations =
         [
 
@@ -2132,7 +2485,7 @@ async function exitIndexToProject(
             animateTextLength(
                 previousButton,
                 "previous",
-                showPreviousAfter
+                false
             ),
 
             animateIndexCase(
@@ -2154,10 +2507,9 @@ async function exitIndexToProject(
         ];
 
 
-    await imagePromise
-        .catch(
-            () => {}
-        );
+    await imagePromise.catch(
+        () => {}
+    );
 
 
     await showImage(
@@ -2195,36 +2547,140 @@ async function exitIndexToProject(
 
 
 /* =====================================================
-   CONTROL EVENTS
+   TOOLBAR EVENTS
    ===================================================== */
 
 previousWorkButton.addEventListener(
     "click",
-    goPreviousWork
+    event => {
+
+        event.stopPropagation();
+
+
+        goPreviousWork();
+
+    }
 );
 
 
 previousButton.addEventListener(
     "click",
-    goPreviousFrame
-);
+    event => {
+
+        event.stopPropagation();
 
 
-nextButton.addEventListener(
-    "click",
-    goNextFrame
-);
+        goPreviousFrame();
 
-
-nextWorkButton.addEventListener(
-    "click",
-    goNextWork
+    }
 );
 
 
 indexButton.addEventListener(
     "click",
-    enterIndex
+    event => {
+
+        event.stopPropagation();
+
+
+        enterIndex();
+
+    }
+);
+
+
+nextButton.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        goNextFrame();
+
+    }
+);
+
+
+nextWorkButton.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        goNextWork();
+
+    }
+);
+
+
+/* =====================================================
+   GENERAL SLIDESHOW CLICK
+
+   First click:
+   autoplay stops.
+
+   Every later click:
+   next frame / next work.
+
+   No left/right zones.
+   ===================================================== */
+
+body.addEventListener(
+    "click",
+    async event => {
+
+        if (
+            indexMode ||
+            interfaceAnimating
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+            Do not hijack actual interface links
+            or toolbar controls.
+        */
+
+        if (
+            event.target.closest(
+                ".info, .section-switch, #controls"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+            First click only stops.
+        */
+
+        if (
+            !manualMode
+        ) {
+
+            stopAutoSlideshow();
+
+
+            return;
+
+        }
+
+
+        /*
+            Every later click only moves
+            forward, including across works.
+        */
+
+        await advanceForward();
+
+    }
 );
 
 
@@ -2360,7 +2816,7 @@ function updateMobileStage() {
 
 
 /* =====================================================
-   LOGO ANIMATION
+   LOGO
    ===================================================== */
 
 const logo =
@@ -2852,6 +3308,7 @@ window.addEventListener(
 
                 updateMobileStage();
 
+
                 syncProjectWidths();
 
             },
@@ -2888,6 +3345,7 @@ currentPhoto.addEventListener(
             () => {
 
                 syncProjectWidths();
+
 
                 updateMobileStage();
 
