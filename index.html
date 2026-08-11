@@ -22,7 +22,6 @@ body {
     height: 100%;
 
     background: #fff;
-
     overflow: hidden;
 
     -webkit-text-size-adjust: 100%;
@@ -46,11 +45,7 @@ body {
 
     z-index: 10;
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
     font-weight: 400;
     line-height: 1.15;
@@ -83,11 +78,7 @@ body {
     top: 0;
     left: 0;
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
     font-weight: 400;
     line-height: 1.15;
@@ -101,11 +92,7 @@ body {
     top: 17px;
     left: 0;
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
     font-weight: 400;
     line-height: 1.15;
@@ -164,11 +151,7 @@ body {
     color: #000;
     text-decoration: none;
 
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
     font-weight: 400;
     line-height: 1.15;
@@ -183,7 +166,6 @@ body {
 
 #slideshow {
     position: fixed;
-
     inset: 0;
 
     width: 100vw;
@@ -196,8 +178,8 @@ body {
     pointer-events: none;
 }
 
-.slide {
-    position: absolute;
+#current-photo {
+    display: block;
 
     width: auto;
     height: auto;
@@ -207,11 +189,9 @@ body {
 
     object-fit: contain;
 
-    opacity: 0;
-}
-
-.slide.active {
     opacity: 1;
+
+    pointer-events: none;
 }
 
 
@@ -259,7 +239,7 @@ body {
         height: auto;
     }
 
-    .slide {
+    #current-photo {
         max-width: 84vw;
         max-height: calc(100% - 8px);
     }
@@ -308,16 +288,11 @@ body {
 
         left: 190px;
 
-        width:
-            calc(
-                100vw -
-                214px
-            );
-
+        width: calc(100vw - 214px);
         height: 100vh;
     }
 
-    .slide {
+    #current-photo {
         max-width: 66vw;
         max-height: 68vh;
     }
@@ -416,7 +391,14 @@ body {
      SLIDESHOW
      ========================= -->
 
-<div id="slideshow"></div>
+<div id="slideshow">
+
+    <img
+        id="current-photo"
+        alt=""
+    >
+
+</div>
 
 
 <script>
@@ -431,6 +413,31 @@ const R2_BASE =
 
 const PHOTOS_JSON =
     "./photos.json";
+
+
+/* =====================================================
+   SLIDESHOW SETTINGS
+   ===================================================== */
+
+const SLIDE_DURATION =
+    3000;
+
+
+/*
+    Instead of loading all 54 images:
+
+    current
+    previous 1
+    next 3
+
+    are kept ready.
+*/
+
+const PRELOAD_BEHIND =
+    1;
+
+const PRELOAD_AHEAD =
+    3;
 
 
 /* =====================================================
@@ -450,15 +457,18 @@ const slideshow =
         "slideshow"
     );
 
+const currentPhoto =
+    document.getElementById(
+        "current-photo"
+    );
+
 const info =
     document.getElementById(
         "info"
     );
 
-let photos =
-    [];
 
-let slides =
+let photos =
     [];
 
 let current =
@@ -466,6 +476,21 @@ let current =
 
 let manualMode =
     false;
+
+let slideTimer =
+    null;
+
+
+/*
+    Stores Image objects that are
+    currently loaded or loading.
+
+    key   = photo index
+    value = Promise
+*/
+
+const preloadCache =
+    new Map();
 
 
 /* =====================================================
@@ -477,9 +502,8 @@ function getPhotoUrl(
 ) {
 
     /*
-        encodeURIComponent handles spaces
-        such as:
-        "...0506 copy2.jpg"
+        encodeURIComponent is important
+        for filenames containing spaces.
     */
 
     return (
@@ -493,21 +517,367 @@ function getPhotoUrl(
 
 
 /* =====================================================
+   NORMALIZE INDEX
+   ===================================================== */
+
+function normalizeIndex(
+    index
+) {
+
+    if (
+        photos.length ===
+        0
+    ) {
+
+        return 0;
+
+    }
+
+
+    return (
+        (
+            index %
+            photos.length
+        ) +
+        photos.length
+    ) %
+    photos.length;
+
+}
+
+
+/* =====================================================
+   PRELOAD ONE IMAGE
+   ===================================================== */
+
+function preloadPhoto(
+    index
+) {
+
+    index =
+        normalizeIndex(
+            index
+        );
+
+
+    /*
+        Already loading / loaded:
+        return existing promise.
+    */
+
+    if (
+        preloadCache.has(
+            index
+        )
+    ) {
+
+        return preloadCache.get(
+            index
+        );
+
+    }
+
+
+    const promise =
+        new Promise(
+            (
+                resolve,
+                reject
+            ) => {
+
+                const image =
+                    new Image();
+
+
+                image.decoding =
+                    "async";
+
+
+                image.onload =
+                    () => {
+
+                        /*
+                            decode() lets the browser
+                            prepare the pixels before
+                            we actually swap the src.
+                        */
+
+                        if (
+                            image.decode
+                        ) {
+
+                            image
+                                .decode()
+                                .catch(
+                                    () => {}
+                                )
+                                .finally(
+                                    () => {
+
+                                        resolve(
+                                            image
+                                        );
+
+                                    }
+                                );
+
+                        }
+
+                        else {
+
+                            resolve(
+                                image
+                            );
+
+                        }
+
+                    };
+
+
+                image.onerror =
+                    () => {
+
+                        /*
+                            Remove failed item so a
+                            later attempt can retry.
+                        */
+
+                        preloadCache.delete(
+                            index
+                        );
+
+
+                        reject(
+                            new Error(
+                                `Could not load ${photos[index]}`
+                            )
+                        );
+
+                    };
+
+
+                image.src =
+                    getPhotoUrl(
+                        photos[index]
+                    );
+
+            }
+        );
+
+
+    preloadCache.set(
+        index,
+        promise
+    );
+
+
+    return promise;
+
+}
+
+
+/* =====================================================
+   PRELOAD WINDOW
+   ===================================================== */
+
+function preloadAround(
+    index
+) {
+
+    /*
+        Most important:
+        NEXT photo first.
+    */
+
+    for (
+        let offset = 1;
+        offset <= PRELOAD_AHEAD;
+        offset++
+    ) {
+
+        preloadPhoto(
+            index +
+            offset
+        ).catch(
+            () => {}
+        );
+
+    }
+
+
+    /*
+        Keep one previous image ready
+        for left-side navigation.
+    */
+
+    for (
+        let offset = 1;
+        offset <= PRELOAD_BEHIND;
+        offset++
+    ) {
+
+        preloadPhoto(
+            index -
+            offset
+        ).catch(
+            () => {}
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CLEAN OLD PRELOADS
+   ===================================================== */
+
+function trimPreloadCache(
+    centerIndex
+) {
+
+    /*
+        Avoid eventually retaining all 54
+        decoded images in memory.
+
+        Keep only a small neighborhood.
+    */
+
+    const keep =
+        new Set();
+
+
+    for (
+        let offset = -2;
+        offset <= 5;
+        offset++
+    ) {
+
+        keep.add(
+            normalizeIndex(
+                centerIndex +
+                offset
+            )
+        );
+
+    }
+
+
+    for (
+        const index of
+        preloadCache.keys()
+    ) {
+
+        if (
+            !keep.has(
+                index
+            )
+        ) {
+
+            preloadCache.delete(
+                index
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   DISPLAY PHOTO
+   ===================================================== */
+
+async function showPhoto(
+    index
+) {
+
+    if (
+        photos.length ===
+        0
+    ) {
+
+        return;
+
+    }
+
+
+    const targetIndex =
+        normalizeIndex(
+            index
+        );
+
+
+    try {
+
+        /*
+            Do not remove current photo while
+            target is downloading.
+
+            This avoids blank white frames.
+        */
+
+        const image =
+            await preloadPhoto(
+                targetIndex
+            );
+
+
+        current =
+            targetIndex;
+
+
+        currentPhoto.src =
+            image.src;
+
+
+        /*
+            Start preparing surrounding
+            images immediately.
+        */
+
+        preloadAround(
+            current
+        );
+
+
+        /*
+            Keep memory under control.
+        */
+
+        trimPreloadCache(
+            current
+        );
+
+
+        /*
+            Mobile / Instagram geometry can
+            change slightly with image ratio.
+        */
+
+        updateMobileSlideshow();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
    LOAD PHOTOS.JSON
    ===================================================== */
 
 async function loadPhotos() {
 
     try {
-
-        /*
-            photos.json controls the complete
-            slideshow order.
-
-            no-store means edits to the JSON
-            are reflected without relying on
-            an old browser cache.
-        */
 
         const response =
             await fetch(
@@ -570,91 +940,25 @@ async function loadPhotos() {
 
 
         /*
-            Build slideshow in EXACTLY
-            the order given by photos.json.
+            Highest priority:
+            load photo 1 only.
         */
-
-        photos.forEach(
-            (
-                filename,
-                index
-            ) => {
-
-                const img =
-                    document.createElement(
-                        "img"
-                    );
-
-
-                img.className =
-                    "slide";
-
-
-                img.src =
-                    getPhotoUrl(
-                        filename
-                    );
-
-
-                img.alt =
-                    "";
-
-
-                /*
-                    First image is the only
-                    eager/high-priority image.
-
-                    The rest load normally.
-                */
-
-                if (
-                    index ===
-                    0
-                ) {
-
-                    img.classList.add(
-                        "active"
-                    );
-
-
-                    img.loading =
-                        "eager";
-
-
-                    img.fetchPriority =
-                        "high";
-
-                }
-
-                else {
-
-                    img.loading =
-                        "eager";
-
-                }
-
-
-                slideshow.appendChild(
-                    img
-                );
-
-            }
-        );
-
-
-        slides =
-            Array.from(
-                document.querySelectorAll(
-                    ".slide"
-                )
-            );
-
 
         current =
             0;
 
 
-        updateMobileSlideshow();
+        await showPhoto(
+            0
+        );
+
+
+        /*
+            Start slideshow only after
+            first image is actually visible.
+        */
+
+        startAutoSlideshow();
 
     }
 
@@ -674,38 +978,12 @@ async function loadPhotos() {
    NEXT
    ===================================================== */
 
-function nextSlide() {
+async function nextSlide() {
 
-    if (
-        slides.length <=
+    await showPhoto(
+        current +
         1
-    ) {
-
-        return;
-
-    }
-
-
-    slides[current]
-        .classList
-        .remove(
-            "active"
-        );
-
-
-    current =
-        (
-            current +
-            1
-        ) %
-        slides.length;
-
-
-    slides[current]
-        .classList
-        .add(
-            "active"
-        );
+    );
 
 }
 
@@ -714,39 +992,12 @@ function nextSlide() {
    PREVIOUS
    ===================================================== */
 
-function previousSlide() {
+async function previousSlide() {
 
-    if (
-        slides.length <=
+    await showPhoto(
+        current -
         1
-    ) {
-
-        return;
-
-    }
-
-
-    slides[current]
-        .classList
-        .remove(
-            "active"
-        );
-
-
-    current =
-        (
-            current -
-            1 +
-            slides.length
-        ) %
-        slides.length;
-
-
-    slides[current]
-        .classList
-        .add(
-            "active"
-        );
+    );
 
 }
 
@@ -755,20 +1006,77 @@ function previousSlide() {
    AUTO SLIDESHOW
    ===================================================== */
 
-setInterval(
-    () => {
+function scheduleNextSlide() {
 
-        if (
-            !manualMode
-        ) {
+    clearTimeout(
+        slideTimer
+    );
 
-            nextSlide();
 
-        }
+    if (
+        manualMode
+    ) {
 
-    },
-    3000
-);
+        return;
+
+    }
+
+
+    slideTimer =
+        setTimeout(
+            async () => {
+
+                /*
+                    Wait for the next photo
+                    if necessary.
+
+                    The currently visible image
+                    stays on screen while waiting.
+                */
+
+                await nextSlide();
+
+
+                /*
+                    Start a fresh 3-second dwell
+                    AFTER the new image is visible.
+
+                    This prevents slow network
+                    loading from eating into the
+                    display duration.
+                */
+
+                scheduleNextSlide();
+
+            },
+            SLIDE_DURATION
+        );
+
+}
+
+
+function startAutoSlideshow() {
+
+    manualMode =
+        false;
+
+
+    scheduleNextSlide();
+
+}
+
+
+function stopAutoSlideshow() {
+
+    manualMode =
+        true;
+
+
+    clearTimeout(
+        slideTimer
+    );
+
+}
 
 
 /* =====================================================
@@ -778,7 +1086,7 @@ setInterval(
 document.body
     .addEventListener(
         "click",
-        event => {
+        async event => {
 
             /*
                 Links behave normally.
@@ -799,17 +1107,14 @@ document.body
                 FIRST CLICK
 
                 Stop autoplay only.
-
-                Do not change the
-                currently visible photo.
+                Do not change photo.
             */
 
             if (
                 !manualMode
             ) {
 
-                manualMode =
-                    true;
+                stopAutoSlideshow();
 
 
                 return;
@@ -837,13 +1142,13 @@ document.body
                 0.25
             ) {
 
-                previousSlide();
+                await previousSlide();
 
             }
 
             else {
 
-                nextSlide();
+                await nextSlide();
 
             }
 
@@ -864,8 +1169,7 @@ function updateMobileSlideshow() {
 
 
     /*
-        Short landscape uses its own
-        CSS layout.
+        Landscape uses its own CSS.
     */
 
     if (
@@ -888,8 +1192,7 @@ function updateMobileSlideshow() {
 
 
     /*
-        Desktop uses regular
-        viewport-centered layout.
+        Desktop uses normal full viewport.
     */
 
     if (
@@ -913,16 +1216,15 @@ function updateMobileSlideshow() {
 
 
     /*
-        On portrait mobile, measure
-        the actual bottom of the
-        information block.
-
-        This protects against Instagram's
-        in-app browser viewport behavior.
+        Mobile portrait:
+        measure the actual rendered info
+        block so Instagram cannot place
+        the image underneath the text.
     */
 
     const infoRect =
-        info.getBoundingClientRect();
+        info
+            .getBoundingClientRect();
 
 
     const gapAfterInfo =
@@ -1051,12 +1353,6 @@ window.addEventListener(
 
         updateMobileSlideshow();
 
-
-        /*
-            Instagram may report its
-            final viewport dimensions
-            slightly after initial load.
-        */
 
         setTimeout(
             updateMobileSlideshow,
