@@ -2,6 +2,7 @@
   {
     "title": "Vogue Türkiye",
     "date": "March 2026",
+    "sortDate": "2026-03",
     "cover": "vogue_260213_01.jpg",
     "images": [
       "vogue_260213_01.jpg",
@@ -20,6 +21,7 @@
   {
     "title": "Harper's Bazaar Türkiye",
     "date": "July 2026",
+    "sortDate": "2026-07",
     "cover": "harpersbazaar_260625_0554.jpg",
     "images": [
       "harpersbazaar_260625_0554.jpg",
@@ -39,6 +41,7 @@
   {
     "title": "L'Officiel Türkiye",
     "date": "January 2026",
+    "sortDate": "2026-01",
     "cover": "lofficiel_251213_1647_retouched_3.jpg",
     "images": [
       "lofficiel_251213_1647_retouched_3.jpg",
@@ -48,6 +51,7 @@
   {
     "title": "ELLE Türkiye",
     "date": "October 2025",
+    "sortDate": "2025-10",
     "cover": "elle_250919_01.jpg",
     "images": [
       "elle_250919_01.jpg",
@@ -60,6 +64,7 @@
   {
     "title": "L'Officiel Türkiye",
     "date": "November 2024",
+    "sortDate": "2024-11",
     "cover": "lofficiel_241106_cover.jpg",
     "images": [
       "lofficiel_241106_cover.jpg",
@@ -71,6 +76,7 @@
   {
     "title": "L'Officiel Türkiye",
     "date": "February 2026",
+    "sortDate": "2026-02",
     "cover": "lofficiel_260116_0984.jpg",
     "images": [
       "lofficiel_260116_0984.jpg",
@@ -80,6 +86,7 @@
   {
     "title": "L'Officiel Türkiye",
     "date": "February 2025",
+    "sortDate": "2025-02",
     "cover": "lofficiel_250130_cover.jpg",
     "images": [
       "lofficiel_250130_cover.jpg",
@@ -92,6 +99,7 @@
   {
     "title": "Bee Goddess",
     "date": "F/W 2024",
+    "sortDate": "2024-09",
     "cover": "beegoddess_full_1.jpg",
     "images": [
       "beegoddess_full_1.jpg",
@@ -100,7 +108,8 @@
   },
   {
     "title": "Vakko",
-    "date": "",
+    "date": "F/W 2024",
+    "sortDate": "2024-09",
     "cover": "vakko_2.jpg",
     "images": [
       "vakko_2.jpg",
@@ -111,14 +120,16 @@
   {
     "title": "MANC",
     "date": "Resort 2024",
+    "sortDate": "2024-05",
     "cover": "manc_231124_01.jpg",
     "images": [
       "manc_231124_01.jpg"
     ]
   },
   {
-    "title": "Personal",
+    "title": "Manifesto — Personal",
     "date": "",
+    "sortDate": "",
     "cover": "personal_01.jpg",
     "images": [
       "personal_01.jpg",
@@ -126,8 +137,9 @@
     ]
   },
   {
-    "title": "Skater",
+    "title": "The Push — Personal",
     "date": "",
+    "sortDate": "",
     "cover": "skater_01.jpg",
     "images": [
       "skater_01.jpg",
@@ -137,6 +149,7 @@
   {
     "title": "Mudo Home",
     "date": "F/W 2024",
+    "sortDate": "2024-09",
     "cover": "mudo_home_1.jpg",
     "images": [
       "mudo_home_1.jpg",
@@ -144,8 +157,9 @@
     ]
   },
   {
-    "title": "QP",
+    "title": "Q-P Magazine",
     "date": "June 2025",
+    "sortDate": "2025-06",
     "cover": "qp_250421_01.jpg",
     "images": [
       "qp_250421_01.jpg"
