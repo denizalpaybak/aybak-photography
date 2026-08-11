@@ -60,10 +60,8 @@ body {
 
     --meta-gap: 6px;
 
-    /*
-        JS measures the actual bottom
-        of the info block.
-    */
+    --viewer-width: 70vw;
+
     --index-content-top: 130px;
 
 }
@@ -79,7 +77,7 @@ body {
 
 
 /* =====================================================
-   INFORMATION
+   INFO
    ===================================================== */
 
 .info {
@@ -131,7 +129,7 @@ body {
 
 
 /* =====================================================
-   CONTACT
+   CONTACT / SOCIAL
    ===================================================== */
 
 .contact,
@@ -156,7 +154,7 @@ body {
 
 
 /* =====================================================
-   FILM
+   FILM LINK
    ===================================================== */
 
 .section-switch {
@@ -193,18 +191,42 @@ body {
     pointer-events: none;
 }
 
+
+/* =====================================================
+   PROJECT BLOCK
+
+   IMPORTANT:
+   width is fixed to viewer width.
+
+   Therefore metadata never moves when
+   image aspect ratio changes.
+   ===================================================== */
+
 #project-block {
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    width: var(--viewer-width);
 
     pointer-events: none;
 }
 
 
 /* =====================================================
-   SPREAD
+   SPREAD AREA
    ===================================================== */
+
+#spread-frame {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    pointer-events: none;
+}
 
 #spread {
     display: flex;
@@ -214,7 +236,8 @@ body {
 
     gap: 10px;
 
-    max-width: 72vw;
+    width: auto;
+    max-width: 100%;
 
     pointer-events: none;
 }
@@ -225,8 +248,7 @@ body {
    ===================================================== */
 
 .image-cell {
-    display: flex;
-    flex-direction: column;
+    display: block;
 
     width: auto;
 
@@ -239,10 +261,9 @@ body {
     width: auto;
     height: auto;
 
-    max-width: 70vw;
-    max-height: 68vh;
-
     object-fit: contain;
+
+    pointer-events: none;
 }
 
 
@@ -254,7 +275,7 @@ body {
     max-width:
         calc(
             (
-                70vw -
+                var(--viewer-width) -
                 10px
             )
             /
@@ -277,101 +298,91 @@ body {
 }
 
 #spread.single .image-cell {
-    max-width: 70vw;
+    max-width: var(--viewer-width);
 }
 
 #spread.single .spread-image {
-    max-width: 70vw;
+    max-width: var(--viewer-width);
     max-height: 68vh;
 }
 
 
 /* =====================================================
-   IMAGE COUNTER
-   ===================================================== */
+   METADATA
 
-.image-counter-row {
-    display: flex;
+   2 columns:
+   LEFT  = title / date
+   RIGHT = current / total
 
-    width: 100%;
-
-    margin-top: var(--meta-gap);
-
-    font-size: var(--font-size);
-    line-height: var(--line-height);
-
-    white-space: nowrap;
-
-    pointer-events: none;
-}
-
-
-/*
-    Left image in a pair:
-    counter sits at its bottom-right,
-    therefore visually points inward.
-*/
-
-#spread.pair
-.image-cell:first-child
-.image-counter-row {
-    justify-content: flex-end;
-}
-
-
-/*
-    Right image:
-    bottom-left.
-*/
-
-#spread.pair
-.image-cell:last-child
-.image-counter-row {
-    justify-content: flex-start;
-}
-
-
-/*
-    Single:
-    exactly centred.
-*/
-
-#spread.single
-.image-counter-row {
-    justify-content: center;
-}
-
-
-/* =====================================================
-   PROJECT META
+   Fixed viewer width means all four anchor points
+   stay exactly where they are.
    ===================================================== */
 
 #project-meta {
-    display: flex;
+    display: grid;
 
-    justify-content: space-between;
-    align-items: baseline;
+    grid-template-columns:
+        1fr
+        auto;
 
-    width: auto;
+    grid-template-rows:
+        auto
+        auto;
 
-    margin-top: 8px;
+    width: 100%;
+
+    margin-top: 9px;
 
     font-size: var(--font-size);
     line-height: var(--line-height);
 
     text-transform: lowercase;
 
-    white-space: nowrap;
-
     pointer-events: none;
 }
 
+
+/* =====================================================
+   LEFT META
+   ===================================================== */
+
 #project-title {
+    grid-column: 1;
+    grid-row: 1;
+
     text-align: left;
 }
 
 #project-date {
+    grid-column: 1;
+    grid-row: 2;
+
+    text-align: left;
+}
+
+
+/* =====================================================
+   RIGHT META
+   ===================================================== */
+
+#project-current {
+    grid-column: 2;
+    grid-row: 1;
+
+    min-width: 72px;
+
     text-align: right;
+
+    white-space: nowrap;
+}
+
+#project-total {
+    grid-column: 2;
+    grid-row: 2;
+
+    text-align: right;
+
+    white-space: nowrap;
 }
 
 
@@ -498,7 +509,7 @@ body {
 
 
 /* =====================================================
-   PROJECT CARD
+   CARD
    ===================================================== */
 
 .project-card {
@@ -616,6 +627,10 @@ body.index-mode #project-stage {
     and (min-width: 601px)
     and (orientation: portrait) {
 
+    :root {
+        --viewer-width: 72vw;
+    }
+
     #index-scroller {
         padding:
             0
@@ -647,7 +662,7 @@ body.index-mode #project-stage {
 
 
 /* =====================================================
-   MOBILE
+   MOBILE PORTRAIT
    ===================================================== */
 
 @media (max-width: 600px) {
@@ -663,6 +678,8 @@ body.index-mode #project-stage {
 
         --meta-gap: 5px;
 
+        --viewer-width: 76vw;
+
     }
 
 
@@ -677,7 +694,7 @@ body.index-mode #project-stage {
 
 
     /* =================================================
-       MOBILE SLIDESHOW
+       SLIDESHOW
        ================================================= */
 
     #project-stage {
@@ -691,7 +708,7 @@ body.index-mode #project-stage {
 
 
     /*
-        Portrait mobile always shows
+        Portrait phone always shows
         one image.
     */
 
@@ -699,8 +716,6 @@ body.index-mode #project-stage {
         display: block;
 
         gap: 0;
-
-        max-width: 76vw;
     }
 
     #spread.pair
@@ -710,38 +725,28 @@ body.index-mode #project-stage {
 
     #spread.pair .image-cell,
     #spread.single .image-cell {
-        max-width: 76vw;
+        max-width: var(--viewer-width);
     }
 
     #spread.pair .spread-image,
     #spread.single .spread-image {
-        max-width: 76vw;
+        max-width: var(--viewer-width);
 
         max-height:
             calc(
                 100% -
-                92px
+                86px
             );
     }
 
 
-    /*
-        On mobile a spread is rendered
-        as one frame, therefore centre
-        its counter as well.
-    */
-
-    #spread.pair
-    .image-cell:first-child
-    .image-counter-row {
-        justify-content: center;
+    #project-current {
+        min-width: 58px;
     }
 
 
     /* =================================================
-       MOBILE INDEX
-
-       Horizontal contact-sheet rail.
+       MOBILE INDEX — HORIZONTAL RAIL
        ================================================= */
 
     #index-scroller {
@@ -758,9 +763,13 @@ body.index-mode #project-stage {
                 env(safe-area-inset-bottom)
             );
 
+        /*
+            First project starts EXACTLY at
+            the same x alignment as the info block.
+        */
         padding:
             0
-            24px;
+            var(--side);
 
         overflow-x: auto;
         overflow-y: hidden;
@@ -808,7 +817,7 @@ body.index-mode #project-stage {
 
 
     .project-card:last-child {
-        margin-right: 24px;
+        margin-right: var(--side);
     }
 
 }
@@ -832,6 +841,8 @@ body.index-mode #project-stage {
         --index-bottom: 16px;
 
         --meta-gap: 5px;
+
+        --viewer-width: 64vw;
 
     }
 
@@ -861,35 +872,11 @@ body.index-mode #project-stage {
     }
 
 
-    #spread {
-        max-width: 64vw;
-    }
-
-
-    #spread.single .image-cell {
-        max-width: 64vw;
-    }
-
     #spread.single .spread-image {
-        max-width: 64vw;
         max-height: 52vh;
     }
 
-
-    #spread.pair .image-cell {
-        max-width:
-            calc(
-                (
-                    64vw -
-                    10px
-                )
-                /
-                2
-            );
-    }
-
     #spread.pair .spread-image {
-        max-width: 100%;
         max-height: 50vh;
     }
 
@@ -952,7 +939,7 @@ body.index-mode #project-stage {
 
         padding:
             0
-            24px;
+            var(--side);
 
         overflow-x: auto;
         overflow-y: hidden;
@@ -1084,23 +1071,33 @@ body.index-mode #project-stage {
 
 
 <!-- ===================================================
-     PROJECT
+     PROJECT VIEW
      =================================================== -->
 
 <div id="project-stage">
 
     <div id="project-block">
 
-        <div
-            id="spread"
-            class="single"
-        ></div>
+
+        <div id="spread-frame">
+
+            <div
+                id="spread"
+                class="single"
+            ></div>
+
+        </div>
+
 
         <div id="project-meta">
 
             <span id="project-title"></span>
 
+            <span id="project-current"></span>
+
             <span id="project-date"></span>
+
+            <span id="project-total"></span>
 
         </div>
 
@@ -1160,16 +1157,30 @@ const SLIDE_DURATION =
 
 
 /*
-    Counter remains relatively quick.
+    Frame-number morph:
+    quick.
 */
 
-const COUNTER_ANIMATION_DURATION =
+const COUNTER_TRANSITION_DURATION =
     220;
 
 
 /*
-    Index is deliberately faster than
-    the longer typography morphs.
+    Project title/date/total morph:
+    slightly slower so a new project
+    feels intentional.
+*/
+
+const PROJECT_TRANSITION_OUT_DURATION =
+    180;
+
+
+const PROJECT_TRANSITION_IN_DURATION =
+    260;
+
+
+/*
+    INDEX intentionally faster than FILM.
 */
 
 const INDEX_TRANSITION_DURATION =
@@ -1177,11 +1188,20 @@ const INDEX_TRANSITION_DURATION =
 
 
 /*
-    Existing FILM / logo system.
+    Existing typography timing.
 */
 
 const WORD_TRANSITION_DURATION =
     600;
+
+
+/*
+    Mobile horizontal index drift.
+    Pixels per second.
+*/
+
+const INDEX_DRIFT_SPEED =
+    16;
 
 
 /* =====================================================
@@ -1210,21 +1230,27 @@ const spread =
     );
 
 
-const projectMeta =
-    document.getElementById(
-        "project-meta"
-    );
-
-
 const projectTitle =
     document.getElementById(
         "project-title"
     );
 
 
+const projectCurrent =
+    document.getElementById(
+        "project-current"
+    );
+
+
 const projectDate =
     document.getElementById(
         "project-date"
+    );
+
+
+const projectTotal =
+    document.getElementById(
+        "project-total"
     );
 
 
@@ -1289,6 +1315,34 @@ let interfaceAnimating =
 
 
 let autoplayBeforeIndex =
+    false;
+
+
+/*
+    Tracks last project already rendered
+    in metadata.
+
+    This is what lets us know whether
+    title/date/total should morph.
+*/
+
+let renderedProjectIndex =
+    null;
+
+
+/* =====================================================
+   MOBILE INDEX DRIFT STATE
+   ===================================================== */
+
+let indexDriftFrame =
+    null;
+
+
+let indexDriftLastTime =
+    null;
+
+
+let indexDriftManual =
     false;
 
 
@@ -1445,7 +1499,7 @@ function preloadImage(
 
 
 /* =====================================================
-   HELPERS
+   PROJECT HELPERS
    ===================================================== */
 
 function currentProject() {
@@ -1513,14 +1567,6 @@ function updateIndexContentTop() {
 
 function shouldUsePairLayout() {
 
-    /*
-        Portrait phone:
-        single image.
-
-        Wider displays:
-        editorial pairing allowed.
-    */
-
     if (
         window.innerWidth <= 600 &&
         window.innerHeight >
@@ -1581,8 +1627,7 @@ async function getForwardSpread(
 
 
     /*
-        Landscape:
-        single.
+        Landscape always single.
     */
 
     if (
@@ -1634,11 +1679,6 @@ async function getForwardSpread(
         );
 
 
-    /*
-        Portrait + portrait:
-        editorial pair.
-    */
-
     if (
         second.portrait
     ) {
@@ -1661,11 +1701,6 @@ async function getForwardSpread(
 
     }
 
-
-    /*
-        Portrait followed by landscape:
-        keep portrait single.
-    */
 
     return {
 
@@ -1763,37 +1798,73 @@ async function buildProjectSpreads(
 
 
 /* =====================================================
-   COUNTER
+   CURRENT FRAME LABEL
    ===================================================== */
 
-function getCounterText(
-    imageIndex,
+function getCurrentFrameText(
+    start,
+    end
+) {
+
+    const first =
+        String(
+            start + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    if (
+        end > start
+    ) {
+
+        const second =
+            String(
+                end + 1
+            ).padStart(
+                2,
+                "0"
+            );
+
+
+        return (
+            `${first} — ${second}`
+        );
+
+    }
+
+
+    return first;
+
+}
+
+
+/* =====================================================
+   TOTAL LABEL
+   ===================================================== */
+
+function getTotalText(
     total
 ) {
 
-    return (
-        `${String(
-            imageIndex + 1
-        ).padStart(
-            2,
-            "0"
-        )} / ${String(
-            total
-        ).padStart(
-            2,
-            "0"
-        )}`
+    return String(
+        total
+    ).padStart(
+        2,
+        "0"
     );
 
 }
 
 
 /* =====================================================
-   COUNTER OUT
+   GENERIC TEXT DELETE
    ===================================================== */
 
-function animateCounterOut(
-    element
+function animateTextOut(
+    element,
+    duration
 ) {
 
     return new Promise(
@@ -1801,6 +1872,18 @@ function animateCounterOut(
 
             const fullText =
                 element.textContent;
+
+
+            if (
+                !fullText
+            ) {
+
+                resolve();
+
+
+                return;
+
+            }
 
 
             const start =
@@ -1817,7 +1900,7 @@ function animateCounterOut(
                         (
                             now - start
                         ) /
-                        COUNTER_ANIMATION_DURATION
+                        duration
                     );
 
 
@@ -1871,16 +1954,37 @@ function animateCounterOut(
 
 
 /* =====================================================
-   COUNTER IN
+   GENERIC TEXT REVEAL
    ===================================================== */
 
-function animateCounterIn(
+function animateTextIn(
     element,
-    fullText
+    fullText,
+    duration
 ) {
 
     return new Promise(
         resolve => {
+
+            if (
+                !fullText
+            ) {
+
+                element.textContent =
+                    "";
+
+
+                resolve();
+
+
+                return;
+
+            }
+
+
+            element.textContent =
+                "";
+
 
             const start =
                 performance.now();
@@ -1896,7 +2000,7 @@ function animateCounterIn(
                         (
                             now - start
                         ) /
-                        COUNTER_ANIMATION_DURATION
+                        duration
                     );
 
 
@@ -1948,36 +2052,53 @@ function animateCounterIn(
 
 
 /* =====================================================
-   RENDER SPREAD
+   MORPH TEXT
+
+   Dynamic:
+   old value -> blank -> new value.
+
+   Nothing is hard-coded to project order.
    ===================================================== */
 
-async function renderSpread(
-    data
+async function morphText(
+    element,
+    nextText,
+    outDuration,
+    inDuration
 ) {
 
-    const oldCounters =
-        Array.from(
-            spread.querySelectorAll(
-                ".image-counter"
-            )
-        );
-
-
     if (
-        oldCounters.length > 0
+        element.textContent ===
+        nextText
     ) {
 
-        await Promise.all(
-            oldCounters.map(
-                counter =>
-                    animateCounterOut(
-                        counter
-                    )
-            )
-        );
+        return;
 
     }
 
+
+    await animateTextOut(
+        element,
+        outDuration
+    );
+
+
+    await animateTextIn(
+        element,
+        nextText,
+        inDuration
+    );
+
+}
+
+
+/* =====================================================
+   RENDER IMAGES
+   ===================================================== */
+
+function renderImages(
+    data
+) {
 
     spread.innerHTML =
         "";
@@ -1996,15 +2117,8 @@ async function renderSpread(
     );
 
 
-    const project =
-        currentProject();
-
-
     data.images.forEach(
-        (
-            imageData,
-            localIndex
-        ) => {
+        imageData => {
 
             const cell =
                 document.createElement(
@@ -2034,57 +2148,13 @@ async function renderSpread(
                 "";
 
 
-            const counterRow =
-                document.createElement(
-                    "div"
-                );
-
-
-            counterRow.className =
-                "image-counter-row";
-
-
-            const counter =
-                document.createElement(
-                    "span"
-                );
-
-
-            counter.className =
-                "image-counter";
-
-
-            counter.textContent =
-                "";
-
-
-            counterRow.appendChild(
-                counter
-            );
-
-
-            cell.append(
-                img,
-                counterRow
+            cell.appendChild(
+                img
             );
 
 
             spread.appendChild(
                 cell
-            );
-
-
-            const absoluteIndex =
-                data.start +
-                localIndex;
-
-
-            animateCounterIn(
-                counter,
-                getCounterText(
-                    absoluteIndex,
-                    project.images.length
-                )
             );
 
         }
@@ -2094,52 +2164,106 @@ async function renderSpread(
 
 
 /* =====================================================
-   META
+   METADATA UPDATE
+
+   current number:
+   every spread
+
+   title/date/total:
+   only when project changes
    ===================================================== */
 
-function updateMetadata() {
+async function updateProjectMetadata(
+    targetProjectIndex,
+    targetStart,
+    targetEnd
+) {
 
     const project =
-        currentProject();
+        projects[
+            targetProjectIndex
+        ];
 
 
-    projectTitle.textContent =
-        project.title;
+    const projectChanged =
+        renderedProjectIndex !==
+        targetProjectIndex;
 
 
-    projectDate.textContent =
-        project.date || "";
+    const currentText =
+        getCurrentFrameText(
+            targetStart,
+            targetEnd
+        );
 
-}
 
+    /*
+        Current frame always morphs.
+    */
 
-/* =====================================================
-   WIDTH SYNC
-   ===================================================== */
+    const currentAnimation =
+        morphText(
+            projectCurrent,
+            currentText,
+            COUNTER_TRANSITION_DURATION,
+            COUNTER_TRANSITION_DURATION
+        );
 
-function syncProjectWidths() {
 
     if (
-        indexMode
+        projectChanged
     ) {
 
-        return;
+        /*
+            New project:
+            title/date/total morph dynamically.
+        */
+
+        const projectAnimations =
+            [
+
+                morphText(
+                    projectTitle,
+                    project.title,
+                    PROJECT_TRANSITION_OUT_DURATION,
+                    PROJECT_TRANSITION_IN_DURATION
+                ),
+
+                morphText(
+                    projectDate,
+                    project.date || "",
+                    PROJECT_TRANSITION_OUT_DURATION,
+                    PROJECT_TRANSITION_IN_DURATION
+                ),
+
+                morphText(
+                    projectTotal,
+                    getTotalText(
+                        project.images.length
+                    ),
+                    PROJECT_TRANSITION_OUT_DURATION,
+                    PROJECT_TRANSITION_IN_DURATION
+                )
+
+            ];
+
+
+        await Promise.all(
+            [
+                currentAnimation,
+                ...projectAnimations
+            ]
+        );
+
+
+        renderedProjectIndex =
+            targetProjectIndex;
 
     }
 
+    else {
 
-    const width =
-        spread
-            .getBoundingClientRect()
-            .width;
-
-
-    if (
-        width > 0
-    ) {
-
-        projectMeta.style.width =
-            `${width}px`;
+        await currentAnimation;
 
     }
 
@@ -2248,6 +2372,26 @@ async function showSpread(
             );
 
 
+        /*
+            Render images immediately.
+        */
+
+        renderImages(
+            data
+        );
+
+
+        /*
+            Then morph metadata.
+        */
+
+        await updateProjectMetadata(
+            normalized,
+            data.start,
+            data.end
+        );
+
+
         projectIndex =
             normalized;
 
@@ -2260,20 +2404,7 @@ async function showSpread(
             data.end;
 
 
-        await renderSpread(
-            data
-        );
-
-
-        updateMetadata();
-
-
         preloadAhead();
-
-
-        requestAnimationFrame(
-            syncProjectWidths
-        );
 
 
         buildProjectSpreads(
@@ -2323,10 +2454,6 @@ async function nextSpread() {
 
     }
 
-
-    /*
-        Cross project boundary.
-    */
 
     return showSpread(
         projectIndex + 1,
@@ -2656,11 +2783,6 @@ function buildIndex() {
                 );
 
 
-                /*
-                    Project information:
-                    simple stacked typography.
-                */
-
                 const copy =
                     document.createElement(
                         "span"
@@ -2716,6 +2838,9 @@ function buildIndex() {
                     event => {
 
                         event.stopPropagation();
+
+
+                        stopIndexDrift();
 
 
                         exitIndexToProject(
@@ -2784,20 +2909,6 @@ let indexWordFrame =
     null;
 
 
-/*
-    Desktop state lock:
-
-    slideshow:
-    base = lowercase
-
-    index view:
-    base = uppercase
-*/
-
-let indexLockedUpper =
-    false;
-
-
 /* =====================================================
    RENDER INDEX WORD
    ===================================================== */
@@ -2820,7 +2931,7 @@ function renderIndexWord(
 
 
 /* =====================================================
-   MORPH INDEX
+   INDEX MORPH
    ===================================================== */
 
 function morphIndexTo(
@@ -3004,9 +3115,7 @@ indexButton.addEventListener(
 
 
         /*
-            Return to the locked state
-            of the current view.
-
+            Locked state by view:
             slideshow = index
             index view = INDEX
         */
@@ -3029,6 +3138,192 @@ indexButton.addEventListener(
 
         }
 
+    }
+);
+
+
+/* =====================================================
+   MOBILE INDEX DRIFT
+   ===================================================== */
+
+function stopIndexDrift() {
+
+    indexDriftManual =
+        true;
+
+
+    if (
+        indexDriftFrame !== null
+    ) {
+
+        cancelAnimationFrame(
+            indexDriftFrame
+        );
+
+
+        indexDriftFrame =
+            null;
+
+    }
+
+
+    indexDriftLastTime =
+        null;
+
+}
+
+
+/* =====================================================
+   DRIFT FRAME
+   ===================================================== */
+
+function runIndexDrift(
+    now
+) {
+
+    if (
+        !indexMode ||
+        indexDriftManual ||
+        window.innerWidth > 600
+    ) {
+
+        indexDriftFrame =
+            null;
+
+
+        return;
+
+    }
+
+
+    if (
+        indexDriftLastTime === null
+    ) {
+
+        indexDriftLastTime =
+            now;
+
+    }
+
+
+    const delta =
+        (
+            now -
+            indexDriftLastTime
+        ) /
+        1000;
+
+
+    indexDriftLastTime =
+        now;
+
+
+    const maxScroll =
+        indexScroller.scrollWidth -
+        indexScroller.clientWidth;
+
+
+    if (
+        maxScroll > 0
+    ) {
+
+        /*
+            Move slowly right.
+        */
+
+        indexScroller.scrollLeft +=
+            INDEX_DRIFT_SPEED *
+            delta;
+
+
+        /*
+            Once the end is reached, loop
+            softly back to the beginning.
+        */
+
+        if (
+            indexScroller.scrollLeft >=
+            maxScroll - 1
+        ) {
+
+            indexScroller.scrollLeft =
+                0;
+
+        }
+
+    }
+
+
+    indexDriftFrame =
+        requestAnimationFrame(
+            runIndexDrift
+        );
+
+}
+
+
+/* =====================================================
+   START DRIFT
+   ===================================================== */
+
+function startIndexDrift() {
+
+    if (
+        window.innerWidth > 600
+    ) {
+
+        return;
+
+    }
+
+
+    stopIndexDrift();
+
+
+    /*
+        New index session:
+        automation is enabled again.
+    */
+
+    indexDriftManual =
+        false;
+
+
+    indexDriftLastTime =
+        null;
+
+
+    indexDriftFrame =
+        requestAnimationFrame(
+            runIndexDrift
+        );
+
+}
+
+
+/* =====================================================
+   USER TAKES OVER INDEX
+
+   pointerdown is enough:
+   from that moment onward rail is manual.
+   ===================================================== */
+
+indexScroller.addEventListener(
+    "pointerdown",
+    () => {
+
+        if (
+            indexMode &&
+            window.innerWidth <= 600
+        ) {
+
+            stopIndexDrift();
+
+        }
+
+    },
+    {
+        passive: true
     }
 );
 
@@ -3065,15 +3360,7 @@ async function enterIndex() {
     updateIndexContentTop();
 
 
-    /*
-        Enter view immediately.
-    */
-
     indexMode =
-        true;
-
-
-    indexLockedUpper =
         true;
 
 
@@ -3088,13 +3375,7 @@ async function enterIndex() {
 
 
     /*
-        Mobile:
-        tap itself performs the morph.
-
-        Desktop:
-        normally already uppercase because
-        user had to hover before clicking,
-        but enforce the final state anyway.
+        Lock word uppercase in index mode.
     */
 
     await morphIndexTo(
@@ -3106,8 +3387,15 @@ async function enterIndex() {
         window.innerWidth <= 600
     ) {
 
+        /*
+            First project begins aligned to --side.
+        */
+
         indexScroller.scrollLeft =
             0;
+
+
+        startIndexDrift();
 
     }
 
@@ -3138,14 +3426,8 @@ async function returnFromIndex() {
         true;
 
 
-    /*
-        On mobile:
-        reverse morph on tap.
+    stopIndexDrift();
 
-        On desktop the user is expected to have
-        hovered INDEX -> index before clicking.
-        Still ensure lowercase.
-    */
 
     await morphIndexTo(
         0
@@ -3161,19 +3443,12 @@ async function returnFromIndex() {
         false;
 
 
-    indexLockedUpper =
-        false;
-
-
     body.classList.remove(
         "index-mode"
     );
 
 
     updateMobileStage();
-
-
-    syncProjectWidths();
 
 
     if (
@@ -3208,7 +3483,7 @@ async function returnFromIndex() {
 
 
 /* =====================================================
-   EXIT INDEX TO PROJECT
+   INDEX THUMBNAIL -> PROJECT
    ===================================================== */
 
 async function exitIndexToProject(
@@ -3229,9 +3504,8 @@ async function exitIndexToProject(
         true;
 
 
-    /*
-        Visually return word first.
-    */
+    stopIndexDrift();
+
 
     await morphIndexTo(
         0
@@ -3247,18 +3521,10 @@ async function exitIndexToProject(
         false;
 
 
-    indexLockedUpper =
-        false;
-
-
     body.classList.remove(
         "index-mode"
     );
 
-
-    /*
-        Open selected work from first frame.
-    */
 
     await showSpread(
         targetProjectIndex,
@@ -3267,9 +3533,6 @@ async function exitIndexToProject(
 
 
     updateMobileStage();
-
-
-    syncProjectWidths();
 
 
     manualMode =
@@ -3307,14 +3570,10 @@ indexButton.addEventListener(
 
         /*
             Desktop index view:
+            only lowercase "index" exits.
 
-            INDEX itself is the locked state.
-            Hover transforms it to lowercase.
-            Clicking while lowercase returns.
-
-            If user somehow clicks while uppercase
-            while already in index mode,
-            do nothing.
+            Uppercase INDEX is the locked
+            current-view state.
         */
 
         if (
@@ -3349,7 +3608,7 @@ indexButton.addEventListener(
 /* =====================================================
    SLIDESHOW CLICK
 
-   first = stop autoplay
+   first = stop
 
    later:
    left 25% = previous
@@ -3508,8 +3767,7 @@ document.addEventListener(
     event => {
 
         /*
-            Index rail must retain native
-            horizontal scrolling.
+            Index uses native horizontal scroll.
         */
 
         if (
@@ -4036,6 +4294,10 @@ let switchFrame =
     null;
 
 
+/* =====================================================
+   RENDER WORD CASE
+   ===================================================== */
+
 function renderSwitch(
     upperCount
 ) {
@@ -4227,6 +4489,10 @@ async function refreshResponsiveSpread() {
     spreadCache.clear();
 
 
+    /*
+        Preserve project and current first frame.
+    */
+
     await showSpread(
         projectIndex,
         spreadStart
@@ -4264,9 +4530,6 @@ window.addEventListener(
 
                     await refreshResponsiveSpread();
 
-
-                    syncProjectWidths();
-
                 },
                 150
             );
@@ -4293,9 +4556,6 @@ window.addEventListener(
 
 
                 await refreshResponsiveSpread();
-
-
-                syncProjectWidths();
 
             },
             250
@@ -4394,10 +4654,59 @@ async function loadProjects() {
         buildIndex();
 
 
-        await showSpread(
-            0,
-            0
+        /*
+            Start first project without
+            treating it as a transition from
+            an existing project.
+        */
+
+        const firstData =
+            await getForwardSpread(
+                0,
+                0
+            );
+
+
+        projectIndex =
+            0;
+
+
+        spreadStart =
+            firstData.start;
+
+
+        spreadEnd =
+            firstData.end;
+
+
+        renderImages(
+            firstData
         );
+
+
+        projectTitle.textContent =
+            projects[0].title;
+
+
+        projectDate.textContent =
+            projects[0].date || "";
+
+
+        projectCurrent.textContent =
+            getCurrentFrameText(
+                firstData.start,
+                firstData.end
+            );
+
+
+        projectTotal.textContent =
+            getTotalText(
+                projects[0].images.length
+            );
+
+
+        renderedProjectIndex =
+            0;
 
 
         projects.forEach(
@@ -4413,13 +4722,13 @@ async function loadProjects() {
         );
 
 
+        preloadAhead();
+
+
         updateIndexContentTop();
 
 
         updateMobileStage();
-
-
-        syncProjectWidths();
 
 
         startAutoSlideshow();
