@@ -22,7 +22,6 @@ body {
     height: 100%;
 
     background: #fff;
-
     overflow: hidden;
 }
 
@@ -45,7 +44,6 @@ body {
 
     font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-weight: 400;
     line-height: 1.15;
 }
 
@@ -61,9 +59,6 @@ body {
     width: 190px;
     height: 52px;
 
-    margin: 0;
-    padding: 0;
-
     color: inherit;
     text-decoration: none;
 
@@ -72,29 +67,20 @@ body {
 
 .logo-name {
     position: absolute;
-
     top: 0;
     left: 0;
 
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-weight: 400;
-    line-height: 1.15;
 
     white-space: nowrap;
 }
 
 .logo-aybak {
     position: absolute;
-
     top: 17px;
     left: 0;
 
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-weight: 400;
-    line-height: 1.15;
-
     letter-spacing: normal;
 
     white-space: nowrap;
@@ -111,22 +97,16 @@ body {
 
 .contact {
     margin: 0;
-    padding: 0;
 }
 
 .social {
     display: flex;
     flex-direction: column;
-    gap: 0;
-
-    margin: 0;
-    padding: 0;
 }
 
 .info a {
     color: inherit;
     text-decoration: none;
-    font-weight: 400;
 }
 
 .info a:hover {
@@ -151,7 +131,6 @@ body {
 
     font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-weight: 400;
     line-height: 1.15;
 
     white-space: nowrap;
@@ -159,12 +138,11 @@ body {
 
 
 /* =========================
-   SLIDESHOW — DESKTOP
+   SLIDESHOW
    ========================= */
 
 #slideshow {
     position: fixed;
-
     inset: 0;
 
     width: 100vw;
@@ -212,8 +190,6 @@ body {
     .logo {
         width: 160px;
         height: 45px;
-
-        margin-bottom: 0;
     }
 
     .logo-name {
@@ -222,10 +198,7 @@ body {
 
     .logo-aybak {
         top: 15px;
-
         font-size: 13px;
-
-        letter-spacing: normal;
     }
 
     .section-switch {
@@ -235,38 +208,73 @@ body {
         font-size: 13px;
     }
 
-
-    /*
-        On mobile the position and height
-        are set dynamically by JavaScript.
-
-        The slideshow starts BELOW the
-        actual rendered information block.
-    */
-
     #slideshow {
         inset: auto;
-
         left: 0;
 
         width: 100vw;
         height: auto;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
-
 
     .slide {
         max-width: 84vw;
-
-        /*
-            Also limit by the dynamically
-            available slideshow height.
-        */
-
         max-height: calc(100% - 8px);
+    }
+
+}
+
+
+/* =========================
+   SHORT LANDSCAPE
+   ========================= */
+
+@media (orientation: landscape) and (max-height: 700px) {
+
+    .info {
+        top: 20px;
+        left: 24px;
+
+        font-size: 13px;
+    }
+
+    .logo {
+        width: 160px;
+        height: 45px;
+    }
+
+    .logo-name,
+    .logo-aybak {
+        font-size: 13px;
+    }
+
+    .logo-aybak {
+        top: 15px;
+    }
+
+    .section-switch {
+        top: 20px;
+        right: 24px;
+
+        font-size: 13px;
+    }
+
+    /*
+        In short landscape screens,
+        reserve a left safe area for text.
+    */
+
+    #slideshow {
+        inset: 0;
+
+        left: 190px;
+
+        width: calc(100vw - 214px);
+        height: 100vh;
+    }
+
+    .slide {
+        max-width: 66vw;
+        max-height: 68vh;
     }
 
 }
@@ -278,10 +286,6 @@ body {
 
 <body>
 
-
-<!-- =========================
-     LEFT INFORMATION
-     ========================= -->
 
 <div
     class="info"
@@ -346,10 +350,6 @@ body {
 </div>
 
 
-<!-- =========================
-     SECTION SWITCH
-     ========================= -->
-
 <a
     class="section-switch"
     id="section-switch"
@@ -359,19 +359,15 @@ body {
 </a>
 
 
-<!-- =========================
-     SLIDESHOW
-     ========================= -->
-
 <div id="slideshow"></div>
 
 
 <script>
 
 
-/* =====================================================
-   GITHUB PHOTO SETTINGS
-   ===================================================== */
+/* =========================
+   SETTINGS
+   ========================= */
 
 const GITHUB_USERNAME =
     "denizalpaybak";
@@ -386,10 +382,6 @@ const GITHUB_FOLDER =
     "";
 
 
-/* =====================================================
-   ELEMENTS
-   ===================================================== */
-
 const slideshow =
     document.getElementById(
         "slideshow"
@@ -400,17 +392,14 @@ const info =
         "info"
     );
 
-
 let slides = [];
-
 let current = 0;
-
 let manualMode = false;
 
 
-/* =====================================================
+/* =========================
    LOAD PHOTOS
-   ===================================================== */
+   ========================= */
 
 async function loadPhotos() {
 
@@ -419,10 +408,8 @@ async function loadPhotos() {
         const apiUrl =
             `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/contents/${GITHUB_FOLDER}`;
 
-
         const response =
             await fetch(apiUrl);
-
 
         if (
             !response.ok
@@ -434,24 +421,17 @@ async function loadPhotos() {
 
         }
 
-
         const files =
             await response.json();
-
 
         const photos =
             files
             .filter(
-                file => {
-
-                    return (
-                        file.type === "file" &&
-                        /^\d+\.jpg$/i.test(
-                            file.name
-                        )
-                    );
-
-                }
+                file =>
+                    file.type === "file" &&
+                    /^\d+\.jpg$/i.test(
+                        file.name
+                    )
             )
             .sort(
                 (a, b) => {
@@ -474,22 +454,10 @@ async function loadPhotos() {
                             10
                         );
 
-                    return (
-                        numberB -
-                        numberA
-                    );
+                    return numberB - numberA;
 
                 }
             );
-
-
-        if (
-            photos.length === 0
-        ) {
-
-            return;
-
-        }
 
 
         photos.forEach(
@@ -500,17 +468,13 @@ async function loadPhotos() {
                         "img"
                     );
 
-
                 img.className =
                     "slide";
-
 
                 img.src =
                     `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/${GITHUB_BRANCH}/${file.name}`;
 
-
                 img.alt = "";
-
 
                 if (
                     index === 0
@@ -521,7 +485,6 @@ async function loadPhotos() {
                     );
 
                 }
-
 
                 slideshow.appendChild(
                     img
@@ -536,9 +499,7 @@ async function loadPhotos() {
                 ".slide"
             );
 
-
         current = 0;
-
 
         updateMobileSlideshow();
 
@@ -558,30 +519,25 @@ async function loadPhotos() {
 loadPhotos();
 
 
-/* =====================================================
-   NEXT
-   ===================================================== */
+/* =========================
+   NEXT / PREVIOUS
+   ========================= */
 
 function nextSlide() {
 
     if (
         slides.length <= 1
     ) {
-
         return;
-
     }
-
 
     slides[current]
         .classList
         .remove("active");
 
-
     current =
         (current + 1) %
         slides.length;
-
 
     slides[current]
         .classList
@@ -590,25 +546,17 @@ function nextSlide() {
 }
 
 
-/* =====================================================
-   PREVIOUS
-   ===================================================== */
-
 function previousSlide() {
 
     if (
         slides.length <= 1
     ) {
-
         return;
-
     }
-
 
     slides[current]
         .classList
         .remove("active");
-
 
     current =
         (
@@ -617,7 +565,6 @@ function previousSlide() {
         ) %
         slides.length;
 
-
     slides[current]
         .classList
         .add("active");
@@ -625,9 +572,9 @@ function previousSlide() {
 }
 
 
-/* =====================================================
-   AUTO SLIDESHOW
-   ===================================================== */
+/* =========================
+   AUTO
+   ========================= */
 
 setInterval(
     () => {
@@ -645,9 +592,9 @@ setInterval(
 );
 
 
-/* =====================================================
+/* =========================
    CLICK NAVIGATION
-   ===================================================== */
+   ========================= */
 
 document.body.addEventListener(
     "click",
@@ -656,36 +603,21 @@ document.body.addEventListener(
         if (
             event.target.closest("a")
         ) {
-
             return;
-
         }
-
-
-        /*
-            First click stops autoplay only.
-        */
 
         if (
             !manualMode
         ) {
 
             manualMode = true;
-
             return;
 
         }
 
-
-        /*
-            LEFT 25%  = previous
-            RIGHT 75% = next
-        */
-
         const percentage =
             event.clientX /
             window.innerWidth;
-
 
         if (
             percentage < 0.25
@@ -705,11 +637,34 @@ document.body.addEventListener(
 );
 
 
-/* =====================================================
-   MOBILE SLIDESHOW POSITION
-   ===================================================== */
+/* =========================
+   MOBILE POSITION
+   ========================= */
 
 function updateMobileSlideshow() {
+
+    const shortLandscape =
+        window.matchMedia(
+            "(orientation: landscape) and (max-height: 700px)"
+        ).matches;
+
+
+    /*
+        Landscape has its own CSS layout.
+    */
+
+    if (
+        shortLandscape
+    ) {
+
+        slideshow.style.top = "";
+        slideshow.style.bottom = "";
+        slideshow.style.height = "";
+
+        return;
+
+    }
+
 
     if (
         window.innerWidth > 600
@@ -724,42 +679,13 @@ function updateMobileSlideshow() {
     }
 
 
-    /*
-        Measure the ACTUAL bottom edge
-        of Denizalp / mail / Instagram /
-        models.com.
-
-        This is the important change.
-    */
-
     const infoRect =
         info.getBoundingClientRect();
 
-
-    /*
-        Real breathing room between
-        models.com and the photograph.
-    */
-
     const gapAfterInfo = 24;
-
-
-    /*
-        Bottom breathing room.
-    */
-
     const bottomGap = 20;
 
-
-    /*
-        Actual visible viewport height.
-
-        visualViewport when available,
-        otherwise innerHeight.
-    */
-
     let viewportTop = 0;
-
     let viewportHeight =
         window.innerHeight;
 
@@ -769,12 +695,10 @@ function updateMobileSlideshow() {
     ) {
 
         viewportTop =
-            window.visualViewport
-                .offsetTop;
+            window.visualViewport.offsetTop;
 
         viewportHeight =
-            window.visualViewport
-                .height;
+            window.visualViewport.height;
 
     }
 
@@ -784,18 +708,11 @@ function updateMobileSlideshow() {
         viewportHeight;
 
 
-    /*
-        Slideshow cannot start before
-        the bottom of the information
-        block + 24px.
-    */
-
     const stageTop =
         Math.max(
             infoRect.bottom +
             gapAfterInfo,
-            viewportTop +
-            10
+            viewportTop + 10
         );
 
 
@@ -815,20 +732,14 @@ function updateMobileSlideshow() {
     slideshow.style.top =
         `${stageTop}px`;
 
-
     slideshow.style.height =
         `${stageHeight}px`;
-
 
     slideshow.style.bottom =
         "auto";
 
 }
 
-
-/* =====================================================
-   KEEP MOBILE POSITION UPDATED
-   ===================================================== */
 
 window.addEventListener(
     "resize",
@@ -853,29 +764,18 @@ if (
     window.visualViewport
 ) {
 
-    window.visualViewport
-        .addEventListener(
-            "resize",
-            updateMobileSlideshow
-        );
+    window.visualViewport.addEventListener(
+        "resize",
+        updateMobileSlideshow
+    );
 
-
-    window.visualViewport
-        .addEventListener(
-            "scroll",
-            updateMobileSlideshow
-        );
+    window.visualViewport.addEventListener(
+        "scroll",
+        updateMobileSlideshow
+    );
 
 }
 
-
-/*
-    Instagram often changes its final
-    viewport dimensions shortly after
-    the page appears.
-
-    Recalculate several times.
-*/
 
 window.addEventListener(
     "load",
@@ -883,18 +783,15 @@ window.addEventListener(
 
         updateMobileSlideshow();
 
-
         setTimeout(
             updateMobileSlideshow,
             100
         );
 
-
         setTimeout(
             updateMobileSlideshow,
             400
         );
-
 
         setTimeout(
             updateMobileSlideshow,
@@ -905,84 +802,42 @@ window.addEventListener(
 );
 
 
-/* =====================================================
-   LOGO ANIMATION
-   ===================================================== */
+/* =========================
+   LOGO
+   ========================= */
 
 const logo =
-    document.querySelector(
-        ".logo"
-    );
+    document.querySelector(".logo");
 
 const logoName =
     document.getElementById(
         "logo-name"
     );
 
-
 const letters = [
-
-    document.getElementById(
-        "letter-a"
-    ),
-
-    document.getElementById(
-        "letter-y"
-    ),
-
-    document.getElementById(
-        "letter-b"
-    ),
-
-    document.getElementById(
-        "letter-a2"
-    ),
-
-    document.getElementById(
-        "letter-k"
-    )
-
+    document.getElementById("letter-a"),
+    document.getElementById("letter-y"),
+    document.getElementById("letter-b"),
+    document.getElementById("letter-a2"),
+    document.getElementById("letter-k")
 ];
 
-
-const lowercase = [
-    "a",
-    "y",
-    "b",
-    "a",
-    "k"
-];
-
-
-const uppercase = [
-    "A",
-    "Y",
-    "B",
-    "A",
-    "K"
-];
-
+const lowercase = ["a","y","b","a","k"];
+const uppercase = ["A","Y","B","A","K"];
 
 let logoState = 0;
-
 let logoTarget = 0;
-
 let logoTimer = null;
 
 
-function setLogoState(
-    state
-) {
+function setLogoState(state) {
 
-    logoState =
-        state;
-
+    logoState = state;
 
     logoName.textContent =
         state === 0
             ? "Denizalp"
             : "denizalp";
-
 
     for (
         let i = 0;
@@ -1008,19 +863,15 @@ function moveLogo() {
     ) {
 
         logoTimer = null;
-
         return;
 
     }
 
-
     setLogoState(
-        logoState <
-        logoTarget
+        logoState < logoTarget
             ? logoState + 1
             : logoState - 1
     );
-
 
     logoTimer =
         setTimeout(
@@ -1031,13 +882,9 @@ function moveLogo() {
 }
 
 
-function animateTo(
-    target
-) {
+function animateTo(target) {
 
-    logoTarget =
-        target;
-
+    logoTarget = target;
 
     if (
         logoTimer !== null
@@ -1049,23 +896,17 @@ function animateTo(
 
     }
 
-
     moveLogo();
 
 }
 
-
-/* =========================
-   DESKTOP LOGO
-   ========================= */
 
 logo.addEventListener(
     "mouseenter",
     () => {
 
         if (
-            window.innerWidth >
-            600
+            window.innerWidth > 600
         ) {
 
             animateTo(5);
@@ -1081,8 +922,7 @@ logo.addEventListener(
     () => {
 
         if (
-            window.innerWidth >
-            600
+            window.innerWidth > 600
         ) {
 
             animateTo(0);
@@ -1093,10 +933,6 @@ logo.addEventListener(
 );
 
 
-/* =========================
-   MOBILE LOGO
-   ========================= */
-
 function mobileLogoCycle() {
 
     setTimeout(
@@ -1104,12 +940,10 @@ function mobileLogoCycle() {
 
             animateTo(5);
 
-
             setTimeout(
                 () => {
 
                     animateTo(0);
-
 
                     setTimeout(
                         mobileLogoCycle,
@@ -1138,9 +972,9 @@ if (
 }
 
 
-/* =====================================================
+/* =========================
    SECTION SWITCH
-   ===================================================== */
+   ========================= */
 
 const sectionSwitch =
     document.getElementById(
@@ -1156,16 +990,13 @@ const switchWord =
     "film";
 
 let switchState = 0;
-
 let switchTarget = 0;
-
 let switchTimer = null;
 
 
 function renderSwitch() {
 
     let result = "";
-
 
     for (
         let i = 0;
@@ -1182,9 +1013,7 @@ function renderSwitch() {
 
     }
 
-
-    sectionSwitchText
-        .textContent =
+    sectionSwitchText.textContent =
         result;
 
 }
@@ -1198,21 +1027,16 @@ function moveSwitch() {
     ) {
 
         switchTimer = null;
-
         return;
 
     }
 
-
     switchState +=
-        switchState <
-        switchTarget
+        switchState < switchTarget
             ? 1
             : -1;
 
-
     renderSwitch();
-
 
     switchTimer =
         setTimeout(
@@ -1223,13 +1047,9 @@ function moveSwitch() {
 }
 
 
-function animateSwitchTo(
-    target
-) {
+function animateSwitchTo(target) {
 
-    switchTarget =
-        target;
-
+    switchTarget = target;
 
     if (
         switchTimer !== null
@@ -1241,7 +1061,6 @@ function animateSwitchTo(
 
     }
 
-
     moveSwitch();
 
 }
@@ -1252,8 +1071,7 @@ sectionSwitch.addEventListener(
     () => {
 
         if (
-            window.innerWidth >
-            600
+            window.innerWidth > 600
         ) {
 
             animateSwitchTo(
@@ -1271,8 +1089,7 @@ sectionSwitch.addEventListener(
     () => {
 
         if (
-            window.innerWidth >
-            600
+            window.innerWidth > 600
         ) {
 
             animateSwitchTo(0);
@@ -1284,11 +1101,6 @@ sectionSwitch.addEventListener(
 
 
 renderSwitch();
-
-
-/* =====================================================
-   INITIAL MOBILE POSITION
-   ===================================================== */
 
 updateMobileSlideshow();
 
