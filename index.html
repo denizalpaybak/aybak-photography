@@ -234,27 +234,20 @@ body {
         font-size: 13px;
     }
 
-
     /*
-        On mobile, especially inside Instagram's
-        in-app browser, do not rely on 100vh for
-        vertical centering.
+        JavaScript will control:
+        top
+        height
 
-        Instead reserve a safe area for the
-        information block above and a small
-        breathing space below.
+        on mobile using visualViewport.
     */
 
     #slideshow {
         inset: auto;
 
-        top: 92px;
-        right: 0;
-        bottom: 18px;
         left: 0;
 
         width: 100vw;
-        height: auto;
 
         display: flex;
         align-items: center;
@@ -263,7 +256,7 @@ body {
 
     .slide {
         max-width: 84vw;
-        max-height: 68vh;
+        max-height: 66vh;
     }
 
 }
@@ -523,6 +516,14 @@ async function loadPhotos() {
 
         current = 0;
 
+
+        /*
+            Recalculate after images have
+            been added to the page.
+        */
+
+        updateMobileViewport();
+
     }
 
     catch (error) {
@@ -634,10 +635,6 @@ document.body.addEventListener(
     "click",
     event => {
 
-        /*
-            Links behave normally.
-        */
-
         if (
             event.target.closest("a")
         ) {
@@ -650,8 +647,7 @@ document.body.addEventListener(
         /*
             FIRST CLICK
 
-            Stop automatic slideshow only.
-            Do not change photo.
+            Stop autoplay only.
         */
 
         if (
@@ -668,7 +664,7 @@ document.body.addEventListener(
         /*
             AFTER FIRST CLICK
 
-            LEFT 25%  = previous
+            LEFT 25% = previous
             RIGHT 75% = next
         */
 
@@ -690,6 +686,207 @@ document.body.addEventListener(
             nextSlide();
 
         }
+
+    }
+);
+
+
+/* =====================================================
+   MOBILE VISUAL VIEWPORT FIX
+   ===================================================== */
+
+function updateMobileViewport() {
+
+    /*
+        Desktop uses the normal 100vh layout.
+    */
+
+    if (
+        window.innerWidth > 600
+    ) {
+
+        slideshow.style.top = "";
+        slideshow.style.height = "";
+        slideshow.style.bottom = "";
+
+        return;
+
+    }
+
+
+    /*
+        Space reserved for:
+
+        logo
+        email
+        instagram
+        models.com
+
+        plus a small breathing space.
+    */
+
+    const contentTop = 92;
+
+    const bottomSpace = 18;
+
+
+    /*
+        visualViewport represents the part
+        of the page the user can ACTUALLY see.
+
+        This is especially useful inside
+        Instagram's in-app browser.
+    */
+
+    if (
+        window.visualViewport
+    ) {
+
+        const viewport =
+            window.visualViewport;
+
+
+        /*
+            offsetTop matters when the
+            browser UI changes the visible
+            viewport position.
+        */
+
+        const visibleTop =
+            viewport.offsetTop;
+
+
+        const visibleBottom =
+            visibleTop +
+            viewport.height;
+
+
+        const stageTop =
+            Math.max(
+                contentTop,
+                visibleTop + contentTop
+            );
+
+
+        const stageBottom =
+            visibleBottom -
+            bottomSpace;
+
+
+        const stageHeight =
+            Math.max(
+                100,
+                stageBottom -
+                stageTop
+            );
+
+
+        slideshow.style.top =
+            `${stageTop}px`;
+
+
+        slideshow.style.height =
+            `${stageHeight}px`;
+
+
+        slideshow.style.bottom =
+            "auto";
+
+    }
+
+    else {
+
+        /*
+            Fallback for browsers without
+            visualViewport.
+        */
+
+        slideshow.style.top =
+            `${contentTop}px`;
+
+
+        slideshow.style.height =
+            `calc(100vh - ${contentTop + bottomSpace}px)`;
+
+
+        slideshow.style.bottom =
+            "auto";
+
+    }
+
+}
+
+
+/*
+    Recalculate whenever Instagram,
+    Safari, Chrome etc. changes the
+    actual visible viewport.
+*/
+
+window.addEventListener(
+    "resize",
+    updateMobileViewport
+);
+
+
+window.addEventListener(
+    "orientationchange",
+    () => {
+
+        setTimeout(
+            updateMobileViewport,
+            150
+        );
+
+    }
+);
+
+
+if (
+    window.visualViewport
+) {
+
+    window.visualViewport.addEventListener(
+        "resize",
+        updateMobileViewport
+    );
+
+
+    window.visualViewport.addEventListener(
+        "scroll",
+        updateMobileViewport
+    );
+
+}
+
+
+/*
+    Run immediately and again shortly
+    after load because some in-app
+    browsers report their final viewport
+    a moment after rendering.
+*/
+
+updateMobileViewport();
+
+
+window.addEventListener(
+    "load",
+    () => {
+
+        updateMobileViewport();
+
+
+        setTimeout(
+            updateMobileViewport,
+            100
+        );
+
+
+        setTimeout(
+            updateMobileViewport,
+            500
+        );
 
     }
 );
@@ -1016,8 +1213,7 @@ function animateSwitchTo(
     target
 ) {
 
-    switchTarget =
-        target;
+    switchTarget = target;
 
 
     if (
