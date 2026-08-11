@@ -64,10 +64,6 @@ button {
 
     --meta-gap: 6px;
 
-    /*
-        Desktop slideshow.
-    */
-
     --image-max-width: 76vw;
 
     --visual-height: 78vh;
@@ -82,12 +78,7 @@ button {
 
     --index-content-top: 130px;
 
-    /*
-        JS updates this for mobile /
-        compact layouts.
-    */
-
-    --compact-visual-top: 140px;
+    --portrait-visual-top: 140px;
 
 }
 
@@ -224,7 +215,7 @@ body {
 
 
 /* =====================================================
-   VISUAL ZONE — DESKTOP
+   VISUAL ZONE — DESKTOP / TABLET
    ===================================================== */
 
 #visual-zone {
@@ -277,11 +268,7 @@ body {
 
 
 /* =====================================================
-   PROJECT META — DESKTOP
-
-   Desktop:
-   Y never changes.
-   X follows actual image edges.
+   PROJECT META — DESKTOP / TABLET
    ===================================================== */
 
 #project-meta {
@@ -411,8 +398,6 @@ body.project-all-mode
 
 /* =====================================================
    INVISIBLE GRID PREPARATION
-
-   Prevents giant first-thumbnail flash.
    ===================================================== */
 
 body.project-all-preparing
@@ -572,9 +557,6 @@ body.project-all-mode
 
 /* =====================================================
    INDEX SCROLLER
-
-   Available area between header + bottom INDEX
-   is used as the centering region.
    ===================================================== */
 
 #index-scroller {
@@ -621,9 +603,6 @@ body.project-all-mode
 
 /* =====================================================
    INDEX RAIL
-
-   Small optical correction upwards because
-   copy below each image adds visual weight.
    ===================================================== */
 
 #index-grid {
@@ -640,6 +619,11 @@ body.project-all-mode
 
     padding-left: var(--side);
     padding-right: var(--side);
+
+    /*
+        Optical centering:
+        text below thumbnails adds visual weight.
+    */
 
     transform: translateY(-8px);
 }
@@ -683,12 +667,6 @@ body.project-all-mode
 
 /* =====================================================
    INDEX IMAGE
-
-   No crop.
-
-   IMPORTANT:
-   image is LEFT aligned so copy underneath
-   begins on the same vertical line.
    ===================================================== */
 
 .card-image-wrap {
@@ -763,11 +741,16 @@ body.index-mode
 
 /* =====================================================
    TABLET
+
+   Includes most iPads in both orientations.
+
+   Unlike phone landscape, tablet keeps
+   desktop-style composition.
    ===================================================== */
 
 @media
-    (max-width: 1100px)
-    and (min-width: 601px) {
+    (min-width: 601px)
+    and (max-width: 1366px) {
 
     :root {
 
@@ -788,28 +771,30 @@ body.index-mode
         flex:
             0
             0
-            230px;
+            250px;
 
-        width: 230px;
+        width: 250px;
     }
 
 
     .card-image-wrap {
-        height: 300px;
+        height: 325px;
+    }
+
+
+    #index-grid {
+        gap: 46px;
     }
 
 }
 
 
 /* =====================================================
-   COMPACT MODE
-
-   JS uses viewport short-side rather than only width,
-   so phone portrait + phone landscape use the same
-   layout logic.
+   PHONE BASE
    ===================================================== */
 
-body.compact-layout {
+body.phone-portrait,
+body.phone-landscape {
 
     --font-size: 13px;
 
@@ -823,34 +808,30 @@ body.compact-layout {
 }
 
 
-/* =====================================================
-   COMPACT HEADER
-   ===================================================== */
+body.phone-portrait
+.logo,
 
-body.compact-layout
+body.phone-landscape
 .logo {
     width: 160px;
     height: 45px;
 }
 
-body.compact-layout
+
+body.phone-portrait
+.logo-aybak,
+
+body.phone-landscape
 .logo-aybak {
     top: 15px;
 }
 
 
 /* =====================================================
-   COMPACT META
-
-   Both left and right edges are fixed to:
-
-   Denizalp left
-   film right
-
-   Second row is directly above INDEX.
+   PHONE PORTRAIT
    ===================================================== */
 
-body.compact-layout
+body.phone-portrait
 #project-meta {
     top: auto;
 
@@ -871,26 +852,20 @@ body.compact-layout
 }
 
 
-body.compact-layout
+body.phone-portrait
 #project-counter {
     padding-left: 16px;
 }
 
 
-/* =====================================================
-   COMPACT VISUAL ZONE
+/*
+    Portrait photo gets every available pixel
+    between header and bottom information.
+*/
 
-   Header at top.
-   Metadata + INDEX at bottom.
-
-   Image gets EVERYTHING in between.
-
-   Horizontal boundaries match Denizalp / film.
-   ===================================================== */
-
-body.compact-layout
+body.phone-portrait
 #visual-zone {
-    top: var(--compact-visual-top);
+    top: var(--portrait-visual-top);
 
     left: var(--side);
     right: var(--side);
@@ -913,28 +888,17 @@ body.compact-layout
 }
 
 
-body.compact-layout
+body.phone-portrait
 #spread,
 
-body.compact-layout
+body.phone-portrait
 .image-cell {
     width: 100%;
     height: 100%;
 }
 
 
-/*
-    Image becomes as large as physically possible
-    inside the safe rectangle.
-
-    Landscape images can align exactly to both sides.
-
-    Portrait images preserve aspect ratio and therefore
-    may be narrower if vertical height is the limiting
-    dimension.
-*/
-
-body.compact-layout
+body.phone-portrait
 .spread-image {
     width: auto;
     height: auto;
@@ -947,10 +911,10 @@ body.compact-layout
 
 
 /* =====================================================
-   COMPACT INDEX
+   PHONE PORTRAIT INDEX
    ===================================================== */
 
-body.compact-layout
+body.phone-portrait
 #index-scroller {
     bottom:
         calc(
@@ -961,7 +925,7 @@ body.compact-layout
 }
 
 
-body.compact-layout
+body.phone-portrait
 #index-grid {
     gap: 30px;
 
@@ -969,7 +933,7 @@ body.compact-layout
 }
 
 
-body.compact-layout
+body.phone-portrait
 .project-card {
     flex:
         0
@@ -980,13 +944,220 @@ body.compact-layout
 }
 
 
-body.compact-layout
+body.phone-portrait
 .card-image-wrap {
     height: 56vw;
 }
 
 
-body.compact-layout
+body.phone-portrait
+#project-all-grid {
+    gap: 6px;
+}
+
+
+/* =====================================================
+   PHONE LANDSCAPE
+
+   Separate system.
+
+   Important difference:
+   we DO NOT use portrait's
+   header-to-metadata vertical box.
+
+   Image is centered in the viewport and uses
+   viewport HEIGHT aggressively.
+   ===================================================== */
+
+body.phone-landscape {
+
+    --side: 24px;
+    --top: 18px;
+
+    --index-bottom: 14px;
+
+}
+
+
+/* =====================================================
+   LANDSCAPE SLIDESHOW
+
+   Photo can extend vertically behind the header's
+   vertical region, but width is limited so it remains
+   in the central visual field rather than colliding
+   with the left info block.
+
+   This makes it dramatically larger than before.
+   ===================================================== */
+
+body.phone-landscape
+#visual-zone {
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    transform: none;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding:
+        12px
+        24px
+        60px;
+
+    overflow: hidden;
+}
+
+
+body.phone-landscape
+#spread,
+
+body.phone-landscape
+.image-cell {
+    width: 100%;
+    height: 100%;
+}
+
+
+body.phone-landscape
+.spread-image {
+    width: auto;
+    height: auto;
+
+    /*
+        Height becomes the primary constraint.
+    */
+
+    max-height: 72vh;
+
+    /*
+        Protect the left info region while still
+        allowing a much larger image.
+
+        On a typical landscape iPhone this gives
+        roughly 500px+ usable width.
+    */
+
+    max-width:
+        min(
+            64vw,
+            calc(
+                100vw -
+                320px
+            )
+        );
+
+    object-fit: contain;
+}
+
+
+/* =====================================================
+   LANDSCAPE METADATA
+
+   Full horizontal alignment:
+   Denizalp left -> film right.
+
+   Fixed at bottom just above INDEX.
+   ===================================================== */
+
+body.phone-landscape
+#project-meta {
+    top: auto;
+
+    left: var(--side) !important;
+
+    width:
+        calc(
+            100vw -
+            var(--side) * 2
+        ) !important;
+
+    bottom:
+        calc(
+            var(--index-bottom) +
+            env(safe-area-inset-bottom) +
+            24px
+        );
+}
+
+
+body.phone-landscape
+#project-counter {
+    padding-left: 16px;
+}
+
+
+/* =====================================================
+   PHONE LANDSCAPE INDEX
+
+   Do NOT use vw-based portrait cards.
+
+   Everything scales from viewport HEIGHT.
+   This prevents huge/broken thumbnails after rotation.
+   ===================================================== */
+
+body.phone-landscape
+#index-scroller {
+    top: 86px;
+
+    bottom:
+        calc(
+            var(--index-bottom) +
+            env(safe-area-inset-bottom) +
+            30px
+        );
+
+    align-items: center;
+}
+
+
+body.phone-landscape
+#index-grid {
+    gap: 34px;
+
+    transform: translateY(-4px);
+}
+
+
+body.phone-landscape
+.project-card {
+    flex:
+        0
+        0
+        clamp(
+            170px,
+            48vh,
+            230px
+        );
+
+    width:
+        clamp(
+            170px,
+            48vh,
+            230px
+        );
+}
+
+
+body.phone-landscape
+.card-image-wrap {
+    height:
+        clamp(
+            145px,
+            48vh,
+            215px
+        );
+
+    justify-content: flex-start;
+}
+
+
+body.phone-landscape
 #project-all-grid {
     gap: 6px;
 }
@@ -1177,39 +1348,17 @@ const SLIDE_DURATION =
     3000;
 
 
-/*
-    Project-to-project character replacement.
-
-    No opacity.
-    No fade.
-*/
-
 const TEXT_MORPH_DURATION =
     420;
 
-
-/*
-    view all -> close
-    counter -> all (xx)
-
-    Same language.
-*/
 
 const STATE_MORPH_DURATION =
     400;
 
 
-/*
-    Case animations.
-*/
-
 const CASE_DURATION =
     400;
 
-
-/*
-    Header navigation.
-*/
 
 const INDEX_TRANSITION_DURATION =
     400;
@@ -1436,7 +1585,44 @@ const imageCache =
 
 
 /* =====================================================
-   HELPERS
+   RESPONSIVE HELPERS
+   ===================================================== */
+
+function isPhonePortrait() {
+
+    return (
+        window.innerWidth <= 600 &&
+        window.innerHeight >=
+        window.innerWidth
+    );
+
+}
+
+
+function isPhoneLandscape() {
+
+    return (
+        window.innerHeight <= 600 &&
+        window.innerWidth >
+        window.innerHeight &&
+        window.innerWidth <= 1000
+    );
+
+}
+
+
+function isPhoneLayout() {
+
+    return (
+        isPhonePortrait() ||
+        isPhoneLandscape()
+    );
+
+}
+
+
+/* =====================================================
+   GENERAL HELPERS
    ===================================================== */
 
 function getPhotoUrl(
@@ -1620,49 +1806,65 @@ function preloadImage(
 
 /* =====================================================
    RESPONSIVE MODE
+
+   Three states:
+
+   phone portrait
+   phone landscape
+   tablet / desktop
    ===================================================== */
 
 function updateResponsiveMode() {
 
-    /*
-        Phone portrait AND phone landscape.
+    const portrait =
+        isPhonePortrait();
 
-        iPad remains desktop/tablet layout.
-    */
 
-    const compact =
-        Math.min(
-            window.innerWidth,
-            window.innerHeight
-        ) <= 600;
+    const landscape =
+        isPhoneLandscape();
 
 
     body.classList.toggle(
-        "compact-layout",
-        compact
+        "phone-portrait",
+        portrait
     );
 
 
-    const infoRect =
-        info.getBoundingClientRect();
+    body.classList.toggle(
+        "phone-landscape",
+        landscape
+    );
 
 
-    const gap =
-        compact
-            ? 18
-            : 30;
+    /*
+        Portrait photo starts below the full
+        info block.
+
+        Landscape does NOT use this vertical
+        restriction because it would make the
+        photo too small.
+    */
+
+    if (
+        portrait
+    ) {
+
+        const infoRect =
+            info.getBoundingClientRect();
 
 
-    document
-        .documentElement
-        .style
-        .setProperty(
-            "--compact-visual-top",
-            `${Math.ceil(
-                infoRect.bottom +
-                gap
-            )}px`
-        );
+        document
+            .documentElement
+            .style
+            .setProperty(
+                "--portrait-visual-top",
+                `${Math.ceil(
+                    infoRect.bottom +
+                    18
+                )}px`
+            );
+
+    }
 
 }
 
@@ -1677,12 +1879,33 @@ function updateIndexContentTop() {
         info.getBoundingClientRect();
 
 
-    const gap =
-        body.classList.contains(
-            "compact-layout"
-        )
-            ? 24
-            : 30;
+    let gap =
+        30;
+
+
+    if (
+        isPhonePortrait()
+    ) {
+
+        gap =
+            24;
+
+    }
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        /*
+            Landscape has its own CSS top,
+            but keep variable valid.
+        */
+
+        gap =
+            10;
+
+    }
 
 
     document
@@ -1702,27 +1925,11 @@ function updateIndexContentTop() {
 /* =====================================================
    SIMPLE SEQUENTIAL CHARACTER MORPH
 
-   THIS is now the only word-to-word morph.
-
-   No fades.
    No opacity.
-   No overlapping spans.
+   No fade.
 
-   Example:
-
-   vogue türkiye
-   ->
-   l'ogue türkiye
-   ->
-   l'ffue türkiye
-   ->
-   ...
-   l'officiel türkiye
-
-   Same-position identical chars are skipped.
-
-   Every element given the same duration
-   starts and finishes at the same time.
+   Existing characters are progressively replaced
+   from left to right.
    ===================================================== */
 
 function morphSequential(
@@ -1810,11 +2017,6 @@ function morphSequential(
     }
 
 
-    /*
-        Freeze minimum width only while animating.
-        Prevents surrounding grid from wobbling.
-    */
-
     const originalWidth =
         element
             .getBoundingClientRect()
@@ -1852,11 +2054,6 @@ function morphSequential(
                         duration
                     );
 
-
-                /*
-                    Number of changed positions that
-                    have already become target chars.
-                */
 
                 const completed =
                     Math.floor(
@@ -1903,11 +2100,6 @@ function morphSequential(
 
                 }
 
-
-                /*
-                    trimEnd only removes artificial
-                    padding added for morph geometry.
-                */
 
                 element.textContent =
                     current
@@ -2046,14 +2238,6 @@ function renderPrefixCase(
 
 /* =====================================================
    CASE ANIMATION
-
-   film
-   Film
-   FIlm
-   FILm
-   FILM
-
-   Same total duration independent of word length.
    ===================================================== */
 
 function animateCase(
@@ -2077,10 +2261,6 @@ function animateCase(
     const total =
         positions.length;
 
-
-    /*
-        Detect current uppercase-prefix state.
-    */
 
     const currentText =
         element.textContent;
@@ -2134,8 +2314,7 @@ function animateCase(
 
 
     if (
-        currentState ===
-        target
+        currentState === target
     ) {
 
         element.textContent =
@@ -2285,18 +2464,14 @@ function renderImage(
 function syncMetadataHorizontal() {
 
     /*
-        MOBILE:
+        Both phone orientations use fixed site margins:
 
-        metadata is intentionally fixed to:
-        Denizalp left / film right.
-
-        Do not follow individual photo width.
+        Denizalp left
+        film right
     */
 
     if (
-        body.classList.contains(
-            "compact-layout"
-        )
+        isPhoneLayout()
     ) {
 
         const style =
@@ -2327,10 +2502,8 @@ function syncMetadataHorizontal() {
 
 
     /*
-        DESKTOP:
-
-        metadata follows actual rendered
-        photograph horizontally.
+        Tablet / desktop:
+        metadata follows actual photograph width.
     */
 
     if (
@@ -2406,14 +2579,7 @@ function syncMetadataAfterRender() {
 /* =====================================================
    UPDATE PROJECT METADATA
 
-   NORMAL COUNTER:
-   absolutely NO animation.
-
-   PROJECT TITLE + DATE:
-   sequential character replacement.
-
-   Top + bottom rows begin together and
-   finish at exactly the same time.
+   Counter has NO animation.
    ===================================================== */
 
 async function updateMetadata(
@@ -2431,10 +2597,6 @@ async function updateMetadata(
         renderedProjectIndex !==
         targetProjectIndex;
 
-
-    /*
-        Counter is instant.
-    */
 
     projectCounter.textContent =
         getCounterText(
@@ -2532,8 +2694,7 @@ function preloadAhead() {
     const nextProject =
         projects[
             normalizeProjectIndex(
-                projectIndex +
-                1
+                projectIndex + 1
             )
         ];
 
@@ -2594,8 +2755,7 @@ async function showFrame(
             0,
             Math.min(
                 targetFrameIndex,
-                project.images.length -
-                1
+                project.images.length - 1
             )
         );
 
@@ -2683,22 +2843,19 @@ async function nextFrame() {
 
     if (
         frameIndex <
-        project.images.length -
-        1
+        project.images.length - 1
     ) {
 
         return showFrame(
             projectIndex,
-            frameIndex +
-            1
+            frameIndex + 1
         );
 
     }
 
 
     return showFrame(
-        projectIndex +
-        1,
+        projectIndex + 1,
         0
     );
 
@@ -2722,14 +2879,12 @@ async function previousFrame() {
 
 
     if (
-        frameIndex >
-        0
+        frameIndex > 0
     ) {
 
         return showFrame(
             projectIndex,
-            frameIndex -
-            1
+            frameIndex - 1
         );
 
     }
@@ -2737,8 +2892,7 @@ async function previousFrame() {
 
     const previousProjectIndex =
         normalizeProjectIndex(
-            projectIndex -
-            1
+            projectIndex - 1
         );
 
 
@@ -2750,8 +2904,7 @@ async function previousFrame() {
 
     return showFrame(
         previousProjectIndex,
-        previousProject.images.length -
-        1
+        previousProject.images.length - 1
     );
 
 }
@@ -2838,10 +2991,6 @@ async function performPrimarySlideAction() {
     }
 
 
-    /*
-        First action stops autoplay.
-    */
-
     if (
         !manualMode
     ) {
@@ -2900,22 +3049,44 @@ function syncProjectAllBounds(
         ) || 24;
 
 
-    const compact =
-        body.classList.contains(
-            "compact-layout"
-        );
+    let topGap =
+        26;
 
 
-    const topGap =
-        compact
-            ? 18
-            : 26;
+    let bottomGap =
+        24;
 
 
-    const bottomGap =
-        compact
-            ? 16
-            : 24;
+    if (
+        isPhonePortrait()
+    ) {
+
+        topGap =
+            18;
+
+
+        bottomGap =
+            16;
+
+    }
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        /*
+            Landscape has little vertical space.
+        */
+
+        topGap =
+            8;
+
+
+        bottomGap =
+            10;
+
+    }
 
 
     const top =
@@ -2947,8 +3118,7 @@ function syncProjectAllBounds(
     projectAllView.style.height =
         `${Math.max(
             80,
-            bottom -
-            top
+            bottom - top
         )}px`;
 
 }
@@ -2967,14 +3137,8 @@ function calculateProjectAllLayout(
             .getBoundingClientRect();
 
 
-    const compact =
-        body.classList.contains(
-            "compact-layout"
-        );
-
-
     const gap =
-        compact
+        isPhoneLayout()
             ? 6
             : 10;
 
@@ -3004,8 +3168,7 @@ function calculateProjectAllLayout(
             rect.width -
             gap *
             (
-                columns -
-                1
+                columns - 1
             );
 
 
@@ -3013,8 +3176,7 @@ function calculateProjectAllLayout(
             rect.height -
             gap *
             (
-                rows -
-                1
+                rows - 1
             );
 
 
@@ -3041,8 +3203,7 @@ function calculateProjectAllLayout(
         const score =
             Math.min(
                 cellWidth,
-                cellHeight *
-                1.15
+                cellHeight * 1.15
             );
 
 
@@ -3204,10 +3365,6 @@ function prepareProjectAllGrid() {
     );
 
 
-    /*
-        Force browser layout while invisible.
-    */
-
     projectAllView
         .getBoundingClientRect();
 
@@ -3261,10 +3418,6 @@ viewAllButton.addEventListener(
         );
 
 
-        /*
-            Keep sequential morph source accurate.
-        */
-
         viewAllButton.dataset.rawText =
             viewAllButton.textContent;
 
@@ -3314,18 +3467,6 @@ viewAllButton.addEventListener(
 
 /* =====================================================
    ENTER VIEW ALL
-
-   Example:
-
-   04 / 12
-   ->
-   all (12)
-
-   view all
-   ->
-   close
-
-   Both use EXACT SAME sequential character logic.
    ===================================================== */
 
 async function enterProjectAll() {
@@ -3361,11 +3502,6 @@ async function enterProjectAll() {
         currentProject();
 
 
-    /*
-        Capture actual displayed text.
-        Could currently be VIEW ALL due hover.
-    */
-
     viewAllButton.dataset.rawText =
         viewAllButton.textContent;
 
@@ -3392,11 +3528,6 @@ async function enterProjectAll() {
     await Promise.all(
         [
 
-            /*
-                Project metadata:
-                lowercase -> uppercase as before.
-            */
-
             animateCase(
                 projectTitle,
                 project.title,
@@ -3409,12 +3540,6 @@ async function enterProjectAll() {
                 true
             ),
 
-
-            /*
-                Counter:
-                04 / 12 -> all (12)
-            */
-
             morphSequential(
                 projectCounter,
                 getAllCounterText(
@@ -3422,13 +3547,6 @@ async function enterProjectAll() {
                 ),
                 STATE_MORPH_DURATION
             ),
-
-
-            /*
-                Button:
-                view all -> close
-                or VIEW ALL -> CLOSE.
-            */
 
             morphSequential(
                 viewAllButton,
@@ -3489,8 +3607,7 @@ async function leaveProjectAll(
 
 
     if (
-        selectedIndex !==
-        null
+        selectedIndex !== null
     ) {
 
         const loadedImage =
@@ -3519,13 +3636,6 @@ async function leaveProjectAll(
     projectCounter.dataset.rawText =
         projectCounter.textContent;
 
-
-    /*
-        Keep contact sheet visible WHILE
-        text transitions back.
-
-        This avoids slideshow flashing underneath.
-    */
 
     const targetButton =
         (
@@ -3596,8 +3706,7 @@ async function leaveProjectAll(
     ) {
 
         if (
-            selectedIndex !==
-            null
+            selectedIndex !== null
         ) {
 
             manualMode =
@@ -3753,8 +3862,7 @@ function getChronologicalProjects() {
 
 
                 if (
-                    dateA >
-                    dateB
+                    dateA > dateB
                 ) {
 
                     return -1;
@@ -3763,8 +3871,7 @@ function getChronologicalProjects() {
 
 
                 if (
-                    dateA <
-                    dateB
+                    dateA < dateB
                 ) {
 
                     return 1;
@@ -3785,11 +3892,6 @@ function getChronologicalProjects() {
 
 /* =====================================================
    INDEX CARD CASE CONTROLLER
-
-   TITLE + DATE:
-   same start
-   same duration
-   same finish.
    ===================================================== */
 
 function createCaseController(
@@ -3831,8 +3933,7 @@ function createCaseController(
     ) {
 
         if (
-            frameId !==
-            null
+            frameId !== null
         ) {
 
             cancelAnimationFrame(
@@ -3847,8 +3948,7 @@ function createCaseController(
 
 
         if (
-            startState ===
-            target
+            startState === target
         ) {
 
             render();
@@ -3893,8 +3993,7 @@ function createCaseController(
 
 
             if (
-                progress <
-                1
+                progress < 1
             ) {
 
                 frameId =
@@ -4222,8 +4321,7 @@ function renderWordCase(
     ) {
 
         result +=
-            i <
-            upperCount
+            i < upperCount
                 ? word[i].toUpperCase()
                 : word[i].toLowerCase();
 
@@ -4277,8 +4375,7 @@ function morphIndexTo(
 ) {
 
     if (
-        indexWordFrame !==
-        null
+        indexWordFrame !== null
     ) {
 
         cancelAnimationFrame(
@@ -4293,8 +4390,7 @@ function morphIndexTo(
 
 
     if (
-        startState ===
-        target
+        startState === target
     ) {
 
         renderIndexWord(
@@ -4346,8 +4442,7 @@ function morphIndexTo(
 
 
                 if (
-                    progress <
-                    1
+                    progress < 1
                 ) {
 
                     indexWordFrame =
@@ -4395,9 +4490,7 @@ indexButton.addEventListener(
     () => {
 
         if (
-            body.classList.contains(
-                "compact-layout"
-            )
+            isPhoneLayout()
         ) {
 
             return;
@@ -4420,9 +4513,7 @@ indexButton.addEventListener(
     () => {
 
         if (
-            body.classList.contains(
-                "compact-layout"
-            )
+            isPhoneLayout()
         ) {
 
             return;
@@ -4711,10 +4802,6 @@ async function exitIndexToProject(
 
 /* =====================================================
    INDEX CLICK
-
-   Always toggles.
-
-   Mouse does NOT need to leave/re-enter button.
    ===================================================== */
 
 indexButton.addEventListener(
@@ -5159,10 +5246,6 @@ document.addEventListener(
         }
 
 
-        /*
-            SPACE = normal right-side click.
-        */
-
         if (
             event.code ===
             "Space"
@@ -5515,9 +5598,7 @@ logo.addEventListener(
     () => {
 
         if (
-            !body.classList.contains(
-                "compact-layout"
-            )
+            !isPhoneLayout()
         ) {
 
             animateLogoTo(
@@ -5535,9 +5616,7 @@ logo.addEventListener(
     () => {
 
         if (
-            !body.classList.contains(
-                "compact-layout"
-            )
+            !isPhoneLayout()
         ) {
 
             animateLogoTo(
@@ -5560,10 +5639,14 @@ function mobileLogoCycle() {
         () => {
 
             if (
-                !body.classList.contains(
-                    "compact-layout"
-                )
+                !isPhoneLayout()
             ) {
+
+                setTimeout(
+                    mobileLogoCycle,
+                    1500
+                );
+
 
                 return;
 
@@ -5649,8 +5732,7 @@ function morphSwitchTo(
 ) {
 
     if (
-        switchFrame !==
-        null
+        switchFrame !== null
     ) {
 
         cancelAnimationFrame(
@@ -5665,8 +5747,7 @@ function morphSwitchTo(
 
 
     if (
-        startState ===
-        target
+        startState === target
     ) {
 
         return;
@@ -5748,9 +5829,7 @@ sectionSwitch.addEventListener(
     () => {
 
         if (
-            !body.classList.contains(
-                "compact-layout"
-            )
+            !isPhoneLayout()
         ) {
 
             morphSwitchTo(
@@ -5768,9 +5847,7 @@ sectionSwitch.addEventListener(
     () => {
 
         if (
-            !body.classList.contains(
-                "compact-layout"
-            )
+            !isPhoneLayout()
         ) {
 
             morphSwitchTo(
@@ -5784,7 +5861,7 @@ sectionSwitch.addEventListener(
 
 
 /* =====================================================
-   RESIZE
+   RESIZE / ROTATION
    ===================================================== */
 
 function handleGeometryChange() {
@@ -5827,9 +5904,16 @@ window.addEventListener(
     "orientationchange",
     () => {
 
+        /*
+            iOS reports intermediate dimensions
+            during rotation.
+
+            Wait until the viewport settles.
+        */
+
         setTimeout(
             handleGeometryChange,
-            250
+            300
         );
 
     }
@@ -5862,8 +5946,7 @@ async function loadProjects() {
             await fetch(
                 PROJECTS_JSON,
                 {
-                    cache:
-                        "no-store"
+                    cache: "no-store"
                 }
             );
 
@@ -5890,14 +5973,12 @@ async function loadProjects() {
                     Array.isArray(
                         project.images
                     ) &&
-                    project.images.length >
-                    0
+                    project.images.length > 0
             );
 
 
         if (
-            projects.length ===
-            0
+            projects.length === 0
         ) {
 
             return;
@@ -6023,15 +6104,13 @@ async function loadProjects() {
         startAutoSlideshow();
 
 
-        if (
-            body.classList.contains(
-                "compact-layout"
-            )
-        ) {
+        /*
+            Safe to keep running:
+            internally checks whether device
+            is currently phone portrait/landscape.
+        */
 
-            mobileLogoCycle();
-
-        }
+        mobileLogoCycle();
 
     }
 
