@@ -80,6 +80,15 @@ button {
 
     --portrait-visual-top: 140px;
 
+
+    /*
+        Dynamically updated by JS in phone landscape.
+    */
+
+    --landscape-safe-left: 300px;
+    --landscape-safe-right: 120px;
+    --landscape-index-start: 300px;
+
 }
 
 
@@ -390,8 +399,7 @@ body {
    VIEW ALL MODE
    ===================================================== */
 
-body.project-all-mode
-#spread {
+body.project-all-mode #spread {
     visibility: hidden;
 }
 
@@ -400,8 +408,7 @@ body.project-all-mode
    INVISIBLE GRID PREPARATION
    ===================================================== */
 
-body.project-all-preparing
-#project-all-view {
+body.project-all-preparing #project-all-view {
     display: block;
 
     visibility: hidden;
@@ -424,8 +431,7 @@ body.project-all-preparing
     pointer-events: auto;
 }
 
-body.project-all-mode
-#project-all-view {
+body.project-all-mode #project-all-view {
     display: block;
 
     visibility: visible;
@@ -620,11 +626,6 @@ body.project-all-mode
     padding-left: var(--side);
     padding-right: var(--side);
 
-    /*
-        Optical centering:
-        text below thumbnails adds visual weight.
-    */
-
     transform: translateY(-8px);
 }
 
@@ -733,19 +734,13 @@ body.project-all-mode
    INDEX MODE
    ===================================================== */
 
-body.index-mode
-#project-stage {
+body.index-mode #project-stage {
     visibility: hidden;
 }
 
 
 /* =====================================================
    TABLET
-
-   Includes most iPads in both orientations.
-
-   Unlike phone landscape, tablet keeps
-   desktop-style composition.
    ===================================================== */
 
 @media
@@ -766,7 +761,6 @@ body.index-mode
 
     }
 
-
     .project-card {
         flex:
             0
@@ -776,11 +770,9 @@ body.index-mode
         width: 250px;
     }
 
-
     .card-image-wrap {
         height: 325px;
     }
-
 
     #index-grid {
         gap: 46px;
@@ -807,22 +799,14 @@ body.phone-landscape {
 
 }
 
-
-body.phone-portrait
-.logo,
-
-body.phone-landscape
-.logo {
+body.phone-portrait .logo,
+body.phone-landscape .logo {
     width: 160px;
     height: 45px;
 }
 
-
-body.phone-portrait
-.logo-aybak,
-
-body.phone-landscape
-.logo-aybak {
+body.phone-portrait .logo-aybak,
+body.phone-landscape .logo-aybak {
     top: 15px;
 }
 
@@ -831,8 +815,7 @@ body.phone-landscape
    PHONE PORTRAIT
    ===================================================== */
 
-body.phone-portrait
-#project-meta {
+body.phone-portrait #project-meta {
     top: auto;
 
     left: var(--side) !important;
@@ -851,20 +834,11 @@ body.phone-portrait
         );
 }
 
-
-body.phone-portrait
-#project-counter {
+body.phone-portrait #project-counter {
     padding-left: 16px;
 }
 
-
-/*
-    Portrait photo gets every available pixel
-    between header and bottom information.
-*/
-
-body.phone-portrait
-#visual-zone {
+body.phone-portrait #visual-zone {
     top: var(--portrait-visual-top);
 
     left: var(--side);
@@ -887,19 +861,13 @@ body.phone-portrait
     overflow: hidden;
 }
 
-
-body.phone-portrait
-#spread,
-
-body.phone-portrait
-.image-cell {
+body.phone-portrait #spread,
+body.phone-portrait .image-cell {
     width: 100%;
     height: 100%;
 }
 
-
-body.phone-portrait
-.spread-image {
+body.phone-portrait .spread-image {
     width: auto;
     height: auto;
 
@@ -914,8 +882,7 @@ body.phone-portrait
    PHONE PORTRAIT INDEX
    ===================================================== */
 
-body.phone-portrait
-#index-scroller {
+body.phone-portrait #index-scroller {
     bottom:
         calc(
             var(--index-bottom) +
@@ -924,17 +891,13 @@ body.phone-portrait
         );
 }
 
-
-body.phone-portrait
-#index-grid {
+body.phone-portrait #index-grid {
     gap: 30px;
 
     transform: translateY(-4px);
 }
 
-
-body.phone-portrait
-.project-card {
+body.phone-portrait .project-card {
     flex:
         0
         0
@@ -943,15 +906,11 @@ body.phone-portrait
     width: 48vw;
 }
 
-
-body.phone-portrait
-.card-image-wrap {
+body.phone-portrait .card-image-wrap {
     height: 56vw;
 }
 
-
-body.phone-portrait
-#project-all-grid {
+body.phone-portrait #project-all-grid {
     gap: 6px;
 }
 
@@ -959,14 +918,10 @@ body.phone-portrait
 /* =====================================================
    PHONE LANDSCAPE
 
-   Separate system.
+   Header/contact is now treated as a real
+   horizontal exclusion zone.
 
-   Important difference:
-   we DO NOT use portrait's
-   header-to-metadata vertical box.
-
-   Image is centered in the viewport and uses
-   viewport HEIGHT aggressively.
+   JS calculates the exact safe boundaries.
    ===================================================== */
 
 body.phone-landscape {
@@ -982,20 +937,22 @@ body.phone-landscape {
 /* =====================================================
    LANDSCAPE SLIDESHOW
 
-   Photo can extend vertically behind the header's
-   vertical region, but width is limited so it remains
-   in the central visual field rather than colliding
-   with the left info block.
+   IMPORTANT:
 
-   This makes it dramatically larger than before.
+   left/right are no longer 0.
+
+   The image lives inside the clean horizontal region
+   between the contact block and the right side.
    ===================================================== */
 
-body.phone-landscape
-#visual-zone {
-    top: 0;
-    left: 0;
+body.phone-landscape #visual-zone {
 
-    width: 100vw;
+    top: 0;
+
+    left: var(--landscape-safe-left);
+    right: var(--landscape-safe-right);
+
+    width: auto;
     height: 100vh;
 
     transform: none;
@@ -1006,51 +963,37 @@ body.phone-landscape
     justify-content: center;
 
     padding:
-        12px
-        24px
-        60px;
+        18px
+        0
+        62px;
 
     overflow: hidden;
 }
 
-
-body.phone-landscape
-#spread,
-
-body.phone-landscape
-.image-cell {
+body.phone-landscape #spread,
+body.phone-landscape .image-cell {
     width: 100%;
     height: 100%;
 }
 
+body.phone-landscape .spread-image {
 
-body.phone-landscape
-.spread-image {
     width: auto;
     height: auto;
 
     /*
-        Height becomes the primary constraint.
+        Fill the clean region rather than using
+        an arbitrary vw maximum.
+    */
+
+    max-width: 100%;
+
+    /*
+        Leave room for the fixed metadata/index
+        region at the bottom.
     */
 
     max-height: 72vh;
-
-    /*
-        Protect the left info region while still
-        allowing a much larger image.
-
-        On a typical landscape iPhone this gives
-        roughly 500px+ usable width.
-    */
-
-    max-width:
-        min(
-            64vw,
-            calc(
-                100vw -
-                320px
-            )
-        );
 
     object-fit: contain;
 }
@@ -1059,14 +1002,14 @@ body.phone-landscape
 /* =====================================================
    LANDSCAPE METADATA
 
-   Full horizontal alignment:
-   Denizalp left -> film right.
+   Metadata intentionally remains tied to the
+   outer site margins, not the photograph.
 
-   Fixed at bottom just above INDEX.
+   Therefore changing image ratio does not move it.
    ===================================================== */
 
-body.phone-landscape
-#project-meta {
+body.phone-landscape #project-meta {
+
     top: auto;
 
     left: var(--side) !important;
@@ -1085,9 +1028,7 @@ body.phone-landscape
         );
 }
 
-
-body.phone-landscape
-#project-counter {
+body.phone-landscape #project-counter {
     padding-left: 16px;
 }
 
@@ -1095,70 +1036,71 @@ body.phone-landscape
 /* =====================================================
    PHONE LANDSCAPE INDEX
 
-   Do NOT use vw-based portrait cards.
+   The first card begins AFTER the contact block.
 
-   Everything scales from viewport HEIGHT.
-   This prevents huge/broken thumbnails after rotation.
+   Once the user scrolls, cards may naturally travel
+   beneath the fixed header area.
    ===================================================== */
 
-body.phone-landscape
-#index-scroller {
-    top: 86px;
+body.phone-landscape #index-scroller {
+
+    top: 72px;
 
     bottom:
         calc(
             var(--index-bottom) +
             env(safe-area-inset-bottom) +
-            30px
+            32px
         );
 
     align-items: center;
 }
 
+body.phone-landscape #index-grid {
 
-body.phone-landscape
-#index-grid {
-    gap: 34px;
+    gap: 38px;
 
-    transform: translateY(-4px);
+    padding-left:
+        var(--landscape-index-start);
+
+    padding-right:
+        var(--side);
+
+    transform: translateY(-2px);
 }
 
+body.phone-landscape .project-card {
 
-body.phone-landscape
-.project-card {
     flex:
         0
         0
         clamp(
-            170px,
-            48vh,
-            230px
+            165px,
+            44vh,
+            220px
         );
 
     width:
         clamp(
-            170px,
-            48vh,
-            230px
+            165px,
+            44vh,
+            220px
         );
 }
 
+body.phone-landscape .card-image-wrap {
 
-body.phone-landscape
-.card-image-wrap {
     height:
         clamp(
             145px,
-            48vh,
-            215px
+            44vh,
+            205px
         );
 
     justify-content: flex-start;
 }
 
-
-body.phone-landscape
-#project-all-grid {
+body.phone-landscape #project-all-grid {
     gap: 6px;
 }
 
@@ -1257,7 +1199,6 @@ body.phone-landscape
 <div id="project-stage">
 
     <div id="project-block">
-
 
         <div id="visual-zone">
 
@@ -1395,6 +1336,12 @@ const body =
 const info =
     document.getElementById(
         "info"
+    );
+
+
+const sectionSwitch =
+    document.getElementById(
+        "section-switch"
     );
 
 
@@ -1540,6 +1487,15 @@ let viewButtonHovered =
     false;
 
 
+/*
+    Used so an orientation change does not carry
+    a portrait pixel scroll position into landscape.
+*/
+
+let previousResponsiveMode =
+    null;
+
+
 /* =====================================================
    INDEX DRAG
    ===================================================== */
@@ -1617,6 +1573,31 @@ function isPhoneLayout() {
         isPhonePortrait() ||
         isPhoneLandscape()
     );
+
+}
+
+
+function getResponsiveMode() {
+
+    if (
+        isPhonePortrait()
+    ) {
+
+        return "phone-portrait";
+
+    }
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        return "phone-landscape";
+
+    }
+
+
+    return "desktop";
 
 }
 
@@ -1805,13 +1786,120 @@ function preloadImage(
 
 
 /* =====================================================
+   LANDSCAPE SAFE ZONES
+
+   This is the important new part.
+
+   We measure the actual width of the info/contact block
+   rather than guessing with vw values.
+   ===================================================== */
+
+function updateLandscapeSafeZones() {
+
+    if (
+        !isPhoneLandscape()
+    ) {
+
+        return;
+
+    }
+
+
+    const infoRect =
+        info.getBoundingClientRect();
+
+
+    const filmRect =
+        sectionSwitch.getBoundingClientRect();
+
+
+    /*
+        Space between contact and photograph.
+
+        Roughly matches the site's existing
+        breathing room.
+    */
+
+    const leftGap =
+        24;
+
+
+    const rightGap =
+        32;
+
+
+    /*
+        Slide photograph begins after the furthest
+        right edge of the info/contact block.
+    */
+
+    const safeLeft =
+        Math.ceil(
+            infoRect.right +
+            leftGap
+        );
+
+
+    /*
+        On the right, reserve the area occupied by film.
+        Since film itself is only at the top, this is
+        intentionally less aggressive than the left.
+    */
+
+    const safeRight =
+        Math.max(
+            24,
+            Math.ceil(
+                window.innerWidth -
+                filmRect.left +
+                rightGap
+            )
+        );
+
+
+    /*
+        Index first thumbnail begins at the same clean
+        horizontal boundary.
+
+        It may later travel beneath the header when
+        the user manually scrolls.
+    */
+
+    const indexStart =
+        safeLeft;
+
+
+    document
+        .documentElement
+        .style
+        .setProperty(
+            "--landscape-safe-left",
+            `${safeLeft}px`
+        );
+
+
+    document
+        .documentElement
+        .style
+        .setProperty(
+            "--landscape-safe-right",
+            `${safeRight}px`
+        );
+
+
+    document
+        .documentElement
+        .style
+        .setProperty(
+            "--landscape-index-start",
+            `${indexStart}px`
+        );
+
+}
+
+
+/* =====================================================
    RESPONSIVE MODE
-
-   Three states:
-
-   phone portrait
-   phone landscape
-   tablet / desktop
    ===================================================== */
 
 function updateResponsiveMode() {
@@ -1822,6 +1910,16 @@ function updateResponsiveMode() {
 
     const landscape =
         isPhoneLandscape();
+
+
+    const newMode =
+        getResponsiveMode();
+
+
+    const modeChanged =
+        previousResponsiveMode !== null &&
+        previousResponsiveMode !==
+        newMode;
 
 
     body.classList.toggle(
@@ -1835,15 +1933,6 @@ function updateResponsiveMode() {
         landscape
     );
 
-
-    /*
-        Portrait photo starts below the full
-        info block.
-
-        Landscape does NOT use this vertical
-        restriction because it would make the
-        photo too small.
-    */
 
     if (
         portrait
@@ -1865,6 +1954,48 @@ function updateResponsiveMode() {
             );
 
     }
+
+
+    if (
+        landscape
+    ) {
+
+        updateLandscapeSafeZones();
+
+    }
+
+
+    /*
+        Portrait scroll pixels do not mean the same
+        thing in landscape.
+
+        Reset only when orientation/layout class
+        genuinely changes while index is visible.
+    */
+
+    if (
+        modeChanged &&
+        indexMode &&
+        (
+            newMode ===
+            "phone-landscape" ||
+            previousResponsiveMode ===
+            "phone-landscape"
+        )
+    ) {
+
+        savedIndexScrollLeft =
+            0;
+
+
+        indexScroller.scrollLeft =
+            0;
+
+    }
+
+
+    previousResponsiveMode =
+        newMode;
 
 }
 
@@ -1897,11 +2028,6 @@ function updateIndexContentTop() {
         isPhoneLandscape()
     ) {
 
-        /*
-            Landscape has its own CSS top,
-            but keep variable valid.
-        */
-
         gap =
             10;
 
@@ -1924,12 +2050,6 @@ function updateIndexContentTop() {
 
 /* =====================================================
    SIMPLE SEQUENTIAL CHARACTER MORPH
-
-   No opacity.
-   No fade.
-
-   Existing characters are progressively replaced
-   from left to right.
    ===================================================== */
 
 function morphSequential(
@@ -2458,17 +2578,10 @@ function renderImage(
 
 
 /* =====================================================
-   META HORIZONTAL ALIGNMENT
+   PROJECT META HORIZONTAL
    ===================================================== */
 
 function syncMetadataHorizontal() {
-
-    /*
-        Both phone orientations use fixed site margins:
-
-        Denizalp left
-        film right
-    */
 
     if (
         isPhoneLayout()
@@ -2500,11 +2613,6 @@ function syncMetadataHorizontal() {
 
     }
 
-
-    /*
-        Tablet / desktop:
-        metadata follows actual photograph width.
-    */
 
     if (
         indexMode ||
@@ -2577,9 +2685,7 @@ function syncMetadataAfterRender() {
 
 
 /* =====================================================
-   UPDATE PROJECT METADATA
-
-   Counter has NO animation.
+   UPDATE METADATA
    ===================================================== */
 
 async function updateMetadata(
@@ -2783,6 +2889,15 @@ async function showFrame(
         );
 
 
+        if (
+            isPhoneLandscape()
+        ) {
+
+            updateLandscapeSafeZones();
+
+        }
+
+
         syncMetadataAfterRender();
 
 
@@ -2973,7 +3088,7 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
-   PRIMARY CLICK / SPACE
+   PRIMARY ACTION
    ===================================================== */
 
 async function performPrimarySlideAction() {
@@ -3074,10 +3189,6 @@ function syncProjectAllBounds(
     if (
         isPhoneLandscape()
     ) {
-
-        /*
-            Landscape has little vertical space.
-        */
 
         topGap =
             8;
@@ -3352,7 +3463,7 @@ function buildProjectAllGrid() {
 
 
 /* =====================================================
-   PREPARE GRID INVISIBLY
+   PREPARE GRID
    ===================================================== */
 
 function prepareProjectAllGrid() {
@@ -3695,6 +3806,15 @@ async function leaveProjectAll(
         "";
 
 
+    if (
+        isPhoneLandscape()
+    ) {
+
+        updateLandscapeSafeZones();
+
+    }
+
+
     syncMetadataAfterRender();
 
 
@@ -3759,7 +3879,7 @@ async function leaveProjectAll(
 
 
 /* =====================================================
-   CLOSE
+   CLOSE VIEW ALL
    ===================================================== */
 
 async function exitProjectAll() {
@@ -3774,7 +3894,7 @@ async function exitProjectAll() {
 
 
 /* =====================================================
-   VIEW ALL THUMB -> FRAME
+   THUMB -> FRAME
    ===================================================== */
 
 async function exitProjectAllToFrame(
@@ -4090,10 +4210,6 @@ function buildIndex() {
                     "button";
 
 
-                /* -------------------------------------
-                   IMAGE
-                   ------------------------------------- */
-
                 const imageWrap =
                     document.createElement(
                         "span"
@@ -4128,10 +4244,6 @@ function buildIndex() {
                     img
                 );
 
-
-                /* -------------------------------------
-                   COPY
-                   ------------------------------------- */
 
                 const copy =
                     document.createElement(
@@ -4194,10 +4306,6 @@ function buildIndex() {
                     copy
                 );
 
-
-                /* -------------------------------------
-                   HOVER CASE
-                   ------------------------------------- */
 
                 const titleCase =
                     createCaseController(
@@ -4302,7 +4410,7 @@ function buildIndex() {
 
 
 /* =====================================================
-   GENERIC WORD CASE
+   WORD CASE
    ===================================================== */
 
 function renderWordCase(
@@ -4587,6 +4695,15 @@ async function enterIndex() {
 
 
     updateIndexContentTop();
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        updateLandscapeSafeZones();
+
+    }
 
 
     indexMode =
@@ -5686,12 +5803,6 @@ function mobileLogoCycle() {
    FILM
    ===================================================== */
 
-const sectionSwitch =
-    document.getElementById(
-        "section-switch"
-    );
-
-
 const sectionSwitchText =
     document.getElementById(
         "section-switch-text"
@@ -5872,6 +5983,15 @@ function handleGeometryChange() {
     updateIndexContentTop();
 
 
+    if (
+        isPhoneLandscape()
+    ) {
+
+        updateLandscapeSafeZones();
+
+    }
+
+
     syncMetadataAfterRender();
 
 
@@ -5905,15 +6025,22 @@ window.addEventListener(
     () => {
 
         /*
-            iOS reports intermediate dimensions
-            during rotation.
+            iOS reports temporary viewport dimensions
+            while rotating.
 
-            Wait until the viewport settles.
+            First pass happens immediately, then another
+            after Safari has settled.
         */
 
         setTimeout(
             handleGeometryChange,
-            300
+            120
+        );
+
+
+        setTimeout(
+            handleGeometryChange,
+            400
         );
 
     }
@@ -6019,10 +6146,6 @@ async function loadProjects() {
         );
 
 
-        /* ---------------------------------------------
-           INITIAL META
-           --------------------------------------------- */
-
         const title =
             projects[
                 0
@@ -6075,10 +6198,6 @@ async function loadProjects() {
             "view all";
 
 
-        /* ---------------------------------------------
-           PRELOAD COVERS
-           --------------------------------------------- */
-
         projects.forEach(
             project => {
 
@@ -6098,17 +6217,20 @@ async function loadProjects() {
         updateIndexContentTop();
 
 
+        if (
+            isPhoneLandscape()
+        ) {
+
+            updateLandscapeSafeZones();
+
+        }
+
+
         syncMetadataAfterRender();
 
 
         startAutoSlideshow();
 
-
-        /*
-            Safe to keep running:
-            internally checks whether device
-            is currently phone portrait/landscape.
-        */
 
         mobileLogoCycle();
 
