@@ -189,8 +189,6 @@ body {
 
     object-fit: contain;
 
-    opacity: 1;
-
     pointer-events: none;
 }
 
@@ -219,7 +217,6 @@ body {
 
     .logo-aybak {
         top: 15px;
-
         font-size: 13px;
     }
 
@@ -393,7 +390,7 @@ body {
 
 
 /* =====================================================
-   R2 / PHOTOS.JSON
+   R2
    ===================================================== */
 
 const R2_BASE =
@@ -410,15 +407,43 @@ const PHOTOS_JSON =
 const SLIDE_DURATION =
     3000;
 
-const PRELOAD_BEHIND =
-    1;
+
+/*
+    Fast local window.
+*/
 
 const PRELOAD_AHEAD =
-    3;
+    6;
+
+const PRELOAD_BEHIND =
+    2;
+
+
+/*
+    How long to wait for the exact requested
+    frame before skipping to another ready one.
+*/
+
+const MANUAL_WAIT =
+    250;
+
+const AUTO_WAIT =
+    900;
+
+
+/*
+    Background portfolio warming.
+
+    Remaining images are loaded progressively,
+    not all at once.
+*/
+
+const BACKGROUND_PRELOAD_DELAY =
+    250;
 
 
 /* =====================================================
-   GLOBAL WORD TIMING
+   WORD TIMING
    ===================================================== */
 
 const WORD_TRANSITION_DURATION =
@@ -426,7 +451,7 @@ const WORD_TRANSITION_DURATION =
 
 
 /* =====================================================
-   ELEMENTS / STATE
+   ELEMENTS
    ===================================================== */
 
 const slideshow =
@@ -445,6 +470,10 @@ const info =
     );
 
 
+/* =====================================================
+   STATE
+   ===================================================== */
+
 let photos =
     [];
 
@@ -459,15 +488,24 @@ let slideTimer =
 
 
 /*
-    Stores preload promises.
+    Each item:
+
+    {
+        image,
+        status,
+        promise
+    }
+
+    status:
+    idle / loading / loaded / error
 */
 
-const preloadCache =
+const imageCache =
     new Map();
 
 
 /* =====================================================
-   R2 URL
+   URL
    ===================================================== */
 
 function getPhotoUrl(
@@ -485,7 +523,7 @@ function getPhotoUrl(
 
 
 /* =====================================================
-   NORMALIZE INDEX
+   INDEX
    ===================================================== */
 
 function normalizeIndex(
@@ -493,8 +531,7 @@ function normalizeIndex(
 ) {
 
     if (
-        photos.length ===
-        0
+        photos.length === 0
     ) {
 
         return 0;
@@ -515,7 +552,59 @@ function normalizeIndex(
 
 
 /* =====================================================
-   PRELOAD ONE IMAGE
+   CACHE ENTRY
+   ===================================================== */
+
+function getCacheEntry(
+    index
+) {
+
+    index =
+        normalizeIndex(
+            index
+        );
+
+
+    if (
+        imageCache.has(
+            index
+        )
+    ) {
+
+        return imageCache.get(
+            index
+        );
+
+    }
+
+
+    const entry = {
+
+        image:
+            null,
+
+        status:
+            "idle",
+
+        promise:
+            null
+
+    };
+
+
+    imageCache.set(
+        index,
+        entry
+    );
+
+
+    return entry;
+
+}
+
+
+/* =====================================================
+   START IMAGE LOAD
    ===================================================== */
 
 function preloadPhoto(
@@ -528,20 +617,39 @@ function preloadPhoto(
         );
 
 
-    if (
-        preloadCache.has(
+    const entry =
+        getCacheEntry(
             index
-        )
+        );
+
+
+    if (
+        entry.status ===
+        "loaded"
     ) {
 
-        return preloadCache.get(
-            index
+        return Promise.resolve(
+            entry.image
         );
 
     }
 
 
-    const promise =
+    if (
+        entry.status ===
+        "loading"
+    ) {
+
+        return entry.promise;
+
+    }
+
+
+    entry.status =
+        "loading";
+
+
+    entry.promise =
         new Promise(
             (
                 resolve,
@@ -557,36 +665,42 @@ function preloadPhoto(
 
 
                 image.onload =
-                    () => {
+                    async () => {
 
-                        if (
-                            image.decode
-                        ) {
+                        try {
 
+                            if (
+                                image.decode
+                            ) {
+
+                                await image.decode();
+
+                            }
+
+                        }
+
+                        catch (error) {
+
+                            /*
+                                Image already loaded.
+                                Decode failure does not
+                                mean the asset is unusable.
+                            */
+
+                        }
+
+
+                        entry.image =
+                            image;
+
+
+                        entry.status =
+                            "loaded";
+
+
+                        resolve(
                             image
-                                .decode()
-                                .catch(
-                                    () => {}
-                                )
-                                .finally(
-                                    () => {
-
-                                        resolve(
-                                            image
-                                        );
-
-                                    }
-                                );
-
-                        }
-
-                        else {
-
-                            resolve(
-                                image
-                            );
-
-                        }
+                        );
 
                     };
 
@@ -594,14 +708,13 @@ function preloadPhoto(
                 image.onerror =
                     () => {
 
-                        preloadCache.delete(
-                            index
-                        );
+                        entry.status =
+                            "error";
 
 
                         reject(
                             new Error(
-                                `Could not load ${photos[index]}`
+                                `Could not load: ${photos[index]}`
                             )
                         );
 
@@ -617,24 +730,93 @@ function preloadPhoto(
         );
 
 
-    preloadCache.set(
-        index,
-        promise
-    );
-
-
-    return promise;
+    return entry.promise;
 
 }
 
 
 /* =====================================================
-   PRELOAD WINDOW
+   STATUS
+   ===================================================== */
+
+function isPhotoLoaded(
+    index
+) {
+
+    const entry =
+        imageCache.get(
+            normalizeIndex(
+                index
+            )
+        );
+
+
+    return (
+        entry &&
+        entry.status ===
+        "loaded"
+    );
+
+}
+
+
+/* =====================================================
+   WAIT WITH TIMEOUT
+   ===================================================== */
+
+function waitForPhoto(
+    index,
+    timeout
+) {
+
+    return Promise.race(
+        [
+
+            preloadPhoto(
+                index
+            ),
+
+
+            new Promise(
+                (
+                    resolve,
+                    reject
+                ) => {
+
+                    setTimeout(
+                        () => {
+
+                            reject(
+                                new Error(
+                                    "timeout"
+                                )
+                            );
+
+                        },
+                        timeout
+                    );
+
+                }
+            )
+
+        ]
+    );
+
+}
+
+
+/* =====================================================
+   PRELOAD NEAR CURRENT
    ===================================================== */
 
 function preloadAround(
     index
 ) {
+
+    /*
+        Forward first because forward
+        navigation is used most.
+    */
 
     for (
         let offset = 1;
@@ -671,75 +853,103 @@ function preloadAround(
 
 
 /* =====================================================
-   CLEAN PRELOAD CACHE
+   BACKGROUND WARMING
    ===================================================== */
 
-function trimPreloadCache(
-    centerIndex
-) {
+function startBackgroundPreloading() {
 
-    const keep =
-        new Set();
+    let offset =
+        PRELOAD_AHEAD +
+        1;
 
 
-    for (
-        let offset = -2;
-        offset <= 5;
-        offset++
-    ) {
+    function loadNext() {
 
-        keep.add(
+        if (
+            photos.length === 0 ||
+            offset >=
+            photos.length
+        ) {
+
+            return;
+
+        }
+
+
+        const index =
             normalizeIndex(
-                centerIndex +
+                current +
                 offset
-            )
+            );
+
+
+        preloadPhoto(
+            index
+        )
+        .catch(
+            () => {}
+        )
+        .finally(
+            () => {
+
+                offset++;
+
+
+                setTimeout(
+                    loadNext,
+                    BACKGROUND_PRELOAD_DELAY
+                );
+
+            }
         );
 
     }
 
 
-    for (
-        const index of
-        preloadCache.keys()
-    ) {
-
-        if (
-            !keep.has(
-                index
-            )
-        ) {
-
-            preloadCache.delete(
-                index
-            );
-
-        }
-
-    }
+    setTimeout(
+        loadNext,
+        500
+    );
 
 }
 
 
 /* =====================================================
-   DISPLAY A VALID PHOTO
+   DISPLAY
    ===================================================== */
 
-async function displayPhoto(
-    targetIndex
+function displayLoadedPhoto(
+    index
 ) {
 
-    const image =
-        await preloadPhoto(
-            targetIndex
+    index =
+        normalizeIndex(
+            index
         );
 
 
+    const entry =
+        getCacheEntry(
+            index
+        );
+
+
+    if (
+        entry.status !==
+        "loaded"
+    ) {
+
+        return false;
+
+    }
+
+
     current =
-        targetIndex;
+        index;
 
 
     currentPhoto.src =
-        image.src;
+        entry.image.src;
 
 
     preloadAround(
@@ -747,26 +957,244 @@ async function displayPhoto(
     );
 
 
-    trimPreloadCache(
-        current
-    );
-
-
     updateMobileSlideshow();
+
+
+    return true;
 
 }
 
 
 /* =====================================================
-   SHOW PHOTO
+   FIND READY PHOTO
    ===================================================== */
 
-async function showPhoto(
-    index
+function findLoadedPhoto(
+    startIndex,
+    direction
+) {
+
+    for (
+        let offset = 0;
+        offset <
+        photos.length;
+        offset++
+    ) {
+
+        const index =
+            normalizeIndex(
+                startIndex +
+                (
+                    offset *
+                    direction
+                )
+            );
+
+
+        if (
+            isPhotoLoaded(
+                index
+            )
+        ) {
+
+            return index;
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
+   FIND NEXT USABLE PHOTO
+   ===================================================== */
+
+async function move(
+    direction,
+    waitTime
 ) {
 
     if (
-        photos.length ===
+        photos.length <= 1
+    ) {
+
+        return false;
+
+    }
+
+
+    const exactTarget =
+        normalizeIndex(
+            current +
+            direction
+        );
+
+
+    /*
+        Start requested image immediately.
+    */
+
+    preloadPhoto(
+        exactTarget
+    ).catch(
+        () => {}
+    );
+
+
+    /*
+        If already loaded, switch instantly.
+    */
+
+    if (
+        isPhotoLoaded(
+            exactTarget
+        )
+    ) {
+
+        return displayLoadedPhoto(
+            exactTarget
+        );
+
+    }
+
+
+    /*
+        Give exact requested frame a short
+        opportunity to finish.
+    */
+
+    try {
+
+        await waitForPhoto(
+            exactTarget,
+            waitTime
+        );
+
+
+        if (
+            isPhotoLoaded(
+                exactTarget
+            )
+        ) {
+
+            return displayLoadedPhoto(
+                exactTarget
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        /*
+            Timeout/error:
+            immediately look for another
+            already prepared image.
+        */
+
+    }
+
+
+    /*
+        Do NOT leave the interface feeling dead.
+
+        Find the nearest READY frame in the
+        requested direction and jump to it.
+    */
+
+    const readyIndex =
+        findLoadedPhoto(
+            exactTarget +
+            direction,
+            direction
+        );
+
+
+    if (
+        readyIndex !== null &&
+        readyIndex !== current
+    ) {
+
+        return displayLoadedPhoto(
+            readyIndex
+        );
+
+    }
+
+
+    /*
+        None is ready yet.
+
+        Race the next few candidates.
+        Whichever loads first wins.
+    */
+
+    const candidates =
+        [];
+
+
+    for (
+        let offset = 1;
+        offset <= 6;
+        offset++
+    ) {
+
+        const index =
+            normalizeIndex(
+                current +
+                (
+                    offset *
+                    direction
+                )
+            );
+
+
+        const entry =
+            getCacheEntry(
+                index
+            );
+
+
+        /*
+            Ignore permanent errors.
+        */
+
+        if (
+            entry.status ===
+            "error"
+        ) {
+
+            continue;
+
+        }
+
+
+        const candidate =
+            preloadPhoto(
+                index
+            )
+            .then(
+                () => index
+            )
+            .catch(
+                () => null
+            );
+
+
+        candidates.push(
+            candidate
+        );
+
+    }
+
+
+    if (
+        candidates.length ===
         0
     ) {
 
@@ -775,147 +1203,106 @@ async function showPhoto(
     }
 
 
-    const targetIndex =
-        normalizeIndex(
-            index
-        );
-
-
-    try {
-
-        await displayPhoto(
-            targetIndex
-        );
-
-
-        return true;
-
-    }
-
-    catch (error) {
-
-        console.warn(
-            `Photo skipped: ${photos[targetIndex]}`
-        );
-
-
-        return false;
-
-    }
-
-}
-
-
-/* =====================================================
-   NEXT
-   FAIL-SAFE
-   ===================================================== */
-
-async function nextSlide() {
-
-    if (
-        photos.length <=
-        1
-    ) {
-
-        return;
-
-    }
-
-
     /*
-        Try each following image until
-        one loads successfully.
-
-        One bad filename can never
-        freeze the slideshow.
+        Resolve as each promise completes until
+        we get a valid index.
     */
 
-    for (
-        let offset = 1;
-        offset <
-        photos.length;
-        offset++
+    const wrapped =
+        candidates.map(
+            promise =>
+                promise.then(
+                    value => ({
+                        value,
+                        promise
+                    })
+                )
+        );
+
+
+    const pending =
+        [...wrapped];
+
+
+    while (
+        pending.length >
+        0
     ) {
 
-        const targetIndex =
-            normalizeIndex(
-                current +
-                offset
+        const result =
+            await Promise.race(
+                pending
             );
 
 
-        const success =
-            await showPhoto(
-                targetIndex
+        const removeIndex =
+            pending.indexOf(
+                result.promise
             );
 
 
         if (
-            success
+            removeIndex >=
+            0
         ) {
 
-            return;
+            pending.splice(
+                removeIndex,
+                1
+            );
+
+        }
+
+
+        if (
+            result.value !==
+            null
+        ) {
+
+            return displayLoadedPhoto(
+                result.value
+            );
 
         }
 
     }
 
+
+    return false;
+
 }
 
 
 /* =====================================================
-   PREVIOUS
-   FAIL-SAFE
+   NEXT / PREVIOUS
    ===================================================== */
 
-async function previousSlide() {
+function nextSlide(
+    manual = false
+) {
 
-    if (
-        photos.length <=
-        1
-    ) {
+    return move(
+        1,
+        manual
+            ? MANUAL_WAIT
+            : AUTO_WAIT
+    );
 
-        return;
-
-    }
-
-
-    for (
-        let offset = 1;
-        offset <
-        photos.length;
-        offset++
-    ) {
-
-        const targetIndex =
-            normalizeIndex(
-                current -
-                offset
-            );
+}
 
 
-        const success =
-            await showPhoto(
-                targetIndex
-            );
+function previousSlide() {
 
-
-        if (
-            success
-        ) {
-
-            return;
-
-        }
-
-    }
+    return move(
+        -1,
+        MANUAL_WAIT
+    );
 
 }
 
 
 /* =====================================================
-   LOAD PHOTOS.JSON
+   LOAD JSON
    ===================================================== */
 
 async function loadPhotos() {
@@ -975,57 +1362,66 @@ async function loadPhotos() {
             0
         ) {
 
-            throw new Error(
-                "photos.json contains no valid photos."
-            );
+            return;
 
         }
 
 
         /*
-            Find the first valid image.
-
-            Even if the first JSON entry
-            is broken, the site still opens.
+            Load first valid photo.
         */
 
-        let loaded =
-            false;
-
-
         for (
-            let i = 0;
-            i <
+            let index = 0;
+            index <
             photos.length;
-            i++
+            index++
         ) {
 
-            loaded =
-                await showPhoto(
-                    i
+            try {
+
+                await preloadPhoto(
+                    index
                 );
 
 
-            if (
-                loaded
-            ) {
+                if (
+                    displayLoadedPhoto(
+                        index
+                    )
+                ) {
 
-                break;
+                    break;
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.warn(
+                    `Skipping: ${photos[index]}`
+                );
 
             }
 
         }
 
 
-        if (
-            !loaded
-        ) {
+        /*
+            Immediately prepare nearby frames.
+        */
 
-            throw new Error(
-                "No valid R2 photos could be loaded."
-            );
+        preloadAround(
+            current
+        );
 
-        }
+
+        /*
+            Slowly warm the rest of the portfolio.
+        */
+
+        startBackgroundPreloading();
 
 
         startAutoSlideshow();
@@ -1035,7 +1431,6 @@ async function loadPhotos() {
     catch (error) {
 
         console.error(
-            "Photography could not be loaded:",
             error
         );
 
@@ -1045,7 +1440,7 @@ async function loadPhotos() {
 
 
 /* =====================================================
-   AUTO SLIDESHOW
+   AUTO
    ===================================================== */
 
 function scheduleNextSlide() {
@@ -1068,7 +1463,9 @@ function scheduleNextSlide() {
         setTimeout(
             async () => {
 
-                await nextSlide();
+                await nextSlide(
+                    false
+                );
 
 
                 scheduleNextSlide();
@@ -1105,7 +1502,7 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
-   CLICK NAVIGATION
+   CLICK
    ===================================================== */
 
 document.body.addEventListener(
@@ -1124,8 +1521,7 @@ document.body.addEventListener(
 
 
         /*
-            First click:
-            stop autoplay only.
+            First click only stops autoplay.
         */
 
         if (
@@ -1139,13 +1535,6 @@ document.body.addEventListener(
 
         }
 
-
-        /*
-            Later clicks:
-
-            LEFT 25% = previous
-            RIGHT 75% = next
-        */
 
         const percentage =
             event.clientX /
@@ -1163,7 +1552,9 @@ document.body.addEventListener(
 
         else {
 
-            await nextSlide();
+            await nextSlide(
+                true
+            );
 
         }
 
@@ -1303,7 +1694,7 @@ function updateMobileSlideshow() {
 
 
 /* =====================================================
-   VIEWPORT UPDATES
+   VIEWPORT
    ===================================================== */
 
 window.addEventListener(
@@ -1430,10 +1821,6 @@ let logoTimer =
     null;
 
 
-/* =====================================================
-   LOGO STATE
-   ===================================================== */
-
 function setLogoState(
     state
 ) {
@@ -1443,8 +1830,7 @@ function setLogoState(
 
 
     logoName.textContent =
-        state ===
-        0
+        state === 0
             ? "Denizalp"
             : "denizalp";
 
@@ -1458,8 +1844,7 @@ function setLogoState(
 
         letters[i]
             .textContent =
-            i <
-            state
+            i < state
                 ? uppercase[i]
                 : lowercase[i];
 
@@ -1467,10 +1852,6 @@ function setLogoState(
 
 }
 
-
-/* =====================================================
-   MOVE LOGO
-   ===================================================== */
 
 function moveLogo() {
 
@@ -1505,10 +1886,6 @@ function moveLogo() {
 }
 
 
-/* =====================================================
-   ANIMATE LOGO
-   ===================================================== */
-
 function animateTo(
     target
 ) {
@@ -1533,10 +1910,6 @@ function animateTo(
 
 }
 
-
-/* =====================================================
-   DESKTOP LOGO
-   ===================================================== */
 
 logo.addEventListener(
     "mouseenter",
@@ -1575,10 +1948,6 @@ logo.addEventListener(
     }
 );
 
-
-/* =====================================================
-   MOBILE LOGO
-   ===================================================== */
 
 function mobileLogoCycle() {
 
@@ -1631,7 +2000,6 @@ if (
 
 /* =====================================================
    SECTION SWITCH
-   FILM — exact 600ms
    ===================================================== */
 
 const sectionSwitch =
@@ -1657,10 +2025,6 @@ let switchState =
 let switchAnimationFrame =
     null;
 
-
-/* =====================================================
-   RENDER SWITCH
-   ===================================================== */
 
 function renderSwitch(
     upperCount
@@ -1697,10 +2061,6 @@ function renderSwitch(
 
 }
 
-
-/* =====================================================
-   MORPH SWITCH
-   ===================================================== */
 
 function morphSwitchTo(
     target
@@ -1816,10 +2176,6 @@ function morphSwitchTo(
 
 }
 
-
-/* =====================================================
-   DESKTOP SECTION SWITCH
-   ===================================================== */
 
 sectionSwitch.addEventListener(
     "mouseenter",
