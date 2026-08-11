@@ -25,13 +25,17 @@ html,
 body {
     margin: 0;
     padding: 0;
+
     width: 100%;
     height: 100%;
 
     background: #fff;
     color: #000;
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 
     overflow: hidden;
 
@@ -45,6 +49,7 @@ body {
    ===================================================== */
 
 :root {
+
     --font-size: 15px;
     --line-height: 1.15;
 
@@ -53,7 +58,16 @@ body {
 
     --index-bottom: 24px;
 
-    --counter-gap: 6px;
+    /*
+       Same visual gap is used for:
+       - title below image
+       - date below image
+       - rotated counter beside image
+       - rotated index date beside thumbnail
+    */
+
+    --meta-gap: 6px;
+
 }
 
 
@@ -154,11 +168,13 @@ body {
 
     font-size: var(--font-size);
     line-height: var(--line-height);
+
+    -webkit-tap-highlight-color: transparent;
 }
 
 
 /* =====================================================
-   STAGE
+   PROJECT STAGE
    ===================================================== */
 
 #project-stage {
@@ -264,30 +280,54 @@ body {
 
 
 /* =====================================================
-   ROTATED IMAGE COUNTER
+   ROTATED COUNTER
 
-   transform-origin is top right.
+   IMPORTANT:
 
-   The counter begins at the top-right corner
-   and runs vertically downward.
+   .counter-anchor sits at:
+   x = image right edge + gap
+   y = image top edge
+
+   The text itself starts at 0,0 inside that anchor
+   and rotates CLOCKWISE by 90 degrees.
+
+   Therefore the FIRST CHARACTER starts at the
+   top-right level of the image and the word runs
+   downward along the right edge.
    ===================================================== */
+
+.counter-anchor {
+    position: absolute;
+
+    top: 0;
+    left: calc(100% + var(--meta-gap));
+
+    width: 0;
+    height: 0;
+
+    overflow: visible;
+
+    pointer-events: none;
+}
 
 .image-counter {
     position: absolute;
 
     top: 0;
-    right: calc(-1 * var(--counter-gap));
+    left: 0;
+
+    display: block;
+
+    margin: 0;
+    padding: 0;
 
     font-size: var(--font-size);
     line-height: 1;
 
     white-space: nowrap;
 
-    transform-origin: top right;
-
-    transform:
-        translateY(100%)
-        rotate(90deg);
+    transform-origin: 0 0;
+    transform: rotate(90deg);
 
     pointer-events: none;
 }
@@ -295,6 +335,9 @@ body {
 
 /* =====================================================
    PROJECT META
+
+   title = left bottom
+   date  = right bottom
    ===================================================== */
 
 #project-meta {
@@ -305,7 +348,7 @@ body {
 
     width: auto;
 
-    margin-top: 9px;
+    margin-top: var(--meta-gap);
 
     font-size: var(--font-size);
     line-height: var(--line-height);
@@ -327,7 +370,7 @@ body {
 
 
 /* =====================================================
-   INDEX CONTROL
+   INDEX BUTTON
    ===================================================== */
 
 #index-button {
@@ -402,9 +445,10 @@ body {
 /* =====================================================
    INDEX SCROLLER
 
-   IMPORTANT:
-   Footer space is structurally reserved.
-   The grid can never occupy INDEX's area.
+   There is NO visible footer.
+
+   The bottom value simply stops scrollable content
+   before it reaches the fixed index button.
    ===================================================== */
 
 #index-scroller {
@@ -416,14 +460,14 @@ body {
 
     bottom:
         calc(
-            58px +
+            54px +
             env(safe-area-inset-bottom)
         );
 
     padding:
         108px
         56px
-        24px;
+        20px;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -457,32 +501,7 @@ body {
 
 
 /* =====================================================
-   INDEX FOOTER
-
-   This is a protected zone.
-   ===================================================== */
-
-#index-footer {
-    position: absolute;
-
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    height:
-        calc(
-            58px +
-            env(safe-area-inset-bottom)
-        );
-
-    background: #fff;
-
-    pointer-events: none;
-}
-
-
-/* =====================================================
-   CARD
+   PROJECT CARD
    ===================================================== */
 
 .project-card {
@@ -555,16 +574,38 @@ body {
 
 
 /* =====================================================
-   INDEX DATE — ROTATED
+   INDEX ROTATED DATE
 
-   Top-right -> downward.
+   Same anchor system as slideshow counter.
+
+   First character begins level with thumbnail's
+   top-right corner, then text runs downward.
    ===================================================== */
+
+.card-date-anchor {
+    position: absolute;
+
+    top: 0;
+    left: calc(100% + var(--meta-gap));
+
+    width: 0;
+    height: 0;
+
+    overflow: visible;
+
+    pointer-events: none;
+}
 
 .card-date {
     position: absolute;
 
     top: 0;
-    right: calc(-1 * var(--counter-gap));
+    left: 0;
+
+    display: block;
+
+    margin: 0;
+    padding: 0;
 
     font-size: var(--font-size);
     line-height: 1;
@@ -573,11 +614,8 @@ body {
 
     white-space: nowrap;
 
-    transform-origin: top right;
-
-    transform:
-        translateY(100%)
-        rotate(90deg);
+    transform-origin: 0 0;
+    transform: rotate(90deg);
 
     pointer-events: none;
 }
@@ -592,7 +630,7 @@ body {
 
     width: 100%;
 
-    margin-top: 6px;
+    margin-top: var(--meta-gap);
 
     font-size: var(--font-size);
     line-height: var(--line-height);
@@ -629,8 +667,9 @@ body.index-mode #project-stage {
     #index-scroller {
         padding:
             106px
-            32px
-            24px;
+            38px
+            20px
+            32px;
     }
 
     #index-grid {
@@ -642,7 +681,7 @@ body.index-mode #project-stage {
 
         gap:
             30px
-            26px;
+            30px;
     }
 
     .project-card {
@@ -663,6 +702,7 @@ body.index-mode #project-stage {
 @media (max-width: 600px) {
 
     :root {
+
         --font-size: 13px;
 
         --side: 24px;
@@ -670,7 +710,8 @@ body.index-mode #project-stage {
 
         --index-bottom: 18px;
 
-        --counter-gap: 5px;
+        --meta-gap: 5px;
+
     }
 
 
@@ -699,14 +740,13 @@ body.index-mode #project-stage {
 
 
     /*
-       Mobile portrait stays
-       single-image.
+       Mobile portrait = one image.
     */
 
     #spread {
         gap: 0;
 
-        max-width: 80vw;
+        max-width: 78vw;
     }
 
     #spread.pair {
@@ -720,12 +760,12 @@ body.index-mode #project-stage {
 
     #spread.pair .image-cell,
     #spread.single .image-cell {
-        max-width: 80vw;
+        max-width: 78vw;
     }
 
     #spread.pair .spread-image,
     #spread.single .spread-image {
-        max-width: 80vw;
+        max-width: 78vw;
 
         max-height:
             calc(
@@ -736,23 +776,29 @@ body.index-mode #project-stage {
 
 
     /* -------------------------
-       INDEX
+       MOBILE INDEX
+
+       No footer.
+       No bar.
+       No visible container.
+
+       We simply reserve enough invisible space
+       between the last row and the fixed index button.
        ------------------------- */
 
     #index-scroller {
         bottom:
             calc(
-                68px +
+                48px +
                 env(safe-area-inset-bottom)
             );
 
         padding:
-            118px
-            27px
+            112px
             30px
+            18px
             20px;
     }
-
 
     #index-grid {
         grid-template-columns:
@@ -762,43 +808,14 @@ body.index-mode #project-stage {
             );
 
         gap:
-            36px
-            26px;
+            34px
+            28px;
 
         width: 100%;
     }
-
 
     .project-card {
         width: 100%;
-    }
-
-
-    /*
-       Protected footer is slightly
-       taller on mobile.
-    */
-
-    #index-footer {
-        height:
-            calc(
-                68px +
-                env(safe-area-inset-bottom)
-            );
-    }
-
-
-    /*
-       INDEX lives in the middle of
-       that protected footer zone.
-    */
-
-    body.index-mode #index-button {
-        bottom:
-            calc(
-                24px +
-                env(safe-area-inset-bottom)
-            );
     }
 
 }
@@ -813,12 +830,16 @@ body.index-mode #project-stage {
     and (max-height: 700px) {
 
     :root {
+
         --font-size: 13px;
 
         --side: 24px;
         --top: 20px;
 
         --index-bottom: 16px;
+
+        --meta-gap: 5px;
+
     }
 
 
@@ -883,24 +904,15 @@ body.index-mode #project-stage {
     #index-scroller {
         bottom:
             calc(
-                52px +
+                44px +
                 env(safe-area-inset-bottom)
             );
 
         padding:
-            82px
-            30px
-            18px
+            76px
+            32px
+            12px
             205px;
-    }
-
-
-    #index-footer {
-        height:
-            calc(
-                52px +
-                env(safe-area-inset-bottom)
-            );
     }
 
 
@@ -912,8 +924,8 @@ body.index-mode #project-stage {
             );
 
         gap:
-            18px
-            22px;
+            16px
+            24px;
     }
 
 
@@ -922,15 +934,6 @@ body.index-mode #project-stage {
             min(
                 100%,
                 150px
-            );
-    }
-
-
-    body.index-mode #index-button {
-        bottom:
-            calc(
-                17px +
-                env(safe-area-inset-bottom)
             );
     }
 
@@ -946,13 +949,13 @@ body.index-mode #project-stage {
     and (max-height: 430px) {
 
     #index-scroller {
-        padding-top: 72px;
+        padding-top: 68px;
     }
 
     #index-grid {
         gap:
-            12px
-            18px;
+            10px
+            20px;
     }
 
     .project-card {
@@ -1039,7 +1042,7 @@ body.index-mode #project-stage {
 
 
 <!-- ===================================================
-     FILM
+     FILM SWITCH
      =================================================== -->
 
 <a
@@ -1105,8 +1108,6 @@ body.index-mode #project-stage {
 
     </div>
 
-    <div id="index-footer"></div>
-
 </div>
 
 
@@ -1137,9 +1138,10 @@ const COUNTER_ANIMATION_DURATION =
     220;
 
 
-const INDEX_ANIMATION_DURATION =
-    400;
-
+/*
+   Same full-word duration system used
+   for the other morphing words.
+*/
 
 const WORD_TRANSITION_DURATION =
     600;
@@ -1227,12 +1229,6 @@ let spreadEnd =
     0;
 
 
-/*
-   manualMode means the automatic
-   slideshow has already been stopped
-   by the user.
-*/
-
 let manualMode =
     false;
 
@@ -1250,9 +1246,7 @@ let interfaceAnimating =
 
 
 /*
-   This remembers whether autoplay
-   was running immediately before
-   entering INDEX.
+   Was autoplay active before INDEX opened?
 */
 
 let autoplayBeforeIndex =
@@ -1506,8 +1500,7 @@ async function getForwardSpread(
 
 
     /*
-       Landscape:
-       always single.
+       Landscape = single.
     */
 
     if (
@@ -1560,8 +1553,7 @@ async function getForwardSpread(
 
 
     /*
-       Portrait + portrait:
-       spread.
+       Portrait + portrait = pair.
     */
 
     if (
@@ -1683,7 +1675,7 @@ async function buildProjectSpreads(
 
 
 /* =====================================================
-   COUNTER
+   COUNTER TEXT
    ===================================================== */
 
 function getCounterText(
@@ -1875,6 +1867,10 @@ async function renderSpread(
     data
 ) {
 
+    /*
+       Existing counters disappear first.
+    */
+
     const oldCounters =
         Array.from(
             spread.querySelectorAll(
@@ -1954,6 +1950,21 @@ async function renderSpread(
                 "";
 
 
+            /*
+               Anchor = exact top-right reference
+               point outside image.
+            */
+
+            const counterAnchor =
+                document.createElement(
+                    "div"
+                );
+
+
+            counterAnchor.className =
+                "counter-anchor";
+
+
             const counter =
                 document.createElement(
                     "div"
@@ -1968,9 +1979,14 @@ async function renderSpread(
                 "";
 
 
+            counterAnchor.appendChild(
+                counter
+            );
+
+
             imageCell.append(
                 img,
-                counter
+                counterAnchor
             );
 
 
@@ -2233,6 +2249,11 @@ async function nextSpread() {
     }
 
 
+    /*
+       End of project:
+       continue directly into next work.
+    */
+
     return showSpread(
         projectIndex + 1,
         0
@@ -2250,6 +2271,11 @@ async function previousSpread() {
     if (
         spreadStart <= 0
     ) {
+
+        /*
+           Beginning of project:
+           go to final spread of previous work.
+        */
 
         const previousProjectIndex =
             normalizeProjectIndex(
@@ -2526,6 +2552,10 @@ function buildIndex() {
                     "button";
 
 
+                /*
+                   Thumbnail wrapper.
+                */
+
                 const imageWrap =
                     document.createElement(
                         "span"
@@ -2535,6 +2565,10 @@ function buildIndex() {
                 imageWrap.className =
                     "card-image-wrap";
 
+
+                /*
+                   Cropping container.
+                */
 
                 const imageCrop =
                     document.createElement(
@@ -2571,6 +2605,21 @@ function buildIndex() {
                 );
 
 
+                /*
+                   Date anchor:
+                   exact top-right reference.
+                */
+
+                const dateAnchor =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                dateAnchor.className =
+                    "card-date-anchor";
+
+
                 const date =
                     document.createElement(
                         "span"
@@ -2585,11 +2634,20 @@ function buildIndex() {
                     project.date || "";
 
 
-                imageWrap.append(
-                    imageCrop,
+                dateAnchor.appendChild(
                     date
                 );
 
+
+                imageWrap.append(
+                    imageCrop,
+                    dateAnchor
+                );
+
+
+                /*
+                   Project title below.
+                */
 
                 const title =
                     document.createElement(
@@ -2637,16 +2695,13 @@ function buildIndex() {
 
 
 /* =====================================================
-   INDEX CASE
+   GENERIC WORD MORPH
    ===================================================== */
 
-function renderIndexCase(
+function renderWordCase(
+    word,
     upperCount
 ) {
-
-    const word =
-        "index";
-
 
     let result =
         "";
@@ -2666,26 +2721,93 @@ function renderIndexCase(
     }
 
 
-    indexButton.textContent =
-        result;
+    return result;
 
 }
 
 
 /* =====================================================
-   INDEX MORPH
+   INDEX WORD MORPH
    ===================================================== */
 
-function animateIndexCase(
-    toUpper
+const indexWord =
+    "index";
+
+
+let indexWordState =
+    0;
+
+
+let indexWordFrame =
+    null;
+
+
+function renderIndexWord(
+    upperCount
 ) {
+
+    indexWordState =
+        upperCount;
+
+
+    indexButton.textContent =
+        renderWordCase(
+            indexWord,
+            upperCount
+        );
+
+}
+
+
+function morphIndexTo(
+    target
+) {
+
+    if (
+        indexWordFrame !== null
+    ) {
+
+        cancelAnimationFrame(
+            indexWordFrame
+        );
+
+    }
+
+
+    const startState =
+        indexWordState;
+
+
+    const distance =
+        Math.abs(
+            target -
+            startState
+        );
+
+
+    if (
+        distance === 0
+    ) {
+
+        return Promise.resolve();
+
+    }
+
+
+    const duration =
+        WORD_TRANSITION_DURATION *
+        (
+            distance /
+            indexWord.length
+        );
+
+
+    const start =
+        performance.now();
+
 
     return new Promise(
         resolve => {
-
-            const start =
-                performance.now();
-
 
             function frame(
                 now
@@ -2697,24 +2819,23 @@ function animateIndexCase(
                         (
                             now - start
                         ) /
-                        INDEX_ANIMATION_DURATION
+                        duration
                     );
 
 
-                const count =
-                    toUpper
-                        ? Math.round(
-                            progress * 5
-                        )
-                        : Math.round(
-                            (
-                                1 - progress
-                            ) * 5
-                        );
+                const value =
+                    Math.round(
+                        startState +
+                        (
+                            target -
+                            startState
+                        ) *
+                        progress
+                    );
 
 
-                renderIndexCase(
-                    count
+                renderIndexWord(
+                    value
                 );
 
 
@@ -2722,19 +2843,22 @@ function animateIndexCase(
                     progress < 1
                 ) {
 
-                    requestAnimationFrame(
-                        frame
-                    );
+                    indexWordFrame =
+                        requestAnimationFrame(
+                            frame
+                        );
 
                 }
 
                 else {
 
-                    renderIndexCase(
-                        toUpper
-                            ? 5
-                            : 0
+                    renderIndexWord(
+                        target
                     );
+
+
+                    indexWordFrame =
+                        null;
 
 
                     resolve();
@@ -2744,14 +2868,61 @@ function animateIndexCase(
             }
 
 
-            requestAnimationFrame(
-                frame
-            );
+            indexWordFrame =
+                requestAnimationFrame(
+                    frame
+                );
 
         }
     );
 
 }
+
+
+/* =====================================================
+   DESKTOP INDEX HOVER
+
+   Exactly like FILM:
+   hover in  -> INDEX
+   hover out -> index
+
+   Clicking does NOT control capitalization.
+   ===================================================== */
+
+indexButton.addEventListener(
+    "mouseenter",
+    () => {
+
+        if (
+            window.innerWidth > 600
+        ) {
+
+            morphIndexTo(
+                indexWord.length
+            );
+
+        }
+
+    }
+);
+
+
+indexButton.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            window.innerWidth > 600
+        ) {
+
+            morphIndexTo(
+                0
+            );
+
+        }
+
+    }
+);
 
 
 /* =====================================================
@@ -2775,7 +2946,7 @@ async function enterIndex() {
 
 
     /*
-       Remember the exact slideshow state.
+       Remember whether autoplay was running.
     */
 
     autoplayBeforeIndex =
@@ -2787,34 +2958,39 @@ async function enterIndex() {
     );
 
 
-    const animation =
-        animateIndexCase(
-            true
-        );
+    /*
+       Open index immediately.
+       No capitalization delay.
+    */
+
+    indexMode =
+        true;
 
 
-    setTimeout(
-        () => {
-
-            indexMode =
-                true;
-
-
-            body.classList.add(
-                "index-mode"
-            );
-
-
-            indexView.classList.add(
-                "visible"
-            );
-
-        },
-        INDEX_ANIMATION_DURATION / 2
+    body.classList.add(
+        "index-mode"
     );
 
 
-    await animation;
+    indexView.classList.add(
+        "visible"
+    );
+
+
+    /*
+       MOBILE:
+       tap controls capitalization.
+    */
+
+    if (
+        window.innerWidth <= 600
+    ) {
+
+        await morphIndexTo(
+            indexWord.length
+        );
+
+    }
 
 
     interfaceAnimating =
@@ -2826,8 +3002,10 @@ async function enterIndex() {
 /* =====================================================
    RETURN FROM INDEX
 
-   This does NOT change projectIndex,
-   spreadStart or spreadEnd.
+   Returns to exact same:
+   - project
+   - spread
+   - autoplay/manual state
    ===================================================== */
 
 async function returnFromIndex() {
@@ -2847,7 +3025,7 @@ async function returnFromIndex() {
 
 
     /*
-       Hide index first.
+       Hide index immediately.
     */
 
     indexView.classList.remove(
@@ -2865,12 +3043,19 @@ async function returnFromIndex() {
 
 
     /*
-       INDEX -> index
+       MOBILE:
+       INDEX -> index on tap back.
     */
 
-    await animateIndexCase(
-        false
-    );
+    if (
+        window.innerWidth <= 600
+    ) {
+
+        await morphIndexTo(
+            0
+        );
+
+    }
 
 
     updateMobileStage();
@@ -2880,13 +3065,7 @@ async function returnFromIndex() {
 
 
     /*
-       Resume exactly as it was.
-
-       If autoplay was running before INDEX,
-       restart it.
-
-       If user had already stopped slideshow,
-       keep it stopped.
+       Restore previous playback state.
     */
 
     if (
@@ -2956,15 +3135,18 @@ async function exitIndexToProject(
     );
 
 
-    const animation =
-        animateIndexCase(
-            false
-        );
+    /*
+       On mobile reverse capitalization.
+    */
+
+    const mobileMorph =
+        window.innerWidth <= 600
+            ? morphIndexTo(0)
+            : Promise.resolve();
 
 
     /*
-       Thumbnail selection deliberately
-       starts that project from frame 1.
+       Selected project starts at frame 1.
     */
 
     await showSpread(
@@ -2973,7 +3155,7 @@ async function exitIndexToProject(
     );
 
 
-    await animation;
+    await mobileMorph;
 
 
     updateMobileStage();
@@ -2983,8 +3165,7 @@ async function exitIndexToProject(
 
 
     /*
-       Selecting a project from INDEX
-       resumes autoplay.
+       Selecting a thumbnail resumes autoplay.
     */
 
     manualMode =
@@ -3001,11 +3182,7 @@ async function exitIndexToProject(
 
 
 /* =====================================================
-   INDEX BUTTON
-
-   index -> INDEX = open
-
-   INDEX -> index = close
+   INDEX CLICK
    ===================================================== */
 
 indexButton.addEventListener(
@@ -3048,7 +3225,7 @@ indexButton.addEventListener(
    First click:
    stop autoplay.
 
-   Afterwards:
+   Later:
    left 25% = previous
    right 75% = next
    ===================================================== */
@@ -3130,10 +3307,6 @@ body.addEventListener(
 document.addEventListener(
     "keydown",
     async event => {
-
-        /*
-           Escape closes INDEX too.
-        */
 
         if (
             indexMode
@@ -3384,7 +3557,8 @@ function updateMobileStage() {
 
 
     const infoRect =
-        info.getBoundingClientRect();
+        info
+            .getBoundingClientRect();
 
 
     const gapAfterInfo =
@@ -3392,12 +3566,12 @@ function updateMobileStage() {
 
 
     /*
-       More bottom protection than before
-       because INDEX has its own zone.
+       Enough room for project metadata
+       and fixed index link.
     */
 
     const bottomGap =
-        74;
+        72;
 
 
     let viewportTop =
@@ -3413,11 +3587,15 @@ function updateMobileStage() {
     ) {
 
         viewportTop =
-            window.visualViewport.offsetTop;
+            window
+                .visualViewport
+                .offsetTop;
 
 
         viewportHeight =
-            window.visualViewport.height;
+            window
+                .visualViewport
+                .height;
 
     }
 
@@ -3431,7 +3609,8 @@ function updateMobileStage() {
         Math.max(
             infoRect.bottom +
             gapAfterInfo,
-            viewportTop + 10
+            viewportTop +
+            10
         );
 
 
@@ -3739,29 +3918,18 @@ function renderSwitch(
         upperCount;
 
 
-    let result =
-        "";
-
-
-    for (
-        let i = 0;
-        i < switchWord.length;
-        i++
-    ) {
-
-        result +=
-            i < upperCount
-                ? switchWord[i].toUpperCase()
-                : switchWord[i];
-
-    }
-
-
     sectionSwitchText.textContent =
-        result;
+        renderWordCase(
+            switchWord,
+            upperCount
+        );
 
 }
 
+
+/* =====================================================
+   FILM MORPH
+   ===================================================== */
 
 function morphSwitchTo(
     target
@@ -3873,6 +4041,10 @@ function morphSwitchTo(
 
 }
 
+
+/* =====================================================
+   FILM DESKTOP HOVER
+   ===================================================== */
 
 sectionSwitch.addEventListener(
     "mouseenter",
@@ -4009,14 +4181,16 @@ if (
     window.visualViewport
 ) {
 
-    window.visualViewport
+    window
+        .visualViewport
         .addEventListener(
             "resize",
             updateMobileStage
         );
 
 
-    window.visualViewport
+    window
+        .visualViewport
         .addEventListener(
             "scroll",
             updateMobileStage
@@ -4087,6 +4261,10 @@ async function loadProjects() {
         );
 
 
+        /*
+           Preload index covers.
+        */
+
         projects.forEach(
             project => {
 
@@ -4135,7 +4313,7 @@ renderSwitch(
 );
 
 
-renderIndexCase(
+renderIndexWord(
     0
 );
 
