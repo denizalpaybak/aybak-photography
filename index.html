@@ -46,7 +46,11 @@ body {
 
     z-index: 10;
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
     font-size: 15px;
     font-weight: 400;
     line-height: 1.15;
@@ -79,10 +83,7 @@ body {
     top: 0;
     left: 0;
 
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-weight: 400;
-    line-height: 1.15;
 
     white-space: nowrap;
 }
@@ -93,12 +94,7 @@ body {
     top: 17px;
     left: 0;
 
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-weight: 400;
-    line-height: 1.15;
-
-    letter-spacing: normal;
 
     white-space: nowrap;
 }
@@ -114,22 +110,16 @@ body {
 
 .contact {
     margin: 0;
-    padding: 0;
 }
 
 .social {
     display: flex;
     flex-direction: column;
-    gap: 0;
-
-    margin: 0;
-    padding: 0;
 }
 
 .info a {
     color: inherit;
     text-decoration: none;
-    font-weight: 400;
 }
 
 .info a:hover {
@@ -152,9 +142,12 @@ body {
     color: #000;
     text-decoration: none;
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
     font-size: 15px;
-    font-weight: 400;
     line-height: 1.15;
 
     white-space: nowrap;
@@ -167,6 +160,7 @@ body {
 
 #slideshow {
     position: fixed;
+
     inset: 0;
 
     width: 100vw;
@@ -254,7 +248,9 @@ body {
    SHORT LANDSCAPE
    ========================= */
 
-@media (orientation: landscape) and (max-height: 700px) {
+@media
+    (orientation: landscape)
+    and (max-height: 700px) {
 
     .info {
         top: 20px;
@@ -289,7 +285,12 @@ body {
 
         left: 190px;
 
-        width: calc(100vw - 214px);
+        width:
+            calc(
+                100vw -
+                214px
+            );
+
         height: 100vh;
     }
 
@@ -387,22 +388,11 @@ body {
 
 
 /* =====================================================
-   GLOBAL ANIMATION TIMING
+   GLOBAL WORD TIMING
    ===================================================== */
 
-const WORD_ANIMATION_DURATION =
+const WORD_TRANSITION_DURATION =
     600;
-
-function getWordStepDuration(
-    word
-) {
-
-    return (
-        WORD_ANIMATION_DURATION /
-        word.length
-    );
-
-}
 
 
 /* =====================================================
@@ -421,6 +411,10 @@ const GITHUB_BRANCH =
 const GITHUB_FOLDER =
     "";
 
+
+/* =====================================================
+   ELEMENTS / STATE
+   ===================================================== */
 
 const slideshow =
     document.getElementById(
@@ -693,10 +687,9 @@ document.body
         event => {
 
             if (
-                event.target
-                    .closest(
-                        "a"
-                    )
+                event.target.closest(
+                    "a"
+                )
             ) {
 
                 return;
@@ -855,10 +848,8 @@ function updateMobileSlideshow() {
     slideshow.style.top =
         `${stageTop}px`;
 
-
     slideshow.style.height =
         `${stageHeight}px`;
-
 
     slideshow.style.bottom =
         "auto";
@@ -1109,6 +1100,10 @@ logo.addEventListener(
 );
 
 
+/* =========================
+   MOBILE LOGO
+   ========================= */
+
 function mobileLogoCycle() {
 
     setTimeout(
@@ -1160,7 +1155,7 @@ if (
 
 /* =====================================================
    SECTION SWITCH
-   FILM = 4 steps, total ~600ms
+   Exact 600ms full transition
    ===================================================== */
 
 const sectionSwitch =
@@ -1176,22 +1171,24 @@ const sectionSwitchText =
 const switchWord =
     "film";
 
-const switchStepDuration =
-    getWordStepDuration(
-        switchWord
-    );
-
 let switchState =
     0;
 
-let switchTarget =
-    0;
-
-let switchTimer =
+let switchAnimationFrame =
     null;
 
 
-function renderSwitch() {
+/* =========================
+   RENDER SWITCH
+   ========================= */
+
+function renderSwitch(
+    upperCount
+) {
+
+    switchState =
+        upperCount;
+
 
     let result =
         "";
@@ -1204,7 +1201,7 @@ function renderSwitch() {
     ) {
 
         result +=
-            i < switchState
+            i < upperCount
                 ? switchWord[i]
                     .toUpperCase()
                 : switchWord[i]
@@ -1213,113 +1210,177 @@ function renderSwitch() {
     }
 
 
-    sectionSwitchText
-        .textContent =
+    sectionSwitchText.textContent =
         result;
 
 }
 
 
-function moveSwitch() {
+/* =========================
+   MORPH SWITCH
+   ========================= */
+
+function morphSwitchTo(
+    target
+) {
 
     if (
-        switchState ===
-        switchTarget
+        switchAnimationFrame !==
+        null
     ) {
 
-        switchTimer =
-            null;
+        cancelAnimationFrame(
+            switchAnimationFrame
+        );
+
+    }
+
+
+    const startState =
+        switchState;
+
+
+    const distance =
+        Math.abs(
+            target -
+            startState
+        );
+
+
+    if (
+        distance ===
+        0
+    ) {
 
         return;
 
     }
 
 
-    switchState +=
-        switchState <
-        switchTarget
-            ? 1
-            : -1;
-
-
-    renderSwitch();
-
-
-    switchTimer =
-        setTimeout(
-            moveSwitch,
-            switchStepDuration
+    const duration =
+        WORD_TRANSITION_DURATION *
+        (
+            distance /
+            switchWord.length
         );
 
-}
+
+    const startTime =
+        performance.now();
 
 
-function animateSwitchTo(
-    target
-) {
-
-    switchTarget =
-        target;
-
-
-    if (
-        switchTimer !==
-        null
+    function frame(
+        now
     ) {
 
-        clearTimeout(
-            switchTimer
+        const progress =
+            Math.min(
+                1,
+                (
+                    now -
+                    startTime
+                ) /
+                duration
+            );
+
+
+        const value =
+            Math.round(
+                startState +
+                (
+                    target -
+                    startState
+                ) *
+                progress
+            );
+
+
+        renderSwitch(
+            value
         );
+
+
+        if (
+            progress <
+            1
+        ) {
+
+            switchAnimationFrame =
+                requestAnimationFrame(
+                    frame
+                );
+
+        }
+
+        else {
+
+            renderSwitch(
+                target
+            );
+
+
+            switchAnimationFrame =
+                null;
+
+        }
 
     }
 
 
-    moveSwitch();
+    switchAnimationFrame =
+        requestAnimationFrame(
+            frame
+        );
 
 }
 
 
-sectionSwitch
-    .addEventListener(
-        "mouseenter",
-        () => {
+/* =========================
+   DESKTOP SWITCH
+   ========================= */
 
-            if (
-                window.innerWidth >
-                600
-            ) {
+sectionSwitch.addEventListener(
+    "mouseenter",
+    () => {
 
-                animateSwitchTo(
-                    switchWord.length
-                );
+        if (
+            window.innerWidth >
+            600
+        ) {
 
-            }
-
-        }
-    );
-
-
-sectionSwitch
-    .addEventListener(
-        "mouseleave",
-        () => {
-
-            if (
-                window.innerWidth >
-                600
-            ) {
-
-                animateSwitchTo(
-                    0
-                );
-
-            }
+            morphSwitchTo(
+                switchWord.length
+            );
 
         }
-    );
+
+    }
+);
 
 
-renderSwitch();
+sectionSwitch.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            window.innerWidth >
+            600
+        ) {
+
+            morphSwitchTo(
+                0
+            );
+
+        }
+
+    }
+);
+
+
+renderSwitch(
+    0
+);
+
 
 updateMobileSlideshow();
 
