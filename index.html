@@ -506,6 +506,10 @@ async function loadPhotos() {
 loadPhotos();
 
 
+/* =====================================================
+   NEXT
+   ===================================================== */
+
 function nextSlide() {
 
     if (
@@ -534,6 +538,42 @@ function nextSlide() {
 }
 
 
+/* =====================================================
+   PREVIOUS
+   ===================================================== */
+
+function previousSlide() {
+
+    if (
+        slides.length <= 1
+    ) {
+
+        return;
+
+    }
+
+
+    slides[current]
+        .classList
+        .remove("active");
+
+
+    current =
+        (current - 1 + slides.length) %
+        slides.length;
+
+
+    slides[current]
+        .classList
+        .add("active");
+
+}
+
+
+/* =====================================================
+   AUTO SLIDESHOW
+   ===================================================== */
+
 setInterval(
     () => {
 
@@ -550,9 +590,17 @@ setInterval(
 );
 
 
+/* =====================================================
+   CLICK NAVIGATION
+   ===================================================== */
+
 document.body.addEventListener(
     "click",
     event => {
+
+        /*
+            Do not interfere with links.
+        */
 
         if (
             event.target.closest("a")
@@ -562,6 +610,14 @@ document.body.addEventListener(
 
         }
 
+
+        /*
+            FIRST CLICK
+
+            Stops automatic slideshow only.
+
+            It does NOT change the current photo.
+        */
 
         if (
             !manualMode
@@ -574,7 +630,31 @@ document.body.addEventListener(
         }
 
 
-        nextSlide();
+        /*
+            AFTER FIRST CLICK:
+
+            LEFT 25%  → previous
+            RIGHT 75% → next
+        */
+
+        const percentage =
+            event.clientX /
+            window.innerWidth;
+
+
+        if (
+            percentage < 0.25
+        ) {
+
+            previousSlide();
+
+        }
+
+        else {
+
+            nextSlide();
+
+        }
 
     }
 );
@@ -653,7 +733,8 @@ function setLogoState(state) {
 function moveLogo() {
 
     if (
-        logoState === logoTarget
+        logoState ===
+        logoTarget
     ) {
 
         logoTimer = null;
