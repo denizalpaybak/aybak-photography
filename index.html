@@ -21,7 +21,7 @@ body {
     width: 100%;
     height: 100%;
 
-    background: transparent;
+    background: #fff;
 
     overflow: hidden;
 }
@@ -159,11 +159,12 @@ body {
 
 
 /* =========================
-   SLIDESHOW
+   SLIDESHOW — DESKTOP
    ========================= */
 
 #slideshow {
     position: fixed;
+
     inset: 0;
 
     width: 100vw;
@@ -234,12 +235,13 @@ body {
         font-size: 13px;
     }
 
-    /*
-        JavaScript will control:
-        top
-        height
 
-        on mobile using visualViewport.
+    /*
+        On mobile the position and height
+        are set dynamically by JavaScript.
+
+        The slideshow starts BELOW the
+        actual rendered information block.
     */
 
     #slideshow {
@@ -248,15 +250,23 @@ body {
         left: 0;
 
         width: 100vw;
+        height: auto;
 
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
+
     .slide {
         max-width: 84vw;
-        max-height: 66vh;
+
+        /*
+            Also limit by the dynamically
+            available slideshow height.
+        */
+
+        max-height: calc(100% - 8px);
     }
 
 }
@@ -273,7 +283,10 @@ body {
      LEFT INFORMATION
      ========================= -->
 
-<div class="info">
+<div
+    class="info"
+    id="info"
+>
 
     <a
         class="logo"
@@ -374,7 +387,7 @@ const GITHUB_FOLDER =
 
 
 /* =====================================================
-   SLIDESHOW
+   ELEMENTS
    ===================================================== */
 
 const slideshow =
@@ -382,12 +395,22 @@ const slideshow =
         "slideshow"
     );
 
+const info =
+    document.getElementById(
+        "info"
+    );
+
+
 let slides = [];
 
 let current = 0;
 
 let manualMode = false;
 
+
+/* =====================================================
+   LOAD PHOTOS
+   ===================================================== */
 
 async function loadPhotos() {
 
@@ -517,12 +540,7 @@ async function loadPhotos() {
         current = 0;
 
 
-        /*
-            Recalculate after images have
-            been added to the page.
-        */
-
-        updateMobileViewport();
+        updateMobileSlideshow();
 
     }
 
@@ -645,9 +663,7 @@ document.body.addEventListener(
 
 
         /*
-            FIRST CLICK
-
-            Stop autoplay only.
+            First click stops autoplay only.
         */
 
         if (
@@ -662,9 +678,7 @@ document.body.addEventListener(
 
 
         /*
-            AFTER FIRST CLICK
-
-            LEFT 25% = previous
+            LEFT 25%  = previous
             RIGHT 75% = next
         */
 
@@ -692,22 +706,18 @@ document.body.addEventListener(
 
 
 /* =====================================================
-   MOBILE VISUAL VIEWPORT FIX
+   MOBILE SLIDESHOW POSITION
    ===================================================== */
 
-function updateMobileViewport() {
-
-    /*
-        Desktop uses the normal 100vh layout.
-    */
+function updateMobileSlideshow() {
 
     if (
         window.innerWidth > 600
     ) {
 
         slideshow.style.top = "";
-        slideshow.style.height = "";
         slideshow.style.bottom = "";
+        slideshow.style.height = "";
 
         return;
 
@@ -715,117 +725,114 @@ function updateMobileViewport() {
 
 
     /*
-        Space reserved for:
+        Measure the ACTUAL bottom edge
+        of Denizalp / mail / Instagram /
+        models.com.
 
-        logo
-        email
-        instagram
-        models.com
-
-        plus a small breathing space.
+        This is the important change.
     */
 
-    const contentTop = 92;
-
-    const bottomSpace = 18;
+    const infoRect =
+        info.getBoundingClientRect();
 
 
     /*
-        visualViewport represents the part
-        of the page the user can ACTUALLY see.
-
-        This is especially useful inside
-        Instagram's in-app browser.
+        Real breathing room between
+        models.com and the photograph.
     */
+
+    const gapAfterInfo = 24;
+
+
+    /*
+        Bottom breathing room.
+    */
+
+    const bottomGap = 20;
+
+
+    /*
+        Actual visible viewport height.
+
+        visualViewport when available,
+        otherwise innerHeight.
+    */
+
+    let viewportTop = 0;
+
+    let viewportHeight =
+        window.innerHeight;
+
 
     if (
         window.visualViewport
     ) {
 
-        const viewport =
-            window.visualViewport;
+        viewportTop =
+            window.visualViewport
+                .offsetTop;
 
-
-        /*
-            offsetTop matters when the
-            browser UI changes the visible
-            viewport position.
-        */
-
-        const visibleTop =
-            viewport.offsetTop;
-
-
-        const visibleBottom =
-            visibleTop +
-            viewport.height;
-
-
-        const stageTop =
-            Math.max(
-                contentTop,
-                visibleTop + contentTop
-            );
-
-
-        const stageBottom =
-            visibleBottom -
-            bottomSpace;
-
-
-        const stageHeight =
-            Math.max(
-                100,
-                stageBottom -
-                stageTop
-            );
-
-
-        slideshow.style.top =
-            `${stageTop}px`;
-
-
-        slideshow.style.height =
-            `${stageHeight}px`;
-
-
-        slideshow.style.bottom =
-            "auto";
+        viewportHeight =
+            window.visualViewport
+                .height;
 
     }
 
-    else {
 
-        /*
-            Fallback for browsers without
-            visualViewport.
-        */
-
-        slideshow.style.top =
-            `${contentTop}px`;
+    const viewportBottom =
+        viewportTop +
+        viewportHeight;
 
 
-        slideshow.style.height =
-            `calc(100vh - ${contentTop + bottomSpace}px)`;
+    /*
+        Slideshow cannot start before
+        the bottom of the information
+        block + 24px.
+    */
+
+    const stageTop =
+        Math.max(
+            infoRect.bottom +
+            gapAfterInfo,
+            viewportTop +
+            10
+        );
 
 
-        slideshow.style.bottom =
-            "auto";
+    const stageBottom =
+        viewportBottom -
+        bottomGap;
 
-    }
+
+    const stageHeight =
+        Math.max(
+            120,
+            stageBottom -
+            stageTop
+        );
+
+
+    slideshow.style.top =
+        `${stageTop}px`;
+
+
+    slideshow.style.height =
+        `${stageHeight}px`;
+
+
+    slideshow.style.bottom =
+        "auto";
 
 }
 
 
-/*
-    Recalculate whenever Instagram,
-    Safari, Chrome etc. changes the
-    actual visible viewport.
-*/
+/* =====================================================
+   KEEP MOBILE POSITION UPDATED
+   ===================================================== */
 
 window.addEventListener(
     "resize",
-    updateMobileViewport
+    updateMobileSlideshow
 );
 
 
@@ -834,7 +841,7 @@ window.addEventListener(
     () => {
 
         setTimeout(
-            updateMobileViewport,
+            updateMobileSlideshow,
             150
         );
 
@@ -846,46 +853,52 @@ if (
     window.visualViewport
 ) {
 
-    window.visualViewport.addEventListener(
-        "resize",
-        updateMobileViewport
-    );
+    window.visualViewport
+        .addEventListener(
+            "resize",
+            updateMobileSlideshow
+        );
 
 
-    window.visualViewport.addEventListener(
-        "scroll",
-        updateMobileViewport
-    );
+    window.visualViewport
+        .addEventListener(
+            "scroll",
+            updateMobileSlideshow
+        );
 
 }
 
 
 /*
-    Run immediately and again shortly
-    after load because some in-app
-    browsers report their final viewport
-    a moment after rendering.
+    Instagram often changes its final
+    viewport dimensions shortly after
+    the page appears.
+
+    Recalculate several times.
 */
-
-updateMobileViewport();
-
 
 window.addEventListener(
     "load",
     () => {
 
-        updateMobileViewport();
+        updateMobileSlideshow();
 
 
         setTimeout(
-            updateMobileViewport,
+            updateMobileSlideshow,
             100
         );
 
 
         setTimeout(
-            updateMobileViewport,
-            500
+            updateMobileSlideshow,
+            400
+        );
+
+
+        setTimeout(
+            updateMobileSlideshow,
+            1000
         );
 
     }
@@ -905,6 +918,7 @@ const logoName =
     document.getElementById(
         "logo-name"
     );
+
 
 const letters = [
 
@@ -930,6 +944,7 @@ const letters = [
 
 ];
 
+
 const lowercase = [
     "a",
     "y",
@@ -938,6 +953,7 @@ const lowercase = [
     "k"
 ];
 
+
 const uppercase = [
     "A",
     "Y",
@@ -945,6 +961,7 @@ const uppercase = [
     "A",
     "K"
 ];
+
 
 let logoState = 0;
 
@@ -957,7 +974,8 @@ function setLogoState(
     state
 ) {
 
-    logoState = state;
+    logoState =
+        state;
 
 
     logoName.textContent =
@@ -1017,7 +1035,8 @@ function animateTo(
     target
 ) {
 
-    logoTarget = target;
+    logoTarget =
+        target;
 
 
     if (
@@ -1036,18 +1055,17 @@ function animateTo(
 }
 
 
-/* =====================================================
+/* =========================
    DESKTOP LOGO
-   ===================================================== */
+   ========================= */
 
 logo.addEventListener(
     "mouseenter",
     () => {
 
         if (
-            window.matchMedia(
-                "(min-width: 601px)"
-            ).matches
+            window.innerWidth >
+            600
         ) {
 
             animateTo(5);
@@ -1063,9 +1081,8 @@ logo.addEventListener(
     () => {
 
         if (
-            window.matchMedia(
-                "(min-width: 601px)"
-            ).matches
+            window.innerWidth >
+            600
         ) {
 
             animateTo(0);
@@ -1076,9 +1093,9 @@ logo.addEventListener(
 );
 
 
-/* =====================================================
+/* =========================
    MOBILE LOGO
-   ===================================================== */
+   ========================= */
 
 function mobileLogoCycle() {
 
@@ -1111,9 +1128,7 @@ function mobileLogoCycle() {
 
 
 if (
-    window.matchMedia(
-        "(max-width: 600px)"
-    ).matches
+    window.innerWidth <= 600
 ) {
 
     setLogoState(0);
@@ -1124,8 +1139,7 @@ if (
 
 
 /* =====================================================
-   SECTION SWITCH ANIMATION
-   DESKTOP ONLY
+   SECTION SWITCH
    ===================================================== */
 
 const sectionSwitch =
@@ -1213,7 +1227,8 @@ function animateSwitchTo(
     target
 ) {
 
-    switchTarget = target;
+    switchTarget =
+        target;
 
 
     if (
@@ -1269,6 +1284,13 @@ sectionSwitch.addEventListener(
 
 
 renderSwitch();
+
+
+/* =====================================================
+   INITIAL MOBILE POSITION
+   ===================================================== */
+
+updateMobileSlideshow();
 
 </script>
 
