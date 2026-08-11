@@ -234,9 +234,36 @@ body {
         font-size: 13px;
     }
 
+
+    /*
+        On mobile, especially inside Instagram's
+        in-app browser, do not rely on 100vh for
+        vertical centering.
+
+        Instead reserve a safe area for the
+        information block above and a small
+        breathing space below.
+    */
+
+    #slideshow {
+        inset: auto;
+
+        top: 92px;
+        right: 0;
+        bottom: 18px;
+        left: 0;
+
+        width: 100vw;
+        height: auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .slide {
         max-width: 84vw;
-        max-height: 72vh;
+        max-height: 68vh;
     }
 
 }
@@ -249,7 +276,9 @@ body {
 <body>
 
 
-<!-- LEFT -->
+<!-- =========================
+     LEFT INFORMATION
+     ========================= -->
 
 <div class="info">
 
@@ -311,7 +340,9 @@ body {
 </div>
 
 
-<!-- RIGHT SWITCH -->
+<!-- =========================
+     SECTION SWITCH
+     ========================= -->
 
 <a
     class="section-switch"
@@ -322,7 +353,9 @@ body {
 </a>
 
 
-<!-- SLIDESHOW -->
+<!-- =========================
+     SLIDESHOW
+     ========================= -->
 
 <div id="slideshow"></div>
 
@@ -559,7 +592,10 @@ function previousSlide() {
 
 
     current =
-        (current - 1 + slides.length) %
+        (
+            current - 1 +
+            slides.length
+        ) %
         slides.length;
 
 
@@ -599,7 +635,7 @@ document.body.addEventListener(
     event => {
 
         /*
-            Do not interfere with links.
+            Links behave normally.
         */
 
         if (
@@ -614,9 +650,8 @@ document.body.addEventListener(
         /*
             FIRST CLICK
 
-            Stops automatic slideshow only.
-
-            It does NOT change the current photo.
+            Stop automatic slideshow only.
+            Do not change photo.
         */
 
         if (
@@ -631,10 +666,10 @@ document.body.addEventListener(
 
 
         /*
-            AFTER FIRST CLICK:
+            AFTER FIRST CLICK
 
-            LEFT 25%  → previous
-            RIGHT 75% → next
+            LEFT 25%  = previous
+            RIGHT 75% = next
         */
 
         const percentage =
@@ -665,7 +700,9 @@ document.body.addEventListener(
    ===================================================== */
 
 const logo =
-    document.querySelector(".logo");
+    document.querySelector(
+        ".logo"
+    );
 
 const logoName =
     document.getElementById(
@@ -673,11 +710,27 @@ const logoName =
     );
 
 const letters = [
-    document.getElementById("letter-a"),
-    document.getElementById("letter-y"),
-    document.getElementById("letter-b"),
-    document.getElementById("letter-a2"),
-    document.getElementById("letter-k")
+
+    document.getElementById(
+        "letter-a"
+    ),
+
+    document.getElementById(
+        "letter-y"
+    ),
+
+    document.getElementById(
+        "letter-b"
+    ),
+
+    document.getElementById(
+        "letter-a2"
+    ),
+
+    document.getElementById(
+        "letter-k"
+    )
+
 ];
 
 const lowercase = [
@@ -703,7 +756,9 @@ let logoTarget = 0;
 let logoTimer = null;
 
 
-function setLogoState(state) {
+function setLogoState(
+    state
+) {
 
     logoState = state;
 
@@ -745,7 +800,8 @@ function moveLogo() {
 
 
     setLogoState(
-        logoState < logoTarget
+        logoState <
+        logoTarget
             ? logoState + 1
             : logoState - 1
     );
@@ -760,7 +816,9 @@ function moveLogo() {
 }
 
 
-function animateTo(target) {
+function animateTo(
+    target
+) {
 
     logoTarget = target;
 
@@ -781,7 +839,9 @@ function animateTo(target) {
 }
 
 
-/* DESKTOP */
+/* =====================================================
+   DESKTOP LOGO
+   ===================================================== */
 
 logo.addEventListener(
     "mouseenter",
@@ -819,7 +879,9 @@ logo.addEventListener(
 );
 
 
-/* MOBILE */
+/* =====================================================
+   MOBILE LOGO
+   ===================================================== */
 
 function mobileLogoCycle() {
 
