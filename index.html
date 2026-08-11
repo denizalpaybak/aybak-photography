@@ -65,19 +65,28 @@ button {
     --meta-gap: 6px;
 
     /*
-        Desktop slideshow is intentionally large.
+        Larger desktop slideshow.
     */
-    --image-max-width: 72vw;
-    --image-max-height: 80vh;
+
+    --image-max-width: 76vw;
 
     /*
-        Fixed slideshow visual zone.
-        Metadata Y is attached to this,
-        never to image height.
+        Fixed visual zone.
+
+        Image is always kept INSIDE this zone.
+        Metadata starts below it, so overlap
+        cannot happen.
     */
+
     --visual-height: 78vh;
 
-    --meta-top-gap: 9px;
+    --image-max-height:
+        calc(
+            var(--visual-height) -
+            18px
+        );
+
+    --meta-top-gap: 10px;
 
     --index-content-top: 130px;
 
@@ -231,6 +240,7 @@ body {
     transform: translateY(-50%);
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -239,7 +249,7 @@ body {
 
 
 /* =====================================================
-   SLIDESHOW IMAGE
+   SLIDESHOW
    ===================================================== */
 
 #spread {
@@ -278,13 +288,13 @@ body {
 /* =====================================================
    PROJECT META
 
-   Vertical position never changes.
+   Y is fixed.
 
-   JS only changes:
-   - left
-   - width
+   JS changes ONLY:
+   left
+   width
 
-   So metadata follows image horizontally only.
+   so metadata follows photograph horizontally.
    ===================================================== */
 
 #project-meta {
@@ -342,7 +352,7 @@ body {
 
 
 /* =====================================================
-   META RIGHT
+   COUNTER
    ===================================================== */
 
 #project-counter {
@@ -351,8 +361,8 @@ body {
 
     display: inline-flex;
 
-    align-items: baseline;
     justify-content: flex-end;
+    align-items: baseline;
 
     padding-left: 28px;
 
@@ -364,6 +374,8 @@ body {
 #counter-current,
 #counter-total {
     display: inline-flex;
+
+    white-space: pre;
 }
 
 .counter-digit {
@@ -380,7 +392,7 @@ body {
 
 
 /* =====================================================
-   VIEW ALL BUTTON
+   VIEW ALL
    ===================================================== */
 
 #view-all-button {
@@ -432,6 +444,27 @@ body.project-all-mode #spread {
 
 
 /* =====================================================
+   VIEW ALL PREPARATION
+
+   Critical bug fix:
+
+   grid is rendered INVISIBLY first,
+   dimensions are calculated,
+   and only then it is revealed.
+
+   This prevents the first thumbnail
+   flashing huge for one frame.
+   ===================================================== */
+
+body.project-all-preparing
+#project-all-view {
+    display: block;
+
+    visibility: hidden;
+}
+
+
+/* =====================================================
    PROJECT ALL VIEW
    ===================================================== */
 
@@ -447,8 +480,11 @@ body.project-all-mode #spread {
     pointer-events: auto;
 }
 
-body.project-all-mode #project-all-view {
+body.project-all-mode
+#project-all-view {
     display: block;
+
+    visibility: visible;
 }
 
 
@@ -581,7 +617,7 @@ body.project-all-mode #project-all-view {
 
 
 /* =====================================================
-   HORIZONTAL INDEX
+   INDEX SCROLLER
    ===================================================== */
 
 #index-scroller {
@@ -609,9 +645,9 @@ body.project-all-mode #project-all-view {
 
     -webkit-overflow-scrolling: touch;
 
-    cursor: grab;
-
     user-select: none;
+
+    cursor: grab;
 
     outline: none;
 }
@@ -637,7 +673,7 @@ body.project-all-mode #project-all-view {
 
     align-items: flex-start;
 
-    gap: 52px;
+    gap: 54px;
 
     width: max-content;
 
@@ -648,6 +684,8 @@ body.project-all-mode #project-all-view {
 
 /* =====================================================
    INDEX CARD
+
+   Larger desktop thumbnails.
    ===================================================== */
 
 .project-card {
@@ -657,12 +695,12 @@ body.project-all-mode #project-all-view {
     flex:
         0
         0
-        260px;
+        285px;
 
     display: flex;
     flex-direction: column;
 
-    width: 260px;
+    width: 285px;
 
     margin: 0;
     padding: 0;
@@ -691,7 +729,7 @@ body.project-all-mode #project-all-view {
     justify-content: center;
 
     width: 100%;
-    height: 340px;
+    height: 365px;
 }
 
 .project-card img {
@@ -754,22 +792,31 @@ body.index-mode #project-stage {
 
     :root {
 
-        --image-max-width: 72vw;
-        --image-max-height: 76vh;
+        --image-max-width: 74vw;
+
+        --visual-height: 76vh;
+
+        --image-max-height:
+            calc(
+                var(--visual-height) -
+                18px
+            );
 
     }
+
 
     .project-card {
         flex:
             0
             0
-            220px;
+            230px;
 
-        width: 220px;
+        width: 230px;
     }
 
+
     .card-image-wrap {
-        height: 290px;
+        height: 300px;
     }
 
 }
@@ -793,22 +840,36 @@ body.index-mode #project-stage {
         --meta-gap: 5px;
 
         /*
-            Full available width:
+            Exact horizontal alignment:
             Denizalp left -> film right.
         */
+
         --image-max-width:
             calc(
                 100vw -
                 var(--side) * 2
             );
 
+        /*
+            Larger reserved metadata region.
+
+            This fixes project title / counter
+            touching the photograph.
+        */
+
         --visual-height:
             calc(
                 100% -
-                58px
+                72px
             );
 
-        --meta-top-gap: 8px;
+        --image-max-height:
+            calc(
+                100% -
+                16px
+            );
+
+        --meta-top-gap: 10px;
 
     }
 
@@ -843,17 +904,12 @@ body.index-mode #project-stage {
         height:
             calc(
                 100% -
-                58px
+                72px
             );
 
         transform: none;
     }
 
-
-    /*
-        Preserve aspect ratio while using as much
-        horizontal width as the available stage allows.
-    */
 
     .spread-image {
         width:
@@ -870,13 +926,10 @@ body.index-mode #project-stage {
                 var(--side) * 2
             );
 
-        /*
-            Prevent portrait image entering metadata.
-        */
         max-height:
             calc(
                 100% -
-                4px
+                16px
             );
 
         object-fit: contain;
@@ -887,7 +940,7 @@ body.index-mode #project-stage {
         top:
             calc(
                 100% -
-                58px +
+                72px +
                 var(--meta-top-gap)
             );
     }
@@ -953,12 +1006,17 @@ body.index-mode #project-stage {
 
         --meta-gap: 5px;
 
-        --image-max-width: 68vw;
-        --image-max-height: 70vh;
+        --image-max-width: 72vw;
 
         --visual-height: 70vh;
 
-        --meta-top-gap: 7px;
+        --image-max-height:
+            calc(
+                var(--visual-height) -
+                16px
+            );
+
+        --meta-top-gap: 8px;
 
     }
 
@@ -1108,7 +1166,7 @@ body.index-mode #project-stage {
 
 
 <!-- ===================================================
-     PROJECT ALL
+     VIEW ALL
      =================================================== -->
 
 <div id="project-all-view">
@@ -1168,20 +1226,31 @@ const SLIDE_DURATION =
 
 
 /*
-    Different-character slot morph.
+    Counter digit:
+    old -> blank -> new.
 */
 
-const SLOT_OUT_DURATION =
-    105;
+const DIGIT_OUT_DURATION =
+    100;
 
 
-const SLOT_IN_DURATION =
-    145;
+const DIGIT_BLANK_DURATION =
+    65;
 
 
 /*
-    Case animation:
-    total duration independent of word length.
+    Project title/date positional morph.
+*/
+
+const PROJECT_MORPH_DURATION =
+    430;
+
+
+/*
+    Case animations.
+
+    Total duration is fixed regardless of
+    word length.
 */
 
 const CASE_DURATION =
@@ -1189,7 +1258,7 @@ const CASE_DURATION =
 
 
 /*
-    Existing navigation typography.
+    Navigation typography.
 */
 
 const INDEX_TRANSITION_DURATION =
@@ -1209,7 +1278,7 @@ const INDEX_WHEEL_MULTIPLIER =
 
 
 const INDEX_KEY_STEP =
-    280;
+    300;
 
 
 /* =====================================================
@@ -1377,15 +1446,15 @@ let savedIndexScrollLeft =
 
 
 /* =====================================================
-   VIEW BUTTON HOVER
+   VIEW BUTTON
    ===================================================== */
 
 let viewButtonHovered =
     false;
 
 
-let viewButtonAnimationToken =
-    0;
+let viewButtonFrame =
+    null;
 
 
 /* =====================================================
@@ -1409,7 +1478,7 @@ let indexDragMoved =
 
 
 /* =====================================================
-   SLIDE TOUCH
+   TOUCH
    ===================================================== */
 
 let touchStartX =
@@ -1605,8 +1674,23 @@ function getTotalText(
 }
 
 
+function wait(
+    duration
+) {
+
+    return new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                duration
+            )
+    );
+
+}
+
+
 /* =====================================================
-   INDEX TOP
+   INDEX CONTENT TOP
    ===================================================== */
 
 function updateIndexContentTop() {
@@ -1636,322 +1720,7 @@ function updateIndexContentTop() {
 
 
 /* =====================================================
-   WAIT
-   ===================================================== */
-
-function wait(
-    milliseconds
-) {
-
-    return new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                milliseconds
-            )
-    );
-
-}
-
-
-/* =====================================================
-   CHARACTER SLOT WIDTH
-   ===================================================== */
-
-function measureCharacterWidth(
-    character,
-    element
-) {
-
-    const span =
-        document.createElement(
-            "span"
-        );
-
-
-    const computed =
-        getComputedStyle(
-            element
-        );
-
-
-    span.style.position =
-        "absolute";
-
-
-    span.style.visibility =
-        "hidden";
-
-
-    span.style.whiteSpace =
-        "pre";
-
-
-    span.style.fontFamily =
-        computed.fontFamily;
-
-
-    span.style.fontSize =
-        computed.fontSize;
-
-
-    span.style.fontWeight =
-        computed.fontWeight;
-
-
-    span.style.fontStyle =
-        computed.fontStyle;
-
-
-    span.textContent =
-        character === " "
-            ? "\u00a0"
-            : character;
-
-
-    document.body.appendChild(
-        span
-    );
-
-
-    const width =
-        span.getBoundingClientRect().width;
-
-
-    span.remove();
-
-
-    return width;
-
-}
-
-
-/* =====================================================
-   POSITION-PRESERVING TEXT MORPH
-
-   Same-position identical characters never move.
-
-   Different character:
-   OLD -> blank -> NEW
-
-   Example:
-   01
-   0_
-   02
-   ===================================================== */
-
-async function morphTextSlots(
-    element,
-    nextText
-) {
-
-    const oldText =
-        element.dataset.rawText !== undefined
-            ? element.dataset.rawText
-            : element.textContent;
-
-
-    if (
-        oldText ===
-        nextText
-    ) {
-
-        element.dataset.rawText =
-            nextText;
-
-
-        return;
-
-    }
-
-
-    const length =
-        Math.max(
-            oldText.length,
-            nextText.length
-        );
-
-
-    const oldChars =
-        oldText
-            .padEnd(
-                length,
-                " "
-            )
-            .split(
-                ""
-            );
-
-
-    const newChars =
-        nextText
-            .padEnd(
-                length,
-                " "
-            )
-            .split(
-                ""
-            );
-
-
-    element.innerHTML =
-        "";
-
-
-    const slots =
-        [];
-
-
-    for (
-        let i = 0;
-        i < length;
-        i++
-    ) {
-
-        const slot =
-            document.createElement(
-                "span"
-            );
-
-
-        slot.style.display =
-            "inline-block";
-
-
-        slot.style.whiteSpace =
-            "pre";
-
-
-        /*
-            Fix each slot to the larger width of
-            old/new character during animation.
-        */
-
-        const width =
-            Math.max(
-                measureCharacterWidth(
-                    oldChars[i],
-                    element
-                ),
-                measureCharacterWidth(
-                    newChars[i],
-                    element
-                )
-            );
-
-
-        slot.style.width =
-            `${width}px`;
-
-
-        slot.textContent =
-            oldChars[i] === " "
-                ? "\u00a0"
-                : oldChars[i];
-
-
-        element.appendChild(
-            slot
-        );
-
-
-        slots.push(
-            slot
-        );
-
-    }
-
-
-    /*
-        Phase 1:
-        only changed positions disappear.
-    */
-
-    await Promise.all(
-
-        slots.map(
-            async (
-                slot,
-                index
-            ) => {
-
-                if (
-                    oldChars[index] ===
-                    newChars[index]
-                ) {
-
-                    return;
-
-                }
-
-
-                await wait(
-                    SLOT_OUT_DURATION
-                );
-
-
-                slot.textContent =
-                    "\u00a0";
-
-            }
-        )
-
-    );
-
-
-    /*
-        Phase 2:
-        changed positions become new chars.
-    */
-
-    await Promise.all(
-
-        slots.map(
-            async (
-                slot,
-                index
-            ) => {
-
-                if (
-                    oldChars[index] ===
-                    newChars[index]
-                ) {
-
-                    return;
-
-                }
-
-
-                await wait(
-                    SLOT_IN_DURATION
-                );
-
-
-                slot.textContent =
-                    newChars[index] === " "
-                        ? "\u00a0"
-                        : newChars[index];
-
-            }
-        )
-
-    );
-
-
-    element.textContent =
-        nextText;
-
-
-    element.dataset.rawText =
-        nextText;
-
-}
-
-
-/* =====================================================
-   DIGIT SLOTS
-
-   Counter keeps exact digit geometry.
+   COUNTER DIGITS
    ===================================================== */
 
 function initialiseDigitSlots(
@@ -1998,10 +1767,13 @@ function initialiseDigitSlots(
 /* =====================================================
    DIGIT MORPH
 
-   01 -> 02:
+   Example:
 
-   first 0 untouched
-   second 1 -> blank -> 2
+   01 / 11
+   0_ / 11
+   02 / 11
+
+   The first 0 is literally untouched.
    ===================================================== */
 
 async function morphDigits(
@@ -2009,7 +1781,7 @@ async function morphDigits(
     nextText
 ) {
 
-    let slots =
+    const slots =
         Array.from(
             element.querySelectorAll(
                 ".counter-digit"
@@ -2065,8 +1837,13 @@ async function morphDigits(
                 (
                     async () => {
 
+                        /*
+                            Old character remains first,
+                            then disappears.
+                        */
+
                         await wait(
-                            SLOT_OUT_DURATION
+                            DIGIT_OUT_DURATION
                         );
 
 
@@ -2075,9 +1852,13 @@ async function morphDigits(
 
 
                         await wait(
-                            SLOT_IN_DURATION
+                            DIGIT_BLANK_DURATION
                         );
 
+
+                        /*
+                            New character appears.
+                        */
 
                         slot.textContent =
                             nextCharacter;
@@ -2102,18 +1883,389 @@ async function morphDigits(
 
 
 /* =====================================================
-   PREFIX CASE MORPH
+   CHARACTER HELPERS
+   ===================================================== */
 
-   view all
-   View all
-   VIew all
-   VIEw all
-   VIEW all
-   VIEW All
-   ...
-   VIEW ALL
+function getCharacterWidth(
+    character,
+    reference
+) {
 
-   Total duration is always the same.
+    const probe =
+        document.createElement(
+            "span"
+        );
+
+
+    const style =
+        getComputedStyle(
+            reference
+        );
+
+
+    probe.style.position =
+        "absolute";
+
+
+    probe.style.visibility =
+        "hidden";
+
+
+    probe.style.whiteSpace =
+        "pre";
+
+
+    probe.style.fontFamily =
+        style.fontFamily;
+
+
+    probe.style.fontSize =
+        style.fontSize;
+
+
+    probe.style.fontWeight =
+        style.fontWeight;
+
+
+    probe.style.fontStyle =
+        style.fontStyle;
+
+
+    probe.textContent =
+        character === " "
+            ? "\u00a0"
+            : character;
+
+
+    document.body.appendChild(
+        probe
+    );
+
+
+    const width =
+        probe
+            .getBoundingClientRect()
+            .width;
+
+
+    probe.remove();
+
+
+    return width;
+
+}
+
+
+/* =====================================================
+   PROJECT TITLE / DATE MORPH
+
+   Same-position same characters are never touched.
+
+   Different positions morph through blank.
+
+   The whole animation always has the same
+   overall duration, regardless of word length.
+   ===================================================== */
+
+function morphProjectText(
+    element,
+    nextText,
+    duration =
+        PROJECT_MORPH_DURATION
+) {
+
+    const oldText =
+        element.dataset.rawText !==
+        undefined
+            ? element.dataset.rawText
+            : element.textContent;
+
+
+    if (
+        oldText ===
+        nextText
+    ) {
+
+        element.dataset.rawText =
+            nextText;
+
+
+        return Promise.resolve();
+
+    }
+
+
+    const length =
+        Math.max(
+            oldText.length,
+            nextText.length
+        );
+
+
+    const oldChars =
+        oldText
+            .padEnd(
+                length,
+                " "
+            )
+            .split(
+                ""
+            );
+
+
+    const newChars =
+        nextText
+            .padEnd(
+                length,
+                " "
+            )
+            .split(
+                ""
+            );
+
+
+    const changed =
+        [];
+
+
+    for (
+        let i = 0;
+        i < length;
+        i++
+    ) {
+
+        if (
+            oldChars[i] !==
+            newChars[i]
+        ) {
+
+            changed.push(
+                i
+            );
+
+        }
+
+    }
+
+
+    element.innerHTML =
+        "";
+
+
+    const slots =
+        [];
+
+
+    for (
+        let i = 0;
+        i < length;
+        i++
+    ) {
+
+        const span =
+            document.createElement(
+                "span"
+            );
+
+
+        span.style.display =
+            "inline-block";
+
+
+        span.style.whiteSpace =
+            "pre";
+
+
+        const width =
+            Math.max(
+                getCharacterWidth(
+                    oldChars[i],
+                    element
+                ),
+                getCharacterWidth(
+                    newChars[i],
+                    element
+                )
+            );
+
+
+        span.style.width =
+            `${width}px`;
+
+
+        span.textContent =
+            oldChars[i] === " "
+                ? "\u00a0"
+                : oldChars[i];
+
+
+        element.appendChild(
+            span
+        );
+
+
+        slots.push(
+            span
+        );
+
+    }
+
+
+    const start =
+        performance.now();
+
+
+    return new Promise(
+        resolve => {
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        duration
+                    );
+
+
+                changed.forEach(
+                    (
+                        position,
+                        order
+                    ) => {
+
+                        /*
+                            Very small left-to-right staggering,
+                            but still finishes at exactly
+                            the same total duration.
+                        */
+
+                        const stagger =
+                            changed.length <= 1
+                                ? 0
+                                : (
+                                    order /
+                                    (
+                                        changed.length -
+                                        1
+                                    )
+                                ) * 0.22;
+
+
+                        const local =
+                            Math.max(
+                                0,
+                                Math.min(
+                                    1,
+                                    (
+                                        progress -
+                                        stagger
+                                    ) /
+                                    (
+                                        1 -
+                                        stagger
+                                    )
+                                )
+                            );
+
+
+                        if (
+                            local <
+                            0.42
+                        ) {
+
+                            slots[
+                                position
+                            ].textContent =
+                                oldChars[
+                                    position
+                                ] === " "
+                                    ? "\u00a0"
+                                    : oldChars[
+                                        position
+                                    ];
+
+                        }
+
+                        else if (
+                            local <
+                            0.58
+                        ) {
+
+                            slots[
+                                position
+                            ].textContent =
+                                "\u00a0";
+
+                        }
+
+                        else {
+
+                            slots[
+                                position
+                            ].textContent =
+                                newChars[
+                                    position
+                                ] === " "
+                                    ? "\u00a0"
+                                    : newChars[
+                                        position
+                                    ];
+
+                        }
+
+                    }
+                );
+
+
+                if (
+                    progress < 1
+                ) {
+
+                    requestAnimationFrame(
+                        frame
+                    );
+
+                }
+
+                else {
+
+                    element.textContent =
+                        nextText;
+
+
+                    element.dataset.rawText =
+                        nextText;
+
+
+                    element.dataset.caseBase =
+                        nextText.toLowerCase();
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            requestAnimationFrame(
+                frame
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   CASE HELPERS
    ===================================================== */
 
 function getLetterPositions(
@@ -2130,9 +2282,13 @@ function getLetterPositions(
         i++
     ) {
 
+        const character =
+            text[i];
+
+
         if (
-            text[i].toLowerCase() !==
-            text[i].toUpperCase()
+            character.toLowerCase() !==
+            character.toUpperCase()
         ) {
 
             positions.push(
@@ -2149,6 +2305,18 @@ function getLetterPositions(
 }
 
 
+/* =====================================================
+   PREFIX CASE
+
+   view all
+   View all
+   VIew all
+   VIEw all
+   VIEW all
+   ...
+   VIEW ALL
+   ===================================================== */
+
 function renderPrefixCase(
     baseText,
     upperCount
@@ -2160,7 +2328,7 @@ function renderPrefixCase(
         );
 
 
-    const positionSet =
+    const uppercasePositions =
         new Set(
             positions.slice(
                 0,
@@ -2180,7 +2348,7 @@ function renderPrefixCase(
             ) => {
 
                 if (
-                    positionSet.has(
+                    uppercasePositions.has(
                         index
                     )
                 ) {
@@ -2204,24 +2372,241 @@ function renderPrefixCase(
 
 
 /* =====================================================
-   CASE MORPH CONTROLLER
+   CASE CONTROLLER
+
+   Fixed total duration regardless of word length.
+
+   Photography, Film, Vogue Türkiye,
+   March 2026 all finish together if started together.
    ===================================================== */
 
-function animatePrefixCase(
+function createCaseController(
     element,
     baseText,
+    duration =
+        CASE_DURATION
+) {
+
+    const base =
+        baseText.toLowerCase();
+
+
+    const total =
+        getLetterPositions(
+            base
+        ).length;
+
+
+    let state =
+        0;
+
+
+    let frameId =
+        null;
+
+
+    function render() {
+
+        element.textContent =
+            renderPrefixCase(
+                base,
+                state
+            );
+
+    }
+
+
+    function animateTo(
+        target
+    ) {
+
+        if (
+            frameId !==
+            null
+        ) {
+
+            cancelAnimationFrame(
+                frameId
+            );
+
+        }
+
+
+        const startState =
+            state;
+
+
+        if (
+            startState ===
+            target
+        ) {
+
+            render();
+
+
+            return;
+
+        }
+
+
+        const start =
+            performance.now();
+
+
+        function frame(
+            now
+        ) {
+
+            const progress =
+                Math.min(
+                    1,
+                    (
+                        now -
+                        start
+                    ) /
+                    duration
+                );
+
+
+            state =
+                Math.round(
+                    startState +
+                    (
+                        target -
+                        startState
+                    ) *
+                    progress
+                );
+
+
+            render();
+
+
+            if (
+                progress < 1
+            ) {
+
+                frameId =
+                    requestAnimationFrame(
+                        frame
+                    );
+
+            }
+
+            else {
+
+                state =
+                    target;
+
+
+                render();
+
+
+                frameId =
+                    null;
+
+            }
+
+        }
+
+
+        frameId =
+            requestAnimationFrame(
+                frame
+            );
+
+    }
+
+
+    render();
+
+
+    return {
+
+        upper() {
+
+            animateTo(
+                total
+            );
+
+        },
+
+        lower() {
+
+            animateTo(
+                0
+            );
+
+        },
+
+        setUpperInstant() {
+
+            if (
+                frameId !== null
+            ) {
+
+                cancelAnimationFrame(
+                    frameId
+                );
+
+            }
+
+
+            state =
+                total;
+
+
+            render();
+
+        },
+
+        setLowerInstant() {
+
+            if (
+                frameId !== null
+            ) {
+
+                cancelAnimationFrame(
+                    frameId
+                );
+
+            }
+
+
+            state =
+                0;
+
+
+            render();
+
+        }
+
+    };
+
+}
+
+
+/* =====================================================
+   ONE-OFF PROJECT CASE MORPH
+   ===================================================== */
+
+function animateProjectCase(
+    element,
     toUpper,
     duration =
         CASE_DURATION
 ) {
 
-    const token =
-        ++viewButtonAnimationToken;
+    const base =
+        (
+            element.dataset.caseBase ||
+            element.textContent
+        ).toLowerCase();
 
 
     const positions =
         getLetterPositions(
-            baseText
+            base
         );
 
 
@@ -2229,64 +2614,16 @@ function animatePrefixCase(
         positions.length;
 
 
-    const currentText =
-        element.textContent;
+    const from =
+        toUpper
+            ? 0
+            : total;
 
 
-    let currentUpper =
-        0;
-
-
-    /*
-        Estimate current state from text.
-    */
-
-    positions.forEach(
-        position => {
-
-            const char =
-                currentText[
-                    position
-                ];
-
-
-            if (
-                char &&
-                char ===
-                char.toUpperCase() &&
-                char !==
-                char.toLowerCase()
-            ) {
-
-                currentUpper++;
-
-            }
-
-        }
-    );
-
-
-    const target =
+    const to =
         toUpper
             ? total
             : 0;
-
-
-    if (
-        currentUpper ===
-        target
-    ) {
-
-        element.textContent =
-            renderPrefixCase(
-                baseText,
-                target
-            );
-
-
-        return Promise.resolve();
-
-    }
 
 
     const start =
@@ -2299,19 +2636,6 @@ function animatePrefixCase(
             function frame(
                 now
             ) {
-
-                if (
-                    token !==
-                    viewButtonAnimationToken
-                ) {
-
-                    resolve();
-
-
-                    return;
-
-                }
-
 
                 const progress =
                     Math.min(
@@ -2326,10 +2650,10 @@ function animatePrefixCase(
 
                 const state =
                     Math.round(
-                        currentUpper +
+                        from +
                         (
-                            target -
-                            currentUpper
+                            to -
+                            from
                         ) *
                         progress
                     );
@@ -2337,7 +2661,7 @@ function animatePrefixCase(
 
                 element.textContent =
                     renderPrefixCase(
-                        baseText,
+                        base,
                         state
                     );
 
@@ -2356,126 +2680,8 @@ function animatePrefixCase(
 
                     element.textContent =
                         renderPrefixCase(
-                            baseText,
-                            target
-                        );
-
-
-                    resolve();
-
-                }
-
-            }
-
-
-            requestAnimationFrame(
-                frame
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   GENERIC CASE MORPH FOR PROJECT TEXT
-   ===================================================== */
-
-function animateElementCase(
-    element,
-    toUpper,
-    duration =
-        CASE_DURATION
-) {
-
-    const baseText =
-        element.dataset.caseBase ||
-        element.textContent.toLowerCase();
-
-
-    element.dataset.caseBase =
-        baseText;
-
-
-    const positions =
-        getLetterPositions(
-            baseText
-        );
-
-
-    const total =
-        positions.length;
-
-
-    const startCount =
-        toUpper
-            ? 0
-            : total;
-
-
-    const targetCount =
-        toUpper
-            ? total
-            : 0;
-
-
-    const start =
-        performance.now();
-
-
-    return new Promise(
-        resolve => {
-
-            function frame(
-                now
-            ) {
-
-                const progress =
-                    Math.min(
-                        1,
-                        (
-                            now -
-                            start
-                        ) /
-                        duration
-                    );
-
-
-                const count =
-                    Math.round(
-                        startCount +
-                        (
-                            targetCount -
-                            startCount
-                        ) *
-                        progress
-                    );
-
-
-                element.textContent =
-                    renderPrefixCase(
-                        baseText,
-                        count
-                    );
-
-
-                if (
-                    progress < 1
-                ) {
-
-                    requestAnimationFrame(
-                        frame
-                    );
-
-                }
-
-                else {
-
-                    element.textContent =
-                        renderPrefixCase(
-                            baseText,
-                            targetCount
+                            base,
+                            to
                         );
 
 
@@ -2549,7 +2755,7 @@ function renderImage(
 
 
 /* =====================================================
-   META X SYNC
+   META HORIZONTAL ALIGNMENT
    ===================================================== */
 
 function syncMetadataHorizontal() {
@@ -2596,6 +2802,11 @@ function syncMetadataHorizontal() {
     }
 
 
+    /*
+        Only X geometry changes.
+        TOP is never touched.
+    */
+
     projectMeta.style.left =
         `${
             imageRect.left -
@@ -2608,10 +2819,6 @@ function syncMetadataHorizontal() {
 
 }
 
-
-/* =====================================================
-   PAINT THEN SYNC
-   ===================================================== */
 
 function syncMetadataAfterRender() {
 
@@ -2630,8 +2837,6 @@ function syncMetadataAfterRender() {
 
 /* =====================================================
    UPDATE META
-
-   Same chars in same position never animate.
    ===================================================== */
 
 async function updateMetadata(
@@ -2651,21 +2856,36 @@ async function updateMetadata(
 
 
     const jobs =
-        [
+        [];
 
-            morphDigits(
-                counterCurrent,
-                getCurrentText(
-                    targetFrameIndex
-                )
+
+    /*
+        Current frame always checked digit-by-digit.
+    */
+
+    jobs.push(
+
+        morphDigits(
+            counterCurrent,
+            getCurrentText(
+                targetFrameIndex
             )
+        )
 
-        ];
+    );
 
 
     if (
         projectChanged
     ) {
+
+        /*
+            Total also compares each digit.
+
+            Example:
+            11 -> 12
+            first 1 stays untouched.
+        */
 
         jobs.push(
 
@@ -2674,14 +2894,26 @@ async function updateMetadata(
                 getTotalText(
                     project.images.length
                 )
-            ),
+            )
 
-            morphTextSlots(
+        );
+
+
+        /*
+            Project name/date positional morph.
+
+            Same-position equal characters
+            remain completely static.
+        */
+
+        jobs.push(
+
+            morphProjectText(
                 projectTitle,
                 project.title.toLowerCase()
             ),
 
-            morphTextSlots(
+            morphProjectText(
                 projectDate,
                 (
                     project.date ||
@@ -2712,8 +2944,7 @@ async function updateMetadata(
 function preloadAhead() {
 
     if (
-        projects.length ===
-        0
+        projects.length === 0
     ) {
 
         return;
@@ -2887,7 +3118,7 @@ async function showFrame(
 
 
 /* =====================================================
-   NEXT / PREVIOUS
+   NEXT
    ===================================================== */
 
 async function nextFrame() {
@@ -2929,6 +3160,10 @@ async function nextFrame() {
 
 }
 
+
+/* =====================================================
+   PREVIOUS
+   ===================================================== */
 
 async function previousFrame() {
 
@@ -3042,11 +3277,6 @@ function stopAutoSlideshow() {
 
 /* =====================================================
    PRIMARY SLIDE ACTION
-
-   Same as clicking right 75%.
-
-   First action stops autoplay.
-   Next action advances.
    ===================================================== */
 
 async function performPrimarySlideAction() {
@@ -3063,6 +3293,11 @@ async function performPrimarySlideAction() {
 
     }
 
+
+    /*
+        First click / first Space:
+        stop slideshow only.
+    */
 
     if (
         !manualMode
@@ -3082,68 +3317,7 @@ async function performPrimarySlideAction() {
 
 
 /* =====================================================
-   VIEW ALL COUNTER
-
-   03 / 12
-   ->
-   all / 12
-   ===================================================== */
-
-async function enterAllCounter() {
-
-    /*
-        Keep total completely untouched.
-    */
-
-    counterCurrent.innerHTML =
-        "";
-
-
-    const text =
-        document.createElement(
-            "span"
-        );
-
-
-    text.textContent =
-        "all";
-
-
-    counterCurrent.appendChild(
-        text
-    );
-
-}
-
-
-/* =====================================================
-   RESTORE COUNTER FROM ALL
-   ===================================================== */
-
-function restoreCounterSlots() {
-
-    initialiseDigitSlots(
-        counterCurrent,
-        getCurrentText(
-            frameIndex
-        )
-    );
-
-
-    initialiseDigitSlots(
-        counterTotal,
-        getTotalText(
-            currentProject()
-                .images
-                .length
-        )
-    );
-
-}
-
-
-/* =====================================================
-   VIEW BUTTON TARGET
+   VIEW ALL BUTTON CASE
    ===================================================== */
 
 function getViewButtonBase() {
@@ -3155,28 +3329,203 @@ function getViewButtonBase() {
 }
 
 
-function updateViewButtonCase() {
+function morphViewButtonCase(
+    toUpper
+) {
+
+    if (
+        viewButtonFrame !==
+        null
+    ) {
+
+        cancelAnimationFrame(
+            viewButtonFrame
+        );
+
+    }
+
 
     const base =
         getViewButtonBase();
 
 
-    return animatePrefixCase(
-        viewAllButton,
-        base,
+    const positions =
+        getLetterPositions(
+            base
+        );
+
+
+    const total =
+        positions.length;
+
+
+    /*
+        Determine current uppercase prefix.
+    */
+
+    let current =
+        0;
+
+
+    positions.forEach(
+        position => {
+
+            const char =
+                viewAllButton.textContent[
+                    position
+                ];
+
+
+            if (
+                char &&
+                char ===
+                char.toUpperCase() &&
+                char !==
+                char.toLowerCase()
+            ) {
+
+                current++;
+
+            }
+
+        }
+    );
+
+
+    const target =
+        toUpper
+            ? total
+            : 0;
+
+
+    const start =
+        performance.now();
+
+
+    function frame(
+        now
+    ) {
+
+        const progress =
+            Math.min(
+                1,
+                (
+                    now -
+                    start
+                ) /
+                CASE_DURATION
+            );
+
+
+        const state =
+            Math.round(
+                current +
+                (
+                    target -
+                    current
+                ) *
+                progress
+            );
+
+
+        viewAllButton.textContent =
+            renderPrefixCase(
+                base,
+                state
+            );
+
+
+        if (
+            progress < 1
+        ) {
+
+            viewButtonFrame =
+                requestAnimationFrame(
+                    frame
+                );
+
+        }
+
+        else {
+
+            viewAllButton.textContent =
+                renderPrefixCase(
+                    base,
+                    target
+                );
+
+
+            viewButtonFrame =
+                null;
+
+        }
+
+    }
+
+
+    viewButtonFrame =
+        requestAnimationFrame(
+            frame
+        );
+
+}
+
+
+/* =====================================================
+   VIEW ALL BASE MORPH
+
+   VIEW ALL -> CLOSE
+   close -> view all
+
+   Uses positional character morph.
+   ===================================================== */
+
+async function morphViewButtonBase(
+    nextBase
+) {
+
+    if (
+        viewButtonFrame !==
+        null
+    ) {
+
+        cancelAnimationFrame(
+            viewButtonFrame
+        );
+
+
+        viewButtonFrame =
+            null;
+
+    }
+
+
+    const shouldUppercase =
         (
             window.matchMedia(
                 "(hover: hover)"
             ).matches &&
             viewButtonHovered
-        )
+        );
+
+
+    const targetText =
+        shouldUppercase
+            ? nextBase.toUpperCase()
+            : nextBase.toLowerCase();
+
+
+    await morphProjectText(
+        viewAllButton,
+        targetText,
+        PROJECT_MORPH_DURATION
     );
 
 }
 
 
 /* =====================================================
-   VIEW BUTTON HOVER
+   VIEW ALL HOVER
    ===================================================== */
 
 viewAllButton.addEventListener(
@@ -3198,7 +3547,9 @@ viewAllButton.addEventListener(
             true;
 
 
-        updateViewButtonCase();
+        morphViewButtonCase(
+            true
+        );
 
     }
 );
@@ -3223,7 +3574,9 @@ viewAllButton.addEventListener(
             false;
 
 
-        updateViewButtonCase();
+        morphViewButtonCase(
+            false
+        );
 
     }
 );
@@ -3232,18 +3585,23 @@ viewAllButton.addEventListener(
 /* =====================================================
    VIEW ALL BOUNDS
 
-   X:
+   Horizontal:
    Denizalp left -> film right.
 
-   Y:
-   safely below info
-   and safely above metadata.
+   Vertical:
+   below contact information
+   ->
+   safely above metadata.
    ===================================================== */
 
-function syncProjectAllBounds() {
+function syncProjectAllBounds(
+    force =
+        false
+) {
 
     if (
-        !projectAllMode
+        !projectAllMode &&
+        !force
     ) {
 
         return;
@@ -3276,13 +3634,19 @@ function syncProjectAllBounds() {
     const topGap =
         window.innerWidth <= 600
             ? 22
-            : 28;
+            : 30;
 
+
+    /*
+        More generous bottom spacing.
+
+        Grid cannot reach metadata.
+    */
 
     const bottomGap =
         window.innerWidth <= 600
-            ? 16
-            : 22;
+            ? 24
+            : 28;
 
 
     const top =
@@ -3343,9 +3707,14 @@ function calculateProjectAllLayout(
     let best =
         {
 
-            columns: 1,
-            rows: count,
-            score: 0
+            columns:
+                1,
+
+            rows:
+                count,
+
+            score:
+                0
 
         };
 
@@ -3433,10 +3802,18 @@ function calculateProjectAllLayout(
 }
 
 
-function layoutProjectAllGrid() {
+/* =====================================================
+   APPLY GRID
+   ===================================================== */
+
+function layoutProjectAllGrid(
+    force =
+        false
+) {
 
     if (
-        !projectAllMode
+        !projectAllMode &&
+        !force
     ) {
 
         return;
@@ -3444,7 +3821,9 @@ function layoutProjectAllGrid() {
     }
 
 
-    syncProjectAllBounds();
+    syncProjectAllBounds(
+        force
+    );
 
 
     const layout =
@@ -3550,6 +3929,91 @@ function buildProjectAllGrid() {
 
 
 /* =====================================================
+   PREPARE VIEW ALL
+
+   Grid geometry is calculated BEFORE it
+   becomes visible.
+
+   Fixes giant-first-thumbnail flash.
+   ===================================================== */
+
+function prepareProjectAllGrid() {
+
+    buildProjectAllGrid();
+
+
+    body.classList.add(
+        "project-all-preparing"
+    );
+
+
+    /*
+        Force layout while invisible.
+    */
+
+    projectAllView
+        .getBoundingClientRect();
+
+
+    syncProjectAllBounds(
+        true
+    );
+
+
+    layoutProjectAllGrid(
+        true
+    );
+
+}
+
+
+/* =====================================================
+   ALL / TOTAL
+   ===================================================== */
+
+async function enterAllCounter() {
+
+    /*
+        total remains untouched.
+    */
+
+    counterCurrent.innerHTML =
+        "";
+
+
+    counterCurrent.textContent =
+        "all";
+
+}
+
+
+/* =====================================================
+   RESTORE COUNTER
+   ===================================================== */
+
+function restoreCounter() {
+
+    initialiseDigitSlots(
+        counterCurrent,
+        getCurrentText(
+            frameIndex
+        )
+    );
+
+
+    initialiseDigitSlots(
+        counterTotal,
+        getTotalText(
+            currentProject()
+                .images
+                .length
+        )
+    );
+
+}
+
+
+/* =====================================================
    ENTER VIEW ALL
    ===================================================== */
 
@@ -3579,57 +4043,59 @@ async function enterProjectAll() {
     );
 
 
-    buildProjectAllGrid();
+    /*
+        Prepare INVISIBLE fully-laid-out grid first.
+    */
 
+    prepareProjectAllGrid();
+
+
+    /*
+        State change.
+    */
 
     projectAllMode =
         true;
 
 
-    body.classList.add(
-        "project-all-mode"
-    );
-
-
     /*
-        Title/date become uppercase progressively.
-
-        view all -> CLOSE if still hovered,
-        otherwise close.
-
-        current counter -> all
-        total stays unchanged.
+        Change button base while preserving hover state.
     */
 
     await Promise.all(
         [
 
-            animateElementCase(
+            animateProjectCase(
                 projectTitle,
                 true
             ),
 
-            animateElementCase(
+            animateProjectCase(
                 projectDate,
                 true
             ),
 
             enterAllCounter(),
 
-            updateViewButtonCase()
+            morphViewButtonBase(
+                "close"
+            )
 
         ]
     );
 
 
-    requestAnimationFrame(
-        () => {
+    /*
+        Reveal only after layout is final.
+    */
 
-            requestAnimationFrame(
-                layoutProjectAllGrid
-            );
+    body.classList.remove(
+        "project-all-preparing"
+    );
 
-        }
+
+    body.classList.add(
+        "project-all-mode"
     );
 
 
@@ -3640,10 +4106,7 @@ async function enterProjectAll() {
 
 
 /* =====================================================
-   LEAVE VIEW ALL INTERNAL
-
-   resume:
-   whether autoplay state should resume.
+   LEAVE VIEW ALL
    ===================================================== */
 
 async function leaveProjectAll(
@@ -3679,7 +4142,7 @@ async function leaveProjectAll(
         null
     ) {
 
-        const loadedImage =
+        const image =
             await preloadImage(
                 project.images[
                     selectedIndex
@@ -3692,15 +4155,14 @@ async function leaveProjectAll(
 
 
         renderImage(
-            loadedImage
+            image
         );
 
     }
 
 
     /*
-        Switch base state before button animation:
-        close -> view all.
+        Hide contact sheet.
     */
 
     projectAllMode =
@@ -3712,27 +4174,25 @@ async function leaveProjectAll(
     );
 
 
-    /*
-        Restore current digit slots.
-    */
-
-    restoreCounterSlots();
+    restoreCounter();
 
 
     await Promise.all(
         [
 
-            animateElementCase(
+            animateProjectCase(
                 projectTitle,
                 false
             ),
 
-            animateElementCase(
+            animateProjectCase(
                 projectDate,
                 false
             ),
 
-            updateViewButtonCase()
+            morphViewButtonBase(
+                "view all"
+            )
 
         ]
     );
@@ -3756,10 +4216,6 @@ async function leaveProjectAll(
             selectedIndex !==
             null
         ) {
-
-            /*
-                Thumbnail selection resumes autoplay.
-            */
 
             manualMode =
                 false;
@@ -3811,14 +4267,15 @@ async function leaveProjectAll(
 
 
 /* =====================================================
-   EXIT PROJECT ALL
+   EXIT VIEW ALL
    ===================================================== */
 
 async function exitProjectAll() {
 
     await leaveProjectAll(
         {
-            resume: true
+            resume:
+                true
         }
     );
 
@@ -3837,7 +4294,9 @@ async function exitProjectAllToFrame(
         {
 
             selectedIndex,
-            resume: true
+
+            resume:
+                true
 
         }
     );
@@ -3949,195 +4408,6 @@ function getChronologicalProjects() {
 
 
 /* =====================================================
-   INDEX CARD CASE ANIMATION
-   ===================================================== */
-
-function createCardCaseController(
-    element,
-    text
-) {
-
-    let frameId =
-        null;
-
-
-    let state =
-        0;
-
-
-    const positions =
-        getLetterPositions(
-            text
-        );
-
-
-    const total =
-        positions.length;
-
-
-    function render() {
-
-        element.textContent =
-            renderPrefixCase(
-                text,
-                state
-            );
-
-    }
-
-
-    function animateTo(
-        target
-    ) {
-
-        if (
-            frameId !==
-            null
-        ) {
-
-            cancelAnimationFrame(
-                frameId
-            );
-
-        }
-
-
-        const startState =
-            state;
-
-
-        const distance =
-            Math.abs(
-                target -
-                startState
-            );
-
-
-        if (
-            distance ===
-            0
-        ) {
-
-            render();
-
-
-            return;
-
-        }
-
-
-        /*
-            Same overall duration logic as
-            Film/Photography.
-        */
-
-        const duration =
-            CASE_DURATION *
-            (
-                distance /
-                Math.max(
-                    1,
-                    total
-                )
-            );
-
-
-        const start =
-            performance.now();
-
-
-        function frame(
-            now
-        ) {
-
-            const progress =
-                Math.min(
-                    1,
-                    (
-                        now -
-                        start
-                    ) /
-                    duration
-                );
-
-
-            state =
-                Math.round(
-                    startState +
-                    (
-                        target -
-                        startState
-                    ) *
-                    progress
-                );
-
-
-            render();
-
-
-            if (
-                progress < 1
-            ) {
-
-                frameId =
-                    requestAnimationFrame(
-                        frame
-                    );
-
-            }
-
-            else {
-
-                state =
-                    target;
-
-
-                render();
-
-
-                frameId =
-                    null;
-
-            }
-
-        }
-
-
-        frameId =
-            requestAnimationFrame(
-                frame
-            );
-
-    }
-
-
-    render();
-
-
-    return {
-
-        upper() {
-
-            animateTo(
-                total
-            );
-
-        },
-
-        lower() {
-
-            animateTo(
-                0
-            );
-
-        }
-
-    };
-
-}
-
-
-/* =====================================================
    BUILD INDEX
    ===================================================== */
 
@@ -4173,6 +4443,10 @@ function buildIndex() {
                     "button";
 
 
+                /* -------------------------------------
+                   IMAGE
+                   ------------------------------------- */
+
                 const imageWrap =
                     document.createElement(
                         "span"
@@ -4207,6 +4481,10 @@ function buildIndex() {
                     img
                 );
 
+
+                /* -------------------------------------
+                   COPY
+                   ------------------------------------- */
 
                 const copy =
                     document.createElement(
@@ -4247,11 +4525,15 @@ function buildIndex() {
                     "card-date";
 
 
-                date.textContent =
+                const dateBase =
                     (
                         project.date ||
                         ""
                     ).toLowerCase();
+
+
+                date.textContent =
+                    dateBase;
 
 
                 copy.append(
@@ -4266,15 +4548,27 @@ function buildIndex() {
                 );
 
 
-                /*
-                    Desktop hover over thumbnail OR title
-                    naturally means hover over card.
-                */
+                /* -------------------------------------
+                   TITLE + DATE CASE CONTROLLERS
+
+                   SAME duration.
+                   They start together.
+                   They end together.
+                   ------------------------------------- */
 
                 const titleCase =
-                    createCardCaseController(
+                    createCaseController(
                         title,
-                        titleBase
+                        titleBase,
+                        CASE_DURATION
+                    );
+
+
+                const dateCase =
+                    createCaseController(
+                        date,
+                        dateBase,
+                        CASE_DURATION
                     );
 
 
@@ -4283,14 +4577,20 @@ function buildIndex() {
                     () => {
 
                         if (
-                            window.matchMedia(
+                            !window.matchMedia(
                                 "(hover: hover)"
                             ).matches
                         ) {
 
-                            titleCase.upper();
+                            return;
 
                         }
+
+
+                        titleCase.upper();
+
+
+                        dateCase.upper();
 
                     }
                 );
@@ -4301,14 +4601,20 @@ function buildIndex() {
                     () => {
 
                         if (
-                            window.matchMedia(
+                            !window.matchMedia(
                                 "(hover: hover)"
                             ).matches
                         ) {
 
-                            titleCase.lower();
+                            return;
 
                         }
+
+
+                        titleCase.lower();
+
+
+                        dateCase.lower();
 
                     }
                 );
@@ -4355,44 +4661,6 @@ function buildIndex() {
 
 
 /* =====================================================
-   GENERIC CASE WORD
-   ===================================================== */
-
-function renderWordCase(
-    word,
-    upperCount
-) {
-
-    let result =
-        "";
-
-
-    for (
-        let i = 0;
-        i <
-        word.length;
-        i++
-    ) {
-
-        result +=
-            i <
-            upperCount
-                ? word[
-                    i
-                ].toUpperCase()
-                : word[
-                    i
-                ];
-
-    }
-
-
-    return result;
-
-}
-
-
-/* =====================================================
    INDEX WORD
    ===================================================== */
 
@@ -4408,22 +4676,62 @@ let indexWordFrame =
     null;
 
 
-function renderIndexWord(
+/* =====================================================
+   BASIC WORD CASE
+   ===================================================== */
+
+function renderWordCase(
+    word,
     upperCount
 ) {
 
+    let result =
+        "";
+
+
+    for (
+        let i = 0;
+        i < word.length;
+        i++
+    ) {
+
+        result +=
+            i < upperCount
+                ? word[i].toUpperCase()
+                : word[i].toLowerCase();
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+   RENDER INDEX WORD
+   ===================================================== */
+
+function renderIndexWord(
+    state
+) {
+
     indexWordState =
-        upperCount;
+        state;
 
 
     indexButton.textContent =
         renderWordCase(
             indexWord,
-            upperCount
+            state
         );
 
 }
 
+
+/* =====================================================
+   INDEX MORPH
+   ===================================================== */
 
 function morphIndexTo(
     target
@@ -4445,29 +4753,19 @@ function morphIndexTo(
         indexWordState;
 
 
-    const distance =
-        Math.abs(
-            target -
-            startState
+    if (
+        startState ===
+        target
+    ) {
+
+        renderIndexWord(
+            target
         );
 
-
-    if (
-        distance ===
-        0
-    ) {
 
         return Promise.resolve();
 
     }
-
-
-    const duration =
-        INDEX_TRANSITION_DURATION *
-        (
-            distance /
-            indexWord.length
-        );
 
 
     const start =
@@ -4488,7 +4786,7 @@ function morphIndexTo(
                             now -
                             start
                         ) /
-                        duration
+                        INDEX_TRANSITION_DURATION
                     );
 
 
@@ -4564,6 +4862,14 @@ indexButton.addEventListener(
 
         }
 
+
+        /*
+            Slideshow:
+            index -> INDEX
+
+            Index:
+            INDEX -> index
+        */
 
         morphIndexTo(
             indexMode
@@ -4673,6 +4979,13 @@ async function enterIndex() {
     restoreIndexPosition();
 
 
+    /*
+        Always enter as INDEX.
+
+        Important:
+        mouse does NOT have to leave the button.
+    */
+
     await morphIndexTo(
         indexWord.length
     );
@@ -4693,11 +5006,7 @@ async function enterIndex() {
 
 
 /* =====================================================
-   INDEX FROM VIEW ALL
-
-   First restore slideshow metadata,
-   but DO NOT resume autoplay,
-   then enter INDEX.
+   VIEW ALL -> INDEX
    ===================================================== */
 
 async function enterIndexFromProjectAll() {
@@ -4714,7 +5023,8 @@ async function enterIndexFromProjectAll() {
 
     await leaveProjectAll(
         {
-            resume: false
+            resume:
+                false
         }
     );
 
@@ -4746,6 +5056,13 @@ async function returnFromIndex() {
 
     saveIndexPosition();
 
+
+    /*
+        No hover prerequisite.
+
+        Second click works immediately even if
+        pointer has never moved.
+    */
 
     await morphIndexTo(
         0
@@ -4873,7 +5190,12 @@ async function exitIndexToProject(
 
 
 /* =====================================================
-   INDEX BUTTON CLICK
+   INDEX CLICK
+
+   Important fix:
+   no indexWordState condition anymore.
+
+   A click ALWAYS toggles the view.
    ===================================================== */
 
 indexButton.addEventListener(
@@ -4893,30 +5215,12 @@ indexButton.addEventListener(
         }
 
 
-        /*
-            New:
-            VIEW ALL -> INDEX is allowed.
-        */
-
         if (
             projectAllMode
         ) {
 
             await enterIndexFromProjectAll();
 
-
-            return;
-
-        }
-
-
-        if (
-            window.innerWidth >
-            600 &&
-            indexMode &&
-            indexWordState !==
-            0
-        ) {
 
             return;
 
@@ -5343,7 +5647,8 @@ document.addEventListener(
 
 
         /*
-            SPACE = same as ordinary primary click.
+            Desktop Space:
+            exactly same behaviour as primary click.
         */
 
         if (
@@ -5445,10 +5750,8 @@ document.addEventListener(
             interfaceAnimating ||
             navigationAnimating ||
             projectViewAnimating ||
-            touchStartX ===
-            null ||
-            touchStartY ===
-            null
+            touchStartX === null ||
+            touchStartY === null
         ) {
 
             return;
@@ -5538,6 +5841,9 @@ document.addEventListener(
 
 /* =====================================================
    MOBILE STAGE
+
+   Explicitly reserves a metadata region
+   below the image.
    ===================================================== */
 
 function updateMobileStage() {
@@ -5589,17 +5895,20 @@ function updateMobileStage() {
         info.getBoundingClientRect();
 
 
-    /*
-        Give the image as much vertical room as possible,
-        while reserving a guaranteed metadata zone.
-    */
-
     const gapAfterInfo =
         24;
 
 
+    /*
+        Extra room at bottom for:
+        first meta row
+        second meta row
+        index
+        safe-area
+    */
+
     const bottomGap =
-        54;
+        60;
 
 
     let viewportTop =
@@ -5775,22 +6084,14 @@ function setLogoState(
 
     for (
         let i = 0;
-        i <
-        letters.length;
+        i < letters.length;
         i++
     ) {
 
-        letters[
-            i
-        ].textContent =
-            i <
-            state
-                ? uppercase[
-                    i
-                ]
-                : lowercase[
-                    i
-                ];
+        letters[i].textContent =
+            i < state
+                ? uppercase[i]
+                : lowercase[i];
 
     }
 
@@ -6007,28 +6308,14 @@ function morphSwitchTo(
         switchState;
 
 
-    const distance =
-        Math.abs(
-            target -
-            startState
-        );
-
-
     if (
-        distance === 0
+        startState ===
+        target
     ) {
 
         return;
 
     }
-
-
-    const duration =
-        WORD_TRANSITION_DURATION *
-        (
-            distance /
-            switchWord.length
-        );
 
 
     const start =
@@ -6046,7 +6333,7 @@ function morphSwitchTo(
                     now -
                     start
                 ) /
-                duration
+                WORD_TRANSITION_DURATION
             );
 
 
@@ -6380,6 +6667,10 @@ async function loadProjects() {
 
 
         viewAllButton.textContent =
+            "view all";
+
+
+        viewAllButton.dataset.rawText =
             "view all";
 
 
