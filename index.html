@@ -82,12 +82,17 @@ button {
 
 
     /*
-        Dynamically updated by JS in phone landscape.
+        PHONE LANDSCAPE —
+        dynamically calculated by JS.
     */
 
     --landscape-safe-left: 300px;
     --landscape-safe-right: 120px;
-    --landscape-index-start: 300px;
+
+    --landscape-index-top: 220px;
+
+    --landscape-index-image-height: 220px;
+    --landscape-index-card-width: 180px;
 
 }
 
@@ -917,11 +922,6 @@ body.phone-portrait #project-all-grid {
 
 /* =====================================================
    PHONE LANDSCAPE
-
-   Header/contact is now treated as a real
-   horizontal exclusion zone.
-
-   JS calculates the exact safe boundaries.
    ===================================================== */
 
 body.phone-landscape {
@@ -935,77 +935,9 @@ body.phone-landscape {
 
 
 /* =====================================================
-   LANDSCAPE SLIDESHOW
+   LANDSCAPE META
 
-   IMPORTANT:
-
-   left/right are no longer 0.
-
-   The image lives inside the clean horizontal region
-   between the contact block and the right side.
-   ===================================================== */
-
-body.phone-landscape #visual-zone {
-
-    top: 0;
-
-    left: var(--landscape-safe-left);
-    right: var(--landscape-safe-right);
-
-    width: auto;
-    height: 100vh;
-
-    transform: none;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    padding:
-        18px
-        0
-        62px;
-
-    overflow: hidden;
-}
-
-body.phone-landscape #spread,
-body.phone-landscape .image-cell {
-    width: 100%;
-    height: 100%;
-}
-
-body.phone-landscape .spread-image {
-
-    width: auto;
-    height: auto;
-
-    /*
-        Fill the clean region rather than using
-        an arbitrary vw maximum.
-    */
-
-    max-width: 100%;
-
-    /*
-        Leave room for the fixed metadata/index
-        region at the bottom.
-    */
-
-    max-height: 72vh;
-
-    object-fit: contain;
-}
-
-
-/* =====================================================
-   LANDSCAPE METADATA
-
-   Metadata intentionally remains tied to the
-   outer site margins, not the photograph.
-
-   Therefore changing image ratio does not move it.
+   Metadata stays at the outer site margins.
    ===================================================== */
 
 body.phone-landscape #project-meta {
@@ -1034,17 +966,98 @@ body.phone-landscape #project-counter {
 
 
 /* =====================================================
-   PHONE LANDSCAPE INDEX
+   LANDSCAPE SLIDESHOW
 
-   The first card begins AFTER the contact block.
+   IMPORTANT:
 
-   Once the user scrolls, cards may naturally travel
-   beneath the fixed header area.
+   The image BOTTOM now matches the bottom edge
+   of the two-line metadata block.
+
+   Since metadata bottom is:
+       index-bottom + 24px
+
+   the photo uses exactly the same bottom line.
+
+   align-items:flex-end ensures even a width-limited
+   landscape image sits on that line instead of being
+   vertically centred and drifting into INDEX.
+   ===================================================== */
+
+body.phone-landscape #visual-zone {
+
+    top: 0;
+
+    left: var(--landscape-safe-left);
+    right: var(--landscape-safe-right);
+
+    bottom:
+        calc(
+            var(--index-bottom) +
+            env(safe-area-inset-bottom) +
+            24px
+        );
+
+    width: auto;
+    height: auto;
+
+    transform: none;
+
+    display: flex;
+
+    align-items: flex-end;
+    justify-content: center;
+
+    padding:
+        18px
+        0
+        0;
+
+    overflow: hidden;
+}
+
+body.phone-landscape #spread,
+body.phone-landscape .image-cell {
+    width: 100%;
+    height: 100%;
+
+    align-items: flex-end;
+}
+
+body.phone-landscape .spread-image {
+
+    width: auto;
+    height: auto;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain;
+}
+
+
+/* =====================================================
+   LANDSCAPE INDEX
+
+   Entire card — image + two text lines —
+   fits between:
+
+   models.com
+       ↓
+   cards
+       ↓
+   INDEX
+
+   JS supplies exact top and image height.
+
+   First card begins at --side, exactly like
+   portrait / desktop.
+
+   Once scrolled, it can naturally leave the viewport.
    ===================================================== */
 
 body.phone-landscape #index-scroller {
 
-    top: 72px;
+    top: var(--landscape-index-top);
 
     bottom:
         calc(
@@ -1060,13 +1073,10 @@ body.phone-landscape #index-grid {
 
     gap: 38px;
 
-    padding-left:
-        var(--landscape-index-start);
+    padding-left: var(--side);
+    padding-right: var(--side);
 
-    padding-right:
-        var(--side);
-
-    transform: translateY(-2px);
+    transform: none;
 }
 
 body.phone-landscape .project-card {
@@ -1074,30 +1084,26 @@ body.phone-landscape .project-card {
     flex:
         0
         0
-        clamp(
-            165px,
-            44vh,
-            220px
-        );
+        var(--landscape-index-card-width);
 
     width:
-        clamp(
-            165px,
-            44vh,
-            220px
-        );
+        var(--landscape-index-card-width);
 }
 
 body.phone-landscape .card-image-wrap {
 
+    width: 100%;
+
     height:
-        clamp(
-            145px,
-            44vh,
-            205px
-        );
+        var(--landscape-index-image-height);
 
     justify-content: flex-start;
+}
+
+body.phone-landscape .project-card img {
+
+    max-width: 100%;
+    max-height: 100%;
 }
 
 body.phone-landscape #project-all-grid {
@@ -1487,11 +1493,6 @@ let viewButtonHovered =
     false;
 
 
-/*
-    Used so an orientation change does not carry
-    a portrait pixel scroll position into landscape.
-*/
-
 let previousResponsiveMode =
     null;
 
@@ -1786,15 +1787,15 @@ function preloadImage(
 
 
 /* =====================================================
-   LANDSCAPE SAFE ZONES
+   LANDSCAPE GEOMETRY
 
-   This is the important new part.
+   Two independent responsibilities:
 
-   We measure the actual width of the info/contact block
-   rather than guessing with vw values.
+   1. slide horizontal safe area
+   2. index vertical safe area
    ===================================================== */
 
-function updateLandscapeSafeZones() {
+function updateLandscapeGeometry() {
 
     if (
         !isPhoneLandscape()
@@ -1805,6 +1806,10 @@ function updateLandscapeSafeZones() {
     }
 
 
+    const root =
+        document.documentElement;
+
+
     const infoRect =
         info.getBoundingClientRect();
 
@@ -1813,38 +1818,56 @@ function updateLandscapeSafeZones() {
         sectionSwitch.getBoundingClientRect();
 
 
-    /*
-        Space between contact and photograph.
+    const indexRect =
+        indexButton.getBoundingClientRect();
 
-        Roughly matches the site's existing
-        breathing room.
-    */
 
-    const leftGap =
+    const computed =
+        getComputedStyle(
+            root
+        );
+
+
+    const fontSize =
+        parseFloat(
+            computed.getPropertyValue(
+                "--font-size"
+            )
+        ) || 13;
+
+
+    const lineHeightMultiplier =
+        parseFloat(
+            computed.getPropertyValue(
+                "--line-height"
+            )
+        ) || 1.15;
+
+
+    const lineHeight =
+        fontSize *
+        lineHeightMultiplier;
+
+
+    /* =================================================
+       SLIDE — HORIZONTAL SAFE AREA
+       ================================================= */
+
+
+    const slideLeftGap =
         24;
 
 
-    const rightGap =
+    const slideRightGap =
         32;
 
-
-    /*
-        Slide photograph begins after the furthest
-        right edge of the info/contact block.
-    */
 
     const safeLeft =
         Math.ceil(
             infoRect.right +
-            leftGap
+            slideLeftGap
         );
 
-
-    /*
-        On the right, reserve the area occupied by film.
-        Since film itself is only at the top, this is
-        intentionally less aggressive than the left.
-    */
 
     const safeRight =
         Math.max(
@@ -1852,48 +1875,133 @@ function updateLandscapeSafeZones() {
             Math.ceil(
                 window.innerWidth -
                 filmRect.left +
-                rightGap
+                slideRightGap
+            )
+        );
+
+
+    root.style.setProperty(
+        "--landscape-safe-left",
+        `${safeLeft}px`
+    );
+
+
+    root.style.setProperty(
+        "--landscape-safe-right",
+        `${safeRight}px`
+    );
+
+
+    /* =================================================
+       INDEX — VERTICAL SAFE AREA
+
+       top:
+       models.com bottom + breathing room
+
+       bottom:
+       top of INDEX - breathing room
+       ================================================= */
+
+
+    const indexTopGap =
+        22;
+
+
+    const indexBottomGap =
+        20;
+
+
+    const safeIndexTop =
+        Math.ceil(
+            infoRect.bottom +
+            indexTopGap
+        );
+
+
+    const safeIndexBottom =
+        Math.floor(
+            indexRect.top -
+            indexBottomGap
+        );
+
+
+    const availableHeight =
+        Math.max(
+            120,
+            safeIndexBottom -
+            safeIndexTop
+        );
+
+
+    /*
+        Reserve:
+        two text lines
+        + image/text gap
+        + tiny optical breathing room.
+    */
+
+    const copyHeight =
+        lineHeight *
+        2;
+
+
+    const copyGap =
+        5;
+
+
+    const innerSafety =
+        8;
+
+
+    const imageHeight =
+        Math.max(
+            80,
+            Math.floor(
+                availableHeight -
+                copyHeight -
+                copyGap -
+                innerSafety
             )
         );
 
 
     /*
-        Index first thumbnail begins at the same clean
-        horizontal boundary.
+        Card width remains proportional to the
+        available image height.
 
-        It may later travel beneath the header when
-        the user manually scrolls.
+        Clamp prevents extreme widths on very
+        short / unusual landscape viewports.
     */
 
-    const indexStart =
-        safeLeft;
-
-
-    document
-        .documentElement
-        .style
-        .setProperty(
-            "--landscape-safe-left",
-            `${safeLeft}px`
+    const cardWidth =
+        Math.max(
+            120,
+            Math.min(
+                220,
+                Math.round(
+                    imageHeight *
+                    0.78
+                )
+            )
         );
 
 
-    document
-        .documentElement
-        .style
-        .setProperty(
-            "--landscape-safe-right",
-            `${safeRight}px`
-        );
+    root.style.setProperty(
+        "--landscape-index-top",
+        `${safeIndexTop}px`
+    );
 
 
-    document
-        .documentElement
-        .style
-        .setProperty(
-            "--landscape-index-start",
-            `${indexStart}px`
-        );
+    root.style.setProperty(
+        "--landscape-index-image-height",
+        `${imageHeight}px`
+    );
+
+
+    root.style.setProperty(
+        "--landscape-index-card-width",
+        `${cardWidth}px`
+    );
 
 }
 
@@ -1960,17 +2068,14 @@ function updateResponsiveMode() {
         landscape
     ) {
 
-        updateLandscapeSafeZones();
+        updateLandscapeGeometry();
 
     }
 
 
     /*
-        Portrait scroll pixels do not mean the same
-        thing in landscape.
-
-        Reset only when orientation/layout class
-        genuinely changes while index is visible.
+        Don't carry a portrait scroll pixel value
+        into landscape and vice versa.
     */
 
     if (
@@ -2001,7 +2106,7 @@ function updateResponsiveMode() {
 
 
 /* =====================================================
-   INDEX TOP
+   INDEX TOP — NON LANDSCAPE
    ===================================================== */
 
 function updateIndexContentTop() {
@@ -2020,16 +2125,6 @@ function updateIndexContentTop() {
 
         gap =
             24;
-
-    }
-
-
-    if (
-        isPhoneLandscape()
-    ) {
-
-        gap =
-            10;
 
     }
 
@@ -2893,7 +2988,7 @@ async function showFrame(
             isPhoneLandscape()
         ) {
 
-            updateLandscapeSafeZones();
+            updateLandscapeGeometry();
 
         }
 
@@ -3810,7 +3905,7 @@ async function leaveProjectAll(
         isPhoneLandscape()
     ) {
 
-        updateLandscapeSafeZones();
+        updateLandscapeGeometry();
 
     }
 
@@ -4701,7 +4796,7 @@ async function enterIndex() {
         isPhoneLandscape()
     ) {
 
-        updateLandscapeSafeZones();
+        updateLandscapeGeometry();
 
     }
 
@@ -5972,7 +6067,7 @@ sectionSwitch.addEventListener(
 
 
 /* =====================================================
-   RESIZE / ROTATION
+   GEOMETRY CHANGE
    ===================================================== */
 
 function handleGeometryChange() {
@@ -5987,7 +6082,14 @@ function handleGeometryChange() {
         isPhoneLandscape()
     ) {
 
-        updateLandscapeSafeZones();
+        /*
+            Wait one frame so Safari has committed
+            the latest viewport and font geometry.
+        */
+
+        requestAnimationFrame(
+            updateLandscapeGeometry
+        );
 
     }
 
@@ -6024,23 +6126,21 @@ window.addEventListener(
     "orientationchange",
     () => {
 
-        /*
-            iOS reports temporary viewport dimensions
-            while rotating.
-
-            First pass happens immediately, then another
-            after Safari has settled.
-        */
-
         setTimeout(
             handleGeometryChange,
-            120
+            100
         );
 
 
         setTimeout(
             handleGeometryChange,
-            400
+            350
+        );
+
+
+        setTimeout(
+            handleGeometryChange,
+            700
         );
 
     }
@@ -6221,7 +6321,9 @@ async function loadProjects() {
             isPhoneLandscape()
         ) {
 
-            updateLandscapeSafeZones();
+            requestAnimationFrame(
+                updateLandscapeGeometry
+            );
 
         }
 
