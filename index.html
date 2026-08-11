@@ -83,7 +83,14 @@ body {
     top: 0;
     left: 0;
 
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
     font-size: 15px;
+    font-weight: 400;
+    line-height: 1.15;
 
     white-space: nowrap;
 }
@@ -94,7 +101,16 @@ body {
     top: 17px;
     left: 0;
 
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
     font-size: 15px;
+    font-weight: 400;
+    line-height: 1.15;
+
+    letter-spacing: normal;
 
     white-space: nowrap;
 }
@@ -110,16 +126,22 @@ body {
 
 .contact {
     margin: 0;
+    padding: 0;
 }
 
 .social {
     display: flex;
     flex-direction: column;
+    gap: 0;
+
+    margin: 0;
+    padding: 0;
 }
 
 .info a {
     color: inherit;
     text-decoration: none;
+    font-weight: 400;
 }
 
 .info a:hover {
@@ -148,6 +170,7 @@ body {
         sans-serif;
 
     font-size: 15px;
+    font-weight: 400;
     line-height: 1.15;
 
     white-space: nowrap;
@@ -309,6 +332,10 @@ body {
 <body>
 
 
+<!-- =========================
+     LEFT INFORMATION
+     ========================= -->
+
 <div
     class="info"
     id="info"
@@ -372,6 +399,10 @@ body {
 </div>
 
 
+<!-- =========================
+     SECTION SWITCH
+     ========================= -->
+
 <a
     class="section-switch"
     id="section-switch"
@@ -381,10 +412,25 @@ body {
 </a>
 
 
+<!-- =========================
+     SLIDESHOW
+     ========================= -->
+
 <div id="slideshow"></div>
 
 
 <script>
+
+
+/* =====================================================
+   R2 / PHOTOS.JSON
+   ===================================================== */
+
+const R2_BASE =
+    "https://pub-14d397941aeb40e5bd3f66ac028fef80.r2.dev/photos/";
+
+const PHOTOS_JSON =
+    "./photos.json";
 
 
 /* =====================================================
@@ -393,23 +439,6 @@ body {
 
 const WORD_TRANSITION_DURATION =
     600;
-
-
-/* =====================================================
-   SETTINGS
-   ===================================================== */
-
-const GITHUB_USERNAME =
-    "denizalpaybak";
-
-const GITHUB_REPOSITORY =
-    "aybak-photography";
-
-const GITHUB_BRANCH =
-    "main";
-
-const GITHUB_FOLDER =
-    "";
 
 
 /* =====================================================
@@ -426,6 +455,9 @@ const info =
         "info"
     );
 
+let photos =
+    [];
+
 let slides =
     [];
 
@@ -437,20 +469,53 @@ let manualMode =
 
 
 /* =====================================================
-   LOAD PHOTOS
+   R2 URL
+   ===================================================== */
+
+function getPhotoUrl(
+    filename
+) {
+
+    /*
+        encodeURIComponent handles spaces
+        such as:
+        "...0506 copy2.jpg"
+    */
+
+    return (
+        R2_BASE +
+        encodeURIComponent(
+            filename
+        )
+    );
+
+}
+
+
+/* =====================================================
+   LOAD PHOTOS.JSON
    ===================================================== */
 
 async function loadPhotos() {
 
     try {
 
-        const apiUrl =
-            `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/contents/${GITHUB_FOLDER}`;
+        /*
+            photos.json controls the complete
+            slideshow order.
 
+            no-store means edits to the JSON
+            are reflected without relying on
+            an old browser cache.
+        */
 
         const response =
             await fetch(
-                apiUrl
+                PHOTOS_JSON,
+                {
+                    cache:
+                        "no-store"
+                }
             );
 
 
@@ -459,59 +524,61 @@ async function loadPhotos() {
         ) {
 
             throw new Error(
-                "GitHub repository could not be accessed."
+                "photos.json could not be loaded."
             );
 
         }
 
 
-        const files =
+        const data =
             await response.json();
 
 
-        const photos =
-            files
-            .filter(
-                file =>
-                    file.type ===
-                    "file" &&
-                    /^\d+\.jpg$/i
-                        .test(
-                            file.name
-                        )
+        if (
+            !Array.isArray(
+                data
             )
-            .sort(
-                (a, b) => {
+        ) {
 
-                    const numberA =
-                        parseInt(
-                            a.name.replace(
-                                /\.jpg$/i,
-                                ""
-                            ),
-                            10
-                        );
+            throw new Error(
+                "photos.json must contain an array."
+            );
 
-                    const numberB =
-                        parseInt(
-                            b.name.replace(
-                                /\.jpg$/i,
-                                ""
-                            ),
-                            10
-                        );
+        }
 
-                    return (
-                        numberB -
-                        numberA
-                    );
 
-                }
+        photos =
+            data.filter(
+                item =>
+                    typeof item ===
+                    "string" &&
+                    item.trim() !==
+                    ""
             );
 
 
+        if (
+            photos.length ===
+            0
+        ) {
+
+            throw new Error(
+                "photos.json contains no valid photos."
+            );
+
+        }
+
+
+        /*
+            Build slideshow in EXACTLY
+            the order given by photos.json.
+        */
+
         photos.forEach(
-            (file, index) => {
+            (
+                filename,
+                index
+            ) => {
 
                 const img =
                     document.createElement(
@@ -524,40 +591,63 @@ async function loadPhotos() {
 
 
                 img.src =
-                    `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/${GITHUB_BRANCH}/${file.name}`;
+                    getPhotoUrl(
+                        filename
+                    );
 
 
                 img.alt =
                     "";
 
 
+                /*
+                    First image is the only
+                    eager/high-priority image.
+
+                    The rest load normally.
+                */
+
                 if (
                     index ===
                     0
                 ) {
 
-                    img.classList
-                        .add(
-                            "active"
-                        );
+                    img.classList.add(
+                        "active"
+                    );
+
+
+                    img.loading =
+                        "eager";
+
+
+                    img.fetchPriority =
+                        "high";
+
+                }
+
+                else {
+
+                    img.loading =
+                        "eager";
 
                 }
 
 
-                slideshow
-                    .appendChild(
-                        img
-                    );
+                slideshow.appendChild(
+                    img
+                );
 
             }
         );
 
 
         slides =
-            document
-                .querySelectorAll(
+            Array.from(
+                document.querySelectorAll(
                     ".slide"
-                );
+                )
+            );
 
 
         current =
@@ -571,6 +661,7 @@ async function loadPhotos() {
     catch (error) {
 
         console.error(
+            "Photography could not be loaded:",
             error
         );
 
@@ -579,11 +670,8 @@ async function loadPhotos() {
 }
 
 
-loadPhotos();
-
-
 /* =====================================================
-   NEXT / PREVIOUS
+   NEXT
    ===================================================== */
 
 function nextSlide() {
@@ -607,7 +695,8 @@ function nextSlide() {
 
     current =
         (
-            current + 1
+            current +
+            1
         ) %
         slides.length;
 
@@ -620,6 +709,10 @@ function nextSlide() {
 
 }
 
+
+/* =====================================================
+   PREVIOUS
+   ===================================================== */
 
 function previousSlide() {
 
@@ -642,7 +735,8 @@ function previousSlide() {
 
     current =
         (
-            current - 1 +
+            current -
+            1 +
             slides.length
         ) %
         slides.length;
@@ -658,7 +752,7 @@ function previousSlide() {
 
 
 /* =====================================================
-   AUTO
+   AUTO SLIDESHOW
    ===================================================== */
 
 setInterval(
@@ -686,6 +780,10 @@ document.body
         "click",
         event => {
 
+            /*
+                Links behave normally.
+            */
+
             if (
                 event.target.closest(
                     "a"
@@ -697,6 +795,15 @@ document.body
             }
 
 
+            /*
+                FIRST CLICK
+
+                Stop autoplay only.
+
+                Do not change the
+                currently visible photo.
+            */
+
             if (
                 !manualMode
             ) {
@@ -704,10 +811,21 @@ document.body
                 manualMode =
                     true;
 
+
                 return;
 
             }
 
+
+            /*
+                AFTER FIRST CLICK
+
+                LEFT 25%:
+                previous
+
+                RIGHT 75%:
+                next
+            */
 
             const percentage =
                 event.clientX /
@@ -734,7 +852,7 @@ document.body
 
 
 /* =====================================================
-   MOBILE POSITION
+   MOBILE / INSTAGRAM POSITION
    ===================================================== */
 
 function updateMobileSlideshow() {
@@ -744,6 +862,11 @@ function updateMobileSlideshow() {
             "(orientation: landscape) and (max-height: 700px)"
         ).matches;
 
+
+    /*
+        Short landscape uses its own
+        CSS layout.
+    */
 
     if (
         shortLandscape
@@ -758,10 +881,16 @@ function updateMobileSlideshow() {
         slideshow.style.height =
             "";
 
+
         return;
 
     }
 
+
+    /*
+        Desktop uses regular
+        viewport-centered layout.
+    */
 
     if (
         window.innerWidth >
@@ -777,18 +906,28 @@ function updateMobileSlideshow() {
         slideshow.style.height =
             "";
 
+
         return;
 
     }
 
 
+    /*
+        On portrait mobile, measure
+        the actual bottom of the
+        information block.
+
+        This protects against Instagram's
+        in-app browser viewport behavior.
+    */
+
     const infoRect =
-        info
-            .getBoundingClientRect();
+        info.getBoundingClientRect();
 
 
     const gapAfterInfo =
         24;
+
 
     const bottomGap =
         20;
@@ -796,6 +935,7 @@ function updateMobileSlideshow() {
 
     let viewportTop =
         0;
+
 
     let viewportHeight =
         window.innerHeight;
@@ -809,6 +949,7 @@ function updateMobileSlideshow() {
             window
                 .visualViewport
                 .offsetTop;
+
 
         viewportHeight =
             window
@@ -848,14 +989,20 @@ function updateMobileSlideshow() {
     slideshow.style.top =
         `${stageTop}px`;
 
+
     slideshow.style.height =
         `${stageHeight}px`;
+
 
     slideshow.style.bottom =
         "auto";
 
 }
 
+
+/* =====================================================
+   VIEWPORT UPDATES
+   ===================================================== */
 
 window.addEventListener(
     "resize",
@@ -905,6 +1052,12 @@ window.addEventListener(
         updateMobileSlideshow();
 
 
+        /*
+            Instagram may report its
+            final viewport dimensions
+            slightly after initial load.
+        */
+
         setTimeout(
             updateMobileSlideshow,
             100
@@ -935,18 +1088,37 @@ const logo =
         ".logo"
     );
 
+
 const logoName =
     document.getElementById(
         "logo-name"
     );
 
+
 const letters = [
-    document.getElementById("letter-a"),
-    document.getElementById("letter-y"),
-    document.getElementById("letter-b"),
-    document.getElementById("letter-a2"),
-    document.getElementById("letter-k")
+
+    document.getElementById(
+        "letter-a"
+    ),
+
+    document.getElementById(
+        "letter-y"
+    ),
+
+    document.getElementById(
+        "letter-b"
+    ),
+
+    document.getElementById(
+        "letter-a2"
+    ),
+
+    document.getElementById(
+        "letter-k"
+    )
+
 ];
+
 
 const lowercase = [
     "a",
@@ -956,6 +1128,7 @@ const lowercase = [
     "k"
 ];
 
+
 const uppercase = [
     "A",
     "Y",
@@ -964,15 +1137,22 @@ const uppercase = [
     "K"
 ];
 
+
 let logoState =
     0;
+
 
 let logoTarget =
     0;
 
+
 let logoTimer =
     null;
 
+
+/* =====================================================
+   LOGO STATE
+   ===================================================== */
 
 function setLogoState(
     state
@@ -983,7 +1163,8 @@ function setLogoState(
 
 
     logoName.textContent =
-        state === 0
+        state ===
+        0
             ? "Denizalp"
             : "denizalp";
 
@@ -1005,6 +1186,10 @@ function setLogoState(
 }
 
 
+/* =====================================================
+   MOVE LOGO
+   ===================================================== */
+
 function moveLogo() {
 
     if (
@@ -1014,6 +1199,7 @@ function moveLogo() {
 
         logoTimer =
             null;
+
 
         return;
 
@@ -1036,6 +1222,10 @@ function moveLogo() {
 
 }
 
+
+/* =====================================================
+   ANIMATE LOGO
+   ===================================================== */
 
 function animateTo(
     target
@@ -1061,6 +1251,10 @@ function animateTo(
 
 }
 
+
+/* =====================================================
+   DESKTOP LOGO
+   ===================================================== */
 
 logo.addEventListener(
     "mouseenter",
@@ -1100,9 +1294,9 @@ logo.addEventListener(
 );
 
 
-/* =========================
+/* =====================================================
    MOBILE LOGO
-   ========================= */
+   ===================================================== */
 
 function mobileLogoCycle() {
 
@@ -1155,7 +1349,7 @@ if (
 
 /* =====================================================
    SECTION SWITCH
-   Exact 600ms full transition
+   FILM — exact 600ms transition
    ===================================================== */
 
 const sectionSwitch =
@@ -1163,24 +1357,28 @@ const sectionSwitch =
         "section-switch"
     );
 
+
 const sectionSwitchText =
     document.getElementById(
         "section-switch-text"
     );
 
+
 const switchWord =
     "film";
 
+
 let switchState =
     0;
+
 
 let switchAnimationFrame =
     null;
 
 
-/* =========================
+/* =====================================================
    RENDER SWITCH
-   ========================= */
+   ===================================================== */
 
 function renderSwitch(
     upperCount
@@ -1216,9 +1414,9 @@ function renderSwitch(
 }
 
 
-/* =========================
+/* =====================================================
    MORPH SWITCH
-   ========================= */
+   ===================================================== */
 
 function morphSwitchTo(
     target
@@ -1335,9 +1533,9 @@ function morphSwitchTo(
 }
 
 
-/* =========================
-   DESKTOP SWITCH
-   ========================= */
+/* =====================================================
+   DESKTOP SECTION SWITCH
+   ===================================================== */
 
 sectionSwitch.addEventListener(
     "mouseenter",
@@ -1377,12 +1575,24 @@ sectionSwitch.addEventListener(
 );
 
 
+/* =====================================================
+   START
+   ===================================================== */
+
+setLogoState(
+    0
+);
+
+
 renderSwitch(
     0
 );
 
 
 updateMobileSlideshow();
+
+
+loadPhotos();
 
 </script>
 
