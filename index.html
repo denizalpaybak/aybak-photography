@@ -22,7 +22,11 @@ body {
     height: 100%;
 
     background: #fff;
+
     overflow: hidden;
+
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 body {
@@ -44,6 +48,7 @@ body {
 
     font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
+    font-weight: 400;
     line-height: 1.15;
 }
 
@@ -59,6 +64,9 @@ body {
     width: 190px;
     height: 52px;
 
+    margin: 0;
+    padding: 0;
+
     color: inherit;
     text-decoration: none;
 
@@ -67,20 +75,29 @@ body {
 
 .logo-name {
     position: absolute;
+
     top: 0;
     left: 0;
 
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
+    font-weight: 400;
+    line-height: 1.15;
 
     white-space: nowrap;
 }
 
 .logo-aybak {
     position: absolute;
+
     top: 17px;
     left: 0;
 
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
+    font-weight: 400;
+    line-height: 1.15;
+
     letter-spacing: normal;
 
     white-space: nowrap;
@@ -97,16 +114,22 @@ body {
 
 .contact {
     margin: 0;
+    padding: 0;
 }
 
 .social {
     display: flex;
     flex-direction: column;
+    gap: 0;
+
+    margin: 0;
+    padding: 0;
 }
 
 .info a {
     color: inherit;
     text-decoration: none;
+    font-weight: 400;
 }
 
 .info a:hover {
@@ -131,6 +154,7 @@ body {
 
     font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
+    font-weight: 400;
     line-height: 1.15;
 
     white-space: nowrap;
@@ -198,6 +222,7 @@ body {
 
     .logo-aybak {
         top: 15px;
+
         font-size: 13px;
     }
 
@@ -210,6 +235,7 @@ body {
 
     #slideshow {
         inset: auto;
+
         left: 0;
 
         width: 100vw;
@@ -257,11 +283,6 @@ body {
 
         font-size: 13px;
     }
-
-    /*
-        In short landscape screens,
-        reserve a left safe area for text.
-    */
 
     #slideshow {
         inset: 0;
@@ -365,9 +386,28 @@ body {
 <script>
 
 
-/* =========================
+/* =====================================================
+   GLOBAL ANIMATION TIMING
+   ===================================================== */
+
+const WORD_ANIMATION_DURATION =
+    600;
+
+function getWordStepDuration(
+    word
+) {
+
+    return (
+        WORD_ANIMATION_DURATION /
+        word.length
+    );
+
+}
+
+
+/* =====================================================
    SETTINGS
-   ========================= */
+   ===================================================== */
 
 const GITHUB_USERNAME =
     "denizalpaybak";
@@ -392,14 +432,19 @@ const info =
         "info"
     );
 
-let slides = [];
-let current = 0;
-let manualMode = false;
+let slides =
+    [];
+
+let current =
+    0;
+
+let manualMode =
+    false;
 
 
-/* =========================
+/* =====================================================
    LOAD PHOTOS
-   ========================= */
+   ===================================================== */
 
 async function loadPhotos() {
 
@@ -408,8 +453,12 @@ async function loadPhotos() {
         const apiUrl =
             `https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/contents/${GITHUB_FOLDER}`;
 
+
         const response =
-            await fetch(apiUrl);
+            await fetch(
+                apiUrl
+            );
+
 
         if (
             !response.ok
@@ -421,17 +470,21 @@ async function loadPhotos() {
 
         }
 
+
         const files =
             await response.json();
+
 
         const photos =
             files
             .filter(
                 file =>
-                    file.type === "file" &&
-                    /^\d+\.jpg$/i.test(
-                        file.name
-                    )
+                    file.type ===
+                    "file" &&
+                    /^\d+\.jpg$/i
+                        .test(
+                            file.name
+                        )
             )
             .sort(
                 (a, b) => {
@@ -454,7 +507,10 @@ async function loadPhotos() {
                             10
                         );
 
-                    return numberB - numberA;
+                    return (
+                        numberB -
+                        numberA
+                    );
 
                 }
             );
@@ -468,38 +524,51 @@ async function loadPhotos() {
                         "img"
                     );
 
+
                 img.className =
                     "slide";
+
 
                 img.src =
                     `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPOSITORY}/${GITHUB_BRANCH}/${file.name}`;
 
-                img.alt = "";
+
+                img.alt =
+                    "";
+
 
                 if (
-                    index === 0
+                    index ===
+                    0
                 ) {
 
-                    img.classList.add(
-                        "active"
-                    );
+                    img.classList
+                        .add(
+                            "active"
+                        );
 
                 }
 
-                slideshow.appendChild(
-                    img
-                );
+
+                slideshow
+                    .appendChild(
+                        img
+                    );
 
             }
         );
 
 
         slides =
-            document.querySelectorAll(
-                ".slide"
-            );
+            document
+                .querySelectorAll(
+                    ".slide"
+                );
 
-        current = 0;
+
+        current =
+            0;
+
 
         updateMobileSlideshow();
 
@@ -519,29 +588,41 @@ async function loadPhotos() {
 loadPhotos();
 
 
-/* =========================
+/* =====================================================
    NEXT / PREVIOUS
-   ========================= */
+   ===================================================== */
 
 function nextSlide() {
 
     if (
-        slides.length <= 1
+        slides.length <=
+        1
     ) {
+
         return;
+
     }
 
+
     slides[current]
         .classList
-        .remove("active");
+        .remove(
+            "active"
+        );
+
 
     current =
-        (current + 1) %
+        (
+            current + 1
+        ) %
         slides.length;
+
 
     slides[current]
         .classList
-        .add("active");
+        .add(
+            "active"
+        );
 
 }
 
@@ -549,14 +630,21 @@ function nextSlide() {
 function previousSlide() {
 
     if (
-        slides.length <= 1
+        slides.length <=
+        1
     ) {
+
         return;
+
     }
+
 
     slides[current]
         .classList
-        .remove("active");
+        .remove(
+            "active"
+        );
+
 
     current =
         (
@@ -565,16 +653,19 @@ function previousSlide() {
         ) %
         slides.length;
 
+
     slides[current]
         .classList
-        .add("active");
+        .add(
+            "active"
+        );
 
 }
 
 
-/* =========================
+/* =====================================================
    AUTO
-   ========================= */
+   ===================================================== */
 
 setInterval(
     () => {
@@ -592,54 +683,66 @@ setInterval(
 );
 
 
-/* =========================
+/* =====================================================
    CLICK NAVIGATION
-   ========================= */
+   ===================================================== */
 
-document.body.addEventListener(
-    "click",
-    event => {
+document.body
+    .addEventListener(
+        "click",
+        event => {
 
-        if (
-            event.target.closest("a")
-        ) {
-            return;
+            if (
+                event.target
+                    .closest(
+                        "a"
+                    )
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                !manualMode
+            ) {
+
+                manualMode =
+                    true;
+
+                return;
+
+            }
+
+
+            const percentage =
+                event.clientX /
+                window.innerWidth;
+
+
+            if (
+                percentage <
+                0.25
+            ) {
+
+                previousSlide();
+
+            }
+
+            else {
+
+                nextSlide();
+
+            }
+
         }
-
-        if (
-            !manualMode
-        ) {
-
-            manualMode = true;
-            return;
-
-        }
-
-        const percentage =
-            event.clientX /
-            window.innerWidth;
-
-        if (
-            percentage < 0.25
-        ) {
-
-            previousSlide();
-
-        }
-
-        else {
-
-            nextSlide();
-
-        }
-
-    }
-);
+    );
 
 
-/* =========================
+/* =====================================================
    MOBILE POSITION
-   ========================= */
+   ===================================================== */
 
 function updateMobileSlideshow() {
 
@@ -649,17 +752,18 @@ function updateMobileSlideshow() {
         ).matches;
 
 
-    /*
-        Landscape has its own CSS layout.
-    */
-
     if (
         shortLandscape
     ) {
 
-        slideshow.style.top = "";
-        slideshow.style.bottom = "";
-        slideshow.style.height = "";
+        slideshow.style.top =
+            "";
+
+        slideshow.style.bottom =
+            "";
+
+        slideshow.style.height =
+            "";
 
         return;
 
@@ -667,12 +771,18 @@ function updateMobileSlideshow() {
 
 
     if (
-        window.innerWidth > 600
+        window.innerWidth >
+        600
     ) {
 
-        slideshow.style.top = "";
-        slideshow.style.bottom = "";
-        slideshow.style.height = "";
+        slideshow.style.top =
+            "";
+
+        slideshow.style.bottom =
+            "";
+
+        slideshow.style.height =
+            "";
 
         return;
 
@@ -680,12 +790,20 @@ function updateMobileSlideshow() {
 
 
     const infoRect =
-        info.getBoundingClientRect();
+        info
+            .getBoundingClientRect();
 
-    const gapAfterInfo = 24;
-    const bottomGap = 20;
 
-    let viewportTop = 0;
+    const gapAfterInfo =
+        24;
+
+    const bottomGap =
+        20;
+
+
+    let viewportTop =
+        0;
+
     let viewportHeight =
         window.innerHeight;
 
@@ -695,10 +813,14 @@ function updateMobileSlideshow() {
     ) {
 
         viewportTop =
-            window.visualViewport.offsetTop;
+            window
+                .visualViewport
+                .offsetTop;
 
         viewportHeight =
-            window.visualViewport.height;
+            window
+                .visualViewport
+                .height;
 
     }
 
@@ -712,7 +834,8 @@ function updateMobileSlideshow() {
         Math.max(
             infoRect.bottom +
             gapAfterInfo,
-            viewportTop + 10
+            viewportTop +
+            10
         );
 
 
@@ -732,8 +855,10 @@ function updateMobileSlideshow() {
     slideshow.style.top =
         `${stageTop}px`;
 
+
     slideshow.style.height =
         `${stageHeight}px`;
+
 
     slideshow.style.bottom =
         "auto";
@@ -764,15 +889,20 @@ if (
     window.visualViewport
 ) {
 
-    window.visualViewport.addEventListener(
-        "resize",
-        updateMobileSlideshow
-    );
+    window
+        .visualViewport
+        .addEventListener(
+            "resize",
+            updateMobileSlideshow
+        );
 
-    window.visualViewport.addEventListener(
-        "scroll",
-        updateMobileSlideshow
-    );
+
+    window
+        .visualViewport
+        .addEventListener(
+            "scroll",
+            updateMobileSlideshow
+        );
 
 }
 
@@ -783,15 +913,18 @@ window.addEventListener(
 
         updateMobileSlideshow();
 
+
         setTimeout(
             updateMobileSlideshow,
             100
         );
 
+
         setTimeout(
             updateMobileSlideshow,
             400
         );
+
 
         setTimeout(
             updateMobileSlideshow,
@@ -802,12 +935,14 @@ window.addEventListener(
 );
 
 
-/* =========================
+/* =====================================================
    LOGO
-   ========================= */
+   ===================================================== */
 
 const logo =
-    document.querySelector(".logo");
+    document.querySelector(
+        ".logo"
+    );
 
 const logoName =
     document.getElementById(
@@ -822,22 +957,45 @@ const letters = [
     document.getElementById("letter-k")
 ];
 
-const lowercase = ["a","y","b","a","k"];
-const uppercase = ["A","Y","B","A","K"];
+const lowercase = [
+    "a",
+    "y",
+    "b",
+    "a",
+    "k"
+];
 
-let logoState = 0;
-let logoTarget = 0;
-let logoTimer = null;
+const uppercase = [
+    "A",
+    "Y",
+    "B",
+    "A",
+    "K"
+];
+
+let logoState =
+    0;
+
+let logoTarget =
+    0;
+
+let logoTimer =
+    null;
 
 
-function setLogoState(state) {
+function setLogoState(
+    state
+) {
 
-    logoState = state;
+    logoState =
+        state;
+
 
     logoName.textContent =
         state === 0
             ? "Denizalp"
             : "denizalp";
+
 
     for (
         let i = 0;
@@ -845,7 +1003,8 @@ function setLogoState(state) {
         i++
     ) {
 
-        letters[i].textContent =
+        letters[i]
+            .textContent =
             i < state
                 ? uppercase[i]
                 : lowercase[i];
@@ -862,16 +1021,21 @@ function moveLogo() {
         logoTarget
     ) {
 
-        logoTimer = null;
+        logoTimer =
+            null;
+
         return;
 
     }
 
+
     setLogoState(
-        logoState < logoTarget
+        logoState <
+        logoTarget
             ? logoState + 1
             : logoState - 1
     );
+
 
     logoTimer =
         setTimeout(
@@ -882,12 +1046,17 @@ function moveLogo() {
 }
 
 
-function animateTo(target) {
+function animateTo(
+    target
+) {
 
-    logoTarget = target;
+    logoTarget =
+        target;
+
 
     if (
-        logoTimer !== null
+        logoTimer !==
+        null
     ) {
 
         clearTimeout(
@@ -895,6 +1064,7 @@ function animateTo(target) {
         );
 
     }
+
 
     moveLogo();
 
@@ -906,10 +1076,13 @@ logo.addEventListener(
     () => {
 
         if (
-            window.innerWidth > 600
+            window.innerWidth >
+            600
         ) {
 
-            animateTo(5);
+            animateTo(
+                5
+            );
 
         }
 
@@ -922,10 +1095,13 @@ logo.addEventListener(
     () => {
 
         if (
-            window.innerWidth > 600
+            window.innerWidth >
+            600
         ) {
 
-            animateTo(0);
+            animateTo(
+                0
+            );
 
         }
 
@@ -938,12 +1114,18 @@ function mobileLogoCycle() {
     setTimeout(
         () => {
 
-            animateTo(5);
+            animateTo(
+                5
+            );
+
 
             setTimeout(
                 () => {
 
-                    animateTo(0);
+                    animateTo(
+                        0
+                    );
+
 
                     setTimeout(
                         mobileLogoCycle,
@@ -962,19 +1144,24 @@ function mobileLogoCycle() {
 
 
 if (
-    window.innerWidth <= 600
+    window.innerWidth <=
+    600
 ) {
 
-    setLogoState(0);
+    setLogoState(
+        0
+    );
+
 
     mobileLogoCycle();
 
 }
 
 
-/* =========================
+/* =====================================================
    SECTION SWITCH
-   ========================= */
+   FILM = 4 steps, total ~600ms
+   ===================================================== */
 
 const sectionSwitch =
     document.getElementById(
@@ -989,14 +1176,26 @@ const sectionSwitchText =
 const switchWord =
     "film";
 
-let switchState = 0;
-let switchTarget = 0;
-let switchTimer = null;
+const switchStepDuration =
+    getWordStepDuration(
+        switchWord
+    );
+
+let switchState =
+    0;
+
+let switchTarget =
+    0;
+
+let switchTimer =
+    null;
 
 
 function renderSwitch() {
 
-    let result = "";
+    let result =
+        "";
+
 
     for (
         let i = 0;
@@ -1013,7 +1212,9 @@ function renderSwitch() {
 
     }
 
-    sectionSwitchText.textContent =
+
+    sectionSwitchText
+        .textContent =
         result;
 
 }
@@ -1026,33 +1227,44 @@ function moveSwitch() {
         switchTarget
     ) {
 
-        switchTimer = null;
+        switchTimer =
+            null;
+
         return;
 
     }
 
+
     switchState +=
-        switchState < switchTarget
+        switchState <
+        switchTarget
             ? 1
             : -1;
 
+
     renderSwitch();
+
 
     switchTimer =
         setTimeout(
             moveSwitch,
-            120
+            switchStepDuration
         );
 
 }
 
 
-function animateSwitchTo(target) {
+function animateSwitchTo(
+    target
+) {
 
-    switchTarget = target;
+    switchTarget =
+        target;
+
 
     if (
-        switchTimer !== null
+        switchTimer !==
+        null
     ) {
 
         clearTimeout(
@@ -1061,43 +1273,50 @@ function animateSwitchTo(target) {
 
     }
 
+
     moveSwitch();
 
 }
 
 
-sectionSwitch.addEventListener(
-    "mouseenter",
-    () => {
+sectionSwitch
+    .addEventListener(
+        "mouseenter",
+        () => {
 
-        if (
-            window.innerWidth > 600
-        ) {
+            if (
+                window.innerWidth >
+                600
+            ) {
 
-            animateSwitchTo(
-                switchWord.length
-            );
+                animateSwitchTo(
+                    switchWord.length
+                );
 
-        }
-
-    }
-);
-
-
-sectionSwitch.addEventListener(
-    "mouseleave",
-    () => {
-
-        if (
-            window.innerWidth > 600
-        ) {
-
-            animateSwitchTo(0);
+            }
 
         }
+    );
 
-    }
-);
+
+sectionSwitch
+    .addEventListener(
+        "mouseleave",
+        () => {
+
+            if (
+                window.innerWidth >
+                600
+            ) {
+
+                animateSwitchTo(
+                    0
+                );
+
+            }
+
+        }
+    );
 
 
 renderSwitch();
