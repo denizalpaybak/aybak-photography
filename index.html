@@ -61,18 +61,10 @@ body {
     --meta-gap: 6px;
 
     /*
-        Actual thickness of a rotated line of text.
-
-        The rotated text must be shifted by roughly one
-        font-height beyond the right edge; otherwise the
-        glyph body extends back over the image.
+        JS measures the actual bottom
+        of the info block.
     */
-    --vertical-label-width: 15px;
-
-    /*
-        JS updates this according to the REAL info block.
-    */
-    --index-content-top: 125px;
+    --index-content-top: 130px;
 
 }
 
@@ -164,7 +156,7 @@ body {
 
 
 /* =====================================================
-   FILM LINK
+   FILM
    ===================================================== */
 
 .section-switch {
@@ -220,16 +212,7 @@ body {
     align-items: flex-start;
     justify-content: center;
 
-    /*
-        A counter lives between two portrait images.
-        The gap therefore needs to contain:
-        label thickness + left/right breathing room.
-    */
-    gap:
-        calc(
-            var(--vertical-label-width) +
-            var(--meta-gap) * 2
-        );
+    gap: 10px;
 
     max-width: 72vw;
 
@@ -242,9 +225,8 @@ body {
    ===================================================== */
 
 .image-cell {
-    position: relative;
-
-    display: block;
+    display: flex;
+    flex-direction: column;
 
     width: auto;
 
@@ -273,8 +255,7 @@ body {
         calc(
             (
                 70vw -
-                var(--vertical-label-width) -
-                var(--meta-gap) * 2
+                10px
             )
             /
             2
@@ -283,7 +264,7 @@ body {
 
 #spread.pair .spread-image {
     max-width: 100%;
-    max-height: 65vh;
+    max-height: 64vh;
 }
 
 
@@ -306,57 +287,58 @@ body {
 
 
 /* =====================================================
-   ROTATED COUNTER
-
-   Clockwise 90°.
-
-   The anchor itself is positioned one line-height
-   OUTSIDE the image.
-
-   This compensates for the width of the rotated glyphs,
-   preventing them from falling back over the image.
+   IMAGE COUNTER
    ===================================================== */
 
-.counter-anchor {
-    position: absolute;
+.image-counter-row {
+    display: flex;
 
-    top: 0;
+    width: 100%;
 
-    left:
-        calc(
-            100% +
-            var(--meta-gap) +
-            var(--vertical-label-width)
-        );
+    margin-top: var(--meta-gap);
 
-    width: 0;
-    height: 0;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
 
-    overflow: visible;
+    white-space: nowrap;
 
     pointer-events: none;
 }
 
-.image-counter {
-    position: absolute;
 
-    top: 0;
-    left: 0;
+/*
+    Left image in a pair:
+    counter sits at its bottom-right,
+    therefore visually points inward.
+*/
 
-    display: block;
+#spread.pair
+.image-cell:first-child
+.image-counter-row {
+    justify-content: flex-end;
+}
 
-    margin: 0;
-    padding: 0;
 
-    font-size: var(--font-size);
-    line-height: 1;
+/*
+    Right image:
+    bottom-left.
+*/
 
-    white-space: nowrap;
+#spread.pair
+.image-cell:last-child
+.image-counter-row {
+    justify-content: flex-start;
+}
 
-    transform-origin: 0 0;
-    transform: rotate(90deg);
 
-    pointer-events: none;
+/*
+    Single:
+    exactly centred.
+*/
+
+#spread.single
+.image-counter-row {
+    justify-content: center;
 }
 
 
@@ -372,7 +354,7 @@ body {
 
     width: auto;
 
-    margin-top: var(--meta-gap);
+    margin-top: 8px;
 
     font-size: var(--font-size);
     line-height: var(--line-height);
@@ -478,7 +460,11 @@ body {
     left: 0;
     right: 0;
 
-    bottom: 55px;
+    bottom:
+        calc(
+            52px +
+            env(safe-area-inset-bottom)
+        );
 
     padding:
         0
@@ -502,7 +488,7 @@ body {
 
     gap:
         34px
-        44px;
+        46px;
 
     width: 100%;
 
@@ -547,30 +533,19 @@ body {
 
 
 /* =====================================================
-   THUMBNAIL
+   THUMB
    ===================================================== */
 
 .card-image-wrap {
-    position: relative;
-
     display: block;
 
     width: 100%;
 
     aspect-ratio: 3 / 4;
 
-    overflow: visible;
+    overflow: hidden;
 
     background: #fff;
-}
-
-.card-image-crop {
-    display: block;
-
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
 }
 
 .project-card img {
@@ -585,60 +560,14 @@ body {
 
 
 /* =====================================================
-   ROTATED INDEX DATE
+   CARD COPY
    ===================================================== */
 
-.card-date-anchor {
-    position: absolute;
+.card-copy {
+    display: flex;
+    flex-direction: column;
 
-    top: 0;
-
-    left:
-        calc(
-            100% +
-            var(--meta-gap) +
-            var(--vertical-label-width)
-        );
-
-    width: 0;
-    height: 0;
-
-    overflow: visible;
-
-    pointer-events: none;
-}
-
-.card-date {
-    position: absolute;
-
-    top: 0;
-    left: 0;
-
-    display: block;
-
-    margin: 0;
-    padding: 0;
-
-    font-size: var(--font-size);
-    line-height: 1;
-
-    text-transform: lowercase;
-
-    white-space: nowrap;
-
-    transform-origin: 0 0;
-    transform: rotate(90deg);
-
-    pointer-events: none;
-}
-
-
-/* =====================================================
-   CARD TITLE
-   ===================================================== */
-
-.card-title {
-    display: block;
+    align-items: flex-start;
 
     width: 100%;
 
@@ -649,7 +578,17 @@ body {
 
     text-transform: lowercase;
 
-    white-space: normal;
+    text-align: left;
+}
+
+.card-title,
+.card-date {
+    display: block;
+
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
 
     text-align: left;
 }
@@ -680,9 +619,8 @@ body.index-mode #project-stage {
     #index-scroller {
         padding:
             0
-            46px
-            20px
-            34px;
+            38px
+            20px;
     }
 
     #index-grid {
@@ -693,7 +631,7 @@ body.index-mode #project-stage {
             );
 
         gap:
-            28px
+            30px
             38px;
     }
 
@@ -709,7 +647,7 @@ body.index-mode #project-stage {
 
 
 /* =====================================================
-   MOBILE PORTRAIT
+   MOBILE
    ===================================================== */
 
 @media (max-width: 600px) {
@@ -725,8 +663,6 @@ body.index-mode #project-stage {
 
         --meta-gap: 5px;
 
-        --vertical-label-width: 13px;
-
     }
 
 
@@ -741,7 +677,7 @@ body.index-mode #project-stage {
 
 
     /* =================================================
-       SLIDESHOW
+       MOBILE SLIDESHOW
        ================================================= */
 
     #project-stage {
@@ -755,7 +691,8 @@ body.index-mode #project-stage {
 
 
     /*
-        One photograph on portrait mobile.
+        Portrait mobile always shows
+        one image.
     */
 
     #spread {
@@ -783,20 +720,28 @@ body.index-mode #project-stage {
         max-height:
             calc(
                 100% -
-                82px
+                92px
             );
     }
 
 
+    /*
+        On mobile a spread is rendered
+        as one frame, therefore centre
+        its counter as well.
+    */
+
+    #spread.pair
+    .image-cell:first-child
+    .image-counter-row {
+        justify-content: center;
+    }
+
+
     /* =================================================
-       MOBILE INDEX — HORIZONTAL RAIL
+       MOBILE INDEX
 
-       No vertical scrolling.
-       No footer.
-       No white index strip.
-
-       The entire rail starts BELOW the actual info block
-       and ends ABOVE the index button.
+       Horizontal contact-sheet rail.
        ================================================= */
 
     #index-scroller {
@@ -809,7 +754,7 @@ body.index-mode #project-stage {
 
         bottom:
             calc(
-                54px +
+                50px +
                 env(safe-area-inset-bottom)
             );
 
@@ -820,16 +765,18 @@ body.index-mode #project-stage {
         overflow-x: auto;
         overflow-y: hidden;
 
+        display: flex;
+        align-items: center;
+
         scroll-snap-type: x proximity;
 
         -webkit-overflow-scrolling: touch;
 
-        /*
-            Allows the rail itself to use the available
-            vertical space without creating a footer.
-        */
-        display: flex;
-        align-items: center;
+        scrollbar-width: none;
+    }
+
+    #index-scroller::-webkit-scrollbar {
+        display: none;
     }
 
 
@@ -852,26 +799,14 @@ body.index-mode #project-stage {
         flex:
             0
             0
-            46vw;
+            48vw;
 
-        width: 46vw;
+        width: 48vw;
 
         scroll-snap-align: start;
     }
 
 
-    /*
-        Slightly shorter thumbnails make the horizontal
-        rail lighter while preserving 3:4 crop.
-    */
-    .card-image-wrap {
-        width: 100%;
-    }
-
-
-    /*
-        Give the very last work natural right breathing room.
-    */
     .project-card:last-child {
         margin-right: 24px;
     }
@@ -897,8 +832,6 @@ body.index-mode #project-stage {
         --index-bottom: 16px;
 
         --meta-gap: 5px;
-
-        --vertical-label-width: 13px;
 
     }
 
@@ -939,7 +872,7 @@ body.index-mode #project-stage {
 
     #spread.single .spread-image {
         max-width: 64vw;
-        max-height: 54vh;
+        max-height: 52vh;
     }
 
 
@@ -948,8 +881,7 @@ body.index-mode #project-stage {
             calc(
                 (
                     64vw -
-                    var(--vertical-label-width) -
-                    var(--meta-gap) * 2
+                    10px
                 )
                 /
                 2
@@ -958,13 +890,9 @@ body.index-mode #project-stage {
 
     #spread.pair .spread-image {
         max-width: 100%;
-        max-height: 52vh;
+        max-height: 50vh;
     }
 
-
-    /*
-        Landscape index still uses desktop-style grid.
-    */
 
     #index-scroller {
         left: 190px;
@@ -1002,9 +930,7 @@ body.index-mode #project-stage {
 
 
 /* =====================================================
-   MOBILE LANDSCAPE OVERRIDE
-
-   A phone in landscape also gets the horizontal rail.
+   MOBILE LANDSCAPE
    ===================================================== */
 
 @media
@@ -1014,14 +940,13 @@ body.index-mode #project-stage {
 
     #index-scroller {
         left: 0;
+        right: 0;
 
         top: var(--index-content-top);
 
-        right: 0;
-
         bottom:
             calc(
-                44px +
+                42px +
                 env(safe-area-inset-bottom)
             );
 
@@ -1036,6 +961,12 @@ body.index-mode #project-stage {
         align-items: center;
 
         scroll-snap-type: x proximity;
+
+        scrollbar-width: none;
+    }
+
+    #index-scroller::-webkit-scrollbar {
+        display: none;
     }
 
     #index-grid {
@@ -1228,9 +1159,26 @@ const SLIDE_DURATION =
     3000;
 
 
+/*
+    Counter remains relatively quick.
+*/
+
 const COUNTER_ANIMATION_DURATION =
     220;
 
+
+/*
+    Index is deliberately faster than
+    the longer typography morphs.
+*/
+
+const INDEX_TRANSITION_DURATION =
+    400;
+
+
+/*
+    Existing FILM / logo system.
+*/
 
 const WORD_TRANSITION_DURATION =
     600;
@@ -1526,10 +1474,7 @@ function normalizeProjectIndex(
 
 
 /* =====================================================
-   REAL HEADER MEASUREMENT
-
-   This is what prevents the first index item from
-   colliding with Denizalp / contact information.
+   HEADER MEASUREMENT
    ===================================================== */
 
 function updateIndexContentTop() {
@@ -1567,6 +1512,14 @@ function updateIndexContentTop() {
    ===================================================== */
 
 function shouldUsePairLayout() {
+
+    /*
+        Portrait phone:
+        single image.
+
+        Wider displays:
+        editorial pairing allowed.
+    */
 
     if (
         window.innerWidth <= 600 &&
@@ -1627,6 +1580,11 @@ async function getForwardSpread(
     }
 
 
+    /*
+        Landscape:
+        single.
+    */
+
     if (
         !first.portrait
     ) {
@@ -1676,6 +1634,11 @@ async function getForwardSpread(
         );
 
 
+    /*
+        Portrait + portrait:
+        editorial pair.
+    */
+
     if (
         second.portrait
     ) {
@@ -1698,6 +1661,11 @@ async function getForwardSpread(
 
     }
 
+
+    /*
+        Portrait followed by landscape:
+        keep portrait single.
+    */
 
     return {
 
@@ -1795,7 +1763,7 @@ async function buildProjectSpreads(
 
 
 /* =====================================================
-   COUNTER TEXT
+   COUNTER
    ===================================================== */
 
 function getCounterText(
@@ -1809,7 +1777,7 @@ function getCounterText(
         ).padStart(
             2,
             "0"
-        )}/${String(
+        )} / ${String(
             total
         ).padStart(
             2,
@@ -1821,7 +1789,7 @@ function getCounterText(
 
 
 /* =====================================================
-   COUNTER ANIMATION — OUT
+   COUNTER OUT
    ===================================================== */
 
 function animateCounterOut(
@@ -1903,7 +1871,7 @@ function animateCounterOut(
 
 
 /* =====================================================
-   COUNTER ANIMATION — IN
+   COUNTER IN
    ===================================================== */
 
 function animateCounterIn(
@@ -2066,19 +2034,19 @@ async function renderSpread(
                 "";
 
 
-            const counterAnchor =
+            const counterRow =
                 document.createElement(
                     "div"
                 );
 
 
-            counterAnchor.className =
-                "counter-anchor";
+            counterRow.className =
+                "image-counter-row";
 
 
             const counter =
                 document.createElement(
-                    "div"
+                    "span"
                 );
 
 
@@ -2090,14 +2058,14 @@ async function renderSpread(
                 "";
 
 
-            counterAnchor.appendChild(
+            counterRow.appendChild(
                 counter
             );
 
 
             cell.append(
                 img,
-                counterAnchor
+                counterRow
             );
 
 
@@ -2126,7 +2094,7 @@ async function renderSpread(
 
 
 /* =====================================================
-   PROJECT META
+   META
    ===================================================== */
 
 function updateMetadata() {
@@ -2356,6 +2324,10 @@ async function nextSpread() {
     }
 
 
+    /*
+        Cross project boundary.
+    */
+
     return showSpread(
         projectIndex + 1,
         0
@@ -2522,7 +2494,7 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
-   CHRONOLOGICAL INDEX
+   INDEX SORT
    ===================================================== */
 
 function getChronologicalProjects() {
@@ -2659,16 +2631,6 @@ function buildIndex() {
                     "card-image-wrap";
 
 
-                const crop =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                crop.className =
-                    "card-image-crop";
-
-
                 const img =
                     document.createElement(
                         "img"
@@ -2689,44 +2651,24 @@ function buildIndex() {
                     "eager";
 
 
-                crop.appendChild(
+                imageWrap.appendChild(
                     img
                 );
 
 
-                const dateAnchor =
+                /*
+                    Project information:
+                    simple stacked typography.
+                */
+
+                const copy =
                     document.createElement(
                         "span"
                     );
 
 
-                dateAnchor.className =
-                    "card-date-anchor";
-
-
-                const date =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                date.className =
-                    "card-date";
-
-
-                date.textContent =
-                    project.date || "";
-
-
-                dateAnchor.appendChild(
-                    date
-                );
-
-
-                imageWrap.append(
-                    crop,
-                    dateAnchor
-                );
+                copy.className =
+                    "card-copy";
 
 
                 const title =
@@ -2743,9 +2685,29 @@ function buildIndex() {
                     project.title;
 
 
+                const date =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                date.className =
+                    "card-date";
+
+
+                date.textContent =
+                    project.date || "";
+
+
+                copy.append(
+                    title,
+                    date
+                );
+
+
                 button.append(
                     imageWrap,
-                    title
+                    copy
                 );
 
 
@@ -2775,7 +2737,7 @@ function buildIndex() {
 
 
 /* =====================================================
-   GENERIC CASE MORPH
+   GENERIC CASE
    ===================================================== */
 
 function renderWordCase(
@@ -2807,7 +2769,7 @@ function renderWordCase(
 
 
 /* =====================================================
-   INDEX MORPH
+   INDEX WORD
    ===================================================== */
 
 const indexWord =
@@ -2821,6 +2783,24 @@ let indexWordState =
 let indexWordFrame =
     null;
 
+
+/*
+    Desktop state lock:
+
+    slideshow:
+    base = lowercase
+
+    index view:
+    base = uppercase
+*/
+
+let indexLockedUpper =
+    false;
+
+
+/* =====================================================
+   RENDER INDEX WORD
+   ===================================================== */
 
 function renderIndexWord(
     upperCount
@@ -2838,6 +2818,10 @@ function renderIndexWord(
 
 }
 
+
+/* =====================================================
+   MORPH INDEX
+   ===================================================== */
 
 function morphIndexTo(
     target
@@ -2875,7 +2859,7 @@ function morphIndexTo(
 
 
     const duration =
-        WORD_TRANSITION_DURATION *
+        INDEX_TRANSITION_DURATION *
         (
             distance /
             indexWord.length
@@ -2968,8 +2952,33 @@ indexButton.addEventListener(
     () => {
 
         if (
-            window.innerWidth > 600
+            window.innerWidth <= 600
         ) {
+
+            return;
+
+        }
+
+
+        /*
+            Slideshow:
+            index -> INDEX
+
+            Index mode:
+            INDEX -> index
+        */
+
+        if (
+            indexMode
+        ) {
+
+            morphIndexTo(
+                0
+            );
+
+        }
+
+        else {
 
             morphIndexTo(
                 indexWord.length
@@ -2986,8 +2995,33 @@ indexButton.addEventListener(
     () => {
 
         if (
-            window.innerWidth > 600
+            window.innerWidth <= 600
         ) {
+
+            return;
+
+        }
+
+
+        /*
+            Return to the locked state
+            of the current view.
+
+            slideshow = index
+            index view = INDEX
+        */
+
+        if (
+            indexMode
+        ) {
+
+            morphIndexTo(
+                indexWord.length
+            );
+
+        }
+
+        else {
 
             morphIndexTo(
                 0
@@ -3031,7 +3065,15 @@ async function enterIndex() {
     updateIndexContentTop();
 
 
+    /*
+        Enter view immediately.
+    */
+
     indexMode =
+        true;
+
+
+    indexLockedUpper =
         true;
 
 
@@ -3046,9 +3088,19 @@ async function enterIndex() {
 
 
     /*
-        Every time index opens on mobile,
-        horizontal position begins at the newest work.
+        Mobile:
+        tap itself performs the morph.
+
+        Desktop:
+        normally already uppercase because
+        user had to hover before clicking,
+        but enforce the final state anyway.
     */
+
+    await morphIndexTo(
+        indexWord.length
+    );
+
 
     if (
         window.innerWidth <= 600
@@ -3056,11 +3108,6 @@ async function enterIndex() {
 
         indexScroller.scrollLeft =
             0;
-
-
-        await morphIndexTo(
-            indexWord.length
-        );
 
     }
 
@@ -3091,6 +3138,20 @@ async function returnFromIndex() {
         true;
 
 
+    /*
+        On mobile:
+        reverse morph on tap.
+
+        On desktop the user is expected to have
+        hovered INDEX -> index before clicking.
+        Still ensure lowercase.
+    */
+
+    await morphIndexTo(
+        0
+    );
+
+
     indexView.classList.remove(
         "visible"
     );
@@ -3100,20 +3161,13 @@ async function returnFromIndex() {
         false;
 
 
+    indexLockedUpper =
+        false;
+
+
     body.classList.remove(
         "index-mode"
     );
-
-
-    if (
-        window.innerWidth <= 600
-    ) {
-
-        await morphIndexTo(
-            0
-        );
-
-    }
 
 
     updateMobileStage();
@@ -3154,7 +3208,7 @@ async function returnFromIndex() {
 
 
 /* =====================================================
-   THUMBNAIL -> PROJECT
+   EXIT INDEX TO PROJECT
    ===================================================== */
 
 async function exitIndexToProject(
@@ -3175,6 +3229,15 @@ async function exitIndexToProject(
         true;
 
 
+    /*
+        Visually return word first.
+    */
+
+    await morphIndexTo(
+        0
+    );
+
+
     indexView.classList.remove(
         "visible"
     );
@@ -3184,24 +3247,23 @@ async function exitIndexToProject(
         false;
 
 
+    indexLockedUpper =
+        false;
+
+
     body.classList.remove(
         "index-mode"
     );
 
 
-    const mobileMorph =
-        window.innerWidth <= 600
-            ? morphIndexTo(0)
-            : Promise.resolve();
-
+    /*
+        Open selected work from first frame.
+    */
 
     await showSpread(
         targetProjectIndex,
         0
     );
-
-
-    await mobileMorph;
 
 
     updateMobileStage();
@@ -3243,6 +3305,29 @@ indexButton.addEventListener(
         }
 
 
+        /*
+            Desktop index view:
+
+            INDEX itself is the locked state.
+            Hover transforms it to lowercase.
+            Clicking while lowercase returns.
+
+            If user somehow clicks while uppercase
+            while already in index mode,
+            do nothing.
+        */
+
+        if (
+            window.innerWidth > 600 &&
+            indexMode &&
+            indexWordState !== 0
+        ) {
+
+            return;
+
+        }
+
+
         if (
             indexMode
         ) {
@@ -3264,11 +3349,11 @@ indexButton.addEventListener(
 /* =====================================================
    SLIDESHOW CLICK
 
-   1st click = stop autoplay
+   first = stop autoplay
 
-   Later:
-   left 25%  = previous
-   right 75% = next
+   later:
+   left 25% = previous
+   rest = next
    ===================================================== */
 
 body.addEventListener(
@@ -3423,8 +3508,8 @@ document.addEventListener(
     event => {
 
         /*
-            In index mode, browser-native horizontal
-            scrolling must remain untouched.
+            Index rail must retain native
+            horizontal scrolling.
         */
 
         if (
