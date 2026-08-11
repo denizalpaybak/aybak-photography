@@ -11,7 +11,6 @@
 
 <title>Denizalp Aybak — Photography</title>
 
-
 <style>
 
 /* =====================================================
@@ -84,7 +83,6 @@ body {
     z-index: 100;
 
     font-size: var(--font-size);
-    font-weight: 400;
     line-height: var(--line-height);
 }
 
@@ -101,13 +99,8 @@ body {
     width: 190px;
     height: 52px;
 
-    margin: 0;
-    padding: 0;
-
     color: inherit;
     text-decoration: none;
-
-    cursor: pointer;
 }
 
 .logo-name {
@@ -130,14 +123,8 @@ body {
 
 
 /* =====================================================
-   CONTACT / SOCIAL
+   CONTACT
    ===================================================== */
-
-.contact,
-.social {
-    margin: 0;
-    padding: 0;
-}
 
 .social {
     display: flex;
@@ -170,15 +157,12 @@ body {
     text-decoration: none;
 
     font-size: var(--font-size);
-    font-weight: 400;
     line-height: var(--line-height);
-
-    white-space: nowrap;
 }
 
 
 /* =====================================================
-   PROJECT STAGE
+   STAGE
    ===================================================== */
 
 #project-stage {
@@ -193,18 +177,10 @@ body {
     pointer-events: none;
 }
 
-
-/* =====================================================
-   PROJECT BLOCK
-   ===================================================== */
-
 #project-block {
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    width: auto;
-    height: auto;
 
     pointer-events: none;
 }
@@ -217,13 +193,10 @@ body {
 #spread {
     display: flex;
 
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
 
     gap: 8px;
-
-    width: auto;
-    height: auto;
 
     max-width: 70vw;
 
@@ -232,8 +205,17 @@ body {
 
 
 /* =====================================================
-   SPREAD IMAGE
+   IMAGE CELL
    ===================================================== */
+
+.image-cell {
+    display: flex;
+    flex-direction: column;
+
+    width: auto;
+
+    pointer-events: none;
+}
 
 .spread-image {
     display: block;
@@ -245,8 +227,6 @@ body {
     max-height: 68vh;
 
     object-fit: contain;
-
-    pointer-events: none;
 }
 
 
@@ -254,7 +234,7 @@ body {
    PAIR
    ===================================================== */
 
-#spread.pair .spread-image {
+#spread.pair .image-cell {
     max-width:
         calc(
             (
@@ -264,14 +244,21 @@ body {
             /
             2
         );
+}
 
-    max-height: 66vh;
+#spread.pair .spread-image {
+    max-width: 100%;
+    max-height: 65vh;
 }
 
 
 /* =====================================================
    SINGLE
    ===================================================== */
+
+#spread.single .image-cell {
+    max-width: 70vw;
+}
 
 #spread.single .spread-image {
     max-width: 70vw;
@@ -280,8 +267,25 @@ body {
 
 
 /* =====================================================
-   PROJECT METADATA
-   title left / date right
+   IMAGE COUNTER
+   ===================================================== */
+
+.image-counter {
+    margin-top: 5px;
+
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+
+    text-align: left;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+}
+
+
+/* =====================================================
+   PROJECT META
    ===================================================== */
 
 #project-meta {
@@ -314,148 +318,7 @@ body {
 
 
 /* =====================================================
-   FRAME ARROWS
-   ===================================================== */
-
-#frame-navigation {
-    display: grid;
-
-    grid-template-columns:
-        1fr
-        1fr;
-
-    width: 92px;
-
-    margin-top: 4px;
-    margin-bottom: 2px;
-
-    font-size: var(--font-size);
-    line-height: var(--line-height);
-
-    pointer-events: auto;
-}
-
-.frame-slot-left {
-    text-align: left;
-}
-
-.frame-slot-right {
-    text-align: right;
-}
-
-.frame-button {
-    appearance: none;
-    -webkit-appearance: none;
-
-    margin: 0;
-    padding: 0;
-
-    border: 0;
-    outline: 0;
-
-    background: transparent;
-    color: #000;
-
-    font-family: inherit;
-    font-size: var(--font-size);
-    line-height: var(--line-height);
-
-    cursor: pointer;
-
-    -webkit-tap-highlight-color: transparent;
-}
-
-.frame-button.hidden {
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.frame-button:hover,
-.frame-button:focus,
-.frame-button:active {
-    outline: 0;
-    text-decoration: none;
-}
-
-
-/* =====================================================
-   WORK NAVIGATION
-   ===================================================== */
-
-#work-controls {
-    display: grid;
-
-    grid-template-columns:
-        1fr
-        auto
-        1fr;
-
-    align-items: center;
-
-    width: auto;
-
-    margin-top: 0;
-
-    font-size: var(--font-size);
-    line-height: var(--line-height);
-
-    white-space: nowrap;
-
-    pointer-events: auto;
-}
-
-.work-control-left {
-    text-align: left;
-}
-
-.work-control-center {
-    min-width: 72px;
-
-    text-align: center;
-}
-
-.work-control-right {
-    text-align: right;
-}
-
-
-/* =====================================================
-   BUTTON
-   ===================================================== */
-
-.control-button {
-    appearance: none;
-    -webkit-appearance: none;
-
-    margin: 0;
-    padding: 0;
-
-    border: 0;
-    outline: 0;
-
-    background: transparent;
-    color: #000;
-
-    font: inherit;
-
-    cursor: pointer;
-
-    text-decoration: none;
-
-    -webkit-tap-highlight-color: transparent;
-}
-
-.control-button:hover,
-.control-button:focus,
-.control-button:focus-visible,
-.control-button:active {
-    outline: 0;
-    text-decoration: none;
-}
-
-
-/* =====================================================
-   GLOBAL INDEX
+   INDEX CONTROL
    ===================================================== */
 
 #index-button {
@@ -471,7 +334,8 @@ body {
 
     z-index: 150;
 
-    transform: translateX(-50%);
+    transform:
+        translateX(-50%);
 
     appearance: none;
     -webkit-appearance: none;
@@ -525,7 +389,7 @@ body {
     padding:
         108px
         56px
-        62px;
+        72px;
 
     background: #fff;
 
@@ -540,7 +404,7 @@ body {
 
 
 /* =====================================================
-   INDEX GRID — DESKTOP
+   INDEX GRID
    ===================================================== */
 
 #index-grid {
@@ -566,7 +430,7 @@ body {
 
     gap:
         24px
-        32px;
+        34px;
 
     width: 100%;
     height: 100%;
@@ -577,7 +441,7 @@ body {
 
 
 /* =====================================================
-   PROJECT CARD
+   CARD
    ===================================================== */
 
 .project-card {
@@ -592,9 +456,6 @@ body {
             100%,
             210px
         );
-
-    min-width: 0;
-    min-height: 0;
 
     margin: 0;
     padding: 0;
@@ -642,9 +503,7 @@ body {
 
 
 /* =====================================================
-   INDEX COPY
-
-   title left / date right
+   CARD COPY
    ===================================================== */
 
 .card-copy {
@@ -671,22 +530,15 @@ body {
 .card-title {
     min-width: 0;
 
-    text-align: left;
-
     white-space: normal;
 
-    overflow-wrap: normal;
-    word-break: normal;
+    text-align: left;
 }
 
 .card-date {
-    text-align: right;
-
     white-space: nowrap;
-}
 
-.card-date:empty {
-    display: none;
+    text-align: right;
 }
 
 
@@ -715,7 +567,7 @@ body.index-mode #project-stage {
         padding:
             106px
             32px
-            62px;
+            72px;
     }
 
     #index-grid {
@@ -754,7 +606,7 @@ body.index-mode #project-stage {
 
 
 /* =====================================================
-   MOBILE PORTRAIT
+   MOBILE
    ===================================================== */
 
 @media (max-width: 600px) {
@@ -770,10 +622,6 @@ body.index-mode #project-stage {
 
     }
 
-
-    /* -------------------------
-       LOGO
-       ------------------------- */
 
     .logo {
         width: 160px;
@@ -800,8 +648,8 @@ body.index-mode #project-stage {
 
 
     /*
-        Mobile portrait always
-        shows one image.
+        Single-image mode on
+        mobile portrait.
     */
 
     #spread {
@@ -815,8 +663,13 @@ body.index-mode #project-stage {
     }
 
     #spread.pair
-    .spread-image:nth-child(2) {
+    .image-cell:nth-child(2) {
         display: none;
+    }
+
+    #spread.pair .image-cell,
+    #spread.single .image-cell {
+        max-width: 84vw;
     }
 
     #spread.pair .spread-image,
@@ -826,55 +679,41 @@ body.index-mode #project-stage {
         max-height:
             calc(
                 100% -
-                104px
+                84px
             );
     }
 
 
-    /* -------------------------
-       PROJECT INFO
-       ------------------------- */
+    .image-counter {
+        margin-top: 4px;
+    }
+
 
     #project-meta {
         margin-top: 8px;
     }
 
-    #frame-navigation {
-        margin-top: 4px;
-
-        width: 76px;
-    }
-
-    #work-controls {
-        margin-top: 0;
-    }
-
-    .work-control-center {
-        min-width: 62px;
-    }
-
 
     /* -------------------------
-       INDEX
+       MOBILE INDEX
        ------------------------- */
 
     #index-view {
         overflow-y: auto;
 
+        /*
+            Extra bottom room means INDEX
+            can never overlap the final row.
+        */
+
         padding:
             118px
             20px
-            72px;
+            110px;
 
         -webkit-overflow-scrolling:
             touch;
     }
-
-
-    /*
-        2 columns:
-        enough width for real typography.
-    */
 
     #index-grid {
         display: grid;
@@ -894,7 +733,7 @@ body.index-mode #project-stage {
         grid-auto-rows: auto;
 
         gap:
-            30px
+            32px
             18px;
 
         width: 100%;
@@ -910,17 +749,14 @@ body.index-mode #project-stage {
     .card-copy {
         margin-top: 5px;
 
-        column-gap: 6px;
-
-        font-size:
-            var(--font-size);
+        column-gap: 7px;
     }
 
 }
 
 
 /* =====================================================
-   SHORT LANDSCAPE
+   LANDSCAPE
    ===================================================== */
 
 @media
@@ -963,16 +799,23 @@ body.index-mode #project-stage {
         height: 100vh;
     }
 
+
     #spread {
+        max-width: 64vw;
+    }
+
+
+    #spread.single .image-cell {
         max-width: 64vw;
     }
 
     #spread.single .spread-image {
         max-width: 64vw;
-        max-height: 52vh;
+        max-height: 54vh;
     }
 
-    #spread.pair .spread-image {
+
+    #spread.pair .image-cell {
         max-width:
             calc(
                 (
@@ -982,8 +825,11 @@ body.index-mode #project-stage {
                 /
                 2
             );
+    }
 
-        max-height: 51vh;
+    #spread.pair .spread-image {
+        max-width: 100%;
+        max-height: 52vh;
     }
 
 
@@ -991,7 +837,7 @@ body.index-mode #project-stage {
         padding:
             82px
             24px
-            52px
+            60px
             205px;
     }
 
@@ -1027,10 +873,6 @@ body.index-mode #project-stage {
             );
     }
 
-    .card-copy {
-        margin-top: 4px;
-    }
-
 }
 
 
@@ -1044,7 +886,7 @@ body.index-mode #project-stage {
 
     #index-view {
         padding-top: 72px;
-        padding-bottom: 44px;
+        padding-bottom: 52px;
     }
 
     #index-grid {
@@ -1066,7 +908,6 @@ body.index-mode #project-stage {
 </style>
 
 </head>
-
 
 <body>
 
@@ -1169,91 +1010,11 @@ body.index-mode #project-stage {
         ></div>
 
 
-        <!-- =========================
-             TITLE / DATE
-             ========================= -->
-
         <div id="project-meta">
 
             <span id="project-title"></span>
 
             <span id="project-date"></span>
-
-        </div>
-
-
-        <!-- =========================
-             FRAME ARROWS
-             ========================= -->
-
-        <div id="frame-navigation">
-
-            <div class="frame-slot-left">
-
-                <button
-                    id="previous-frame-button"
-                    class="frame-button"
-                    type="button"
-                    aria-label="Previous frame"
-                >
-                    ←
-                </button>
-
-            </div>
-
-
-            <div class="frame-slot-right">
-
-                <button
-                    id="next-frame-button"
-                    class="frame-button"
-                    type="button"
-                    aria-label="Next frame"
-                >
-                    →
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- =========================
-             WORK NAVIGATION
-             ========================= -->
-
-        <div id="work-controls">
-
-            <div class="work-control-left">
-
-                <button
-                    class="control-button"
-                    id="previous-work-button"
-                    type="button"
-                >
-                    previous work
-                </button>
-
-            </div>
-
-
-            <div
-                class="work-control-center"
-                id="project-counter"
-            ></div>
-
-
-            <div class="work-control-right">
-
-                <button
-                    class="control-button"
-                    id="next-work-button"
-                    type="button"
-                >
-                    next work
-                </button>
-
-            </div>
 
         </div>
 
@@ -1263,7 +1024,7 @@ body.index-mode #project-stage {
 
 
 <!-- ===================================================
-     INDEX
+     INDEX CONTROL
      =================================================== -->
 
 <button
@@ -1273,6 +1034,10 @@ body.index-mode #project-stage {
     index
 </button>
 
+
+<!-- ===================================================
+     INDEX
+     =================================================== -->
 
 <div id="index-view">
 
@@ -1304,7 +1069,11 @@ const SLIDE_DURATION =
     3000;
 
 
-const TOOLBAR_ANIMATION_DURATION =
+const COUNTER_ANIMATION_DURATION =
+    220;
+
+
+const INDEX_ANIMATION_DURATION =
     400;
 
 
@@ -1353,48 +1122,6 @@ const projectTitle =
 const projectDate =
     document.getElementById(
         "project-date"
-    );
-
-
-const frameNavigation =
-    document.getElementById(
-        "frame-navigation"
-    );
-
-
-const previousFrameButton =
-    document.getElementById(
-        "previous-frame-button"
-    );
-
-
-const nextFrameButton =
-    document.getElementById(
-        "next-frame-button"
-    );
-
-
-const workControls =
-    document.getElementById(
-        "work-controls"
-    );
-
-
-const projectCounter =
-    document.getElementById(
-        "project-counter"
-    );
-
-
-const previousWorkButton =
-    document.getElementById(
-        "previous-work-button"
-    );
-
-
-const nextWorkButton =
-    document.getElementById(
-        "next-work-button"
     );
 
 
@@ -1464,17 +1191,12 @@ let touchStartY =
     null;
 
 
-/*
-    Prevent the synthetic click after
-    a completed swipe.
-*/
-
 let suppressClickUntil =
     0;
 
 
 /* =====================================================
-   IMAGE CACHE
+   CACHE
    ===================================================== */
 
 const imageCache =
@@ -1504,7 +1226,7 @@ function getPhotoUrl(
 
 
 /* =====================================================
-   PRELOAD
+   IMAGE PRELOAD
    ===================================================== */
 
 function preloadImage(
@@ -1706,6 +1428,11 @@ async function getForwardSpread(
     }
 
 
+    /*
+        Landscape image:
+        always single.
+    */
+
     if (
         !first.portrait
     ) {
@@ -1761,6 +1488,11 @@ async function getForwardSpread(
         );
 
 
+    /*
+        Portrait + portrait =
+        spread.
+    */
+
     if (
         second.portrait
     ) {
@@ -1804,7 +1536,7 @@ async function getForwardSpread(
 
 
 /* =====================================================
-   BUILD SPREAD MAP
+   BUILD PROJECT SPREADS
    ===================================================== */
 
 async function buildProjectSpreads(
@@ -1884,71 +1616,362 @@ async function buildProjectSpreads(
 
 
 /* =====================================================
-   CURRENT SPREAD POSITION
+   COUNTER TEXT
    ===================================================== */
 
-async function getCurrentSpreadPosition() {
+function getCounterText(
+    imageIndex,
+    total
+) {
 
-    const spreads =
-        await buildProjectSpreads(
-            projectIndex
-        );
-
-
-    let position =
-        0;
-
-
-    for (
-        let i = 0;
-        i <
-        spreads.length;
-        i++
-    ) {
-
-        if (
-            spreads[
-                i
-            ].start ===
-            spreadStart
-        ) {
-
-            position =
-                i;
-
-
-            break;
-
-        }
-
-    }
-
-
-    return {
-
-        spreads,
-        position
-
-    };
+    return (
+        `${String(
+            imageIndex +
+            1
+        ).padStart(
+            2,
+            "0"
+        )}/${String(
+            total
+        ).padStart(
+            2,
+            "0"
+        )}`
+    );
 
 }
 
 
 /* =====================================================
-   ARROW STATE
-
-   First spread:
-   no left arrow.
-
-   Last spread:
-   no right arrow.
+   COUNTER TEXT ANIMATION
    ===================================================== */
 
-async function updateFrameArrows() {
+function animateCounterOut(
+    element
+) {
+
+    return new Promise(
+        resolve => {
+
+            const fullText =
+                element.textContent;
+
+
+            const start =
+                performance.now();
+
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        COUNTER_ANIMATION_DURATION
+                    );
+
+
+                const length =
+                    Math.round(
+                        (
+                            1 -
+                            progress
+                        ) *
+                        fullText.length
+                    );
+
+
+                element.textContent =
+                    fullText.slice(
+                        0,
+                        length
+                    );
+
+
+                if (
+                    progress <
+                    1
+                ) {
+
+                    requestAnimationFrame(
+                        frame
+                    );
+
+                }
+
+                else {
+
+                    element.textContent =
+                        "";
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            requestAnimationFrame(
+                frame
+            );
+
+        }
+    );
+
+}
+
+
+function animateCounterIn(
+    element,
+    fullText
+) {
+
+    return new Promise(
+        resolve => {
+
+            const start =
+                performance.now();
+
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        COUNTER_ANIMATION_DURATION
+                    );
+
+
+                const length =
+                    Math.round(
+                        progress *
+                        fullText.length
+                    );
+
+
+                element.textContent =
+                    fullText.slice(
+                        0,
+                        length
+                    );
+
+
+                if (
+                    progress <
+                    1
+                ) {
+
+                    requestAnimationFrame(
+                        frame
+                    );
+
+                }
+
+                else {
+
+                    element.textContent =
+                        fullText;
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            requestAnimationFrame(
+                frame
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   RENDER SPREAD
+   ===================================================== */
+
+async function renderSpread(
+    data
+) {
+
+    /*
+        Animate existing counters out first.
+    */
+
+    const oldCounters =
+        Array.from(
+            spread.querySelectorAll(
+                ".image-counter"
+            )
+        );
+
 
     if (
-        projects.length ===
+        oldCounters.length >
         0
+    ) {
+
+        await Promise.all(
+            oldCounters.map(
+                counter =>
+                    animateCounterOut(
+                        counter
+                    )
+            )
+        );
+
+    }
+
+
+    spread.innerHTML =
+        "";
+
+
+    spread.classList.remove(
+        "single",
+        "pair"
+    );
+
+
+    spread.classList.add(
+        data.images.length >
+        1
+            ? "pair"
+            : "single"
+    );
+
+
+    const project =
+        currentProject();
+
+
+    data.images.forEach(
+        (
+            imageData,
+            localIndex
+        ) => {
+
+            const imageCell =
+                document.createElement(
+                    "div"
+                );
+
+
+            imageCell.className =
+                "image-cell";
+
+
+            const img =
+                document.createElement(
+                    "img"
+                );
+
+
+            img.className =
+                "spread-image";
+
+
+            img.src =
+                imageData.img.src;
+
+
+            img.alt =
+                "";
+
+
+            const counter =
+                document.createElement(
+                    "div"
+                );
+
+
+            counter.className =
+                "image-counter";
+
+
+            counter.textContent =
+                "";
+
+
+            imageCell.append(
+                img,
+                counter
+            );
+
+
+            spread.appendChild(
+                imageCell
+            );
+
+
+            const absoluteIndex =
+                data.start +
+                localIndex;
+
+
+            const counterText =
+                getCounterText(
+                    absoluteIndex,
+                    project.images.length
+                );
+
+
+            animateCounterIn(
+                counter,
+                counterText
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   PROJECT META
+   ===================================================== */
+
+function updateMetadata() {
+
+    const project =
+        currentProject();
+
+
+    projectTitle.textContent =
+        project.title;
+
+
+    projectDate.textContent =
+        project.date ||
+        "";
+
+}
+
+
+/* =====================================================
+   WIDTH SYNC
+   ===================================================== */
+
+function syncProjectWidths() {
+
+    if (
+        indexMode
     ) {
 
         return;
@@ -1956,44 +1979,21 @@ async function updateFrameArrows() {
     }
 
 
-    try {
-
-        const {
-            spreads,
-            position
-        } =
-            await getCurrentSpreadPosition();
+    const width =
+        spread
+            .getBoundingClientRect()
+            .width;
 
 
-        const atBeginning =
-            position ===
-            0;
+    if (
+        width >
+        0
+    ) {
 
-
-        const atEnd =
-            position ===
-            spreads.length -
-            1;
-
-
-        previousFrameButton
-            .classList
-            .toggle(
-                "hidden",
-                atBeginning
-            );
-
-
-        nextFrameButton
-            .classList
-            .toggle(
-                "hidden",
-                atEnd
-            );
+        projectMeta.style.width =
+            `${width}px`;
 
     }
-
-    catch (error) {}
 
 }
 
@@ -2064,172 +2064,6 @@ function preloadAhead() {
 
 
 /* =====================================================
-   RENDER SPREAD
-   ===================================================== */
-
-function renderSpread(
-    spreadData
-) {
-
-    spread.innerHTML =
-        "";
-
-
-    spread.classList.remove(
-        "single",
-        "pair"
-    );
-
-
-    spread.classList.add(
-        spreadData.images.length >
-        1
-            ? "pair"
-            : "single"
-    );
-
-
-    spreadData.images.forEach(
-        data => {
-
-            const img =
-                document.createElement(
-                    "img"
-                );
-
-
-            img.className =
-                "spread-image";
-
-
-            img.src =
-                data.img.src;
-
-
-            img.alt =
-                "";
-
-
-            spread.appendChild(
-                img
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   METADATA
-   ===================================================== */
-
-function updateMetadata() {
-
-    const project =
-        currentProject();
-
-
-    projectTitle.textContent =
-        project.title;
-
-
-    projectDate.textContent =
-        project.date ||
-        "";
-
-
-    const total =
-        project.images.length;
-
-
-    if (
-        spreadEnd >
-        spreadStart
-    ) {
-
-        projectCounter.textContent =
-            `${String(
-                spreadStart +
-                1
-            ).padStart(
-                2,
-                "0"
-            )}–${String(
-                spreadEnd +
-                1
-            ).padStart(
-                2,
-                "0"
-            )}/${String(
-                total
-            ).padStart(
-                2,
-                "0"
-            )}`;
-
-    }
-
-    else {
-
-        projectCounter.textContent =
-            `${String(
-                spreadStart +
-                1
-            ).padStart(
-                2,
-                "0"
-            )}/${String(
-                total
-            ).padStart(
-                2,
-                "0"
-            )}`;
-
-    }
-
-}
-
-
-/* =====================================================
-   WIDTH SYNC
-   ===================================================== */
-
-function syncProjectWidths() {
-
-    if (
-        indexMode
-    ) {
-
-        return;
-
-    }
-
-
-    const width =
-        spread
-            .getBoundingClientRect()
-            .width;
-
-
-    if (
-        width >
-        0
-    ) {
-
-        projectMeta.style.width =
-            `${width}px`;
-
-
-        workControls.style.width =
-            `${width}px`;
-
-    }
-
-}
-
-
-/* =====================================================
    SHOW SPREAD
    ===================================================== */
 
@@ -2248,15 +2082,6 @@ async function showSpread(
         projects[
             normalized
         ];
-
-
-    if (
-        !project
-    ) {
-
-        return false;
-
-    }
 
 
     const safeStart =
@@ -2291,7 +2116,7 @@ async function showSpread(
             data.end;
 
 
-        renderSpread(
+        await renderSpread(
             data
         );
 
@@ -2309,11 +2134,7 @@ async function showSpread(
 
         buildProjectSpreads(
             projectIndex
-        )
-        .then(
-            updateFrameArrows
-        )
-        .catch(
+        ).catch(
             () => {}
         );
 
@@ -2337,7 +2158,7 @@ async function showSpread(
 
 
 /* =====================================================
-   NEXT — CROSSES WORK BOUNDARY
+   NEXT
    ===================================================== */
 
 async function nextSpread() {
@@ -2361,6 +2182,10 @@ async function nextSpread() {
     }
 
 
+    /*
+        Automatically enter next work.
+    */
+
     return showSpread(
         projectIndex +
         1,
@@ -2371,7 +2196,7 @@ async function nextSpread() {
 
 
 /* =====================================================
-   PREVIOUS — CROSSES WORK BOUNDARY
+   PREVIOUS
    ===================================================== */
 
 async function previousSpread() {
@@ -2380,6 +2205,11 @@ async function previousSpread() {
         spreadStart <=
         0
     ) {
+
+        /*
+            Automatically enter previous work,
+            at its final spread.
+        */
 
         const previousProjectIndex =
             normalizeProjectIndex(
@@ -2419,11 +2249,39 @@ async function previousSpread() {
     }
 
 
-    const {
-        spreads,
-        position
-    } =
-        await getCurrentSpreadPosition();
+    const spreads =
+        await buildProjectSpreads(
+            projectIndex
+        );
+
+
+    let position =
+        0;
+
+
+    for (
+        let i = 0;
+        i <
+        spreads.length;
+        i++
+    ) {
+
+        if (
+            spreads[
+                i
+            ].start ===
+            spreadStart
+        ) {
+
+            position =
+                i;
+
+
+            break;
+
+        }
+
+    }
 
 
     if (
@@ -2443,117 +2301,6 @@ async function previousSpread() {
 
 
     return false;
-
-}
-
-
-/* =====================================================
-   FRAME-ONLY PREVIOUS
-
-   Does NOT cross work.
-   ===================================================== */
-
-async function previousFrameOnly() {
-
-    const {
-        spreads,
-        position
-    } =
-        await getCurrentSpreadPosition();
-
-
-    if (
-        position <=
-        0
-    ) {
-
-        return;
-
-    }
-
-
-    stopAutoSlideshow();
-
-
-    await showSpread(
-        projectIndex,
-        spreads[
-            position -
-            1
-        ].start
-    );
-
-}
-
-
-/* =====================================================
-   FRAME-ONLY NEXT
-
-   Does NOT cross work.
-   ===================================================== */
-
-async function nextFrameOnly() {
-
-    const {
-        spreads,
-        position
-    } =
-        await getCurrentSpreadPosition();
-
-
-    if (
-        position >=
-        spreads.length -
-        1
-    ) {
-
-        return;
-
-    }
-
-
-    stopAutoSlideshow();
-
-
-    await showSpread(
-        projectIndex,
-        spreads[
-            position +
-            1
-        ].start
-    );
-
-}
-
-
-/* =====================================================
-   WORK NAVIGATION
-   ===================================================== */
-
-async function goNextWork() {
-
-    stopAutoSlideshow();
-
-
-    await showSpread(
-        projectIndex +
-        1,
-        0
-    );
-
-}
-
-
-async function goPreviousWork() {
-
-    stopAutoSlideshow();
-
-
-    await showSpread(
-        projectIndex -
-        1,
-        0
-    );
 
 }
 
@@ -2725,234 +2472,139 @@ function buildIndex() {
         "";
 
 
-    const chronological =
-        getChronologicalProjects();
+    getChronologicalProjects()
+        .forEach(
+            item => {
+
+                const project =
+                    item.project;
 
 
-    chronological.forEach(
-        item => {
-
-            const project =
-                item.project;
+                const originalIndex =
+                    item.originalIndex;
 
 
-            const originalIndex =
-                item.originalIndex;
-
-
-            const button =
-                document.createElement(
-                    "button"
-                );
-
-
-            button.className =
-                "project-card";
-
-
-            button.type =
-                "button";
-
-
-            const imageWrap =
-                document.createElement(
-                    "span"
-                );
-
-
-            imageWrap.className =
-                "card-image-wrap";
-
-
-            const img =
-                document.createElement(
-                    "img"
-                );
-
-
-            img.src =
-                getPhotoUrl(
-                    project.cover
-                );
-
-
-            img.alt =
-                "";
-
-
-            img.loading =
-                "eager";
-
-
-            imageWrap.appendChild(
-                img
-            );
-
-
-            const copy =
-                document.createElement(
-                    "span"
-                );
-
-
-            copy.className =
-                "card-copy";
-
-
-            const title =
-                document.createElement(
-                    "span"
-                );
-
-
-            title.className =
-                "card-title";
-
-
-            title.textContent =
-                project.title;
-
-
-            const date =
-                document.createElement(
-                    "span"
-                );
-
-
-            date.className =
-                "card-date";
-
-
-            date.textContent =
-                project.date ||
-                "";
-
-
-            copy.append(
-                title,
-                date
-            );
-
-
-            button.append(
-                imageWrap,
-                copy
-            );
-
-
-            button.addEventListener(
-                "click",
-                event => {
-
-                    event.stopPropagation();
-
-
-                    exitIndexToProject(
-                        originalIndex
-                    );
-
-                }
-            );
-
-
-            indexGrid.appendChild(
-                button
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   TEXT ANIMATION
-   ===================================================== */
-
-function animateTextLength(
-    element,
-    fullText,
-    show,
-    duration =
-        TOOLBAR_ANIMATION_DURATION
-) {
-
-    return new Promise(
-        resolve => {
-
-            const start =
-                performance.now();
-
-
-            function frame(
-                now
-            ) {
-
-                const progress =
-                    Math.min(
-                        1,
-                        (
-                            now -
-                            start
-                        ) /
-                        duration
+                const button =
+                    document.createElement(
+                        "button"
                     );
 
 
-                const length =
-                    show
-                        ? Math.round(
-                            progress *
-                            fullText.length
-                        )
-                        : Math.round(
-                            (
-                                1 -
-                                progress
-                            ) *
-                            fullText.length
+                button.className =
+                    "project-card";
+
+
+                button.type =
+                    "button";
+
+
+                const imageWrap =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                imageWrap.className =
+                    "card-image-wrap";
+
+
+                const img =
+                    document.createElement(
+                        "img"
+                    );
+
+
+                img.src =
+                    getPhotoUrl(
+                        project.cover
+                    );
+
+
+                img.alt =
+                    "";
+
+
+                img.loading =
+                    "eager";
+
+
+                imageWrap.appendChild(
+                    img
+                );
+
+
+                const copy =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                copy.className =
+                    "card-copy";
+
+
+                const title =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                title.className =
+                    "card-title";
+
+
+                title.textContent =
+                    project.title;
+
+
+                const date =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                date.className =
+                    "card-date";
+
+
+                date.textContent =
+                    project.date ||
+                    "";
+
+
+                copy.append(
+                    title,
+                    date
+                );
+
+
+                button.append(
+                    imageWrap,
+                    copy
+                );
+
+
+                button.addEventListener(
+                    "click",
+                    event => {
+
+                        event.stopPropagation();
+
+
+                        exitIndexToProject(
+                            originalIndex
                         );
 
-
-                element.textContent =
-                    fullText.slice(
-                        0,
-                        length
-                    );
+                    }
+                );
 
 
-                if (
-                    progress <
-                    1
-                ) {
-
-                    requestAnimationFrame(
-                        frame
-                    );
-
-                }
-
-                else {
-
-                    element.textContent =
-                        show
-                            ? fullText
-                            : "";
-
-
-                    resolve();
-
-                }
+                indexGrid.appendChild(
+                    button
+                );
 
             }
-
-
-            requestAnimationFrame(
-                frame
-            );
-
-        }
-    );
+        );
 
 }
 
@@ -3021,7 +2673,7 @@ function animateIndexCase(
                             now -
                             start
                         ) /
-                        TOOLBAR_ANIMATION_DURATION
+                        INDEX_ANIMATION_DURATION
                     );
 
 
@@ -3110,26 +2762,10 @@ async function enterIndex() {
     );
 
 
-    const animations =
-        [
-
-            animateTextLength(
-                previousWorkButton,
-                "previous work",
-                false
-            ),
-
-            animateIndexCase(
-                true
-            ),
-
-            animateTextLength(
-                nextWorkButton,
-                "next work",
-                false
-            )
-
-        ];
+    const animation =
+        animateIndexCase(
+            true
+        );
 
 
     setTimeout(
@@ -3149,14 +2785,12 @@ async function enterIndex() {
             );
 
         },
-        TOOLBAR_ANIMATION_DURATION /
+        INDEX_ANIMATION_DURATION /
         2
     );
 
 
-    await Promise.all(
-        animations
-    );
+    await animation;
 
 
     interfaceAnimating =
@@ -3201,26 +2835,10 @@ async function exitIndexToProject(
     );
 
 
-    const animations =
-        [
-
-            animateTextLength(
-                previousWorkButton,
-                "previous work",
-                true
-            ),
-
-            animateIndexCase(
-                false
-            ),
-
-            animateTextLength(
-                nextWorkButton,
-                "next work",
-                true
-            )
-
-        ];
+    const animation =
+        animateIndexCase(
+            false
+        );
 
 
     await showSpread(
@@ -3229,9 +2847,7 @@ async function exitIndexToProject(
     );
 
 
-    await Promise.all(
-        animations
-    );
+    await animation;
 
 
     indexButton.classList.remove(
@@ -3249,67 +2865,7 @@ async function exitIndexToProject(
 
 
 /* =====================================================
-   FRAME ARROWS
-   ===================================================== */
-
-previousFrameButton.addEventListener(
-    "click",
-    event => {
-
-        event.stopPropagation();
-
-
-        previousFrameOnly();
-
-    }
-);
-
-
-nextFrameButton.addEventListener(
-    "click",
-    event => {
-
-        event.stopPropagation();
-
-
-        nextFrameOnly();
-
-    }
-);
-
-
-/* =====================================================
-   WORK BUTTONS
-   ===================================================== */
-
-previousWorkButton.addEventListener(
-    "click",
-    event => {
-
-        event.stopPropagation();
-
-
-        goPreviousWork();
-
-    }
-);
-
-
-nextWorkButton.addEventListener(
-    "click",
-    event => {
-
-        event.stopPropagation();
-
-
-        goNextWork();
-
-    }
-);
-
-
-/* =====================================================
-   INDEX
+   INDEX EVENT
    ===================================================== */
 
 indexButton.addEventListener(
@@ -3328,14 +2884,12 @@ indexButton.addEventListener(
 /* =====================================================
    GENERAL CLICK
 
-   First click:
+   first click:
    stop.
 
-   Afterwards:
+   afterwards:
    left 25% = previous
-   right 75% = next.
-
-   Crosses works.
+   rest = next
    ===================================================== */
 
 body.addEventListener(
@@ -3364,7 +2918,7 @@ body.addEventListener(
 
         if (
             event.target.closest(
-                ".info, .section-switch, #frame-navigation, #work-controls, #index-button"
+                ".info, .section-switch, #index-button"
             )
         ) {
 
@@ -3572,10 +3126,6 @@ document.addEventListener(
         }
 
 
-        /*
-            Prevent following synthetic click.
-        */
-
         suppressClickUntil =
             Date.now() +
             500;
@@ -3608,7 +3158,7 @@ document.addEventListener(
 
 
 /* =====================================================
-   MOBILE / INSTAGRAM STAGE
+   MOBILE STAGE
    ===================================================== */
 
 function updateMobileStage() {
@@ -3677,7 +3227,7 @@ function updateMobileStage() {
 
 
     const bottomGap =
-        58;
+        62;
 
 
     let viewportTop =
@@ -3710,12 +3260,6 @@ function updateMobileStage() {
         viewportTop +
         viewportHeight;
 
-
-    /*
-        Important:
-        image can NEVER rise into the
-        contact information block.
-    */
 
     const stageTop =
         Math.max(
@@ -4229,7 +3773,7 @@ sectionSwitch.addEventListener(
 
 
 /* =====================================================
-   RESPONSIVE SPREAD REFRESH
+   RESPONSIVE REFRESH
    ===================================================== */
 
 async function refreshResponsiveSpread() {
@@ -4247,12 +3791,6 @@ async function refreshResponsiveSpread() {
 
     spreadCache.clear();
 
-
-    /*
-        If changing from desktop pair to
-        mobile single, preserve the first
-        currently visible photo.
-    */
 
     await showSpread(
         projectIndex,
@@ -4353,7 +3891,7 @@ if (
 
 
 /* =====================================================
-   LOAD PROJECTS
+   LOAD
    ===================================================== */
 
 async function loadProjects() {
