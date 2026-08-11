@@ -61,34 +61,18 @@ body {
     --meta-gap: 6px;
 
     /*
-        Every slideshow image has the same width.
-
-        This is what keeps:
-        - left metadata edge fixed
-        - right metadata edge fixed
-        - image edges aligned with metadata
+        Larger desktop image than before.
     */
 
     --image-width:
         min(
-            36vw,
-            46vh
+            54vw,
+            72vh
         );
 
-    /*
-        Fixed vertical zone.
-
-        Portrait / landscape differences happen
-        INSIDE this zone, not in the metadata position.
-    */
-
-    --visual-height: 69vh;
+    --visual-height: 72vh;
 
     --meta-top-gap: 9px;
-
-    /*
-        Measured from the actual info block.
-    */
 
     --index-content-top: 130px;
 
@@ -243,9 +227,6 @@ body {
 
 /* =====================================================
    VISUAL ZONE
-
-   Slideshow image and VIEW ALL grid both
-   live inside exactly the same fixed zone.
    ===================================================== */
 
 #visual-zone {
@@ -266,7 +247,7 @@ body {
 
 
 /* =====================================================
-   SINGLE SLIDESHOW IMAGE
+   SINGLE IMAGE
    ===================================================== */
 
 #spread {
@@ -303,12 +284,6 @@ body {
 
 /* =====================================================
    PROJECT META
-
-   Always same X + Y.
-
-   Because slideshow images all share the
-   exact same width, metadata also aligns
-   exactly to their left/right edges.
    ===================================================== */
 
 #project-meta {
@@ -337,7 +312,7 @@ body {
     font-size: var(--font-size);
     line-height: var(--line-height);
 
-    text-transform: lowercase;
+    text-transform: none;
 
     pointer-events: none;
 }
@@ -367,14 +342,19 @@ body {
 
 
 /* =====================================================
-   META RIGHT
+   COUNTER
    ===================================================== */
 
 #project-counter {
     grid-column: 2;
     grid-row: 1;
 
-    min-width: 80px;
+    display: flex;
+
+    justify-content: flex-end;
+    align-items: baseline;
+
+    min-width: 82px;
 
     padding-left: 28px;
 
@@ -384,8 +364,32 @@ body {
 }
 
 
+/*
+    Current morphs independently.
+*/
+
+#counter-current {
+    display: inline-block;
+
+    min-width: 2ch;
+
+    text-align: right;
+}
+
+
+/*
+    Separator and total are stable inside the same project.
+*/
+
+#counter-static {
+    display: inline-block;
+
+    white-space: pre;
+}
+
+
 /* =====================================================
-   VIEW ALL / CLOSE
+   VIEW ALL BUTTON
    ===================================================== */
 
 #view-all-button {
@@ -410,8 +414,6 @@ body {
     font-size: inherit;
     line-height: inherit;
 
-    text-transform: inherit;
-
     text-align: right;
 
     white-space: nowrap;
@@ -423,16 +425,23 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-#view-all-button:hover,
-#view-all-button:focus,
-#view-all-button:active {
-    outline: 0;
-    text-decoration: none;
+
+/* =====================================================
+   CLOSE MODE
+
+   In project-all mode close moves to upper-right,
+   where the counter normally lives.
+   ===================================================== */
+
+body.project-all-mode
+#view-all-button {
+    grid-column: 2;
+    grid-row: 1;
 }
 
 
 /* =====================================================
-   VIEW ALL MODE
+   PROJECT ALL MODE
    ===================================================== */
 
 body.project-all-mode #spread {
@@ -442,21 +451,37 @@ body.project-all-mode #spread {
 
 /* =====================================================
    PROJECT ALL VIEW
+
+   IMPORTANT:
+   This is NOT limited to image width.
+
+   Desktop expands from left info alignment
+   to right film alignment.
    ===================================================== */
 
 #project-all-view {
-    position: absolute;
+    position: fixed;
 
-    inset: 0;
+    top: var(--index-content-top);
+
+    left: var(--side);
+    right: var(--side);
+
+    bottom:
+        calc(
+            76px +
+            env(safe-area-inset-bottom)
+        );
+
+    z-index: 20;
 
     display: none;
-
-    padding: 0;
 
     pointer-events: auto;
 }
 
-body.project-all-mode #project-all-view {
+body.project-all-mode
+#project-all-view {
     display: block;
 }
 
@@ -476,11 +501,7 @@ body.project-all-mode #project-all-view {
 
     place-content: center;
 
-    /*
-        JS changes columns + rows.
-    */
-
-    gap: 8px;
+    gap: 10px;
 }
 
 
@@ -573,13 +594,6 @@ body.project-all-mode #project-all-view {
     -webkit-tap-highlight-color: transparent;
 }
 
-#index-button:hover,
-#index-button:focus,
-#index-button:active {
-    outline: 0;
-    text-decoration: none;
-}
-
 
 /* =====================================================
    INDEX VIEW
@@ -605,7 +619,7 @@ body.project-all-mode #project-all-view {
 
 
 /* =====================================================
-   HORIZONTAL INDEX — ALL DEVICES
+   HORIZONTAL INDEX
    ===================================================== */
 
 #index-scroller {
@@ -681,12 +695,12 @@ body.project-all-mode #project-all-view {
     flex:
         0
         0
-        190px;
+        210px;
 
     display: flex;
     flex-direction: column;
 
-    width: 190px;
+    width: 210px;
 
     margin: 0;
     padding: 0;
@@ -707,12 +721,7 @@ body.project-all-mode #project-all-view {
 
 
 /* =====================================================
-   INDEX IMAGE AREA
-
-   NO CROP.
-
-   Every project gets an equal image AREA,
-   but the image itself retains its aspect ratio.
+   INDEX IMAGE AREA — NO CROP
    ===================================================== */
 
 .card-image-wrap {
@@ -722,7 +731,7 @@ body.project-all-mode #project-all-view {
     justify-content: center;
 
     width: 100%;
-    height: 250px;
+    height: 280px;
 
     background: transparent;
 
@@ -800,27 +809,23 @@ body.index-mode #project-stage {
 
         --image-width:
             min(
-                42vw,
-                46vh
+                58vw,
+                68vh
             );
 
-    }
-
-    #index-grid {
-        gap: 38px;
     }
 
     .project-card {
         flex:
             0
             0
-            175px;
+            185px;
 
-        width: 175px;
+        width: 185px;
     }
 
     .card-image-wrap {
-        height: 230px;
+        height: 240px;
     }
 
 }
@@ -927,18 +932,32 @@ body.index-mode #project-stage {
 
 
     #project-counter {
-        min-width: 66px;
+        min-width: 70px;
 
         padding-left: 18px;
     }
 
 
     /* -------------------------
-       VIEW ALL GRID
+       VIEW ALL
        ------------------------- */
 
+    #project-all-view {
+        top: var(--index-content-top);
+
+        left: var(--side);
+        right: var(--side);
+
+        bottom:
+            calc(
+                72px +
+                env(safe-area-inset-bottom)
+            );
+    }
+
+
     #project-all-grid {
-        gap: 5px;
+        gap: 6px;
     }
 
 
@@ -971,7 +990,7 @@ body.index-mode #project-stage {
 
 
     .card-image-wrap {
-        height: 55vw;
+        height: 56vw;
     }
 
 }
@@ -998,11 +1017,11 @@ body.index-mode #project-stage {
 
         --image-width:
             min(
-                38vw,
-                48vh
+                48vw,
+                66vh
             );
 
-        --visual-height: 58vh;
+        --visual-height: 64vh;
 
         --meta-top-gap: 7px;
 
@@ -1035,23 +1054,18 @@ body.index-mode #project-stage {
     }
 
 
-    #index-grid {
-        gap: 28px;
-    }
-
-
     .project-card {
         flex:
             0
             0
-            145px;
+            155px;
 
-        width: 145px;
+        width: 155px;
     }
 
 
     .card-image-wrap {
-        height: 170px;
+        height: 180px;
     }
 
 }
@@ -1157,37 +1171,31 @@ body.index-mode #project-stage {
 
         <div id="visual-zone">
 
-
-            <!-- SLIDESHOW -->
-
             <div id="spread">
 
                 <div class="image-cell"></div>
 
             </div>
 
-
-            <!-- VIEW ALL -->
-
-            <div id="project-all-view">
-
-                <div id="project-all-grid"></div>
-
-            </div>
-
-
         </div>
 
-
-        <!-- PROJECT META -->
 
         <div id="project-meta">
 
             <span id="project-title"></span>
 
-            <span id="project-counter"></span>
+
+            <span id="project-counter">
+
+                <span id="counter-current"></span>
+
+                <span id="counter-static"></span>
+
+            </span>
+
 
             <span id="project-date"></span>
+
 
             <button
                 id="view-all-button"
@@ -1198,8 +1206,18 @@ body.index-mode #project-stage {
 
         </div>
 
-
     </div>
+
+</div>
+
+
+<!-- ===================================================
+     PROJECT ALL VIEW
+     =================================================== -->
+
+<div id="project-all-view">
+
+    <div id="project-all-grid"></div>
 
 </div>
 
@@ -1257,53 +1275,45 @@ const SLIDE_DURATION =
     3000;
 
 
-/*
-    Frame counter.
-*/
+const CURRENT_OUT_DURATION =
+    130;
 
-const COUNTER_OUT_DURATION =
+
+const CURRENT_IN_DURATION =
+    170;
+
+
+const TOTAL_OUT_DURATION =
     150;
 
 
-const COUNTER_IN_DURATION =
-    200;
+const TOTAL_IN_DURATION =
+    190;
 
 
-/*
-    Project change.
-*/
-
-const PROJECT_OUT_DURATION =
-    170;
+const PROJECT_TEXT_OUT_DURATION =
+    160;
 
 
-const PROJECT_IN_DURATION =
-    240;
+const PROJECT_TEXT_IN_DURATION =
+    210;
 
 
-/*
-    View all state morph.
-*/
-
-const VIEW_STATE_OUT_DURATION =
-    170;
+const VIEW_BUTTON_OUT_DURATION =
+    160;
 
 
-const VIEW_STATE_IN_DURATION =
-    220;
+const VIEW_BUTTON_IN_DURATION =
+    210;
 
 
-/*
-    index / INDEX
-*/
+const CASE_MORPH_DURATION =
+    420;
+
 
 const INDEX_TRANSITION_DURATION =
     400;
 
-
-/*
-    film + existing typography.
-*/
 
 const WORD_TRANSITION_DURATION =
     600;
@@ -1371,9 +1381,15 @@ const projectDate =
     );
 
 
-const projectCounter =
+const counterCurrent =
     document.getElementById(
-        "project-counter"
+        "counter-current"
+    );
+
+
+const counterStatic =
+    document.getElementById(
+        "counter-static"
     );
 
 
@@ -1463,10 +1479,6 @@ let autoplayBeforeProjectAll =
     false;
 
 
-/*
-    Index position persists between visits.
-*/
-
 let savedIndexScrollLeft =
     0;
 
@@ -1492,7 +1504,7 @@ let indexDragMoved =
 
 
 /* =====================================================
-   SLIDESHOW TOUCH
+   TOUCH
    ===================================================== */
 
 let touchStartX =
@@ -1534,7 +1546,7 @@ function getPhotoUrl(
 
 
 /* =====================================================
-   PRELOAD IMAGE
+   PRELOAD
    ===================================================== */
 
 function preloadImage(
@@ -1695,34 +1707,32 @@ function updateIndexContentTop() {
 
 
 /* =====================================================
-   COUNTER
+   COUNTER HELPERS
    ===================================================== */
 
-function getCounterText(
-    index,
+function getCurrentText(
+    index
+) {
+
+    return String(
+        index + 1
+    ).padStart(
+        2,
+        "0"
+    );
+
+}
+
+
+function getTotalText(
     total
 ) {
 
-    const current =
-        String(
-            index + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const totalText =
-        String(
-            total
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    return (
-        `${current} / ${totalText}`
+    return String(
+        total
+    ).padStart(
+        2,
+        "0"
     );
 
 }
@@ -1749,6 +1759,7 @@ function animateTextOut(
             ) {
 
                 resolve();
+
 
                 return;
 
@@ -1792,8 +1803,7 @@ function animateTextOut(
 
 
                 if (
-                    progress <
-                    1
+                    progress < 1
                 ) {
 
                     requestAnimationFrame(
@@ -1848,6 +1858,7 @@ function animateTextIn(
 
                 resolve();
 
+
                 return;
 
             }
@@ -1891,8 +1902,7 @@ function animateTextIn(
 
 
                 if (
-                    progress <
-                    1
+                    progress < 1
                 ) {
 
                     requestAnimationFrame(
@@ -1961,39 +1971,207 @@ async function morphText(
 
 
 /* =====================================================
-   UPPER / LOWER PROJECT COPY
+   CASE MORPH
+
+   This does NOT delete/retype the word.
+
+   It changes capitalization progressively,
+   exactly like index -> INDEX.
    ===================================================== */
 
-function getProjectStateTitle(
-    project,
-    upper
+function getCaseStateText(
+    text,
+    upperCount
 ) {
 
-    return upper
-        ? project.title.toUpperCase()
-        : project.title;
-
-}
+    let result =
+        "";
 
 
-function getProjectStateDate(
-    project,
-    upper
-) {
-
-    const date =
-        project.date || "";
+    let letterIndex =
+        0;
 
 
-    return upper
-        ? date.toUpperCase()
-        : date;
+    for (
+        let i = 0;
+        i < text.length;
+        i++
+    ) {
+
+        const char =
+            text[i];
+
+
+        if (
+            /[a-zA-ZçğıöşüÇĞİÖŞÜ]/.test(
+                char
+            )
+        ) {
+
+            result +=
+                letterIndex < upperCount
+                    ? char.toUpperCase()
+                    : char.toLowerCase();
+
+
+            letterIndex++;
+
+        }
+
+        else {
+
+            result +=
+                char;
+
+        }
+
+    }
+
+
+    return result;
 
 }
 
 
 /* =====================================================
-   RENDER SLIDESHOW IMAGE
+   COUNT LETTERS
+   ===================================================== */
+
+function countLetters(
+    text
+) {
+
+    const match =
+        text.match(
+            /[a-zA-ZçğıöşüÇĞİÖŞÜ]/g
+        );
+
+
+    return match
+        ? match.length
+        : 0;
+
+}
+
+
+/* =====================================================
+   MORPH CASE
+   ===================================================== */
+
+function morphCase(
+    element,
+    originalText,
+    toUpper
+) {
+
+    const totalLetters =
+        countLetters(
+            originalText
+        );
+
+
+    if (
+        totalLetters === 0
+    ) {
+
+        element.textContent =
+            originalText;
+
+
+        return Promise.resolve();
+
+    }
+
+
+    const startState =
+        toUpper
+            ? 0
+            : totalLetters;
+
+
+    const targetState =
+        toUpper
+            ? totalLetters
+            : 0;
+
+
+    const start =
+        performance.now();
+
+
+    return new Promise(
+        resolve => {
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        CASE_MORPH_DURATION
+                    );
+
+
+                const value =
+                    Math.round(
+                        startState +
+                        (
+                            targetState -
+                            startState
+                        ) *
+                        progress
+                    );
+
+
+                element.textContent =
+                    getCaseStateText(
+                        originalText,
+                        value
+                    );
+
+
+                if (
+                    progress < 1
+                ) {
+
+                    requestAnimationFrame(
+                        frame
+                    );
+
+                }
+
+                else {
+
+                    element.textContent =
+                        toUpper
+                            ? originalText.toUpperCase()
+                            : originalText.toLowerCase();
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            requestAnimationFrame(
+                frame
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   RENDER IMAGE
    ===================================================== */
 
 function renderImage(
@@ -2045,7 +2223,85 @@ function renderImage(
 
 
 /* =====================================================
-   PROJECT META UPDATE
+   COUNTER UPDATE
+
+   SAME PROJECT:
+   only CURRENT animates.
+
+   PROJECT CHANGE:
+   current + static total both update.
+   ===================================================== */
+
+async function updateCounter(
+    targetProjectIndex,
+    targetFrameIndex
+) {
+
+    const project =
+        projects[
+            targetProjectIndex
+        ];
+
+
+    const projectChanged =
+        renderedProjectIndex !==
+        targetProjectIndex;
+
+
+    const nextCurrent =
+        getCurrentText(
+            targetFrameIndex
+        );
+
+
+    const nextStatic =
+        ` / ${getTotalText(
+            project.images.length
+        )}`;
+
+
+    if (
+        projectChanged
+    ) {
+
+        await Promise.all(
+            [
+
+                morphText(
+                    counterCurrent,
+                    nextCurrent,
+                    CURRENT_OUT_DURATION,
+                    CURRENT_IN_DURATION
+                ),
+
+                morphText(
+                    counterStatic,
+                    nextStatic,
+                    TOTAL_OUT_DURATION,
+                    TOTAL_IN_DURATION
+                )
+
+            ]
+        );
+
+    }
+
+    else {
+
+        await morphText(
+            counterCurrent,
+            nextCurrent,
+            CURRENT_OUT_DURATION,
+            CURRENT_IN_DURATION
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   UPDATE PROJECT META
    ===================================================== */
 
 async function updateMetadata(
@@ -2064,59 +2320,52 @@ async function updateMetadata(
         targetProjectIndex;
 
 
-    const counterText =
-        getCounterText(
-            targetFrameIndex,
-            project.images.length
-        );
+    const animations =
+        [
 
+            updateCounter(
+                targetProjectIndex,
+                targetFrameIndex
+            )
 
-    const counterAnimation =
-        morphText(
-            projectCounter,
-            counterText,
-            COUNTER_OUT_DURATION,
-            COUNTER_IN_DURATION
-        );
+        ];
 
 
     if (
         projectChanged
     ) {
 
-        await Promise.all(
-            [
+        animations.push(
 
-                counterAnimation,
+            morphText(
+                projectTitle,
+                project.title.toLowerCase(),
+                PROJECT_TEXT_OUT_DURATION,
+                PROJECT_TEXT_IN_DURATION
+            ),
 
-                morphText(
-                    projectTitle,
-                    project.title,
-                    PROJECT_OUT_DURATION,
-                    PROJECT_IN_DURATION
-                ),
+            morphText(
+                projectDate,
+                (
+                    project.date ||
+                    ""
+                ).toLowerCase(),
+                PROJECT_TEXT_OUT_DURATION,
+                PROJECT_TEXT_IN_DURATION
+            )
 
-                morphText(
-                    projectDate,
-                    project.date || "",
-                    PROJECT_OUT_DURATION,
-                    PROJECT_IN_DURATION
-                )
-
-            ]
         );
 
-
-        renderedProjectIndex =
-            targetProjectIndex;
-
     }
 
-    else {
 
-        await counterAnimation;
+    await Promise.all(
+        animations
+    );
 
-    }
+
+    renderedProjectIndex =
+        targetProjectIndex;
 
 }
 
@@ -2352,8 +2601,7 @@ async function previousFrame() {
 
 
     if (
-        frameIndex >
-        0
+        frameIndex > 0
     ) {
 
         return showFrame(
@@ -2447,12 +2695,7 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
-   VIEW ALL GRID — CALCULATE BEST LAYOUT
-
-   Test every possible column count.
-
-   Pick the layout with the largest usable cell area
-   while keeping ALL thumbnails on one screen.
+   VIEW ALL GRID LAYOUT
    ===================================================== */
 
 function calculateProjectAllLayout(
@@ -2474,8 +2717,8 @@ function calculateProjectAllLayout(
 
     const gap =
         window.innerWidth <= 600
-            ? 5
-            : 8;
+            ? 6
+            : 10;
 
 
     let best =
@@ -2544,12 +2787,6 @@ function calculateProjectAllLayout(
             rows;
 
 
-        /*
-            For mixed aspect-ratios, minimum
-            cell dimension is a useful proxy
-            for perceived thumbnail size.
-        */
-
         const score =
             Math.min(
                 cellWidth,
@@ -2582,7 +2819,7 @@ function calculateProjectAllLayout(
 
 
 /* =====================================================
-   APPLY VIEW ALL GRID LAYOUT
+   APPLY GRID
    ===================================================== */
 
 function layoutProjectAllGrid() {
@@ -2617,10 +2854,10 @@ function layoutProjectAllGrid() {
 
 
 /* =====================================================
-   BUILD VIEW ALL
+   BUILD PROJECT ALL
    ===================================================== */
 
-async function buildProjectAllGrid() {
+function buildProjectAllGrid() {
 
     const project =
         currentProject();
@@ -2628,19 +2865,6 @@ async function buildProjectAllGrid() {
 
     projectAllGrid.innerHTML =
         "";
-
-
-    /*
-        Make the grid visible before measurement.
-    */
-
-    projectAllMode =
-        true;
-
-
-    body.classList.add(
-        "project-all-mode"
-    );
 
 
     project.images.forEach(
@@ -2710,17 +2934,6 @@ async function buildProjectAllGrid() {
         }
     );
 
-
-    requestAnimationFrame(
-        () => {
-
-            requestAnimationFrame(
-                layoutProjectAllGrid
-            );
-
-        }
-    );
-
 }
 
 
@@ -2754,12 +2967,16 @@ async function enterProjectAll() {
     );
 
 
-    /*
-        Build grid first so it is ready
-        during the metadata transition.
-    */
+    buildProjectAllGrid();
 
-    await buildProjectAllGrid();
+
+    projectAllMode =
+        true;
+
+
+    body.classList.add(
+        "project-all-mode"
+    );
 
 
     const project =
@@ -2767,47 +2984,55 @@ async function enterProjectAll() {
 
 
     /*
-        Counter disappears.
-        view all -> close.
-        project info -> uppercase.
+        Counter disappears entirely.
+        Close moves into its slot.
+        Title/date CASE-MORPH only.
     */
 
     await Promise.all(
         [
 
             animateTextOut(
-                projectCounter,
-                VIEW_STATE_OUT_DURATION
+                counterCurrent,
+                VIEW_BUTTON_OUT_DURATION
             ),
 
-            morphText(
+            animateTextOut(
+                counterStatic,
+                VIEW_BUTTON_OUT_DURATION
+            ),
+
+            morphCase(
                 projectTitle,
-                getProjectStateTitle(
-                    project,
-                    true
-                ),
-                VIEW_STATE_OUT_DURATION,
-                VIEW_STATE_IN_DURATION
+                project.title,
+                true
             ),
 
-            morphText(
+            morphCase(
                 projectDate,
-                getProjectStateDate(
-                    project,
-                    true
-                ),
-                VIEW_STATE_OUT_DURATION,
-                VIEW_STATE_IN_DURATION
+                project.date || "",
+                true
             ),
 
             morphText(
                 viewAllButton,
                 "close",
-                VIEW_STATE_OUT_DURATION,
-                VIEW_STATE_IN_DURATION
+                VIEW_BUTTON_OUT_DURATION,
+                VIEW_BUTTON_IN_DURATION
             )
 
         ]
+    );
+
+
+    requestAnimationFrame(
+        () => {
+
+            requestAnimationFrame(
+                layoutProjectAllGrid
+            );
+
+        }
     );
 
 
@@ -2818,7 +3043,7 @@ async function enterProjectAll() {
 
 
 /* =====================================================
-   LEAVE VIEW ALL — SAME FRAME
+   EXIT VIEW ALL — SAME FRAME
    ===================================================== */
 
 async function exitProjectAll() {
@@ -2841,47 +3066,42 @@ async function exitProjectAll() {
         currentProject();
 
 
-    /*
-        Reverse metadata state.
-    */
-
     await Promise.all(
         [
 
             animateTextIn(
-                projectCounter,
-                getCounterText(
-                    frameIndex,
+                counterCurrent,
+                getCurrentText(
+                    frameIndex
+                ),
+                VIEW_BUTTON_IN_DURATION
+            ),
+
+            animateTextIn(
+                counterStatic,
+                ` / ${getTotalText(
                     project.images.length
-                ),
-                VIEW_STATE_IN_DURATION
+                )}`,
+                VIEW_BUTTON_IN_DURATION
             ),
 
-            morphText(
+            morphCase(
                 projectTitle,
-                getProjectStateTitle(
-                    project,
-                    false
-                ),
-                VIEW_STATE_OUT_DURATION,
-                VIEW_STATE_IN_DURATION
+                project.title,
+                false
             ),
 
-            morphText(
+            morphCase(
                 projectDate,
-                getProjectStateDate(
-                    project,
-                    false
-                ),
-                VIEW_STATE_OUT_DURATION,
-                VIEW_STATE_IN_DURATION
+                project.date || "",
+                false
             ),
 
             morphText(
                 viewAllButton,
                 "view all",
-                VIEW_STATE_OUT_DURATION,
-                VIEW_STATE_IN_DURATION
+                VIEW_BUTTON_OUT_DURATION,
+                VIEW_BUTTON_IN_DURATION
             )
 
         ]
@@ -2900,10 +3120,6 @@ async function exitProjectAll() {
     projectAllGrid.innerHTML =
         "";
 
-
-    /*
-        Restore slideshow playback state.
-    */
 
     if (
         autoplayBeforeProjectAll
@@ -2937,7 +3153,7 @@ async function exitProjectAll() {
 
 
 /* =====================================================
-   THUMBNAIL -> SELECTED FRAME
+   EXIT VIEW ALL TO FRAME
    ===================================================== */
 
 async function exitProjectAllToFrame(
@@ -2962,11 +3178,6 @@ async function exitProjectAllToFrame(
         currentProject();
 
 
-    /*
-        Load selected frame while contact sheet
-        is still visible.
-    */
-
     const loadedImage =
         await preloadImage(
             project.images[
@@ -2988,39 +3199,38 @@ async function exitProjectAllToFrame(
         [
 
             animateTextIn(
-                projectCounter,
-                getCounterText(
-                    selectedIndex,
+                counterCurrent,
+                getCurrentText(
+                    selectedIndex
+                ),
+                VIEW_BUTTON_IN_DURATION
+            ),
+
+            animateTextIn(
+                counterStatic,
+                ` / ${getTotalText(
                     project.images.length
-                ),
-                VIEW_STATE_IN_DURATION
+                )}`,
+                VIEW_BUTTON_IN_DURATION
             ),
 
-            morphText(
+            morphCase(
                 projectTitle,
-                getProjectStateTitle(
-                    project,
-                    false
-                ),
-                VIEW_STATE_OUT_DURATION,
-                VIEW_STATE_IN_DURATION
+                project.title,
+                false
             ),
 
-            morphText(
+            morphCase(
                 projectDate,
-                getProjectStateDate(
-                    project,
-                    false
-                ),
-                VIEW_STATE_OUT_DURATION,
-                VIEW_STATE_IN_DURATION
+                project.date || "",
+                false
             ),
 
             morphText(
                 viewAllButton,
                 "view all",
-                VIEW_STATE_OUT_DURATION,
-                VIEW_STATE_IN_DURATION
+                VIEW_BUTTON_OUT_DURATION,
+                VIEW_BUTTON_IN_DURATION
             )
 
         ]
@@ -3042,10 +3252,6 @@ async function exitProjectAllToFrame(
 
     preloadAhead();
 
-
-    /*
-        Selecting a thumbnail resumes autoplay.
-    */
 
     manualMode =
         false;
@@ -3228,10 +3434,6 @@ function buildIndex() {
                     "button";
 
 
-                /*
-                    Image area.
-                */
-
                 const imageWrap =
                     document.createElement(
                         "span"
@@ -3266,10 +3468,6 @@ function buildIndex() {
                     img
                 );
 
-
-                /*
-                    Project copy.
-                */
 
                 const copy =
                     document.createElement(
@@ -3332,6 +3530,7 @@ function buildIndex() {
                             event.preventDefault();
                             event.stopPropagation();
 
+
                             return;
 
                         }
@@ -3373,20 +3572,14 @@ function renderWordCase(
 
     for (
         let i = 0;
-        i <
-        word.length;
+        i < word.length;
         i++
     ) {
 
         result +=
-            i <
-            upperCount
-                ? word[
-                    i
-                ].toUpperCase()
-                : word[
-                    i
-                ];
+            i < upperCount
+                ? word[i].toUpperCase()
+                : word[i];
 
     }
 
@@ -3438,8 +3631,7 @@ function morphIndexTo(
 ) {
 
     if (
-        indexWordFrame !==
-        null
+        indexWordFrame !== null
     ) {
 
         cancelAnimationFrame(
@@ -3461,8 +3653,7 @@ function morphIndexTo(
 
 
     if (
-        distance ===
-        0
+        distance === 0
     ) {
 
         return Promise.resolve();
@@ -3517,8 +3708,7 @@ function morphIndexTo(
 
 
                 if (
-                    progress <
-                    1
+                    progress < 1
                 ) {
 
                     indexWordFrame =
@@ -3566,8 +3756,7 @@ indexButton.addEventListener(
     () => {
 
         if (
-            window.innerWidth <=
-            600
+            window.innerWidth <= 600
         ) {
 
             return;
@@ -3602,8 +3791,7 @@ indexButton.addEventListener(
     () => {
 
         if (
-            window.innerWidth <=
-            600
+            window.innerWidth <= 600
         ) {
 
             return;
@@ -3871,7 +4059,7 @@ async function exitIndexToProject(
 
 
 /* =====================================================
-   INDEX CLICK
+   INDEX BUTTON
    ===================================================== */
 
 indexButton.addEventListener(
@@ -3892,20 +4080,10 @@ indexButton.addEventListener(
         }
 
 
-        /*
-            Desktop index view:
-
-            INDEX is the locked state.
-            Hover -> index.
-            Only lowercase can close.
-        */
-
         if (
-            window.innerWidth >
-            600 &&
+            window.innerWidth > 600 &&
             indexMode &&
-            indexWordState !==
-            0
+            indexWordState !== 0
         ) {
 
             return;
@@ -3933,9 +4111,6 @@ indexButton.addEventListener(
 
 /* =====================================================
    INDEX WHEEL
-
-   vertical OR horizontal wheel
-   -> horizontal rail
    ===================================================== */
 
 indexScroller.addEventListener(
@@ -4041,52 +4216,6 @@ indexScroller.addEventListener(
 
         }
 
-
-        else if (
-            event.key ===
-            "Home"
-        ) {
-
-            event.preventDefault();
-
-
-            indexScroller.scrollTo(
-                {
-
-                    left:
-                        0,
-
-                    behavior:
-                        "smooth"
-
-                }
-            );
-
-        }
-
-
-        else if (
-            event.key ===
-            "End"
-        ) {
-
-            event.preventDefault();
-
-
-            indexScroller.scrollTo(
-                {
-
-                    left:
-                        indexScroller.scrollWidth,
-
-                    behavior:
-                        "smooth"
-
-                }
-            );
-
-        }
-
     }
 );
 
@@ -4116,7 +4245,7 @@ indexScroller.addEventListener(
 
 
 /* =====================================================
-   DESKTOP INDEX DRAG
+   INDEX DRAG
    ===================================================== */
 
 indexScroller.addEventListener(
@@ -4124,8 +4253,7 @@ indexScroller.addEventListener(
     event => {
 
         if (
-            event.button !==
-            0
+            event.button !== 0
         ) {
 
             return;
@@ -4299,10 +4427,6 @@ body.addEventListener(
         }
 
 
-        /*
-            First click only stops autoplay.
-        */
-
         if (
             !manualMode
         ) {
@@ -4321,8 +4445,7 @@ body.addEventListener(
 
 
         if (
-            position <
-            0.25
+            position < 0.25
         ) {
 
             await previousFrame();
@@ -4347,10 +4470,6 @@ document.addEventListener(
     "keydown",
     async event => {
 
-        /*
-            INDEX keyboard handled by index rail.
-        */
-
         if (
             indexMode
         ) {
@@ -4372,11 +4491,6 @@ document.addEventListener(
 
         }
 
-
-        /*
-            VIEW ALL:
-            Escape closes contact sheet.
-        */
 
         if (
             projectAllMode
@@ -4447,7 +4561,7 @@ document.addEventListener(
 
 
 /* =====================================================
-   MOBILE SLIDESHOW TOUCH
+   TOUCH
    ===================================================== */
 
 document.addEventListener(
@@ -4494,10 +4608,8 @@ document.addEventListener(
             interfaceAnimating ||
             navigationAnimating ||
             projectViewAnimating ||
-            touchStartX ===
-            null ||
-            touchStartY ===
-            null
+            touchStartX === null ||
+            touchStartY === null
         ) {
 
             return;
@@ -4564,8 +4676,7 @@ document.addEventListener(
 
 
         if (
-            deltaX <
-            0
+            deltaX < 0
         ) {
 
             await nextFrame();
@@ -4846,30 +4957,21 @@ function setLogoState(
 
 
     logoName.textContent =
-        state ===
-        0
+        state === 0
             ? "Denizalp"
             : "denizalp";
 
 
     for (
         let i = 0;
-        i <
-        letters.length;
+        i < letters.length;
         i++
     ) {
 
-        letters[
-            i
-        ].textContent =
-            i <
-            state
-                ? uppercase[
-                    i
-                ]
-                : lowercase[
-                    i
-                ];
+        letters[i].textContent =
+            i < state
+                ? uppercase[i]
+                : lowercase[i];
 
     }
 
@@ -5367,10 +5469,6 @@ async function loadProjects() {
         buildIndex();
 
 
-        /*
-            Initial frame.
-        */
-
         const firstImage =
             await preloadImage(
                 projects[
@@ -5401,32 +5499,35 @@ async function loadProjects() {
         projectTitle.textContent =
             projects[
                 0
-            ].title;
+            ].title.toLowerCase();
 
 
         projectDate.textContent =
-            projects[
+            (
+                projects[
+                    0
+                ].date ||
+                ""
+            ).toLowerCase();
+
+
+        counterCurrent.textContent =
+            getCurrentText(
                 0
-            ].date ||
-            "";
+            );
 
 
-        projectCounter.textContent =
-            getCounterText(
-                0,
+        counterStatic.textContent =
+            ` / ${getTotalText(
                 projects[
                     0
                 ].images.length
-            );
+            )}`;
 
 
         viewAllButton.textContent =
             "view all";
 
-
-        /*
-            Preload covers.
-        */
 
         projects.forEach(
             project => {
