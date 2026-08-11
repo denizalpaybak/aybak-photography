@@ -40,25 +40,15 @@
   },
   {
     "title": "L'Officiel Türkiye",
-    "date": "January 2026",
-    "sortDate": "2026-01",
-    "cover": "lofficiel_251213_1647_retouched_3.jpg",
+    "date": "February 2025",
+    "sortDate": "2025-02",
+    "cover": "lofficiel_250130_cover.jpg",
     "images": [
-      "lofficiel_251213_1647_retouched_3.jpg",
-      "lofficiel_251213_1900_ig.jpg"
-    ]
-  },
-  {
-    "title": "ELLE Türkiye",
-    "date": "October 2025",
-    "sortDate": "2025-10",
-    "cover": "elle_250919_01.jpg",
-    "images": [
-      "elle_250919_01.jpg",
-      "elle_250919_02.jpg",
-      "elle_250919_03.jpg",
-      "elle_250919_04.jpg",
-      "elle_250919_05.jpg"
+      "lofficiel_250130_cover.jpg",
+      "lofficiel_250130_1246.jpg",
+      "lofficiel_250130_layout_1.jpg",
+      "lofficiel_250130_layout_4.jpg",
+      "lofficiel_250130_layout_5.jpg"
     ]
   },
   {
@@ -74,6 +64,26 @@
     ]
   },
   {
+    "title": "Bee Goddess",
+    "date": "F/W 2024",
+    "sortDate": "2024-09",
+    "cover": "beegoddess_full_1.jpg",
+    "images": [
+      "beegoddess_full_1.jpg",
+      "beegoddess_full_2.jpg"
+    ]
+  },
+  {
+    "title": "The Push — Personal",
+    "date": "",
+    "sortDate": "",
+    "cover": "skater_01.jpg",
+    "images": [
+      "skater_01.jpg",
+      "skater_02.jpg"
+    ]
+  },
+  {
     "title": "L'Officiel Türkiye",
     "date": "February 2026",
     "sortDate": "2026-02",
@@ -84,26 +94,32 @@
     ]
   },
   {
-    "title": "L'Officiel Türkiye",
-    "date": "February 2025",
-    "sortDate": "2025-02",
-    "cover": "lofficiel_250130_cover.jpg",
+    "title": "MANC",
+    "date": "Resort 2024",
+    "sortDate": "2024-05",
+    "cover": "manc_231124_01.jpg",
     "images": [
-      "lofficiel_250130_cover.jpg",
-      "lofficiel_250130_1246.jpg",
-      "lofficiel_250130_layout_1.jpg",
-      "lofficiel_250130_layout_4.jpg",
-      "lofficiel_250130_layout_5.jpg"
+      "manc_231124_01.jpg"
     ]
   },
   {
-    "title": "Bee Goddess",
+    "title": "Mudo Home",
     "date": "F/W 2024",
     "sortDate": "2024-09",
-    "cover": "beegoddess_full_1.jpg",
+    "cover": "mudo_home_1.jpg",
     "images": [
-      "beegoddess_full_1.jpg",
-      "beegoddess_full_2.jpg"
+      "mudo_home_1.jpg",
+      "mudo_home_5.jpg"
+    ]
+  },
+  {
+    "title": "L'Officiel Türkiye",
+    "date": "January 2026",
+    "sortDate": "2026-01",
+    "cover": "lofficiel_251213_1647_retouched_3.jpg",
+    "images": [
+      "lofficiel_251213_1647_retouched_3.jpg",
+      "lofficiel_251213_1900_ig.jpg"
     ]
   },
   {
@@ -118,12 +134,12 @@
     ]
   },
   {
-    "title": "MANC",
-    "date": "Resort 2024",
-    "sortDate": "2024-05",
-    "cover": "manc_231124_01.jpg",
+    "title": "Q-P Magazine",
+    "date": "June 2025",
+    "sortDate": "2025-06",
+    "cover": "qp_250421_01.jpg",
     "images": [
-      "manc_231124_01.jpg"
+      "qp_250421_01.jpg"
     ]
   },
   {
@@ -137,32 +153,16 @@
     ]
   },
   {
-    "title": "The Push — Personal",
-    "date": "",
-    "sortDate": "",
-    "cover": "skater_01.jpg",
+    "title": "ELLE Türkiye",
+    "date": "October 2025",
+    "sortDate": "2025-10",
+    "cover": "elle_250919_01.jpg",
     "images": [
-      "skater_01.jpg",
-      "skater_02.jpg"
-    ]
-  },
-  {
-    "title": "Mudo Home",
-    "date": "F/W 2024",
-    "sortDate": "2024-09",
-    "cover": "mudo_home_1.jpg",
-    "images": [
-      "mudo_home_1.jpg",
-      "mudo_home_5.jpg"
-    ]
-  },
-  {
-    "title": "Q-P Magazine",
-    "date": "June 2025",
-    "sortDate": "2025-06",
-    "cover": "qp_250421_01.jpg",
-    "images": [
-      "qp_250421_01.jpg"
+      "elle_250919_01.jpg",
+      "elle_250919_02.jpg",
+      "elle_250919_03.jpg",
+      "elle_250919_04.jpg",
+      "elle_250919_05.jpg"
     ]
   }
 ]
