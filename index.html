@@ -307,10 +307,6 @@ body {
 <body>
 
 
-<!-- =========================
-     LEFT INFORMATION
-     ========================= -->
-
 <div
     class="info"
     id="info"
@@ -374,10 +370,6 @@ body {
 </div>
 
 
-<!-- =========================
-     SECTION SWITCH
-     ========================= -->
-
 <a
     class="section-switch"
     id="section-switch"
@@ -386,10 +378,6 @@ body {
     <span id="section-switch-text">film</span>
 </a>
 
-
-<!-- =========================
-     SLIDESHOW
-     ========================= -->
 
 <div id="slideshow">
 
@@ -421,17 +409,6 @@ const PHOTOS_JSON =
 
 const SLIDE_DURATION =
     3000;
-
-
-/*
-    Instead of loading all 54 images:
-
-    current
-    previous 1
-    next 3
-
-    are kept ready.
-*/
 
 const PRELOAD_BEHIND =
     1;
@@ -482,11 +459,7 @@ let slideTimer =
 
 
 /*
-    Stores Image objects that are
-    currently loaded or loading.
-
-    key   = photo index
-    value = Promise
+    Stores preload promises.
 */
 
 const preloadCache =
@@ -500,11 +473,6 @@ const preloadCache =
 function getPhotoUrl(
     filename
 ) {
-
-    /*
-        encodeURIComponent is important
-        for filenames containing spaces.
-    */
 
     return (
         R2_BASE +
@@ -560,11 +528,6 @@ function preloadPhoto(
         );
 
 
-    /*
-        Already loading / loaded:
-        return existing promise.
-    */
-
     if (
         preloadCache.has(
             index
@@ -595,12 +558,6 @@ function preloadPhoto(
 
                 image.onload =
                     () => {
-
-                        /*
-                            decode() lets the browser
-                            prepare the pixels before
-                            we actually swap the src.
-                        */
 
                         if (
                             image.decode
@@ -636,11 +593,6 @@ function preloadPhoto(
 
                 image.onerror =
                     () => {
-
-                        /*
-                            Remove failed item so a
-                            later attempt can retry.
-                        */
 
                         preloadCache.delete(
                             index
@@ -684,11 +636,6 @@ function preloadAround(
     index
 ) {
 
-    /*
-        Most important:
-        NEXT photo first.
-    */
-
     for (
         let offset = 1;
         offset <= PRELOAD_AHEAD;
@@ -704,11 +651,6 @@ function preloadAround(
 
     }
 
-
-    /*
-        Keep one previous image ready
-        for left-side navigation.
-    */
 
     for (
         let offset = 1;
@@ -729,19 +671,12 @@ function preloadAround(
 
 
 /* =====================================================
-   CLEAN OLD PRELOADS
+   CLEAN PRELOAD CACHE
    ===================================================== */
 
 function trimPreloadCache(
     centerIndex
 ) {
-
-    /*
-        Avoid eventually retaining all 54
-        decoded images in memory.
-
-        Keep only a small neighborhood.
-    */
 
     const keep =
         new Set();
@@ -786,7 +721,44 @@ function trimPreloadCache(
 
 
 /* =====================================================
-   DISPLAY PHOTO
+   DISPLAY A VALID PHOTO
+   ===================================================== */
+
+async function displayPhoto(
+    targetIndex
+) {
+
+    const image =
+        await preloadPhoto(
+            targetIndex
+        );
+
+
+    current =
+        targetIndex;
+
+
+    currentPhoto.src =
+        image.src;
+
+
+    preloadAround(
+        current
+    );
+
+
+    trimPreloadCache(
+        current
+    );
+
+
+    updateMobileSlideshow();
+
+}
+
+
+/* =====================================================
+   SHOW PHOTO
    ===================================================== */
 
 async function showPhoto(
@@ -798,7 +770,7 @@ async function showPhoto(
         0
     ) {
 
-        return;
+        return false;
 
     }
 
@@ -811,60 +783,131 @@ async function showPhoto(
 
     try {
 
-        /*
-            Do not remove current photo while
-            target is downloading.
-
-            This avoids blank white frames.
-        */
-
-        const image =
-            await preloadPhoto(
-                targetIndex
-            );
-
-
-        current =
-            targetIndex;
-
-
-        currentPhoto.src =
-            image.src;
-
-
-        /*
-            Start preparing surrounding
-            images immediately.
-        */
-
-        preloadAround(
-            current
+        await displayPhoto(
+            targetIndex
         );
 
 
-        /*
-            Keep memory under control.
-        */
-
-        trimPreloadCache(
-            current
-        );
-
-
-        /*
-            Mobile / Instagram geometry can
-            change slightly with image ratio.
-        */
-
-        updateMobileSlideshow();
+        return true;
 
     }
 
     catch (error) {
 
-        console.error(
-            error
+        console.warn(
+            `Photo skipped: ${photos[targetIndex]}`
         );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =====================================================
+   NEXT
+   FAIL-SAFE
+   ===================================================== */
+
+async function nextSlide() {
+
+    if (
+        photos.length <=
+        1
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+        Try each following image until
+        one loads successfully.
+
+        One bad filename can never
+        freeze the slideshow.
+    */
+
+    for (
+        let offset = 1;
+        offset <
+        photos.length;
+        offset++
+    ) {
+
+        const targetIndex =
+            normalizeIndex(
+                current +
+                offset
+            );
+
+
+        const success =
+            await showPhoto(
+                targetIndex
+            );
+
+
+        if (
+            success
+        ) {
+
+            return;
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   PREVIOUS
+   FAIL-SAFE
+   ===================================================== */
+
+async function previousSlide() {
+
+    if (
+        photos.length <=
+        1
+    ) {
+
+        return;
+
+    }
+
+
+    for (
+        let offset = 1;
+        offset <
+        photos.length;
+        offset++
+    ) {
+
+        const targetIndex =
+            normalizeIndex(
+                current -
+                offset
+            );
+
+
+        const success =
+            await showPhoto(
+                targetIndex
+            );
+
+
+        if (
+            success
+        ) {
+
+            return;
+
+        }
 
     }
 
@@ -940,23 +983,50 @@ async function loadPhotos() {
 
 
         /*
-            Highest priority:
-            load photo 1 only.
+            Find the first valid image.
+
+            Even if the first JSON entry
+            is broken, the site still opens.
         */
 
-        current =
-            0;
+        let loaded =
+            false;
 
 
-        await showPhoto(
-            0
-        );
+        for (
+            let i = 0;
+            i <
+            photos.length;
+            i++
+        ) {
+
+            loaded =
+                await showPhoto(
+                    i
+                );
 
 
-        /*
-            Start slideshow only after
-            first image is actually visible.
-        */
+            if (
+                loaded
+            ) {
+
+                break;
+
+            }
+
+        }
+
+
+        if (
+            !loaded
+        ) {
+
+            throw new Error(
+                "No valid R2 photos could be loaded."
+            );
+
+        }
+
 
         startAutoSlideshow();
 
@@ -970,34 +1040,6 @@ async function loadPhotos() {
         );
 
     }
-
-}
-
-
-/* =====================================================
-   NEXT
-   ===================================================== */
-
-async function nextSlide() {
-
-    await showPhoto(
-        current +
-        1
-    );
-
-}
-
-
-/* =====================================================
-   PREVIOUS
-   ===================================================== */
-
-async function previousSlide() {
-
-    await showPhoto(
-        current -
-        1
-    );
 
 }
 
@@ -1026,25 +1068,8 @@ function scheduleNextSlide() {
         setTimeout(
             async () => {
 
-                /*
-                    Wait for the next photo
-                    if necessary.
-
-                    The currently visible image
-                    stays on screen while waiting.
-                */
-
                 await nextSlide();
 
-
-                /*
-                    Start a fresh 3-second dwell
-                    AFTER the new image is visible.
-
-                    This prevents slow network
-                    loading from eating into the
-                    display duration.
-                */
 
                 scheduleNextSlide();
 
@@ -1083,77 +1108,67 @@ function stopAutoSlideshow() {
    CLICK NAVIGATION
    ===================================================== */
 
-document.body
-    .addEventListener(
-        "click",
-        async event => {
+document.body.addEventListener(
+    "click",
+    async event => {
 
-            /*
-                Links behave normally.
-            */
+        if (
+            event.target.closest(
+                "a"
+            )
+        ) {
 
-            if (
-                event.target.closest(
-                    "a"
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            /*
-                FIRST CLICK
-
-                Stop autoplay only.
-                Do not change photo.
-            */
-
-            if (
-                !manualMode
-            ) {
-
-                stopAutoSlideshow();
-
-
-                return;
-
-            }
-
-
-            /*
-                AFTER FIRST CLICK
-
-                LEFT 25%:
-                previous
-
-                RIGHT 75%:
-                next
-            */
-
-            const percentage =
-                event.clientX /
-                window.innerWidth;
-
-
-            if (
-                percentage <
-                0.25
-            ) {
-
-                await previousSlide();
-
-            }
-
-            else {
-
-                await nextSlide();
-
-            }
+            return;
 
         }
-    );
+
+
+        /*
+            First click:
+            stop autoplay only.
+        */
+
+        if (
+            !manualMode
+        ) {
+
+            stopAutoSlideshow();
+
+
+            return;
+
+        }
+
+
+        /*
+            Later clicks:
+
+            LEFT 25% = previous
+            RIGHT 75% = next
+        */
+
+        const percentage =
+            event.clientX /
+            window.innerWidth;
+
+
+        if (
+            percentage <
+            0.25
+        ) {
+
+            await previousSlide();
+
+        }
+
+        else {
+
+            await nextSlide();
+
+        }
+
+    }
+);
 
 
 /* =====================================================
@@ -1167,10 +1182,6 @@ function updateMobileSlideshow() {
             "(orientation: landscape) and (max-height: 700px)"
         ).matches;
 
-
-    /*
-        Landscape uses its own CSS.
-    */
 
     if (
         shortLandscape
@@ -1191,10 +1202,6 @@ function updateMobileSlideshow() {
     }
 
 
-    /*
-        Desktop uses normal full viewport.
-    */
-
     if (
         window.innerWidth >
         600
@@ -1214,13 +1221,6 @@ function updateMobileSlideshow() {
 
     }
 
-
-    /*
-        Mobile portrait:
-        measure the actual rendered info
-        block so Instagram cannot place
-        the image underneath the text.
-    */
 
     const infoRect =
         info
@@ -1392,27 +1392,11 @@ const logoName =
 
 
 const letters = [
-
-    document.getElementById(
-        "letter-a"
-    ),
-
-    document.getElementById(
-        "letter-y"
-    ),
-
-    document.getElementById(
-        "letter-b"
-    ),
-
-    document.getElementById(
-        "letter-a2"
-    ),
-
-    document.getElementById(
-        "letter-k"
-    )
-
+    document.getElementById("letter-a"),
+    document.getElementById("letter-y"),
+    document.getElementById("letter-b"),
+    document.getElementById("letter-a2"),
+    document.getElementById("letter-k")
 ];
 
 
@@ -1467,13 +1451,15 @@ function setLogoState(
 
     for (
         let i = 0;
-        i < letters.length;
+        i <
+        letters.length;
         i++
     ) {
 
         letters[i]
             .textContent =
-            i < state
+            i <
+            state
                 ? uppercase[i]
                 : lowercase[i];
 
@@ -1645,7 +1631,7 @@ if (
 
 /* =====================================================
    SECTION SWITCH
-   FILM — exact 600ms transition
+   FILM — exact 600ms
    ===================================================== */
 
 const sectionSwitch =
@@ -1690,12 +1676,14 @@ function renderSwitch(
 
     for (
         let i = 0;
-        i < switchWord.length;
+        i <
+        switchWord.length;
         i++
     ) {
 
         result +=
-            i < upperCount
+            i <
+            upperCount
                 ? switchWord[i]
                     .toUpperCase()
                 : switchWord[i]
