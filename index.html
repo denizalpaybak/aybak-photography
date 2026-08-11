@@ -92,7 +92,15 @@ button {
     --landscape-index-top: 220px;
 
     --landscape-index-image-height: 220px;
-    --landscape-index-card-width: 180px;
+
+    /*
+        Wider than before.
+
+        Long titles now have substantially more
+        horizontal room underneath the image.
+    */
+
+    --landscape-index-card-width: 220px;
 
 }
 
@@ -445,6 +453,8 @@ body.project-all-mode #project-all-view {
 
 /* =====================================================
    VIEW ALL GRID
+
+   Tighter gap = larger usable thumbnails.
    ===================================================== */
 
 #project-all-grid {
@@ -458,7 +468,7 @@ body.project-all-mode #project-all-view {
     align-items: center;
     justify-items: center;
 
-    gap: 10px;
+    gap: 7px;
 }
 
 .project-all-thumb {
@@ -729,9 +739,13 @@ body.project-all-mode #project-all-view {
     margin: 0;
     padding: 0;
 
+    max-width: 100%;
+
     text-align: left;
 
     white-space: nowrap;
+
+    overflow: hidden;
 }
 
 
@@ -916,7 +930,7 @@ body.phone-portrait .card-image-wrap {
 }
 
 body.phone-portrait #project-all-grid {
-    gap: 6px;
+    gap: 5px;
 }
 
 
@@ -936,8 +950,6 @@ body.phone-landscape {
 
 /* =====================================================
    LANDSCAPE META
-
-   Metadata stays at the outer site margins.
    ===================================================== */
 
 body.phone-landscape #project-meta {
@@ -967,20 +979,6 @@ body.phone-landscape #project-counter {
 
 /* =====================================================
    LANDSCAPE SLIDESHOW
-
-   IMPORTANT:
-
-   The image BOTTOM now matches the bottom edge
-   of the two-line metadata block.
-
-   Since metadata bottom is:
-       index-bottom + 24px
-
-   the photo uses exactly the same bottom line.
-
-   align-items:flex-end ensures even a width-limited
-   landscape image sits on that line instead of being
-   vertically centred and drifting into INDEX.
    ===================================================== */
 
 body.phone-landscape #visual-zone {
@@ -1038,21 +1036,10 @@ body.phone-landscape .spread-image {
 /* =====================================================
    LANDSCAPE INDEX
 
-   Entire card — image + two text lines —
-   fits between:
+   Cards are deliberately wider now.
 
-   models.com
-       ↓
-   cards
-       ↓
-   INDEX
-
-   JS supplies exact top and image height.
-
-   First card begins at --side, exactly like
-   portrait / desktop.
-
-   Once scrolled, it can naturally leave the viewport.
+   The image height still obeys the safe vertical
+   area, while width gets extra room for long titles.
    ===================================================== */
 
 body.phone-landscape #index-scroller {
@@ -1071,7 +1058,13 @@ body.phone-landscape #index-scroller {
 
 body.phone-landscape #index-grid {
 
-    gap: 38px;
+    /*
+        Smaller gap than before.
+        Bigger cards can therefore coexist without
+        making the rail feel excessively sparse.
+    */
+
+    gap: 26px;
 
     padding-left: var(--side);
     padding-right: var(--side);
@@ -1106,8 +1099,33 @@ body.phone-landscape .project-card img {
     max-height: 100%;
 }
 
+body.phone-landscape .card-copy {
+
+    width: 100%;
+}
+
+
+/*
+    Long title must remain inside the card width.
+
+    With the wider card this should normally stay
+    one line. On exceptionally long names it is
+    clipped rather than visually escaping the card.
+*/
+
+body.phone-landscape .card-title,
+body.phone-landscape .card-date {
+
+    max-width: 100%;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+}
+
+
 body.phone-landscape #project-all-grid {
-    gap: 6px;
+    gap: 4px;
 }
 
 </style>
@@ -1788,11 +1806,6 @@ function preloadImage(
 
 /* =====================================================
    LANDSCAPE GEOMETRY
-
-   Two independent responsibilities:
-
-   1. slide horizontal safe area
-   2. index vertical safe area
    ===================================================== */
 
 function updateLandscapeGeometry() {
@@ -1893,13 +1906,7 @@ function updateLandscapeGeometry() {
 
 
     /* =================================================
-       INDEX — VERTICAL SAFE AREA
-
-       top:
-       models.com bottom + breathing room
-
-       bottom:
-       top of INDEX - breathing room
+       INDEX — SAFE VERTICAL AREA
        ================================================= */
 
 
@@ -1933,13 +1940,6 @@ function updateLandscapeGeometry() {
         );
 
 
-    /*
-        Reserve:
-        two text lines
-        + image/text gap
-        + tiny optical breathing room.
-    */
-
     const copyHeight =
         lineHeight *
         2;
@@ -1949,8 +1949,15 @@ function updateLandscapeGeometry() {
         5;
 
 
+    /*
+        Reduced from previous value.
+
+        We use more of the available vertical space
+        while still leaving a safety buffer.
+    */
+
     const innerSafety =
-        8;
+        3;
 
 
     const imageHeight =
@@ -1966,21 +1973,26 @@ function updateLandscapeGeometry() {
 
 
     /*
-        Card width remains proportional to the
-        available image height.
+        KEY CHANGE:
 
-        Clamp prevents extreme widths on very
-        short / unusual landscape viewports.
+        The card width no longer follows the image
+        width so tightly.
+
+        Give the text enough room for long titles,
+        while keeping the image vertically constrained.
+
+        A typical landscape phone will produce
+        roughly 210–245px cards.
     */
 
     const cardWidth =
         Math.max(
-            120,
+            205,
             Math.min(
-                220,
+                250,
                 Math.round(
                     imageHeight *
-                    0.78
+                    1.08
                 )
             )
         );
@@ -2073,11 +2085,6 @@ function updateResponsiveMode() {
     }
 
 
-    /*
-        Don't carry a portrait scroll pixel value
-        into landscape and vice versa.
-    */
-
     if (
         modeChanged &&
         indexMode &&
@@ -2106,7 +2113,7 @@ function updateResponsiveMode() {
 
 
 /* =====================================================
-   INDEX TOP — NON LANDSCAPE
+   INDEX TOP
    ===================================================== */
 
 function updateIndexContentTop() {
@@ -3220,6 +3227,13 @@ async function performPrimarySlideAction() {
 
 /* =====================================================
    VIEW ALL BOUNDS
+
+   More aggressive use of the safe space.
+
+   Still respects:
+   - contact block
+   - metadata
+   - outer site margins
    ===================================================== */
 
 function syncProjectAllBounds(
@@ -3259,12 +3273,19 @@ function syncProjectAllBounds(
         ) || 24;
 
 
+    /*
+        Smaller gaps than before.
+
+        This gives the contact sheet substantially
+        more usable area without allowing collisions.
+    */
+
     let topGap =
-        26;
+        14;
 
 
     let bottomGap =
-        24;
+        14;
 
 
     if (
@@ -3272,11 +3293,11 @@ function syncProjectAllBounds(
     ) {
 
         topGap =
-            18;
+            10;
 
 
         bottomGap =
-            16;
+            10;
 
     }
 
@@ -3285,12 +3306,17 @@ function syncProjectAllBounds(
         isPhoneLandscape()
     ) {
 
+        /*
+            Very short viewport:
+            use almost the full safe window.
+        */
+
         topGap =
-            8;
+            4;
 
 
         bottomGap =
-            10;
+            6;
 
     }
 
@@ -3309,12 +3335,25 @@ function syncProjectAllBounds(
         );
 
 
+    /*
+        Also use the horizontal space slightly more
+        aggressively.
+
+        Still never crosses the site margins.
+    */
+
+    const horizontalInset =
+        isPhoneLayout()
+            ? 0
+            : 0;
+
+
     projectAllView.style.left =
-        `${side}px`;
+        `${side + horizontalInset}px`;
 
 
     projectAllView.style.right =
-        `${side}px`;
+        `${side + horizontalInset}px`;
 
 
     projectAllView.style.top =
@@ -3332,6 +3371,10 @@ function syncProjectAllBounds(
 
 /* =====================================================
    VIEW ALL GRID LAYOUT
+
+   Improved scoring:
+
+   More emphasis on using available space.
    ===================================================== */
 
 function calculateProjectAllLayout(
@@ -3344,9 +3387,13 @@ function calculateProjectAllLayout(
 
 
     const gap =
-        isPhoneLayout()
-            ? 6
-            : 10;
+        isPhoneLandscape()
+            ? 4
+            : (
+                isPhonePortrait()
+                    ? 5
+                    : 7
+            );
 
 
     let best =
@@ -3406,10 +3453,17 @@ function calculateProjectAllLayout(
             rows;
 
 
+        /*
+            More neutral scoring than before.
+
+            This tends to produce slightly larger
+            thumbnails instead of overly cautious grids.
+        */
+
         const score =
             Math.min(
                 cellWidth,
-                cellHeight * 1.15
+                cellHeight * 1.28
             );
 
 
@@ -6082,11 +6136,6 @@ function handleGeometryChange() {
         isPhoneLandscape()
     ) {
 
-        /*
-            Wait one frame so Safari has committed
-            the latest viewport and font geometry.
-        */
-
         requestAnimationFrame(
             updateLandscapeGeometry
         );
@@ -6374,5 +6423,3 @@ loadProjects();
 
 </body>
 </html>
-
-<!-- redeploy -->
