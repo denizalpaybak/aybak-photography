@@ -63,16 +63,21 @@ body {
     --viewer-width: 70vw;
 
     /*
-        Fixed-height image zone.
+        Fixed desktop visual zone.
 
-        Image dimensions can change inside it,
-        metadata below it cannot move vertically.
+        Images can become taller / shorter inside this.
+        Metadata Y never changes.
     */
     --visual-height: 66vh;
 
     /*
-        Measured dynamically from actual
-        header/contact block.
+        Metadata sits at exactly this distance
+        below visual zone.
+    */
+    --meta-top-gap: 10px;
+
+    /*
+        Dynamically measured from info block.
     */
     --index-content-top: 130px;
 
@@ -89,7 +94,7 @@ body {
 
 
 /* =====================================================
-   INFORMATION
+   INFO
    ===================================================== */
 
 .info {
@@ -141,7 +146,7 @@ body {
 
 
 /* =====================================================
-   CONTACT
+   CONTACT / SOCIAL
    ===================================================== */
 
 .contact,
@@ -207,20 +212,19 @@ body {
 /* =====================================================
    PROJECT BLOCK
 
-   The complete block has a fixed visual zone.
-   Therefore metadata Y never changes.
+   Relative positioning is important:
+   project-meta is absolutely anchored
+   inside this block.
    ===================================================== */
 
 #project-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position: relative;
 
     width: 100%;
     height:
         calc(
             var(--visual-height) +
-            48px
+            54px
         );
 
     pointer-events: none;
@@ -228,19 +232,23 @@ body {
 
 
 /* =====================================================
-   FIXED VISUAL ZONE
+   VISUAL ZONE
+
+   Fixed Y geometry.
    ===================================================== */
 
 #visual-zone {
-    display: flex;
+    position: absolute;
 
-    align-items: center;
-    justify-content: center;
+    top: 0;
+    left: 0;
 
     width: 100%;
     height: var(--visual-height);
 
-    flex: 0 0 var(--visual-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     pointer-events: none;
 }
@@ -331,22 +339,37 @@ body {
 
 
 /* =====================================================
-   METADATA
+   META
 
-   IMPORTANT:
+   CRITICAL:
 
-   Vertical position comes entirely from
-   visual-zone height and therefore never moves.
+   top is fixed relative to visual-zone.
 
-   Width is set dynamically in JS to the
-   ACTUAL rendered spread width.
+   JS changes ONLY:
+   - left
+   - width
 
-   So:
-   - X follows the photograph/spread.
-   - Y never changes.
+   Never top.
+   Never transformY.
+
+   Therefore Y is completely fixed.
    ===================================================== */
 
 #project-meta {
+    position: absolute;
+
+    top:
+        calc(
+            var(--visual-height) +
+            var(--meta-top-gap)
+        );
+
+    left: 50%;
+
+    width: 0;
+
+    transform: translateX(-50%);
+
     display: grid;
 
     grid-template-columns:
@@ -356,12 +379,6 @@ body {
     grid-template-rows:
         auto
         auto;
-
-    align-self: center;
-
-    width: 0;
-
-    margin-top: 9px;
 
     font-size: var(--font-size);
     line-height: var(--line-height);
@@ -543,7 +560,7 @@ body {
 
 
 /* =====================================================
-   CARD
+   PROJECT CARD
    ===================================================== */
 
 .project-card {
@@ -605,7 +622,7 @@ body {
 
 
 /* =====================================================
-   CARD INFO
+   CARD META
    ===================================================== */
 
 .card-copy {
@@ -719,10 +736,12 @@ body.index-mode #project-stage {
         --viewer-width: 76vw;
 
         /*
-            JS stage height contains this block,
-            but Y remains constant inside that stage.
+            Stage height is calculated by JS.
+            Visual zone is stage minus metadata area.
         */
-        --visual-height: calc(100% - 45px);
+        --visual-height: calc(100% - 48px);
+
+        --meta-top-gap: 7px;
 
     }
 
@@ -752,6 +771,7 @@ body.index-mode #project-stage {
 
 
     #project-block {
+        width: 100%;
         height: 100%;
     }
 
@@ -760,22 +780,28 @@ body.index-mode #project-stage {
         height:
             calc(
                 100% -
-                45px
-            );
-
-        flex:
-            0
-            0
-            calc(
-                100% -
-                45px
+                48px
             );
     }
 
 
     /*
-        Mobile portrait:
-        one frame only.
+        Metadata Y fixed in the mobile stage too.
+    */
+
+    #project-meta {
+        top:
+            calc(
+                100% -
+                48px +
+                var(--meta-top-gap)
+            );
+    }
+
+
+    /*
+        Portrait mobile:
+        one image.
     */
 
     #spread {
@@ -834,13 +860,6 @@ body.index-mode #project-stage {
                 env(safe-area-inset-bottom)
             );
 
-        /*
-            NO padding-left here.
-
-            The initial alignment is handled by
-            actual content margin below, so scroll
-            behaviour is completely predictable.
-        */
         padding: 0;
 
         overflow-x: auto;
@@ -849,6 +868,9 @@ body.index-mode #project-stage {
         display: flex;
         align-items: center;
 
+        /*
+            Disabled while automatic drift is active.
+        */
         scroll-snap-type: none;
 
         -webkit-overflow-scrolling: touch;
@@ -876,19 +898,19 @@ body.index-mode #project-stage {
         height: auto;
 
         /*
-            REAL first-item offset.
+            This is a REAL content margin.
 
-            Therefore first thumbnail begins
-            exactly at same x as Denizalp Aybak.
+            With scrollLeft = 0, first thumbnail
+            begins exactly at --side.
         */
-        margin-left: var(--side);
-        margin-right: var(--side);
+        padding-left: var(--side);
+        padding-right: var(--side);
     }
 
 
     /*
-        Once user takes over,
-        snap can be re-enabled.
+        Manual mode:
+        user controls snapping.
     */
 
     #index-scroller.manual {
@@ -932,6 +954,8 @@ body.index-mode #project-stage {
         --viewer-width: 64vw;
 
         --visual-height: 54vh;
+
+        --meta-top-gap: 7px;
 
     }
 
@@ -1000,7 +1024,7 @@ body.index-mode #project-stage {
 
 
 /* =====================================================
-   MOBILE LANDSCAPE INDEX
+   PHONE LANDSCAPE INDEX
    ===================================================== */
 
 @media
@@ -1054,8 +1078,8 @@ body.index-mode #project-stage {
 
         width: max-content;
 
-        margin-left: var(--side);
-        margin-right: var(--side);
+        padding-left: var(--side);
+        padding-right: var(--side);
     }
 
 
@@ -1199,7 +1223,7 @@ body.index-mode #project-stage {
 
 
 <!-- ===================================================
-     INDEX BUTTON
+     INDEX
      =================================================== -->
 
 <button
@@ -1209,10 +1233,6 @@ body.index-mode #project-stage {
     index
 </button>
 
-
-<!-- ===================================================
-     INDEX VIEW
-     =================================================== -->
 
 <div id="index-view">
 
@@ -1261,7 +1281,7 @@ const PROJECT_TRANSITION_IN_DURATION =
 
 
 /*
-    Faster than previous 600ms INDEX.
+    Faster INDEX.
 */
 
 const INDEX_TRANSITION_DURATION =
@@ -1272,22 +1292,22 @@ const WORD_TRANSITION_DURATION =
     600;
 
 
-/*
-    Mobile index:
-    deliberately very slow.
-*/
+/* =====================================================
+   MOBILE INDEX DRIFT
+
+   32px/sec is still calm but clearly visible.
+   ===================================================== */
 
 const INDEX_DRIFT_SPEED =
-    14;
+    32;
 
 
 /*
-    Initial thumbnail stays visibly aligned
-    with Denizalp for a moment before moving.
+    Wait briefly so user sees correct initial alignment.
 */
 
 const INDEX_DRIFT_DELAY =
-    700;
+    350;
 
 
 /* =====================================================
@@ -1307,6 +1327,18 @@ const info =
 const projectStage =
     document.getElementById(
         "project-stage"
+    );
+
+
+const projectBlock =
+    document.getElementById(
+        "project-block"
+    );
+
+
+const visualZone =
+    document.getElementById(
+        "visual-zone"
     );
 
 
@@ -1419,7 +1451,7 @@ let autoplayBeforeIndex =
 
 
 /* =====================================================
-   INDEX DRIFT
+   INDEX DRIFT STATE
    ===================================================== */
 
 let indexDriftFrame =
@@ -1436,6 +1468,18 @@ let indexDriftLastTime =
 
 let indexDriftManual =
     false;
+
+
+/*
+    IMPORTANT:
+    keep our own floating-point scroll position.
+
+    This avoids mobile browsers rounding away
+    tiny sub-pixel scrollLeft changes.
+*/
+
+let indexDriftPosition =
+    0;
 
 
 /* =====================================================
@@ -1467,7 +1511,7 @@ const spreadCache =
 
 
 /* =====================================================
-   URL
+   PHOTO URL
    ===================================================== */
 
 function getPhotoUrl(
@@ -1485,7 +1529,7 @@ function getPhotoUrl(
 
 
 /* =====================================================
-   IMAGE PRELOAD
+   PRELOAD IMAGE
    ===================================================== */
 
 function preloadImage(
@@ -1635,7 +1679,7 @@ function updateIndexContentTop() {
             : 34;
 
 
-    const value =
+    const top =
         Math.ceil(
             rect.bottom +
             gap
@@ -1647,7 +1691,7 @@ function updateIndexContentTop() {
         .style
         .setProperty(
             "--index-content-top",
-            `${value}px`
+            `${top}px`
         );
 
 }
@@ -1676,7 +1720,7 @@ function shouldUsePairLayout() {
 
 
 /* =====================================================
-   GET FORWARD SPREAD
+   GET SPREAD
    ===================================================== */
 
 async function getForwardSpread(
@@ -1719,7 +1763,8 @@ async function getForwardSpread(
 
 
     /*
-        Landscape is single.
+        Landscape:
+        single.
     */
 
     if (
@@ -1771,10 +1816,6 @@ async function getForwardSpread(
         );
 
 
-    /*
-        Portrait + portrait.
-    */
-
     if (
         second.portrait
     ) {
@@ -1815,7 +1856,7 @@ async function getForwardSpread(
 
 
 /* =====================================================
-   BUILD SPREAD MAP
+   BUILD SPREADS
    ===================================================== */
 
 async function buildProjectSpreads(
@@ -1894,7 +1935,7 @@ async function buildProjectSpreads(
 
 
 /* =====================================================
-   COUNTER LABEL
+   COUNTER TEXT
    ===================================================== */
 
 function getCurrentFrameText(
@@ -2019,7 +2060,8 @@ function animateTextOut(
 
 
                 if (
-                    progress < 1
+                    progress <
+                    1
                 ) {
 
                     requestAnimationFrame(
@@ -2118,7 +2160,8 @@ function animateTextIn(
 
 
                 if (
-                    progress < 1
+                    progress <
+                    1
                 ) {
 
                     requestAnimationFrame(
@@ -2151,7 +2194,7 @@ function animateTextIn(
 
 
 /* =====================================================
-   TEXT MORPH
+   MORPH TEXT
    ===================================================== */
 
 async function morphText(
@@ -2258,14 +2301,16 @@ function renderImages(
 
 
 /* =====================================================
-   SYNC META X ONLY
+   META X SYNC
 
-   This is the key change.
+   Metadata Y is fixed in CSS.
 
-   We measure the true spread width and copy ONLY
-   that width to the metadata.
+   We measure:
+   spread left/right inside project block.
 
-   Vertical flow / position is untouched.
+   Then only update:
+   left
+   width
    ===================================================== */
 
 function syncMetadataHorizontal() {
@@ -2279,24 +2324,45 @@ function syncMetadataHorizontal() {
     }
 
 
-    const rect =
+    const spreadRect =
         spread.getBoundingClientRect();
 
 
+    const blockRect =
+        projectBlock.getBoundingClientRect();
+
+
     if (
-        rect.width > 0
+        spreadRect.width <=
+        0
     ) {
 
-        projectMeta.style.width =
-            `${rect.width}px`;
+        return;
 
     }
+
+
+    const relativeLeft =
+        spreadRect.left -
+        blockRect.left;
+
+
+    projectMeta.style.transform =
+        "none";
+
+
+    projectMeta.style.left =
+        `${relativeLeft}px`;
+
+
+    projectMeta.style.width =
+        `${spreadRect.width}px`;
 
 }
 
 
 /* =====================================================
-   WAIT ONE PAINT THEN MEASURE
+   WAIT FOR RENDER
    ===================================================== */
 
 function syncMetadataAfterRender() {
@@ -2402,7 +2468,7 @@ async function updateProjectMetadata(
 
 
 /* =====================================================
-   PRELOAD
+   PRELOAD AHEAD
    ===================================================== */
 
 function preloadAhead() {
@@ -2516,10 +2582,6 @@ async function showSpread(
             );
 
 
-        /*
-            Update navigation state first.
-        */
-
         projectIndex =
             normalized;
 
@@ -2532,19 +2594,14 @@ async function showSpread(
             data.end;
 
 
-        /*
-            Image dimensions can change,
-            but visual-zone remains fixed.
-        */
-
         renderImages(
             data
         );
 
 
         /*
-            X follows new rendered spread.
-            Y remains untouched.
+            New spread may have different width.
+            Update X only.
         */
 
         syncMetadataAfterRender();
@@ -2649,7 +2706,8 @@ async function previousSpread() {
 
 
     if (
-        spreadStart <= 0
+        spreadStart <=
+        0
     ) {
 
         const previousProjectIndex =
@@ -2665,7 +2723,8 @@ async function previousSpread() {
 
 
         if (
-            previousSpreads.length === 0
+            previousSpreads.length ===
+            0
         ) {
 
             return false;
@@ -2699,7 +2758,8 @@ async function previousSpread() {
 
     for (
         let i = 0;
-        i < spreads.length;
+        i <
+        spreads.length;
         i++
     ) {
 
@@ -2720,7 +2780,8 @@ async function previousSpread() {
 
 
     if (
-        position > 0
+        position >
+        0
     ) {
 
         return showSpread(
@@ -2736,7 +2797,7 @@ async function previousSpread() {
 
 
 /* =====================================================
-   AUTOPLAY
+   SLIDESHOW AUTOPLAY
    ===================================================== */
 
 function scheduleNextSlide() {
@@ -2797,7 +2858,7 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
-   CHRONOLOGICAL INDEX
+   INDEX SORT
    ===================================================== */
 
 function getChronologicalProjects() {
@@ -2860,7 +2921,8 @@ function getChronologicalProjects() {
 
 
                 if (
-                    dateA > dateB
+                    dateA >
+                    dateB
                 ) {
 
                     return -1;
@@ -2869,7 +2931,8 @@ function getChronologicalProjects() {
 
 
                 if (
-                    dateA < dateB
+                    dateA <
+                    dateB
                 ) {
 
                     return 1;
@@ -3052,12 +3115,14 @@ function renderWordCase(
 
     for (
         let i = 0;
-        i < word.length;
+        i <
+        word.length;
         i++
     ) {
 
         result +=
-            i < upperCount
+            i <
+            upperCount
                 ? word[i].toUpperCase()
                 : word[i];
 
@@ -3111,7 +3176,8 @@ function morphIndexTo(
 ) {
 
     if (
-        indexWordFrame !== null
+        indexWordFrame !==
+        null
     ) {
 
         cancelAnimationFrame(
@@ -3133,7 +3199,8 @@ function morphIndexTo(
 
 
     if (
-        distance === 0
+        distance ===
+        0
     ) {
 
         return Promise.resolve();
@@ -3188,7 +3255,8 @@ function morphIndexTo(
 
 
                 if (
-                    progress < 1
+                    progress <
+                    1
                 ) {
 
                     indexWordFrame =
@@ -3236,21 +3304,14 @@ indexButton.addEventListener(
     () => {
 
         if (
-            window.innerWidth <= 600
+            window.innerWidth <=
+            600
         ) {
 
             return;
 
         }
 
-
-        /*
-            Slideshow:
-            index -> INDEX
-
-            Index view:
-            INDEX -> index
-        */
 
         if (
             indexMode
@@ -3279,17 +3340,14 @@ indexButton.addEventListener(
     () => {
 
         if (
-            window.innerWidth <= 600
+            window.innerWidth <=
+            600
         ) {
 
             return;
 
         }
 
-
-        /*
-            State locks after mouse leaves.
-        */
 
         if (
             indexMode
@@ -3324,7 +3382,8 @@ function stopIndexDrift() {
 
 
     if (
-        indexDriftTimer !== null
+        indexDriftTimer !==
+        null
     ) {
 
         clearTimeout(
@@ -3339,7 +3398,8 @@ function stopIndexDrift() {
 
 
     if (
-        indexDriftFrame !== null
+        indexDriftFrame !==
+        null
     ) {
 
         cancelAnimationFrame(
@@ -3357,6 +3417,15 @@ function stopIndexDrift() {
         null;
 
 
+    /*
+        Synchronise float position to
+        browser's actual manual position.
+    */
+
+    indexDriftPosition =
+        indexScroller.scrollLeft;
+
+
     indexScroller
         .classList
         .add(
@@ -3367,7 +3436,7 @@ function stopIndexDrift() {
 
 
 /* =====================================================
-   INDEX DRIFT LOOP
+   DRIFT LOOP
    ===================================================== */
 
 function runIndexDrift(
@@ -3377,7 +3446,8 @@ function runIndexDrift(
     if (
         !indexMode ||
         indexDriftManual ||
-        window.innerWidth > 600
+        window.innerWidth >
+        600
     ) {
 
         indexDriftFrame =
@@ -3390,16 +3460,26 @@ function runIndexDrift(
 
 
     if (
-        indexDriftLastTime === null
+        indexDriftLastTime ===
+        null
     ) {
 
         indexDriftLastTime =
             now;
 
+
+        indexDriftFrame =
+            requestAnimationFrame(
+                runIndexDrift
+            );
+
+
+        return;
+
     }
 
 
-    const deltaSeconds =
+    const dt =
         (
             now -
             indexDriftLastTime
@@ -3412,12 +3492,16 @@ function runIndexDrift(
 
 
     const maxScroll =
-        indexScroller.scrollWidth -
-        indexScroller.clientWidth;
+        Math.max(
+            0,
+            indexScroller.scrollWidth -
+            indexScroller.clientWidth
+        );
 
 
     if (
-        maxScroll <= 0
+        maxScroll <=
+        0
     ) {
 
         indexDriftFrame =
@@ -3431,23 +3515,28 @@ function runIndexDrift(
     }
 
 
-    indexScroller.scrollLeft +=
-        INDEX_DRIFT_SPEED *
-        deltaSeconds;
-
-
     /*
-        At the end we simply stop.
-        No ugly jump back to beginning.
+        Floating-point accumulation.
     */
 
+    indexDriftPosition +=
+        INDEX_DRIFT_SPEED *
+        dt;
+
+
     if (
-        indexScroller.scrollLeft >=
-        maxScroll - 1
+        indexDriftPosition >=
+        maxScroll
     ) {
 
-        indexScroller.scrollLeft =
+        indexDriftPosition =
             maxScroll;
+
+
+        indexScroller.scrollLeft =
+            Math.round(
+                indexDriftPosition
+            );
 
 
         indexDriftFrame =
@@ -3457,6 +3546,17 @@ function runIndexDrift(
         return;
 
     }
+
+
+    /*
+        Browser receives integer position,
+        but our accumulated position remains float.
+    */
+
+    indexScroller.scrollLeft =
+        Math.round(
+            indexDriftPosition
+        );
 
 
     indexDriftFrame =
@@ -3474,7 +3574,8 @@ function runIndexDrift(
 function startIndexDrift() {
 
     if (
-        window.innerWidth > 600
+        window.innerWidth >
+        600
     ) {
 
         return;
@@ -3483,7 +3584,8 @@ function startIndexDrift() {
 
 
     if (
-        indexDriftTimer !== null
+        indexDriftTimer !==
+        null
     ) {
 
         clearTimeout(
@@ -3494,7 +3596,8 @@ function startIndexDrift() {
 
 
     if (
-        indexDriftFrame !== null
+        indexDriftFrame !==
+        null
     ) {
 
         cancelAnimationFrame(
@@ -3510,6 +3613,10 @@ function startIndexDrift() {
 
     indexDriftLastTime =
         null;
+
+
+    indexDriftPosition =
+        indexScroller.scrollLeft;
 
 
     indexScroller
@@ -3532,6 +3639,10 @@ function startIndexDrift() {
                     !indexDriftManual
                 ) {
 
+                    indexDriftPosition =
+                        indexScroller.scrollLeft;
+
+
                     indexDriftFrame =
                         requestAnimationFrame(
                             runIndexDrift
@@ -3547,23 +3658,45 @@ function startIndexDrift() {
 
 
 /* =====================================================
-   USER TAKES CONTROL OF INDEX
+   USER TAKES OVER INDEX
    ===================================================== */
+
+function userTakesIndexControl() {
+
+    if (
+        indexMode &&
+        window.innerWidth <=
+        600
+    ) {
+
+        stopIndexDrift();
+
+    }
+
+}
+
+
+/*
+    pointerdown works on most modern mobile browsers.
+*/
 
 indexScroller.addEventListener(
     "pointerdown",
-    () => {
+    userTakesIndexControl,
+    {
+        passive: true
+    }
+);
 
-        if (
-            indexMode &&
-            window.innerWidth <= 600
-        ) {
 
-            stopIndexDrift();
+/*
+    Explicit touchstart fallback for
+    iOS / Instagram in-app browsers.
+*/
 
-        }
-
-    },
+indexScroller.addEventListener(
+    "touchstart",
+    userTakesIndexControl,
     {
         passive: true
     }
@@ -3616,25 +3749,25 @@ async function enterIndex() {
     );
 
 
-    /*
-        Locked uppercase state.
-    */
-
     await morphIndexTo(
         indexWord.length
     );
 
 
     if (
-        window.innerWidth <= 600
+        window.innerWidth <=
+        600
     ) {
 
         /*
-            0 means the REAL left margin
-            on #index-grid is visible.
+            Exact first-card alignment.
         */
 
         indexScroller.scrollLeft =
+            0;
+
+
+        indexDriftPosition =
             0;
 
 
@@ -3729,7 +3862,7 @@ async function returnFromIndex() {
 
 
 /* =====================================================
-   EXIT INDEX TO PROJECT
+   INDEX -> PROJECT
    ===================================================== */
 
 async function exitIndexToProject(
@@ -3818,17 +3951,17 @@ indexButton.addEventListener(
 
 
         /*
-            Desktop in INDEX view:
-            user first hovers it into lowercase
-            and then clicks.
-
-            Clicking locked uppercase does nothing.
+            Desktop:
+            INDEX state itself does not close.
+            Hover first makes it lowercase.
         */
 
         if (
-            window.innerWidth > 600 &&
+            window.innerWidth >
+            600 &&
             indexMode &&
-            indexWordState !== 0
+            indexWordState !==
+            0
         ) {
 
             return;
@@ -3895,7 +4028,8 @@ body.addEventListener(
 
 
         /*
-            First click only stops.
+            First click:
+            stop autoplay only.
         */
 
         if (
@@ -3915,13 +4049,22 @@ body.addEventListener(
             window.innerWidth;
 
 
+        /*
+            Left 25%.
+        */
+
         if (
-            position < 0.25
+            position <
+            0.25
         ) {
 
             await previousSpread();
 
         }
+
+        /*
+            Right 75%.
+        */
 
         else {
 
@@ -3946,7 +4089,8 @@ document.addEventListener(
         ) {
 
             if (
-                event.key === "Escape"
+                event.key ===
+                "Escape"
             ) {
 
                 event.preventDefault();
@@ -4054,8 +4198,10 @@ document.addEventListener(
             indexMode ||
             interfaceAnimating ||
             navigationAnimating ||
-            touchStartX === null ||
-            touchStartY === null
+            touchStartX ===
+            null ||
+            touchStartY ===
+            null
         ) {
 
             return;
@@ -4120,7 +4266,8 @@ document.addEventListener(
 
 
         if (
-            deltaX < 0
+            deltaX <
+            0
         ) {
 
             await nextSpread();
@@ -4181,7 +4328,8 @@ function updateMobileStage() {
 
 
     if (
-        window.innerWidth > 600
+        window.innerWidth >
+        600
     ) {
 
         projectStage.style.top =
@@ -4200,7 +4348,8 @@ function updateMobileStage() {
 
 
     const infoRect =
-        info.getBoundingClientRect();
+        info
+            .getBoundingClientRect();
 
 
     const gapAfterInfo =
@@ -4224,11 +4373,15 @@ function updateMobileStage() {
     ) {
 
         viewportTop =
-            window.visualViewport.offsetTop;
+            window
+                .visualViewport
+                .offsetTop;
 
 
         viewportHeight =
-            window.visualViewport.height;
+            window
+                .visualViewport
+                .height;
 
     }
 
@@ -4267,11 +4420,6 @@ function updateMobileStage() {
     projectStage.style.bottom =
         "auto";
 
-
-    /*
-        Metadata horizontal measurement
-        may change after viewport resize.
-    */
 
     syncMetadataAfterRender();
 
@@ -4361,19 +4509,22 @@ function setLogoState(
 
 
     logoName.textContent =
-        state === 0
+        state ===
+        0
             ? "Denizalp"
             : "denizalp";
 
 
     for (
         let i = 0;
-        i < letters.length;
+        i <
+        letters.length;
         i++
     ) {
 
         letters[i].textContent =
-            i < state
+            i <
+            state
                 ? uppercase[i]
                 : lowercase[i];
 
@@ -4424,7 +4575,8 @@ function animateLogoTo(
 
 
     if (
-        logoTimer !== null
+        logoTimer !==
+        null
     ) {
 
         clearTimeout(
@@ -4444,7 +4596,8 @@ logo.addEventListener(
     () => {
 
         if (
-            window.innerWidth > 600
+            window.innerWidth >
+            600
         ) {
 
             animateLogoTo(
@@ -4462,7 +4615,8 @@ logo.addEventListener(
     () => {
 
         if (
-            window.innerWidth > 600
+            window.innerWidth >
+            600
         ) {
 
             animateLogoTo(
@@ -4510,7 +4664,8 @@ function mobileLogoCycle() {
 
 
 if (
-    window.innerWidth <= 600
+    window.innerWidth <=
+    600
 ) {
 
     setLogoState(
@@ -4577,7 +4732,8 @@ function morphSwitchTo(
 ) {
 
     if (
-        switchFrame !== null
+        switchFrame !==
+        null
     ) {
 
         cancelAnimationFrame(
@@ -4599,7 +4755,8 @@ function morphSwitchTo(
 
 
     if (
-        distance === 0
+        distance ===
+        0
     ) {
 
         return;
@@ -4651,7 +4808,8 @@ function morphSwitchTo(
 
 
         if (
-            progress < 1
+            progress <
+            1
         ) {
 
             switchFrame =
@@ -4693,7 +4851,8 @@ sectionSwitch.addEventListener(
     () => {
 
         if (
-            window.innerWidth > 600
+            window.innerWidth >
+            600
         ) {
 
             morphSwitchTo(
@@ -4711,7 +4870,8 @@ sectionSwitch.addEventListener(
     () => {
 
         if (
-            window.innerWidth > 600
+            window.innerWidth >
+            600
         ) {
 
             morphSwitchTo(
@@ -4731,7 +4891,8 @@ sectionSwitch.addEventListener(
 async function refreshResponsiveSpread() {
 
     if (
-        projects.length === 0 ||
+        projects.length ===
+        0 ||
         indexMode ||
         navigationAnimating
     ) {
@@ -4743,10 +4904,6 @@ async function refreshResponsiveSpread() {
 
     spreadCache.clear();
 
-
-    /*
-        Preserve same first visible frame.
-    */
 
     await showSpread(
         projectIndex,
@@ -4905,12 +5062,14 @@ async function loadProjects() {
                     Array.isArray(
                         project.images
                     ) &&
-                    project.images.length > 0
+                    project.images.length >
+                    0
             );
 
 
         if (
-            projects.length === 0
+            projects.length ===
+            0
         ) {
 
             return;
@@ -4922,7 +5081,8 @@ async function loadProjects() {
 
 
         /*
-            Initial spread without morphing from blank.
+            Initial spread without
+            blank -> text morph.
         */
 
         const firstData =
@@ -4975,11 +5135,8 @@ async function loadProjects() {
 
 
         /*
-            Measure the actual spread after render.
+            Preload index covers.
         */
-
-        syncMetadataAfterRender();
-
 
         projects.forEach(
             project => {
@@ -5001,6 +5158,9 @@ async function loadProjects() {
 
 
         updateMobileStage();
+
+
+        syncMetadataAfterRender();
 
 
         startAutoSlideshow();
