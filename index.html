@@ -3,7 +3,10 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
 
 <title>Denizalp Aybak — Photography</title>
 
@@ -38,20 +41,34 @@ body {
 
 
 /* =====================================================
+   GLOBAL TYPE
+   ===================================================== */
+
+:root {
+    --font-size: 15px;
+    --line-height: 1.15;
+
+    --side: 48px;
+    --top: 32px;
+
+    --index-bottom: 24px;
+}
+
+
+/* =====================================================
    INFORMATION
    ===================================================== */
 
 .info {
     position: fixed;
 
-    top: 32px;
-    left: 48px;
+    top: var(--top);
+    left: var(--side);
 
     z-index: 100;
 
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1.15;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
 }
 
 .logo {
@@ -60,9 +77,6 @@ body {
 
     width: 190px;
     height: 52px;
-
-    margin: 0;
-    padding: 0;
 
     color: inherit;
     text-decoration: none;
@@ -88,7 +102,8 @@ body {
     white-space: nowrap;
 }
 
-.contact {
+.contact,
+.social {
     margin: 0;
     padding: 0;
 }
@@ -96,9 +111,6 @@ body {
 .social {
     display: flex;
     flex-direction: column;
-
-    margin: 0;
-    padding: 0;
 }
 
 .info a {
@@ -118,17 +130,16 @@ body {
 .section-switch {
     position: fixed;
 
-    top: 32px;
-    right: 48px;
+    top: var(--top);
+    right: var(--side);
 
     z-index: 100;
 
     color: #000;
     text-decoration: none;
 
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1.15;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
 
     white-space: nowrap;
 }
@@ -188,11 +199,10 @@ body {
 
     margin-top: 9px;
 
-    font-size: 15px;
-    line-height: 1.15;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
 
     white-space: nowrap;
-
     text-transform: lowercase;
 
     pointer-events: none;
@@ -204,18 +214,19 @@ body {
 
 
 /* =====================================================
-   TOOLBAR
+   PROJECT TOOLBAR
+
+   index is NOT inside this toolbar anymore.
    ===================================================== */
 
 #controls {
     display: grid;
 
     grid-template-columns:
-        1.45fr
-        0.75fr
-        auto
-        0.75fr
-        1.45fr;
+        1fr
+        1fr
+        1fr
+        1fr;
 
     align-items: center;
 
@@ -223,8 +234,8 @@ body {
 
     margin-top: 4px;
 
-    font-size: 15px;
-    line-height: 1.15;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
 
     white-space: nowrap;
 
@@ -243,13 +254,6 @@ body {
     text-align: center;
 }
 
-.slot-index {
-    text-align: center;
-
-    padding-left: 28px;
-    padding-right: 28px;
-}
-
 .slot-next {
     text-align: center;
 }
@@ -266,10 +270,9 @@ body {
     padding: 0;
 
     border: 0;
-    outline: none;
+    outline: 0;
 
     background: transparent;
-
     color: #000;
 
     font: inherit;
@@ -283,10 +286,60 @@ body {
 
 .control-button:hover,
 .control-button:focus,
-.control-button:focus-visible,
 .control-button:active {
+    outline: 0;
     text-decoration: none;
-    outline: none;
+}
+
+
+/* =====================================================
+   GLOBAL INDEX CONTROL
+
+   Same physical position in BOTH views.
+   ===================================================== */
+
+#index-button {
+    position: fixed;
+
+    left: 50%;
+    bottom:
+        calc(
+            var(--index-bottom) +
+            env(safe-area-inset-bottom)
+        );
+
+    z-index: 150;
+
+    transform: translateX(-50%);
+
+    appearance: none;
+    -webkit-appearance: none;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+    color: #000;
+
+    font-family: inherit;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+#index-button:hover,
+#index-button:focus,
+#index-button:active {
+    outline: 0;
+    text-decoration: none;
 }
 
 #index-button.index-active {
@@ -308,8 +361,14 @@ body {
 
     display: none;
 
+    /*
+        Space is reserved for:
+        header above
+        INDEX below
+    */
+
     padding:
-        118px
+        108px
         48px
         58px;
 
@@ -326,8 +385,10 @@ body {
 
 
 /*
-    Default desktop / large landscape:
-    14 works = 7 columns x 2 rows.
+    14 works:
+    7 columns x 2 rows on normal desktop.
+
+    Every thumbnail has EXACTLY 3:4 ratio.
 */
 
 #index-grid {
@@ -340,13 +401,14 @@ body {
         repeat(2, minmax(0, 1fr));
 
     gap:
-        18px
-        22px;
+        20px
+        24px;
 
     width: 100%;
     height: 100%;
 
-    align-items: stretch;
+    align-items: center;
+    justify-items: center;
 }
 
 .project-card {
@@ -356,11 +418,9 @@ body {
     display: flex;
     flex-direction: column;
 
+    width: min(100%, 150px);
     min-width: 0;
     min-height: 0;
-
-    width: 100%;
-    height: 100%;
 
     margin: 0;
     padding: 0;
@@ -379,17 +439,21 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-.card-image-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
-    flex: 1 1 auto;
+/* =====================================================
+   INDEX THUMBNAILS
+   ===================================================== */
+
+.card-image-wrap {
+    display: block;
 
     width: 100%;
-    min-height: 0;
+
+    aspect-ratio: 3 / 4;
 
     overflow: hidden;
+
+    background: #fff;
 }
 
 .project-card img {
@@ -398,61 +462,57 @@ body {
     width: 100%;
     height: 100%;
 
-    max-width: 100%;
-    max-height: 100%;
-
-    object-fit: contain;
-}
-
-.card-copy {
-    flex: 0 0 auto;
-
-    margin-top: 5px;
-
-    text-transform: lowercase;
-}
-
-.card-title,
-.card-date {
-    display: block;
-
-    font-size: 12px;
-    line-height: 1.15;
-}
-
-.card-date:empty {
-    display: none;
+    object-fit: cover;
+    object-position: center;
 }
 
 
 /* =====================================================
-   INDEX STATE LABEL
+   INDEX METADATA
+
+   title left / date right
    ===================================================== */
 
-#index-mode-label {
-    position: fixed;
+.card-copy {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
 
-    left: 50%;
-    bottom: 24px;
+    width: 100%;
 
-    z-index: 110;
+    margin-top: 5px;
 
-    display: none;
+    gap: 8px;
 
-    transform: translateX(-50%);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
 
-    font-size: 15px;
-    line-height: 1.15;
+    text-transform: lowercase;
 
     white-space: nowrap;
-
-    cursor: default;
-
-    pointer-events: none;
 }
 
-#index-mode-label.visible {
+.card-title {
     display: block;
+
+    min-width: 0;
+
+    text-align: left;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-date {
+    display: block;
+
+    flex: 0 0 auto;
+
+    text-align: right;
+}
+
+.card-date:empty {
+    display: none;
 }
 
 
@@ -470,18 +530,18 @@ body.index-mode #project-stage {
 
 
 /* =====================================================
-   TABLET / MEDIUM PORTRAIT
+   TABLET PORTRAIT
    ===================================================== */
 
 @media
-    (max-width: 1000px)
+    (max-width: 1100px)
     and (orientation: portrait) {
 
     #index-view {
         padding:
-            110px
+            105px
             32px
-            54px;
+            58px;
     }
 
     #index-grid {
@@ -496,26 +556,46 @@ body.index-mode #project-stage {
             18px;
     }
 
-    .card-title,
-    .card-date {
-        font-size: 11px;
+    .project-card {
+        /*
+            Height is the limiting factor here.
+        */
+        width:
+            min(
+                100%,
+                calc(
+                    (
+                        100vh -
+                        105px -
+                        58px -
+                        42px
+                    )
+                    /
+                    4
+                    *
+                    0.75
+                )
+            );
     }
 
 }
 
 
 /* =====================================================
-   MOBILE
+   MOBILE PORTRAIT
    ===================================================== */
 
 @media (max-width: 600px) {
 
-    .info {
-        top: 20px;
-        left: 24px;
+    :root {
+        --font-size: 13px;
 
-        font-size: 13px;
+        --side: 24px;
+        --top: 20px;
+
+        --index-bottom: 18px;
     }
+
 
     .logo {
         width: 160px;
@@ -524,13 +604,6 @@ body.index-mode #project-stage {
 
     .logo-aybak {
         top: 15px;
-    }
-
-    .section-switch {
-        top: 20px;
-        right: 24px;
-
-        font-size: 13px;
     }
 
 
@@ -545,12 +618,12 @@ body.index-mode #project-stage {
 
     #current-photo {
         max-width: 84vw;
-        max-height: calc(100% - 68px);
-    }
 
-    #project-meta,
-    #controls {
-        font-size: 13px;
+        max-height:
+            calc(
+                100% -
+                68px
+            );
     }
 
     #project-meta {
@@ -559,26 +632,19 @@ body.index-mode #project-stage {
 
     #controls {
         margin-top: 4px;
-
-        grid-template-columns:
-            1.4fr
-            0.7fr
-            auto
-            0.7fr
-            1.4fr;
     }
 
-    .slot-index {
-        padding-left: 18px;
-        padding-right: 18px;
-    }
 
+    /*
+        3 columns x 5 rows.
+        Still no scrolling.
+    */
 
     #index-view {
         padding:
-            100px
-            14px
-            46px;
+            96px
+            12px
+            50px;
     }
 
     #index-grid {
@@ -589,24 +655,39 @@ body.index-mode #project-stage {
             repeat(5, minmax(0, 1fr));
 
         gap:
-            8px
+            7px
             10px;
+    }
+
+    .project-card {
+        width:
+            min(
+                100%,
+                calc(
+                    (
+                        100vh -
+                        96px -
+                        50px -
+                        28px
+                    )
+                    /
+                    5
+                    *
+                    0.75
+                )
+            );
     }
 
     .card-copy {
         margin-top: 3px;
-    }
 
-    .card-title,
-    .card-date {
-        font-size: 9px;
-        line-height: 1.08;
-    }
+        /*
+            Same font size as the rest
+            of the mobile site.
+        */
+        font-size: var(--font-size);
 
-    #index-mode-label {
-        bottom: 18px;
-
-        font-size: 13px;
+        gap: 4px;
     }
 
 }
@@ -614,18 +695,22 @@ body.index-mode #project-stage {
 
 /* =====================================================
    SHORT LANDSCAPE
+   phones / landscape iPad-like viewport
    ===================================================== */
 
 @media
     (orientation: landscape)
     and (max-height: 700px) {
 
-    .info {
-        top: 20px;
-        left: 24px;
+    :root {
+        --font-size: 13px;
 
-        font-size: 13px;
+        --side: 24px;
+        --top: 20px;
+
+        --index-bottom: 16px;
     }
+
 
     .logo {
         width: 160px;
@@ -636,20 +721,18 @@ body.index-mode #project-stage {
         top: 15px;
     }
 
-    .section-switch {
-        top: 20px;
-        right: 24px;
-
-        font-size: 13px;
-    }
-
 
     #project-stage {
         inset: 0;
 
         left: 190px;
 
-        width: calc(100vw - 214px);
+        width:
+            calc(
+                100vw -
+                214px
+            );
+
         height: 100vh;
     }
 
@@ -658,56 +741,98 @@ body.index-mode #project-stage {
         max-height: 56vh;
     }
 
-    #project-meta,
-    #controls {
-        font-size: 13px;
-    }
-
-    .slot-index {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-
 
     /*
-        Short landscape gets 5 columns x 3 rows.
-        Everything fits vertically.
+        7 columns x 2 rows works much better
+        for a wide landscape viewport.
     */
 
     #index-view {
         padding:
-            88px
+            82px
             24px
-            44px
+            48px
             205px;
     }
 
     #index-grid {
         grid-template-columns:
-            repeat(5, minmax(0, 1fr));
+            repeat(7, minmax(0, 1fr));
 
         grid-template-rows:
-            repeat(3, minmax(0, 1fr));
+            repeat(2, minmax(0, 1fr));
 
         gap:
-            9px
+            10px
             14px;
+    }
+
+    .project-card {
+        width:
+            min(
+                100%,
+                calc(
+                    (
+                        100vh -
+                        82px -
+                        48px -
+                        10px
+                    )
+                    /
+                    2
+                    *
+                    0.75
+                )
+            );
     }
 
     .card-copy {
         margin-top: 3px;
+
+        font-size: var(--font-size);
+
+        gap: 4px;
     }
 
-    .card-title,
-    .card-date {
-        font-size: 9px;
-        line-height: 1.08;
+}
+
+
+/* =====================================================
+   VERY SHORT LANDSCAPE
+   ===================================================== */
+
+@media
+    (orientation: landscape)
+    and (max-height: 430px) {
+
+    #index-view {
+        padding-top: 72px;
+        padding-bottom: 42px;
     }
 
-    #index-mode-label {
-        bottom: 16px;
+    #index-grid {
+        gap:
+            6px
+            12px;
+    }
 
-        font-size: 13px;
+    .project-card {
+        width:
+            min(
+                100%,
+                calc(
+                    (
+                        100vh -
+                        72px -
+                        42px -
+                        6px
+                    )
+                    /
+                    2
+                    *
+                    0.75
+                )
+            );
     }
 
 }
@@ -715,7 +840,6 @@ body.index-mode #project-stage {
 </style>
 
 </head>
-
 
 <body>
 
@@ -846,19 +970,6 @@ body.index-mode #project-stage {
             </div>
 
 
-            <div class="control-slot slot-index">
-
-                <button
-                    class="control-button"
-                    id="index-button"
-                    type="button"
-                >
-                    index
-                </button>
-
-            </div>
-
-
             <div class="control-slot slot-next">
 
                 <button
@@ -892,18 +1003,25 @@ body.index-mode #project-stage {
 
 
 <!-- ===================================================
-     INDEX
+     GLOBAL INDEX CONTROL
+     =================================================== -->
+
+<button
+    id="index-button"
+    type="button"
+>
+    index
+</button>
+
+
+<!-- ===================================================
+     INDEX VIEW
      =================================================== -->
 
 <div id="index-view">
 
     <div id="index-grid"></div>
 
-</div>
-
-
-<div id="index-mode-label">
-    INDEX
 </div>
 
 
@@ -938,9 +1056,6 @@ const WORD_TRANSITION_DURATION =
 /* =====================================================
    ELEMENTS
    ===================================================== */
-
-const html =
-    document.documentElement;
 
 const body =
     document.body;
@@ -990,11 +1105,6 @@ const previousButton =
         "previous-button"
     );
 
-const indexButton =
-    document.getElementById(
-        "index-button"
-    );
-
 const nextButton =
     document.getElementById(
         "next-button"
@@ -1005,6 +1115,11 @@ const nextWorkButton =
         "next-work-button"
     );
 
+const indexButton =
+    document.getElementById(
+        "index-button"
+    );
+
 const indexView =
     document.getElementById(
         "index-view"
@@ -1013,11 +1128,6 @@ const indexView =
 const indexGrid =
     document.getElementById(
         "index-grid"
-    );
-
-const indexModeLabel =
-    document.getElementById(
-        "index-mode-label"
     );
 
 
@@ -1164,7 +1274,7 @@ function preloadImage(
 
 
 /* =====================================================
-   PROJECT HELPERS
+   HELPERS
    ===================================================== */
 
 function currentProject() {
@@ -1371,7 +1481,7 @@ function updateMetadata() {
 
 
 /* =====================================================
-   TEXT ANIMATION
+   TEXT DELETE / REVEAL
    ===================================================== */
 
 const textAnimations =
@@ -1517,7 +1627,7 @@ function animateTextLength(
 
 
 /* =====================================================
-   INDEX CASE ANIMATION
+   INDEX CASE MORPH
    ===================================================== */
 
 function renderIndexCase(
@@ -1642,7 +1752,7 @@ function animateIndexCase(
 
 
 /* =====================================================
-   FRAME CONTROL STATES
+   PREVIOUS / NEXT STATE
    ===================================================== */
 
 let previousVisible =
@@ -1932,13 +2042,9 @@ async function goNextFrame() {
 
 
 /* =====================================================
-   GENERAL FORWARD NAVIGATION
+   GLOBAL FORWARD
 
-   Used by:
-   - autoplay
-   - body click after autoplay is stopped
-
-   It crosses the project boundary.
+   next frame -> next work automatically
    ===================================================== */
 
 async function advanceForward() {
@@ -2036,7 +2142,7 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
-   INDEX SORT
+   CHRONOLOGICAL INDEX
    ===================================================== */
 
 function getChronologicalProjects() {
@@ -2066,10 +2172,6 @@ function getChronologicalProjects() {
                     b.project.sortDate ||
                     "";
 
-
-                /*
-                    Undated works always last.
-                */
 
                 if (
                     !dateA &&
@@ -2102,12 +2204,6 @@ function getChronologicalProjects() {
                 }
 
 
-                /*
-                    YYYY-MM strings sort
-                    chronologically.
-                    Newest first.
-                */
-
                 if (
                     dateA >
                     dateB
@@ -2127,11 +2223,6 @@ function getChronologicalProjects() {
 
                 }
 
-
-                /*
-                    Preserve slideshow order
-                    for identical dates.
-                */
 
                 return (
                     a.originalIndex -
@@ -2322,6 +2413,13 @@ async function enterIndex() {
     );
 
 
+    /*
+        index never moves.
+
+        Only its letters morph while
+        the four project controls disappear.
+    */
+
     const animations =
         [
 
@@ -2383,18 +2481,6 @@ async function enterIndex() {
     );
 
 
-    /*
-        The project toolbar is now hidden
-        with the project stage, so a separate
-        fixed INDEX state remains visible
-        at the bottom.
-    */
-
-    indexModeLabel.classList.add(
-        "visible"
-    );
-
-
     interfaceAnimating =
         false;
 
@@ -2437,15 +2523,6 @@ async function exitIndexToProject(
         );
 
 
-    /*
-        INDEX state disappears first.
-    */
-
-    indexModeLabel.classList.remove(
-        "visible"
-    );
-
-
     indexView.classList.remove(
         "visible"
     );
@@ -2460,17 +2537,13 @@ async function exitIndexToProject(
     );
 
 
-    const showPreviousAfter =
-        false;
-
-
     const showNextAfter =
         targetProject.images.length >
         1;
 
 
     /*
-        Reverse toolbar animation.
+        Exact reverse animation.
     */
 
     const animations =
@@ -2541,6 +2614,11 @@ async function exitIndexToProject(
         false;
 
 
+    /*
+        Returning from index starts
+        slideshow again.
+    */
+
     startAutoSlideshow();
 
 }
@@ -2576,19 +2654,6 @@ previousButton.addEventListener(
 );
 
 
-indexButton.addEventListener(
-    "click",
-    event => {
-
-        event.stopPropagation();
-
-
-        enterIndex();
-
-    }
-);
-
-
 nextButton.addEventListener(
     "click",
     event => {
@@ -2615,16 +2680,24 @@ nextWorkButton.addEventListener(
 );
 
 
+indexButton.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+
+        enterIndex();
+
+    }
+);
+
+
 /* =====================================================
    GENERAL SLIDESHOW CLICK
 
-   First click:
-   autoplay stops.
-
-   Every later click:
-   next frame / next work.
-
-   No left/right zones.
+   1st click = stop
+   later clicks = always forward
    ===================================================== */
 
 body.addEventListener(
@@ -2641,14 +2714,9 @@ body.addEventListener(
         }
 
 
-        /*
-            Do not hijack actual interface links
-            or toolbar controls.
-        */
-
         if (
             event.target.closest(
-                ".info, .section-switch, #controls"
+                ".info, .section-switch, #controls, #index-button"
             )
         ) {
 
@@ -2656,10 +2724,6 @@ body.addEventListener(
 
         }
 
-
-        /*
-            First click only stops.
-        */
 
         if (
             !manualMode
@@ -2673,11 +2737,6 @@ body.addEventListener(
         }
 
 
-        /*
-            Every later click only moves
-            forward, including across works.
-        */
-
         await advanceForward();
 
     }
@@ -2685,7 +2744,7 @@ body.addEventListener(
 
 
 /* =====================================================
-   MOBILE / INSTAGRAM POSITION
+   MOBILE / INSTAGRAM VIEWPORT
    ===================================================== */
 
 function updateMobileStage() {
@@ -2753,7 +2812,7 @@ function updateMobileStage() {
 
 
     const bottomGap =
-        18;
+        46;
 
 
     let viewportTop =
@@ -2816,7 +2875,7 @@ function updateMobileStage() {
 
 
 /* =====================================================
-   LOGO
+   LOGO ANIMATION
    ===================================================== */
 
 const logo =
@@ -2905,7 +2964,9 @@ function setLogoState(
         i++
     ) {
 
-        letters[i].textContent =
+        letters[
+            i
+        ].textContent =
             i <
             state
                 ? uppercase[
@@ -3066,7 +3127,7 @@ if (
 
 
 /* =====================================================
-   FILM SWITCH
+   FILM SWITCH ANIMATION
    ===================================================== */
 
 const sectionSwitch =
@@ -3357,7 +3418,7 @@ currentPhoto.addEventListener(
 
 
 /* =====================================================
-   LOAD PROJECTS
+   LOAD
    ===================================================== */
 
 async function loadProjects() {
