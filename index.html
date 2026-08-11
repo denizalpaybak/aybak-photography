@@ -17,44 +17,33 @@ html,
 body {
     margin: 0;
     padding: 0;
-
     width: 100%;
     height: 100%;
-
     background: #fff;
     overflow: hidden;
-
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
 }
 
 body {
-    cursor: pointer;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 
-/* =========================
-   LEFT INFORMATION
-   ========================= */
+/* =====================================================
+   INFORMATION
+   ===================================================== */
 
 .info {
     position: fixed;
-
     top: 32px;
     left: 48px;
+    z-index: 100;
 
-    z-index: 10;
-
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-weight: 400;
     line-height: 1.15;
 }
-
-
-/* =========================
-   LOGO
-   ========================= */
 
 .logo {
     position: relative;
@@ -63,55 +52,26 @@ body {
     width: 190px;
     height: 52px;
 
-    margin: 0;
-    padding: 0;
-
     color: inherit;
     text-decoration: none;
-
-    cursor: pointer;
 }
 
 .logo-name {
     position: absolute;
-
     top: 0;
     left: 0;
-
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1.15;
-
     white-space: nowrap;
 }
 
 .logo-aybak {
     position: absolute;
-
     top: 17px;
     left: 0;
-
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1.15;
-
-    letter-spacing: normal;
-
     white-space: nowrap;
 }
 
-.logo-aybak span {
-    display: inline;
-}
-
-
-/* =========================
-   CONTACT / SOCIAL
-   ========================= */
-
-.contact {
+.contact,
+.social {
     margin: 0;
     padding: 0;
 }
@@ -119,16 +79,11 @@ body {
 .social {
     display: flex;
     flex-direction: column;
-    gap: 0;
-
-    margin: 0;
-    padding: 0;
 }
 
 .info a {
     color: inherit;
     text-decoration: none;
-    font-weight: 400;
 }
 
 .info a:hover {
@@ -136,44 +91,45 @@ body {
 }
 
 
-/* =========================
+/* =====================================================
    SECTION SWITCH
-   ========================= */
+   ===================================================== */
 
 .section-switch {
     position: fixed;
-
     top: 32px;
     right: 48px;
-
-    z-index: 20;
+    z-index: 100;
 
     color: #000;
     text-decoration: none;
 
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
-    font-weight: 400;
     line-height: 1.15;
-
-    white-space: nowrap;
 }
 
 
-/* =========================
-   SLIDESHOW
-   ========================= */
+/* =====================================================
+   PROJECT VIEW
+   ===================================================== */
 
-#slideshow {
+#project-stage {
     position: fixed;
     inset: 0;
-
-    width: 100vw;
-    height: 100vh;
 
     display: flex;
     align-items: center;
     justify-content: center;
+
+    pointer-events: none;
+}
+
+#project-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: auto;
 
     pointer-events: none;
 }
@@ -185,7 +141,7 @@ body {
     height: auto;
 
     max-width: 70vw;
-    max-height: 80vh;
+    max-height: 72vh;
 
     object-fit: contain;
 
@@ -193,9 +149,223 @@ body {
 }
 
 
-/* =========================
+/* =====================================================
+   METADATA
+   ===================================================== */
+
+#project-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+
+    width: auto;
+
+    margin-top: 9px;
+
+    font-size: 15px;
+    line-height: 1.15;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+}
+
+#project-counter {
+    text-align: right;
+}
+
+
+/* =====================================================
+   TOOLBAR
+   ===================================================== */
+
+#controls {
+    display: grid;
+
+    grid-template-columns:
+        1.45fr
+        1fr
+        auto
+        1fr
+        1.45fr;
+
+    align-items: center;
+
+    width: auto;
+
+    margin-top: 3px;
+
+    font-size: 15px;
+    line-height: 1.15;
+
+    white-space: nowrap;
+
+    pointer-events: auto;
+}
+
+.control-slot {
+    min-width: 0;
+}
+
+.slot-prev-work {
+    text-align: left;
+}
+
+.slot-prev {
+    text-align: center;
+}
+
+.slot-index {
+    text-align: center;
+}
+
+.slot-next {
+    text-align: center;
+}
+
+.slot-next-work {
+    text-align: right;
+}
+
+.control-button {
+    appearance: none;
+    -webkit-appearance: none;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+
+    color: #000;
+
+    font: inherit;
+
+    cursor: pointer;
+
+    text-decoration: none;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.control-button:hover,
+.control-button:focus,
+.control-button:active {
+    text-decoration: none;
+    outline: 0;
+}
+
+#index-button.index-active {
+    cursor: default;
+    pointer-events: none;
+}
+
+
+/* =====================================================
+   INDEX VIEW
+   ===================================================== */
+
+#index-view {
+    display: none;
+
+    width: 100%;
+
+    padding:
+        138px
+        48px
+        70px;
+
+    background: #fff;
+}
+
+#index-view.visible {
+    display: block;
+}
+
+#index-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap:
+        48px
+        32px;
+
+    width: 100%;
+}
+
+.project-card {
+    appearance: none;
+    -webkit-appearance: none;
+
+    display: block;
+
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    background: transparent;
+
+    color: #000;
+
+    font: inherit;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.project-card img {
+    display: block;
+
+    width: 100%;
+    height: auto;
+
+    margin: 0 0 8px 0;
+
+    object-fit: contain;
+}
+
+.card-title,
+.card-date {
+    display: block;
+
+    font-size: 15px;
+    line-height: 1.15;
+}
+
+.card-date:empty {
+    display: none;
+}
+
+
+/* =====================================================
+   INDEX MODE
+   ===================================================== */
+
+html.index-mode,
+body.index-mode {
+    height: auto;
+    min-height: 100%;
+
+    overflow-y: auto;
+}
+
+body.index-mode #project-stage {
+    visibility: hidden;
+}
+
+
+/* =====================================================
    MOBILE
-   ========================= */
+   ===================================================== */
 
 @media (max-width: 600px) {
 
@@ -211,13 +381,8 @@ body {
         height: 45px;
     }
 
-    .logo-name {
-        font-size: 13px;
-    }
-
     .logo-aybak {
         top: 15px;
-        font-size: 13px;
     }
 
     .section-switch {
@@ -227,7 +392,8 @@ body {
         font-size: 13px;
     }
 
-    #slideshow {
+
+    #project-stage {
         inset: auto;
 
         left: 0;
@@ -238,15 +404,50 @@ body {
 
     #current-photo {
         max-width: 84vw;
-        max-height: calc(100% - 8px);
+        max-height: calc(100% - 68px);
+    }
+
+    #project-meta,
+    #controls {
+        font-size: 13px;
+    }
+
+    #project-meta {
+        margin-top: 8px;
+    }
+
+    #controls {
+        margin-top: 3px;
+    }
+
+
+    #index-view {
+        padding:
+            112px
+            24px
+            48px;
+    }
+
+    #index-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap:
+            34px
+            16px;
+    }
+
+    .card-title,
+    .card-date {
+        font-size: 13px;
     }
 
 }
 
 
-/* =========================
+/* =====================================================
    SHORT LANDSCAPE
-   ========================= */
+   ===================================================== */
 
 @media
     (orientation: landscape)
@@ -264,11 +465,6 @@ body {
         height: 45px;
     }
 
-    .logo-name,
-    .logo-aybak {
-        font-size: 13px;
-    }
-
     .logo-aybak {
         top: 15px;
     }
@@ -280,7 +476,8 @@ body {
         font-size: 13px;
     }
 
-    #slideshow {
+
+    #project-stage {
         inset: 0;
 
         left: 190px;
@@ -290,8 +487,36 @@ body {
     }
 
     #current-photo {
-        max-width: 66vw;
-        max-height: 68vh;
+        max-width: 62vw;
+        max-height: 56vh;
+    }
+
+    #project-meta,
+    #controls {
+        font-size: 13px;
+    }
+
+
+    #index-view {
+        padding:
+            100px
+            24px
+            48px
+            214px;
+    }
+
+    #index-grid {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+        gap:
+            32px
+            20px;
+    }
+
+    .card-title,
+    .card-date {
+        font-size: 13px;
     }
 
 }
@@ -304,6 +529,10 @@ body {
 <body>
 
 
+<!-- ===================================================
+     INFORMATION
+     =================================================== -->
+
 <div
     class="info"
     id="info"
@@ -312,7 +541,6 @@ body {
     <a
         class="logo"
         href="https://denizalpaybak.com/"
-        target="_self"
     >
 
         <span
@@ -323,9 +551,7 @@ body {
         </span>
 
         <span class="logo-aybak">
-
             <span id="letter-a">a</span><span id="letter-y">y</span><span id="letter-b">b</span><span id="letter-a2">a</span><span id="letter-k">k</span>
-
         </span>
 
     </a>
@@ -372,16 +598,115 @@ body {
     id="section-switch"
     href="https://film.denizalpaybak.com/"
 >
-    <span id="section-switch-text">film</span>
+    <span id="section-switch-text">
+        film
+    </span>
 </a>
 
 
-<div id="slideshow">
+<!-- ===================================================
+     PROJECT VIEW
+     =================================================== -->
 
-    <img
-        id="current-photo"
-        alt=""
-    >
+<div id="project-stage">
+
+    <div id="project-block">
+
+        <img
+            id="current-photo"
+            alt=""
+        >
+
+
+        <div id="project-meta">
+
+            <span id="project-label"></span>
+
+            <span id="project-counter"></span>
+
+        </div>
+
+
+        <div id="controls">
+
+            <div class="control-slot slot-prev-work">
+
+                <button
+                    class="control-button"
+                    id="previous-work-button"
+                    type="button"
+                >
+                    previous work
+                </button>
+
+            </div>
+
+
+            <div class="control-slot slot-prev">
+
+                <button
+                    class="control-button"
+                    id="previous-button"
+                    type="button"
+                >
+                    previous
+                </button>
+
+            </div>
+
+
+            <div class="control-slot slot-index">
+
+                <button
+                    class="control-button"
+                    id="index-button"
+                    type="button"
+                >
+                    index
+                </button>
+
+            </div>
+
+
+            <div class="control-slot slot-next">
+
+                <button
+                    class="control-button"
+                    id="next-button"
+                    type="button"
+                >
+                    next
+                </button>
+
+            </div>
+
+
+            <div class="control-slot slot-next-work">
+
+                <button
+                    class="control-button"
+                    id="next-work-button"
+                    type="button"
+                >
+                    next work
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ===================================================
+     INDEX VIEW
+     =================================================== -->
+
+<div id="index-view">
+
+    <div id="index-grid"></div>
 
 </div>
 
@@ -390,61 +715,25 @@ body {
 
 
 /* =====================================================
-   R2
+   DATA
    ===================================================== */
 
 const R2_BASE =
     "https://pub-14d397941aeb40e5bd3f66ac028fef80.r2.dev/photos/";
 
-const PHOTOS_JSON =
-    "./photos.json";
+const PROJECTS_JSON =
+    "./projects.json";
 
 
 /* =====================================================
-   SLIDESHOW SETTINGS
+   TIMING
    ===================================================== */
 
 const SLIDE_DURATION =
     3000;
 
-
-/*
-    Fast local window.
-*/
-
-const PRELOAD_AHEAD =
-    6;
-
-const PRELOAD_BEHIND =
-    2;
-
-
-/*
-    How long to wait for the exact requested
-    frame before skipping to another ready one.
-*/
-
-const MANUAL_WAIT =
-    250;
-
-const AUTO_WAIT =
-    900;
-
-
-/*
-    Background portfolio warming.
-
-    Remaining images are loaded progressively,
-    not all at once.
-*/
-
-const BACKGROUND_PRELOAD_DELAY =
-    250;
-
-
-/* =====================================================
-   WORD TIMING
-   ===================================================== */
+const TOOLBAR_ANIMATION_DURATION =
+    400;
 
 const WORD_TRANSITION_DURATION =
     600;
@@ -454,9 +743,20 @@ const WORD_TRANSITION_DURATION =
    ELEMENTS
    ===================================================== */
 
-const slideshow =
+const html =
+    document.documentElement;
+
+const body =
+    document.body;
+
+const info =
     document.getElementById(
-        "slideshow"
+        "info"
+    );
+
+const projectStage =
+    document.getElementById(
+        "project-stage"
     );
 
 const currentPhoto =
@@ -464,9 +764,59 @@ const currentPhoto =
         "current-photo"
     );
 
-const info =
+const projectMeta =
     document.getElementById(
-        "info"
+        "project-meta"
+    );
+
+const projectLabel =
+    document.getElementById(
+        "project-label"
+    );
+
+const projectCounter =
+    document.getElementById(
+        "project-counter"
+    );
+
+const controls =
+    document.getElementById(
+        "controls"
+    );
+
+const previousWorkButton =
+    document.getElementById(
+        "previous-work-button"
+    );
+
+const previousButton =
+    document.getElementById(
+        "previous-button"
+    );
+
+const indexButton =
+    document.getElementById(
+        "index-button"
+    );
+
+const nextButton =
+    document.getElementById(
+        "next-button"
+    );
+
+const nextWorkButton =
+    document.getElementById(
+        "next-work-button"
+    );
+
+const indexView =
+    document.getElementById(
+        "index-view"
+    );
+
+const indexGrid =
+    document.getElementById(
+        "index-grid"
     );
 
 
@@ -474,39 +824,35 @@ const info =
    STATE
    ===================================================== */
 
-let photos =
+let projects =
     [];
 
-let current =
+let projectIndex =
+    0;
+
+let imageIndex =
     0;
 
 let manualMode =
     false;
 
+let indexMode =
+    false;
+
 let slideTimer =
     null;
 
+let interfaceAnimating =
+    false;
 
-/*
-    Each item:
 
-    {
-        image,
-        status,
-        promise
-    }
-
-    status:
-    idle / loading / loaded / error
-*/
+/* =====================================================
+   IMAGE CACHE
+   ===================================================== */
 
 const imageCache =
     new Map();
 
-
-/* =====================================================
-   URL
-   ===================================================== */
 
 function getPhotoUrl(
     filename
@@ -522,917 +868,679 @@ function getPhotoUrl(
 }
 
 
-/* =====================================================
-   INDEX
-   ===================================================== */
-
-function normalizeIndex(
-    index
+function preloadImage(
+    filename
 ) {
-
-    if (
-        photos.length === 0
-    ) {
-
-        return 0;
-
-    }
-
-
-    return (
-        (
-            index %
-            photos.length
-        ) +
-        photos.length
-    ) %
-    photos.length;
-
-}
-
-
-/* =====================================================
-   CACHE ENTRY
-   ===================================================== */
-
-function getCacheEntry(
-    index
-) {
-
-    index =
-        normalizeIndex(
-            index
-        );
-
 
     if (
         imageCache.has(
-            index
+            filename
         )
     ) {
 
         return imageCache.get(
-            index
+            filename
         );
 
     }
 
 
-    const entry = {
-
-        image:
-            null,
-
-        status:
-            "idle",
-
-        promise:
-            null
-
-    };
-
-
-    imageCache.set(
-        index,
-        entry
-    );
-
-
-    return entry;
-
-}
-
-
-/* =====================================================
-   START IMAGE LOAD
-   ===================================================== */
-
-function preloadPhoto(
-    index
-) {
-
-    index =
-        normalizeIndex(
-            index
-        );
-
-
-    const entry =
-        getCacheEntry(
-            index
-        );
-
-
-    if (
-        entry.status ===
-        "loaded"
-    ) {
-
-        return Promise.resolve(
-            entry.image
-        );
-
-    }
-
-
-    if (
-        entry.status ===
-        "loading"
-    ) {
-
-        return entry.promise;
-
-    }
-
-
-    entry.status =
-        "loading";
-
-
-    entry.promise =
+    const promise =
         new Promise(
             (
                 resolve,
                 reject
             ) => {
 
-                const image =
+                const img =
                     new Image();
 
 
-                image.decoding =
+                img.decoding =
                     "async";
 
 
-                image.onload =
+                img.onload =
                     async () => {
 
                         try {
 
                             if (
-                                image.decode
+                                img.decode
                             ) {
 
-                                await image.decode();
+                                await img.decode();
 
                             }
 
                         }
 
-                        catch (error) {
-
-                            /*
-                                Image already loaded.
-                                Decode failure does not
-                                mean the asset is unusable.
-                            */
-
-                        }
-
-
-                        entry.image =
-                            image;
-
-
-                        entry.status =
-                            "loaded";
+                        catch (error) {}
 
 
                         resolve(
-                            image
+                            img
                         );
 
                     };
 
 
-                image.onerror =
+                img.onerror =
                     () => {
 
-                        entry.status =
-                            "error";
+                        imageCache.delete(
+                            filename
+                        );
 
 
                         reject(
                             new Error(
-                                `Could not load: ${photos[index]}`
+                                `Could not load ${filename}`
                             )
                         );
 
                     };
 
 
-                image.src =
+                img.src =
                     getPhotoUrl(
-                        photos[index]
+                        filename
                     );
 
             }
         );
 
 
-    return entry.promise;
+    imageCache.set(
+        filename,
+        promise
+    );
+
+
+    return promise;
 
 }
 
 
 /* =====================================================
-   STATUS
+   PROJECT HELPERS
    ===================================================== */
 
-function isPhotoLoaded(
+function currentProject() {
+
+    return projects[
+        projectIndex
+    ];
+
+}
+
+
+function normalizeProjectIndex(
     index
 ) {
-
-    const entry =
-        imageCache.get(
-            normalizeIndex(
-                index
-            )
-        );
-
 
     return (
-        entry &&
-        entry.status ===
-        "loaded"
+        (
+            index %
+            projects.length
+        ) +
+        projects.length
+    ) %
+    projects.length;
+
+}
+
+
+/* =====================================================
+   PRELOAD NEARBY
+   ===================================================== */
+
+function preloadAroundCurrent() {
+
+    const project =
+        currentProject();
+
+
+    for (
+        let offset = 1;
+        offset <= 4;
+        offset++
+    ) {
+
+        const index =
+            imageIndex +
+            offset;
+
+
+        if (
+            index <
+            project.images.length
+        ) {
+
+            preloadImage(
+                project.images[
+                    index
+                ]
+            ).catch(
+                () => {}
+            );
+
+        }
+
+    }
+
+
+    if (
+        imageIndex >
+        0
+    ) {
+
+        preloadImage(
+            project.images[
+                imageIndex -
+                1
+            ]
+        ).catch(
+            () => {}
+        );
+
+    }
+
+
+    const nextProject =
+        projects[
+            normalizeProjectIndex(
+                projectIndex +
+                1
+            )
+        ];
+
+
+    if (
+        nextProject
+    ) {
+
+        preloadImage(
+            nextProject.images[
+                0
+            ]
+        ).catch(
+            () => {}
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   PRELOAD INDEX COVERS
+   ===================================================== */
+
+function preloadCovers() {
+
+    projects.forEach(
+        project => {
+
+            preloadImage(
+                project.cover
+            ).catch(
+                () => {}
+            );
+
+        }
     );
 
 }
 
 
 /* =====================================================
-   WAIT WITH TIMEOUT
+   WIDTH SYNC
    ===================================================== */
 
-function waitForPhoto(
-    index,
-    timeout
+function syncProjectWidths() {
+
+    if (
+        indexMode
+    ) {
+
+        return;
+
+    }
+
+
+    const width =
+        currentPhoto
+            .getBoundingClientRect()
+            .width;
+
+
+    if (
+        width >
+        0
+    ) {
+
+        projectMeta.style.width =
+            `${width}px`;
+
+        controls.style.width =
+            `${width}px`;
+
+    }
+
+}
+
+
+/* =====================================================
+   METADATA
+   ===================================================== */
+
+function updateMetadata() {
+
+    const project =
+        currentProject();
+
+
+    projectLabel.textContent =
+        project.date
+            ? `${project.title} — ${project.date}`
+            : project.title;
+
+
+    const currentNumber =
+        String(
+            imageIndex +
+            1
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    const totalNumber =
+        String(
+            project.images.length
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    projectCounter.textContent =
+        `${currentNumber}/${totalNumber}`;
+
+}
+
+
+/* =====================================================
+   GENERIC TEXT DELETE / REVEAL
+   ===================================================== */
+
+const textAnimations =
+    new WeakMap();
+
+
+function cancelTextAnimation(
+    element
 ) {
 
-    return Promise.race(
-        [
+    if (
+        textAnimations.has(
+            element
+        )
+    ) {
 
-            preloadPhoto(
-                index
-            ),
+        cancelAnimationFrame(
+            textAnimations.get(
+                element
+            )
+        );
 
 
-            new Promise(
-                (
-                    resolve,
-                    reject
-                ) => {
+        textAnimations.delete(
+            element
+        );
 
-                    setTimeout(
-                        () => {
+    }
 
-                            reject(
-                                new Error(
-                                    "timeout"
-                                )
-                            );
+}
 
-                        },
-                        timeout
+
+function animateTextLength(
+    element,
+    fullText,
+    show,
+    duration =
+        TOOLBAR_ANIMATION_DURATION
+) {
+
+    cancelTextAnimation(
+        element
+    );
+
+
+    return new Promise(
+        resolve => {
+
+            const start =
+                performance.now();
+
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        duration
+                    );
+
+
+                const length =
+                    show
+                        ? Math.round(
+                            progress *
+                            fullText.length
+                        )
+                        : Math.round(
+                            (
+                                1 -
+                                progress
+                            ) *
+                            fullText.length
+                        );
+
+
+                element.textContent =
+                    fullText.slice(
+                        0,
+                        length
+                    );
+
+
+                if (
+                    progress <
+                    1
+                ) {
+
+                    const id =
+                        requestAnimationFrame(
+                            frame
+                        );
+
+
+                    textAnimations.set(
+                        element,
+                        id
                     );
 
                 }
-            )
 
-        ]
-    );
+                else {
 
-}
-
-
-/* =====================================================
-   PRELOAD NEAR CURRENT
-   ===================================================== */
-
-function preloadAround(
-    index
-) {
-
-    /*
-        Forward first because forward
-        navigation is used most.
-    */
-
-    for (
-        let offset = 1;
-        offset <= PRELOAD_AHEAD;
-        offset++
-    ) {
-
-        preloadPhoto(
-            index +
-            offset
-        ).catch(
-            () => {}
-        );
-
-    }
+                    element.textContent =
+                        show
+                            ? fullText
+                            : "";
 
 
-    for (
-        let offset = 1;
-        offset <= PRELOAD_BEHIND;
-        offset++
-    ) {
-
-        preloadPhoto(
-            index -
-            offset
-        ).catch(
-            () => {}
-        );
-
-    }
-
-}
+                    textAnimations.delete(
+                        element
+                    );
 
 
-/* =====================================================
-   BACKGROUND WARMING
-   ===================================================== */
+                    resolve();
 
-function startBackgroundPreloading() {
-
-    let offset =
-        PRELOAD_AHEAD +
-        1;
-
-
-    function loadNext() {
-
-        if (
-            photos.length === 0 ||
-            offset >=
-            photos.length
-        ) {
-
-            return;
-
-        }
-
-
-        const index =
-            normalizeIndex(
-                current +
-                offset
-            );
-
-
-        preloadPhoto(
-            index
-        )
-        .catch(
-            () => {}
-        )
-        .finally(
-            () => {
-
-                offset++;
-
-
-                setTimeout(
-                    loadNext,
-                    BACKGROUND_PRELOAD_DELAY
-                );
+                }
 
             }
-        );
-
-    }
 
 
-    setTimeout(
-        loadNext,
-        500
-    );
-
-}
+            const id =
+                requestAnimationFrame(
+                    frame
+                );
 
 
-/* =====================================================
-   DISPLAY
-   ===================================================== */
-
-function displayLoadedPhoto(
-    index
-) {
-
-    index =
-        normalizeIndex(
-            index
-        );
-
-
-    const entry =
-        getCacheEntry(
-            index
-        );
-
-
-    if (
-        entry.status !==
-        "loaded"
-    ) {
-
-        return false;
-
-    }
-
-
-    current =
-        index;
-
-
-    currentPhoto.src =
-        entry.image.src;
-
-
-    preloadAround(
-        current
-    );
-
-
-    updateMobileSlideshow();
-
-
-    return true;
-
-}
-
-
-/* =====================================================
-   FIND READY PHOTO
-   ===================================================== */
-
-function findLoadedPhoto(
-    startIndex,
-    direction
-) {
-
-    for (
-        let offset = 0;
-        offset <
-        photos.length;
-        offset++
-    ) {
-
-        const index =
-            normalizeIndex(
-                startIndex +
-                (
-                    offset *
-                    direction
-                )
-            );
-
-
-        if (
-            isPhotoLoaded(
-                index
-            )
-        ) {
-
-            return index;
-
-        }
-
-    }
-
-
-    return null;
-
-}
-
-
-/* =====================================================
-   FIND NEXT USABLE PHOTO
-   ===================================================== */
-
-async function move(
-    direction,
-    waitTime
-) {
-
-    if (
-        photos.length <= 1
-    ) {
-
-        return false;
-
-    }
-
-
-    const exactTarget =
-        normalizeIndex(
-            current +
-            direction
-        );
-
-
-    /*
-        Start requested image immediately.
-    */
-
-    preloadPhoto(
-        exactTarget
-    ).catch(
-        () => {}
-    );
-
-
-    /*
-        If already loaded, switch instantly.
-    */
-
-    if (
-        isPhotoLoaded(
-            exactTarget
-        )
-    ) {
-
-        return displayLoadedPhoto(
-            exactTarget
-        );
-
-    }
-
-
-    /*
-        Give exact requested frame a short
-        opportunity to finish.
-    */
-
-    try {
-
-        await waitForPhoto(
-            exactTarget,
-            waitTime
-        );
-
-
-        if (
-            isPhotoLoaded(
-                exactTarget
-            )
-        ) {
-
-            return displayLoadedPhoto(
-                exactTarget
+            textAnimations.set(
+                element,
+                id
             );
 
         }
+    );
 
-    }
-
-    catch (error) {
-
-        /*
-            Timeout/error:
-            immediately look for another
-            already prepared image.
-        */
-
-    }
+}
 
 
-    /*
-        Do NOT leave the interface feeling dead.
+/* =====================================================
+   INDEX CASE ANIMATION
+   ===================================================== */
 
-        Find the nearest READY frame in the
-        requested direction and jump to it.
-    */
+function renderIndexCase(
+    upperCount
+) {
 
-    const readyIndex =
-        findLoadedPhoto(
-            exactTarget +
-            direction,
-            direction
-        );
+    const word =
+        "index";
 
 
-    if (
-        readyIndex !== null &&
-        readyIndex !== current
-    ) {
-
-        return displayLoadedPhoto(
-            readyIndex
-        );
-
-    }
-
-
-    /*
-        None is ready yet.
-
-        Race the next few candidates.
-        Whichever loads first wins.
-    */
-
-    const candidates =
-        [];
+    let result =
+        "";
 
 
     for (
-        let offset = 1;
-        offset <= 6;
-        offset++
+        let i = 0;
+        i <
+        word.length;
+        i++
     ) {
 
-        const index =
-            normalizeIndex(
-                current +
-                (
-                    offset *
-                    direction
-                )
-            );
-
-
-        const entry =
-            getCacheEntry(
-                index
-            );
-
-
-        /*
-            Ignore permanent errors.
-        */
-
-        if (
-            entry.status ===
-            "error"
-        ) {
-
-            continue;
-
-        }
-
-
-        const candidate =
-            preloadPhoto(
-                index
-            )
-            .then(
-                () => index
-            )
-            .catch(
-                () => null
-            );
-
-
-        candidates.push(
-            candidate
-        );
+        result +=
+            i <
+            upperCount
+                ? word[i]
+                    .toUpperCase()
+                : word[i];
 
     }
 
 
-    if (
-        candidates.length ===
-        0
-    ) {
-
-        return false;
-
-    }
-
-
-    /*
-        Resolve as each promise completes until
-        we get a valid index.
-    */
-
-    const wrapped =
-        candidates.map(
-            promise =>
-                promise.then(
-                    value => ({
-                        value,
-                        promise
-                    })
-                )
-        );
-
-
-    const pending =
-        [...wrapped];
-
-
-    while (
-        pending.length >
-        0
-    ) {
-
-        const result =
-            await Promise.race(
-                pending
-            );
-
-
-        const removeIndex =
-            pending.indexOf(
-                result.promise
-            );
-
-
-        if (
-            removeIndex >=
-            0
-        ) {
-
-            pending.splice(
-                removeIndex,
-                1
-            );
-
-        }
-
-
-        if (
-            result.value !==
-            null
-        ) {
-
-            return displayLoadedPhoto(
-                result.value
-            );
-
-        }
-
-    }
-
-
-    return false;
+    indexButton.textContent =
+        result;
 
 }
 
 
-/* =====================================================
-   NEXT / PREVIOUS
-   ===================================================== */
-
-function nextSlide(
-    manual = false
+function animateIndexCase(
+    toUpper
 ) {
 
-    return move(
-        1,
-        manual
-            ? MANUAL_WAIT
-            : AUTO_WAIT
-    );
+    return new Promise(
+        resolve => {
 
-}
+            const start =
+                performance.now();
 
 
-function previousSlide() {
+            function frame(
+                now
+            ) {
 
-    return move(
-        -1,
-        MANUAL_WAIT
-    );
-
-}
-
-
-/* =====================================================
-   LOAD JSON
-   ===================================================== */
-
-async function loadPhotos() {
-
-    try {
-
-        const response =
-            await fetch(
-                PHOTOS_JSON,
-                {
-                    cache:
-                        "no-store"
-                }
-            );
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        TOOLBAR_ANIMATION_DURATION
+                    );
 
 
-        if (
-            !response.ok
-        ) {
-
-            throw new Error(
-                "photos.json could not be loaded."
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !Array.isArray(
-                data
-            )
-        ) {
-
-            throw new Error(
-                "photos.json must contain an array."
-            );
-
-        }
+                const upperCount =
+                    toUpper
+                        ? Math.round(
+                            progress *
+                            5
+                        )
+                        : Math.round(
+                            (
+                                1 -
+                                progress
+                            ) *
+                            5
+                        );
 
 
-        photos =
-            data.filter(
-                item =>
-                    typeof item ===
-                    "string" &&
-                    item.trim() !==
-                    ""
-            );
-
-
-        if (
-            photos.length ===
-            0
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-            Load first valid photo.
-        */
-
-        for (
-            let index = 0;
-            index <
-            photos.length;
-            index++
-        ) {
-
-            try {
-
-                await preloadPhoto(
-                    index
+                renderIndexCase(
+                    upperCount
                 );
 
 
                 if (
-                    displayLoadedPhoto(
-                        index
-                    )
+                    progress <
+                    1
                 ) {
 
-                    break;
+                    requestAnimationFrame(
+                        frame
+                    );
+
+                }
+
+                else {
+
+                    renderIndexCase(
+                        toUpper
+                            ? 5
+                            : 0
+                    );
+
+
+                    resolve();
 
                 }
 
             }
 
-            catch (error) {
 
-                console.warn(
-                    `Skipping: ${photos[index]}`
-                );
+            requestAnimationFrame(
+                frame
+            );
 
-            }
+        }
+    );
+
+}
+
+
+/* =====================================================
+   FIRST / LAST FRAME CONTROL STATES
+   ===================================================== */
+
+let previousVisible =
+    false;
+
+let nextVisible =
+    true;
+
+
+function updateFrameControls(
+    animate =
+        true
+) {
+
+    const project =
+        currentProject();
+
+
+    const shouldShowPrevious =
+        imageIndex >
+        0;
+
+
+    const shouldShowNext =
+        imageIndex <
+        project.images.length -
+        1;
+
+
+    if (
+        shouldShowPrevious !==
+        previousVisible
+    ) {
+
+        previousVisible =
+            shouldShowPrevious;
+
+
+        if (
+            animate
+        ) {
+
+            animateTextLength(
+                previousButton,
+                "previous",
+                shouldShowPrevious
+            );
+
+        }
+
+        else {
+
+            previousButton.textContent =
+                shouldShowPrevious
+                    ? "previous"
+                    : "";
 
         }
 
 
-        /*
-            Immediately prepare nearby frames.
-        */
-
-        preloadAround(
-            current
-        );
-
-
-        /*
-            Slowly warm the rest of the portfolio.
-        */
-
-        startBackgroundPreloading();
-
-
-        startAutoSlideshow();
+        previousButton.disabled =
+            !shouldShowPrevious;
 
     }
 
-    catch (error) {
 
-        console.error(
-            error
-        );
+    if (
+        shouldShowNext !==
+        nextVisible
+    ) {
+
+        nextVisible =
+            shouldShowNext;
+
+
+        if (
+            animate
+        ) {
+
+            animateTextLength(
+                nextButton,
+                "next",
+                shouldShowNext
+            );
+
+        }
+
+        else {
+
+            nextButton.textContent =
+                shouldShowNext
+                    ? "next"
+                    : "";
+
+        }
+
+
+        nextButton.disabled =
+            !shouldShowNext;
 
     }
 
@@ -1440,7 +1548,201 @@ async function loadPhotos() {
 
 
 /* =====================================================
-   AUTO
+   SHOW IMAGE
+   ===================================================== */
+
+async function showImage(
+    newProjectIndex,
+    newImageIndex,
+    animateControls =
+        true
+) {
+
+    const targetProjectIndex =
+        normalizeProjectIndex(
+            newProjectIndex
+        );
+
+
+    const project =
+        projects[
+            targetProjectIndex
+        ];
+
+
+    const boundedImageIndex =
+        Math.max(
+            0,
+            Math.min(
+                newImageIndex,
+                project.images.length -
+                1
+            )
+        );
+
+
+    const filename =
+        project.images[
+            boundedImageIndex
+        ];
+
+
+    try {
+
+        const img =
+            await preloadImage(
+                filename
+            );
+
+
+        projectIndex =
+            targetProjectIndex;
+
+        imageIndex =
+            boundedImageIndex;
+
+
+        currentPhoto.src =
+            img.src;
+
+
+        updateMetadata();
+
+
+        updateFrameControls(
+            animateControls
+        );
+
+
+        preloadAroundCurrent();
+
+
+        requestAnimationFrame(
+            syncProjectWidths
+        );
+
+
+        return true;
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            error
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =====================================================
+   PROJECT NAVIGATION
+   ===================================================== */
+
+async function goPreviousWork() {
+
+    stopAutoSlideshow();
+
+
+    const target =
+        normalizeProjectIndex(
+            projectIndex -
+            1
+        );
+
+
+    await showImage(
+        target,
+        0
+    );
+
+}
+
+
+async function goNextWork() {
+
+    stopAutoSlideshow();
+
+
+    const target =
+        normalizeProjectIndex(
+            projectIndex +
+            1
+        );
+
+
+    await showImage(
+        target,
+        0
+    );
+
+}
+
+
+/* =====================================================
+   FRAME NAVIGATION
+   ===================================================== */
+
+async function goPreviousFrame() {
+
+    if (
+        imageIndex <=
+        0
+    ) {
+
+        return;
+
+    }
+
+
+    stopAutoSlideshow();
+
+
+    await showImage(
+        projectIndex,
+        imageIndex -
+        1
+    );
+
+}
+
+
+async function goNextFrame() {
+
+    const project =
+        currentProject();
+
+
+    if (
+        imageIndex >=
+        project.images.length -
+        1
+    ) {
+
+        return;
+
+    }
+
+
+    stopAutoSlideshow();
+
+
+    await showImage(
+        projectIndex,
+        imageIndex +
+        1
+    );
+
+}
+
+
+/* =====================================================
+   AUTOPLAY
    ===================================================== */
 
 function scheduleNextSlide() {
@@ -1451,7 +1753,8 @@ function scheduleNextSlide() {
 
 
     if (
-        manualMode
+        manualMode ||
+        indexMode
     ) {
 
         return;
@@ -1463,9 +1766,33 @@ function scheduleNextSlide() {
         setTimeout(
             async () => {
 
-                await nextSlide(
-                    false
-                );
+                const project =
+                    currentProject();
+
+
+                if (
+                    imageIndex <
+                    project.images.length -
+                    1
+                ) {
+
+                    await showImage(
+                        projectIndex,
+                        imageIndex +
+                        1
+                    );
+
+                }
+
+                else {
+
+                    await showImage(
+                        projectIndex +
+                        1,
+                        0
+                    );
+
+                }
 
 
                 scheduleNextSlide();
@@ -1502,63 +1829,402 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
-   CLICK
+   BUILD INDEX
    ===================================================== */
 
-document.body.addEventListener(
-    "click",
-    async event => {
+function buildIndex() {
 
-        if (
-            event.target.closest(
-                "a"
-            )
-        ) {
-
-            return;
-
-        }
+    indexGrid.innerHTML =
+        "";
 
 
-        /*
-            First click only stops autoplay.
-        */
+    projects.forEach(
+        (
+            project,
+            index
+        ) => {
 
-        if (
-            !manualMode
-        ) {
-
-            stopAutoSlideshow();
-
-
-            return;
-
-        }
+            const button =
+                document.createElement(
+                    "button"
+                );
 
 
-        const percentage =
-            event.clientX /
-            window.innerWidth;
+            button.className =
+                "project-card";
 
 
-        if (
-            percentage <
-            0.25
-        ) {
+            button.type =
+                "button";
 
-            await previousSlide();
 
-        }
+            const img =
+                document.createElement(
+                    "img"
+                );
 
-        else {
 
-            await nextSlide(
-                true
+            img.src =
+                getPhotoUrl(
+                    project.cover
+                );
+
+
+            img.alt =
+                "";
+
+
+            img.loading =
+                "lazy";
+
+
+            const title =
+                document.createElement(
+                    "span"
+                );
+
+
+            title.className =
+                "card-title";
+
+
+            title.textContent =
+                project.title;
+
+
+            const date =
+                document.createElement(
+                    "span"
+                );
+
+
+            date.className =
+                "card-date";
+
+
+            date.textContent =
+                project.date ||
+                "";
+
+
+            button.append(
+                img,
+                title,
+                date
+            );
+
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    exitIndexToProject(
+                        index
+                    );
+
+                }
+            );
+
+
+            indexGrid.appendChild(
+                button
             );
 
         }
+    );
+
+}
+
+
+/* =====================================================
+   ENTER INDEX
+   ===================================================== */
+
+async function enterIndex() {
+
+    if (
+        indexMode ||
+        interfaceAnimating
+    ) {
+
+        return;
 
     }
+
+
+    interfaceAnimating =
+        true;
+
+
+    stopAutoSlideshow();
+
+
+    indexButton.classList.add(
+        "index-active"
+    );
+
+
+    const animations =
+        [
+
+            animateTextLength(
+                previousWorkButton,
+                "previous work",
+                false
+            ),
+
+            animateTextLength(
+                previousButton,
+                "previous",
+                false
+            ),
+
+            animateIndexCase(
+                true
+            ),
+
+            animateTextLength(
+                nextButton,
+                "next",
+                false
+            ),
+
+            animateTextLength(
+                nextWorkButton,
+                "next work",
+                false
+            )
+
+        ];
+
+
+    /*
+        Grid appears midway through
+        the toolbar transformation.
+    */
+
+    setTimeout(
+        () => {
+
+            indexMode =
+                true;
+
+
+            html.classList.add(
+                "index-mode"
+            );
+
+
+            body.classList.add(
+                "index-mode"
+            );
+
+
+            indexView.classList.add(
+                "visible"
+            );
+
+
+            window.scrollTo(
+                0,
+                0
+            );
+
+        },
+        TOOLBAR_ANIMATION_DURATION /
+        2
+    );
+
+
+    await Promise.all(
+        animations
+    );
+
+
+    interfaceAnimating =
+        false;
+
+}
+
+
+/* =====================================================
+   EXIT INDEX THROUGH THUMBNAIL
+   ===================================================== */
+
+async function exitIndexToProject(
+    targetProjectIndex
+) {
+
+    if (
+        !indexMode ||
+        interfaceAnimating
+    ) {
+
+        return;
+
+    }
+
+
+    interfaceAnimating =
+        true;
+
+
+    /*
+        Start loading chosen work immediately.
+    */
+
+    const targetProject =
+        projects[
+            targetProjectIndex
+        ];
+
+
+    const imagePromise =
+        preloadImage(
+            targetProject.images[
+                0
+            ]
+        );
+
+
+    /*
+        Remove grid as reverse toolbar
+        transformation begins.
+    */
+
+    indexView.classList.remove(
+        "visible"
+    );
+
+
+    indexMode =
+        false;
+
+
+    html.classList.remove(
+        "index-mode"
+    );
+
+
+    body.classList.remove(
+        "index-mode"
+    );
+
+
+    const showPreviousAfter =
+        false;
+
+
+    const showNextAfter =
+        targetProject.images.length >
+        1;
+
+
+    const animations =
+        [
+
+            animateTextLength(
+                previousWorkButton,
+                "previous work",
+                true
+            ),
+
+            animateTextLength(
+                previousButton,
+                "previous",
+                showPreviousAfter
+            ),
+
+            animateIndexCase(
+                false
+            ),
+
+            animateTextLength(
+                nextButton,
+                "next",
+                showNextAfter
+            ),
+
+            animateTextLength(
+                nextWorkButton,
+                "next work",
+                true
+            )
+
+        ];
+
+
+    await imagePromise
+        .catch(
+            () => {}
+        );
+
+
+    await showImage(
+        targetProjectIndex,
+        0,
+        false
+    );
+
+
+    previousVisible =
+        false;
+
+
+    nextVisible =
+        showNextAfter;
+
+
+    await Promise.all(
+        animations
+    );
+
+
+    indexButton.classList.remove(
+        "index-active"
+    );
+
+
+    interfaceAnimating =
+        false;
+
+
+    startAutoSlideshow();
+
+}
+
+
+/* =====================================================
+   CONTROL EVENTS
+   ===================================================== */
+
+previousWorkButton.addEventListener(
+    "click",
+    goPreviousWork
+);
+
+
+previousButton.addEventListener(
+    "click",
+    goPreviousFrame
+);
+
+
+nextButton.addEventListener(
+    "click",
+    goNextFrame
+);
+
+
+nextWorkButton.addEventListener(
+    "click",
+    goNextWork
+);
+
+
+indexButton.addEventListener(
+    "click",
+    enterIndex
 );
 
 
@@ -1566,7 +2232,16 @@ document.body.addEventListener(
    MOBILE / INSTAGRAM POSITION
    ===================================================== */
 
-function updateMobileSlideshow() {
+function updateMobileStage() {
+
+    if (
+        indexMode
+    ) {
+
+        return;
+
+    }
+
 
     const shortLandscape =
         window.matchMedia(
@@ -1578,13 +2253,13 @@ function updateMobileSlideshow() {
         shortLandscape
     ) {
 
-        slideshow.style.top =
+        projectStage.style.top =
             "";
 
-        slideshow.style.bottom =
+        projectStage.style.bottom =
             "";
 
-        slideshow.style.height =
+        projectStage.style.height =
             "";
 
 
@@ -1598,13 +2273,13 @@ function updateMobileSlideshow() {
         600
     ) {
 
-        slideshow.style.top =
+        projectStage.style.top =
             "";
 
-        slideshow.style.bottom =
+        projectStage.style.bottom =
             "";
 
-        slideshow.style.height =
+        projectStage.style.height =
             "";
 
 
@@ -1614,8 +2289,7 @@ function updateMobileSlideshow() {
 
 
     const infoRect =
-        info
-            .getBoundingClientRect();
+        info.getBoundingClientRect();
 
 
     const gapAfterInfo =
@@ -1623,7 +2297,7 @@ function updateMobileSlideshow() {
 
 
     const bottomGap =
-        20;
+        18;
 
 
     let viewportTop =
@@ -1639,15 +2313,11 @@ function updateMobileSlideshow() {
     ) {
 
         viewportTop =
-            window
-                .visualViewport
-                .offsetTop;
+            window.visualViewport.offsetTop;
 
 
         viewportHeight =
-            window
-                .visualViewport
-                .height;
+            window.visualViewport.height;
 
     }
 
@@ -1671,103 +2341,26 @@ function updateMobileSlideshow() {
         bottomGap;
 
 
-    const stageHeight =
-        Math.max(
-            120,
-            stageBottom -
-            stageTop
-        );
-
-
-    slideshow.style.top =
+    projectStage.style.top =
         `${stageTop}px`;
 
 
-    slideshow.style.height =
-        `${stageHeight}px`;
+    projectStage.style.height =
+        `${Math.max(
+            120,
+            stageBottom -
+            stageTop
+        )}px`;
 
 
-    slideshow.style.bottom =
+    projectStage.style.bottom =
         "auto";
 
 }
 
 
 /* =====================================================
-   VIEWPORT
-   ===================================================== */
-
-window.addEventListener(
-    "resize",
-    updateMobileSlideshow
-);
-
-
-window.addEventListener(
-    "orientationchange",
-    () => {
-
-        setTimeout(
-            updateMobileSlideshow,
-            150
-        );
-
-    }
-);
-
-
-if (
-    window.visualViewport
-) {
-
-    window
-        .visualViewport
-        .addEventListener(
-            "resize",
-            updateMobileSlideshow
-        );
-
-
-    window
-        .visualViewport
-        .addEventListener(
-            "scroll",
-            updateMobileSlideshow
-        );
-
-}
-
-
-window.addEventListener(
-    "load",
-    () => {
-
-        updateMobileSlideshow();
-
-
-        setTimeout(
-            updateMobileSlideshow,
-            100
-        );
-
-
-        setTimeout(
-            updateMobileSlideshow,
-            400
-        );
-
-
-        setTimeout(
-            updateMobileSlideshow,
-            1000
-        );
-
-    }
-);
-
-
-/* =====================================================
-   LOGO
+   LOGO ANIMATION
    ===================================================== */
 
 const logo =
@@ -1775,47 +2368,60 @@ const logo =
         ".logo"
     );
 
-
 const logoName =
     document.getElementById(
         "logo-name"
     );
 
+const letters =
+    [
+        document.getElementById(
+            "letter-a"
+        ),
 
-const letters = [
-    document.getElementById("letter-a"),
-    document.getElementById("letter-y"),
-    document.getElementById("letter-b"),
-    document.getElementById("letter-a2"),
-    document.getElementById("letter-k")
-];
+        document.getElementById(
+            "letter-y"
+        ),
+
+        document.getElementById(
+            "letter-b"
+        ),
+
+        document.getElementById(
+            "letter-a2"
+        ),
+
+        document.getElementById(
+            "letter-k"
+        )
+    ];
 
 
-const lowercase = [
-    "a",
-    "y",
-    "b",
-    "a",
-    "k"
-];
+const lowercase =
+    [
+        "a",
+        "y",
+        "b",
+        "a",
+        "k"
+    ];
 
 
-const uppercase = [
-    "A",
-    "Y",
-    "B",
-    "A",
-    "K"
-];
+const uppercase =
+    [
+        "A",
+        "Y",
+        "B",
+        "A",
+        "K"
+    ];
 
 
 let logoState =
     0;
 
-
 let logoTarget =
     0;
-
 
 let logoTimer =
     null;
@@ -1830,7 +2436,8 @@ function setLogoState(
 
 
     logoName.textContent =
-        state === 0
+        state ===
+        0
             ? "Denizalp"
             : "denizalp";
 
@@ -1842,11 +2449,15 @@ function setLogoState(
         i++
     ) {
 
-        letters[i]
-            .textContent =
-            i < state
-                ? uppercase[i]
-                : lowercase[i];
+        letters[i].textContent =
+            i <
+            state
+                ? uppercase[
+                    i
+                ]
+                : lowercase[
+                    i
+                ];
 
     }
 
@@ -1886,7 +2497,7 @@ function moveLogo() {
 }
 
 
-function animateTo(
+function animateLogoTo(
     target
 ) {
 
@@ -1920,7 +2531,7 @@ logo.addEventListener(
             600
         ) {
 
-            animateTo(
+            animateLogoTo(
                 5
             );
 
@@ -1939,7 +2550,7 @@ logo.addEventListener(
             600
         ) {
 
-            animateTo(
+            animateLogoTo(
                 0
             );
 
@@ -1954,7 +2565,7 @@ function mobileLogoCycle() {
     setTimeout(
         () => {
 
-            animateTo(
+            animateLogoTo(
                 5
             );
 
@@ -1962,7 +2573,7 @@ function mobileLogoCycle() {
             setTimeout(
                 () => {
 
-                    animateTo(
+                    animateLogoTo(
                         0
                     );
 
@@ -1999,7 +2610,7 @@ if (
 
 
 /* =====================================================
-   SECTION SWITCH
+   FILM SWITCH
    ===================================================== */
 
 const sectionSwitch =
@@ -2007,22 +2618,18 @@ const sectionSwitch =
         "section-switch"
     );
 
-
 const sectionSwitchText =
     document.getElementById(
         "section-switch-text"
     );
 
-
 const switchWord =
     "film";
-
 
 let switchState =
     0;
 
-
-let switchAnimationFrame =
+let switchFrame =
     null;
 
 
@@ -2048,10 +2655,12 @@ function renderSwitch(
         result +=
             i <
             upperCount
-                ? switchWord[i]
-                    .toUpperCase()
-                : switchWord[i]
-                    .toLowerCase();
+                ? switchWord[
+                    i
+                ].toUpperCase()
+                : switchWord[
+                    i
+                ];
 
     }
 
@@ -2067,12 +2676,12 @@ function morphSwitchTo(
 ) {
 
     if (
-        switchAnimationFrame !==
+        switchFrame !==
         null
     ) {
 
         cancelAnimationFrame(
-            switchAnimationFrame
+            switchFrame
         );
 
     }
@@ -2107,7 +2716,7 @@ function morphSwitchTo(
         );
 
 
-    const startTime =
+    const start =
         performance.now();
 
 
@@ -2120,7 +2729,7 @@ function morphSwitchTo(
                 1,
                 (
                     now -
-                    startTime
+                    start
                 ) /
                 duration
             );
@@ -2147,7 +2756,7 @@ function morphSwitchTo(
             1
         ) {
 
-            switchAnimationFrame =
+            switchFrame =
                 requestAnimationFrame(
                     frame
                 );
@@ -2161,7 +2770,7 @@ function morphSwitchTo(
             );
 
 
-            switchAnimationFrame =
+            switchFrame =
                 null;
 
         }
@@ -2169,7 +2778,7 @@ function morphSwitchTo(
     }
 
 
-    switchAnimationFrame =
+    switchFrame =
         requestAnimationFrame(
             frame
         );
@@ -2216,6 +2825,198 @@ sectionSwitch.addEventListener(
 
 
 /* =====================================================
+   RESIZE
+   ===================================================== */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        updateMobileStage();
+
+
+        requestAnimationFrame(
+            syncProjectWidths
+        );
+
+    }
+);
+
+
+window.addEventListener(
+    "orientationchange",
+    () => {
+
+        setTimeout(
+            () => {
+
+                updateMobileStage();
+
+                syncProjectWidths();
+
+            },
+            200
+        );
+
+    }
+);
+
+
+if (
+    window.visualViewport
+) {
+
+    window.visualViewport.addEventListener(
+        "resize",
+        updateMobileStage
+    );
+
+
+    window.visualViewport.addEventListener(
+        "scroll",
+        updateMobileStage
+    );
+
+}
+
+
+currentPhoto.addEventListener(
+    "load",
+    () => {
+
+        requestAnimationFrame(
+            () => {
+
+                syncProjectWidths();
+
+                updateMobileStage();
+
+            }
+        );
+
+    }
+);
+
+
+/* =====================================================
+   LOAD PROJECTS
+   ===================================================== */
+
+async function loadProjects() {
+
+    try {
+
+        const response =
+            await fetch(
+                PROJECTS_JSON,
+                {
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                "projects.json could not be loaded."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        projects =
+            data.filter(
+                project =>
+                    project &&
+                    Array.isArray(
+                        project.images
+                    ) &&
+                    project.images.length >
+                    0
+            );
+
+
+        if (
+            projects.length ===
+            0
+        ) {
+
+            return;
+
+        }
+
+
+        buildIndex();
+
+
+        await showImage(
+            0,
+            0,
+            false
+        );
+
+
+        previousVisible =
+            false;
+
+
+        nextVisible =
+            currentProject()
+                .images
+                .length >
+            1;
+
+
+        previousButton.textContent =
+            "";
+
+
+        previousButton.disabled =
+            true;
+
+
+        nextButton.textContent =
+            nextVisible
+                ? "next"
+                : "";
+
+
+        nextButton.disabled =
+            !nextVisible;
+
+
+        preloadCovers();
+
+
+        updateMobileStage();
+
+
+        syncProjectWidths();
+
+
+        startAutoSlideshow();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
    START
    ===================================================== */
 
@@ -2229,10 +3030,12 @@ renderSwitch(
 );
 
 
-updateMobileSlideshow();
+renderIndexCase(
+    0
+);
 
 
-loadPhotos();
+loadProjects();
 
 </script>
 
