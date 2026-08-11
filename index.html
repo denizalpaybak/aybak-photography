@@ -62,6 +62,18 @@ body {
 
     --viewer-width: 70vw;
 
+    /*
+        Fixed-height image zone.
+
+        Image dimensions can change inside it,
+        metadata below it cannot move vertically.
+    */
+    --visual-height: 66vh;
+
+    /*
+        Measured dynamically from actual
+        header/contact block.
+    */
     --index-content-top: 130px;
 
 }
@@ -77,7 +89,7 @@ body {
 
 
 /* =====================================================
-   INFO
+   INFORMATION
    ===================================================== */
 
 .info {
@@ -129,7 +141,7 @@ body {
 
 
 /* =====================================================
-   CONTACT / SOCIAL
+   CONTACT
    ===================================================== */
 
 .contact,
@@ -154,7 +166,7 @@ body {
 
 
 /* =====================================================
-   FILM LINK
+   FILM
    ===================================================== */
 
 .section-switch {
@@ -195,11 +207,8 @@ body {
 /* =====================================================
    PROJECT BLOCK
 
-   IMPORTANT:
-   width is fixed to viewer width.
-
-   Therefore metadata never moves when
-   image aspect ratio changes.
+   The complete block has a fixed visual zone.
+   Therefore metadata Y never changes.
    ===================================================== */
 
 #project-block {
@@ -207,37 +216,50 @@ body {
     flex-direction: column;
     align-items: center;
 
-    width: var(--viewer-width);
+    width: 100%;
+    height:
+        calc(
+            var(--visual-height) +
+            48px
+        );
 
     pointer-events: none;
 }
 
 
 /* =====================================================
-   SPREAD AREA
+   FIXED VISUAL ZONE
    ===================================================== */
 
-#spread-frame {
+#visual-zone {
     display: flex;
 
     align-items: center;
     justify-content: center;
 
     width: 100%;
+    height: var(--visual-height);
+
+    flex: 0 0 var(--visual-height);
 
     pointer-events: none;
 }
 
+
+/* =====================================================
+   SPREAD
+   ===================================================== */
+
 #spread {
     display: flex;
 
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
 
     gap: 10px;
 
     width: auto;
-    max-width: 100%;
+    max-width: var(--viewer-width);
 
     pointer-events: none;
 }
@@ -251,6 +273,7 @@ body {
     display: block;
 
     width: auto;
+    height: auto;
 
     pointer-events: none;
 }
@@ -285,7 +308,7 @@ body {
 
 #spread.pair .spread-image {
     max-width: 100%;
-    max-height: 64vh;
+    max-height: var(--visual-height);
 }
 
 
@@ -303,33 +326,40 @@ body {
 
 #spread.single .spread-image {
     max-width: var(--viewer-width);
-    max-height: 68vh;
+    max-height: var(--visual-height);
 }
 
 
 /* =====================================================
    METADATA
 
-   2 columns:
-   LEFT  = title / date
-   RIGHT = current / total
+   IMPORTANT:
 
-   Fixed viewer width means all four anchor points
-   stay exactly where they are.
+   Vertical position comes entirely from
+   visual-zone height and therefore never moves.
+
+   Width is set dynamically in JS to the
+   ACTUAL rendered spread width.
+
+   So:
+   - X follows the photograph/spread.
+   - Y never changes.
    ===================================================== */
 
 #project-meta {
     display: grid;
 
     grid-template-columns:
-        1fr
+        minmax(0, 1fr)
         auto;
 
     grid-template-rows:
         auto
         auto;
 
-    width: 100%;
+    align-self: center;
+
+    width: 0;
 
     margin-top: 9px;
 
@@ -343,7 +373,7 @@ body {
 
 
 /* =====================================================
-   LEFT META
+   META LEFT
    ===================================================== */
 
 #project-title {
@@ -351,6 +381,8 @@ body {
     grid-row: 1;
 
     text-align: left;
+
+    white-space: nowrap;
 }
 
 #project-date {
@@ -358,18 +390,20 @@ body {
     grid-row: 2;
 
     text-align: left;
+
+    white-space: nowrap;
 }
 
 
 /* =====================================================
-   RIGHT META
+   META RIGHT
    ===================================================== */
 
 #project-current {
     grid-column: 2;
     grid-row: 1;
 
-    min-width: 72px;
+    padding-left: 28px;
 
     text-align: right;
 
@@ -571,14 +605,12 @@ body {
 
 
 /* =====================================================
-   CARD COPY
+   CARD INFO
    ===================================================== */
 
 .card-copy {
     display: flex;
     flex-direction: column;
-
-    align-items: flex-start;
 
     width: 100%;
 
@@ -628,8 +660,12 @@ body.index-mode #project-stage {
     and (orientation: portrait) {
 
     :root {
+
         --viewer-width: 72vw;
+        --visual-height: 62vh;
+
     }
+
 
     #index-scroller {
         padding:
@@ -637,6 +673,7 @@ body.index-mode #project-stage {
             38px
             20px;
     }
+
 
     #index-grid {
         grid-template-columns:
@@ -650,6 +687,7 @@ body.index-mode #project-stage {
             38px;
     }
 
+
     .project-card {
         width:
             min(
@@ -662,7 +700,7 @@ body.index-mode #project-stage {
 
 
 /* =====================================================
-   MOBILE PORTRAIT
+   MOBILE
    ===================================================== */
 
 @media (max-width: 600px) {
@@ -680,6 +718,12 @@ body.index-mode #project-stage {
 
         --viewer-width: 76vw;
 
+        /*
+            JS stage height contains this block,
+            but Y remains constant inside that stage.
+        */
+        --visual-height: calc(100% - 45px);
+
     }
 
 
@@ -694,7 +738,7 @@ body.index-mode #project-stage {
 
 
     /* =================================================
-       SLIDESHOW
+       MOBILE PROJECT
        ================================================= */
 
     #project-stage {
@@ -707,26 +751,53 @@ body.index-mode #project-stage {
     }
 
 
+    #project-block {
+        height: 100%;
+    }
+
+
+    #visual-zone {
+        height:
+            calc(
+                100% -
+                45px
+            );
+
+        flex:
+            0
+            0
+            calc(
+                100% -
+                45px
+            );
+    }
+
+
     /*
-        Portrait phone always shows
-        one image.
+        Mobile portrait:
+        one frame only.
     */
 
     #spread {
         display: block;
 
         gap: 0;
+
+        max-width: var(--viewer-width);
     }
+
 
     #spread.pair
     .image-cell:nth-child(2) {
         display: none;
     }
 
+
     #spread.pair .image-cell,
     #spread.single .image-cell {
         max-width: var(--viewer-width);
     }
+
 
     #spread.pair .spread-image,
     #spread.single .spread-image {
@@ -735,18 +806,18 @@ body.index-mode #project-stage {
         max-height:
             calc(
                 100% -
-                86px
+                2px
             );
     }
 
 
     #project-current {
-        min-width: 58px;
+        padding-left: 20px;
     }
 
 
     /* =================================================
-       MOBILE INDEX — HORIZONTAL RAIL
+       MOBILE INDEX
        ================================================= */
 
     #index-scroller {
@@ -764,12 +835,13 @@ body.index-mode #project-stage {
             );
 
         /*
-            First project starts EXACTLY at
-            the same x alignment as the info block.
+            NO padding-left here.
+
+            The initial alignment is handled by
+            actual content margin below, so scroll
+            behaviour is completely predictable.
         */
-        padding:
-            0
-            var(--side);
+        padding: 0;
 
         overflow-x: auto;
         overflow-y: hidden;
@@ -777,12 +849,13 @@ body.index-mode #project-stage {
         display: flex;
         align-items: center;
 
-        scroll-snap-type: x proximity;
+        scroll-snap-type: none;
 
         -webkit-overflow-scrolling: touch;
 
         scrollbar-width: none;
     }
+
 
     #index-scroller::-webkit-scrollbar {
         display: none;
@@ -801,6 +874,25 @@ body.index-mode #project-stage {
 
         width: max-content;
         height: auto;
+
+        /*
+            REAL first-item offset.
+
+            Therefore first thumbnail begins
+            exactly at same x as Denizalp Aybak.
+        */
+        margin-left: var(--side);
+        margin-right: var(--side);
+    }
+
+
+    /*
+        Once user takes over,
+        snap can be re-enabled.
+    */
+
+    #index-scroller.manual {
+        scroll-snap-type: x proximity;
     }
 
 
@@ -813,11 +905,6 @@ body.index-mode #project-stage {
         width: 48vw;
 
         scroll-snap-align: start;
-    }
-
-
-    .project-card:last-child {
-        margin-right: var(--side);
     }
 
 }
@@ -844,6 +931,8 @@ body.index-mode #project-stage {
 
         --viewer-width: 64vw;
 
+        --visual-height: 54vh;
+
     }
 
 
@@ -851,6 +940,7 @@ body.index-mode #project-stage {
         width: 160px;
         height: 45px;
     }
+
 
     .logo-aybak {
         top: 15px;
@@ -872,15 +962,6 @@ body.index-mode #project-stage {
     }
 
 
-    #spread.single .spread-image {
-        max-height: 52vh;
-    }
-
-    #spread.pair .spread-image {
-        max-height: 50vh;
-    }
-
-
     #index-scroller {
         left: 190px;
 
@@ -892,6 +973,7 @@ body.index-mode #project-stage {
             12px
             24px;
     }
+
 
     #index-grid {
         grid-template-columns:
@@ -905,6 +987,7 @@ body.index-mode #project-stage {
             30px;
     }
 
+
     .project-card {
         width:
             min(
@@ -917,7 +1000,7 @@ body.index-mode #project-stage {
 
 
 /* =====================================================
-   MOBILE LANDSCAPE
+   MOBILE LANDSCAPE INDEX
    ===================================================== */
 
 @media
@@ -937,9 +1020,7 @@ body.index-mode #project-stage {
                 env(safe-area-inset-bottom)
             );
 
-        padding:
-            0
-            var(--side);
+        padding: 0;
 
         overflow-x: auto;
         overflow-y: hidden;
@@ -947,14 +1028,21 @@ body.index-mode #project-stage {
         display: flex;
         align-items: center;
 
-        scroll-snap-type: x proximity;
+        scroll-snap-type: none;
 
         scrollbar-width: none;
     }
 
+
     #index-scroller::-webkit-scrollbar {
         display: none;
     }
+
+
+    #index-scroller.manual {
+        scroll-snap-type: x proximity;
+    }
+
 
     #index-grid {
         display: flex;
@@ -965,7 +1053,11 @@ body.index-mode #project-stage {
         gap: 28px;
 
         width: max-content;
+
+        margin-left: var(--side);
+        margin-right: var(--side);
     }
+
 
     .project-card {
         flex:
@@ -988,7 +1080,7 @@ body.index-mode #project-stage {
 
 
 <!-- ===================================================
-     INFORMATION
+     INFO
      =================================================== -->
 
 <div
@@ -1071,7 +1163,7 @@ body.index-mode #project-stage {
 
 
 <!-- ===================================================
-     PROJECT VIEW
+     PROJECT
      =================================================== -->
 
 <div id="project-stage">
@@ -1079,7 +1171,7 @@ body.index-mode #project-stage {
     <div id="project-block">
 
 
-        <div id="spread-frame">
+        <div id="visual-zone">
 
             <div
                 id="spread"
@@ -1156,52 +1248,46 @@ const SLIDE_DURATION =
     3000;
 
 
-/*
-    Frame-number morph:
-    quick.
-*/
-
 const COUNTER_TRANSITION_DURATION =
-    220;
+    190;
 
-
-/*
-    Project title/date/total morph:
-    slightly slower so a new project
-    feels intentional.
-*/
 
 const PROJECT_TRANSITION_OUT_DURATION =
-    180;
+    170;
 
 
 const PROJECT_TRANSITION_IN_DURATION =
-    260;
+    240;
 
 
 /*
-    INDEX intentionally faster than FILM.
+    Faster than previous 600ms INDEX.
 */
 
 const INDEX_TRANSITION_DURATION =
     400;
 
 
-/*
-    Existing typography timing.
-*/
-
 const WORD_TRANSITION_DURATION =
     600;
 
 
 /*
-    Mobile horizontal index drift.
-    Pixels per second.
+    Mobile index:
+    deliberately very slow.
 */
 
 const INDEX_DRIFT_SPEED =
-    16;
+    14;
+
+
+/*
+    Initial thumbnail stays visibly aligned
+    with Denizalp for a moment before moving.
+*/
+
+const INDEX_DRIFT_DELAY =
+    700;
 
 
 /* =====================================================
@@ -1227,6 +1313,12 @@ const projectStage =
 const spread =
     document.getElementById(
         "spread"
+    );
+
+
+const projectMeta =
+    document.getElementById(
+        "project-meta"
     );
 
 
@@ -1298,6 +1390,10 @@ let spreadEnd =
     0;
 
 
+let renderedProjectIndex =
+    null;
+
+
 let manualMode =
     false;
 
@@ -1314,27 +1410,23 @@ let interfaceAnimating =
     false;
 
 
+let navigationAnimating =
+    false;
+
+
 let autoplayBeforeIndex =
     false;
 
 
-/*
-    Tracks last project already rendered
-    in metadata.
-
-    This is what lets us know whether
-    title/date/total should morph.
-*/
-
-let renderedProjectIndex =
-    null;
-
-
 /* =====================================================
-   MOBILE INDEX DRIFT STATE
+   INDEX DRIFT
    ===================================================== */
 
 let indexDriftFrame =
+    null;
+
+
+let indexDriftTimer =
     null;
 
 
@@ -1499,7 +1591,7 @@ function preloadImage(
 
 
 /* =====================================================
-   PROJECT HELPERS
+   HELPERS
    ===================================================== */
 
 function currentProject() {
@@ -1528,7 +1620,7 @@ function normalizeProjectIndex(
 
 
 /* =====================================================
-   HEADER MEASUREMENT
+   INDEX TOP
    ===================================================== */
 
 function updateIndexContentTop() {
@@ -1584,7 +1676,7 @@ function shouldUsePairLayout() {
 
 
 /* =====================================================
-   GET SPREAD
+   GET FORWARD SPREAD
    ===================================================== */
 
 async function getForwardSpread(
@@ -1627,7 +1719,7 @@ async function getForwardSpread(
 
 
     /*
-        Landscape always single.
+        Landscape is single.
     */
 
     if (
@@ -1678,6 +1770,10 @@ async function getForwardSpread(
             ]
         );
 
+
+    /*
+        Portrait + portrait.
+    */
 
     if (
         second.portrait
@@ -1798,7 +1894,7 @@ async function buildProjectSpreads(
 
 
 /* =====================================================
-   CURRENT FRAME LABEL
+   COUNTER LABEL
    ===================================================== */
 
 function getCurrentFrameText(
@@ -1841,7 +1937,7 @@ function getCurrentFrameText(
 
 
 /* =====================================================
-   TOTAL LABEL
+   TOTAL
    ===================================================== */
 
 function getTotalText(
@@ -1859,7 +1955,7 @@ function getTotalText(
 
 
 /* =====================================================
-   GENERIC TEXT DELETE
+   TEXT OUT
    ===================================================== */
 
 function animateTextOut(
@@ -1898,7 +1994,8 @@ function animateTextOut(
                     Math.min(
                         1,
                         (
-                            now - start
+                            now -
+                            start
                         ) /
                         duration
                     );
@@ -1907,7 +2004,8 @@ function animateTextOut(
                 const length =
                     Math.round(
                         (
-                            1 - progress
+                            1 -
+                            progress
                         ) *
                         fullText.length
                     );
@@ -1954,7 +2052,7 @@ function animateTextOut(
 
 
 /* =====================================================
-   GENERIC TEXT REVEAL
+   TEXT IN
    ===================================================== */
 
 function animateTextIn(
@@ -1998,7 +2096,8 @@ function animateTextIn(
                     Math.min(
                         1,
                         (
-                            now - start
+                            now -
+                            start
                         ) /
                         duration
                     );
@@ -2052,12 +2151,7 @@ function animateTextIn(
 
 
 /* =====================================================
-   MORPH TEXT
-
-   Dynamic:
-   old value -> blank -> new value.
-
-   Nothing is hard-coded to project order.
+   TEXT MORPH
    ===================================================== */
 
 async function morphText(
@@ -2164,13 +2258,64 @@ function renderImages(
 
 
 /* =====================================================
-   METADATA UPDATE
+   SYNC META X ONLY
 
-   current number:
-   every spread
+   This is the key change.
 
-   title/date/total:
-   only when project changes
+   We measure the true spread width and copy ONLY
+   that width to the metadata.
+
+   Vertical flow / position is untouched.
+   ===================================================== */
+
+function syncMetadataHorizontal() {
+
+    if (
+        indexMode
+    ) {
+
+        return;
+
+    }
+
+
+    const rect =
+        spread.getBoundingClientRect();
+
+
+    if (
+        rect.width > 0
+    ) {
+
+        projectMeta.style.width =
+            `${rect.width}px`;
+
+    }
+
+}
+
+
+/* =====================================================
+   WAIT ONE PAINT THEN MEASURE
+   ===================================================== */
+
+function syncMetadataAfterRender() {
+
+    requestAnimationFrame(
+        () => {
+
+            requestAnimationFrame(
+                syncMetadataHorizontal
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   UPDATE META
    ===================================================== */
 
 async function updateProjectMetadata(
@@ -2197,10 +2342,6 @@ async function updateProjectMetadata(
         );
 
 
-    /*
-        Current frame always morphs.
-    */
-
     const currentAnimation =
         morphText(
             projectCurrent,
@@ -2214,13 +2355,10 @@ async function updateProjectMetadata(
         projectChanged
     ) {
 
-        /*
-            New project:
-            title/date/total morph dynamically.
-        */
-
-        const projectAnimations =
+        await Promise.all(
             [
+
+                currentAnimation,
 
                 morphText(
                     projectTitle,
@@ -2245,13 +2383,6 @@ async function updateProjectMetadata(
                     PROJECT_TRANSITION_IN_DURATION
                 )
 
-            ];
-
-
-        await Promise.all(
-            [
-                currentAnimation,
-                ...projectAnimations
             ]
         );
 
@@ -2271,7 +2402,7 @@ async function updateProjectMetadata(
 
 
 /* =====================================================
-   PRELOAD AHEAD
+   PRELOAD
    ===================================================== */
 
 function preloadAhead() {
@@ -2341,6 +2472,19 @@ async function showSpread(
     targetStartIndex
 ) {
 
+    if (
+        navigationAnimating
+    ) {
+
+        return false;
+
+    }
+
+
+    navigationAnimating =
+        true;
+
+
     const normalized =
         normalizeProjectIndex(
             targetProjectIndex
@@ -2373,24 +2517,8 @@ async function showSpread(
 
 
         /*
-            Render images immediately.
+            Update navigation state first.
         */
-
-        renderImages(
-            data
-        );
-
-
-        /*
-            Then morph metadata.
-        */
-
-        await updateProjectMetadata(
-            normalized,
-            data.start,
-            data.end
-        );
-
 
         projectIndex =
             normalized;
@@ -2404,6 +2532,31 @@ async function showSpread(
             data.end;
 
 
+        /*
+            Image dimensions can change,
+            but visual-zone remains fixed.
+        */
+
+        renderImages(
+            data
+        );
+
+
+        /*
+            X follows new rendered spread.
+            Y remains untouched.
+        */
+
+        syncMetadataAfterRender();
+
+
+        await updateProjectMetadata(
+            normalized,
+            data.start,
+            data.end
+        );
+
+
         preloadAhead();
 
 
@@ -2412,6 +2565,10 @@ async function showSpread(
         ).catch(
             () => {}
         );
+
+
+        navigationAnimating =
+            false;
 
 
         return true;
@@ -2423,6 +2580,10 @@ async function showSpread(
         console.warn(
             error
         );
+
+
+        navigationAnimating =
+            false;
 
 
         return false;
@@ -2437,6 +2598,15 @@ async function showSpread(
    ===================================================== */
 
 async function nextSpread() {
+
+    if (
+        navigationAnimating
+    ) {
+
+        return;
+
+    }
+
 
     const project =
         currentProject();
@@ -2468,6 +2638,15 @@ async function nextSpread() {
    ===================================================== */
 
 async function previousSpread() {
+
+    if (
+        navigationAnimating
+    ) {
+
+        return;
+
+    }
+
 
     if (
         spreadStart <= 0
@@ -2553,9 +2732,6 @@ async function previousSpread() {
 
     }
 
-
-    return false;
-
 }
 
 
@@ -2621,7 +2797,7 @@ function stopAutoSlideshow() {
 
 
 /* =====================================================
-   INDEX SORT
+   CHRONOLOGICAL INDEX
    ===================================================== */
 
 function getChronologicalProjects() {
@@ -2862,7 +3038,7 @@ function buildIndex() {
 
 
 /* =====================================================
-   GENERIC CASE
+   WORD CASE
    ===================================================== */
 
 function renderWordCase(
@@ -2908,10 +3084,6 @@ let indexWordState =
 let indexWordFrame =
     null;
 
-
-/* =====================================================
-   RENDER INDEX WORD
-   ===================================================== */
 
 function renderIndexWord(
     upperCount
@@ -2992,7 +3164,8 @@ function morphIndexTo(
                     Math.min(
                         1,
                         (
-                            now - start
+                            now -
+                            start
                         ) /
                         duration
                     );
@@ -3055,7 +3228,7 @@ function morphIndexTo(
 
 
 /* =====================================================
-   DESKTOP INDEX HOVER
+   INDEX DESKTOP HOVER
    ===================================================== */
 
 indexButton.addEventListener(
@@ -3075,7 +3248,7 @@ indexButton.addEventListener(
             Slideshow:
             index -> INDEX
 
-            Index mode:
+            Index view:
             INDEX -> index
         */
 
@@ -3115,9 +3288,7 @@ indexButton.addEventListener(
 
 
         /*
-            Locked state by view:
-            slideshow = index
-            index view = INDEX
+            State locks after mouse leaves.
         */
 
         if (
@@ -3143,13 +3314,28 @@ indexButton.addEventListener(
 
 
 /* =====================================================
-   MOBILE INDEX DRIFT
+   STOP INDEX DRIFT
    ===================================================== */
 
 function stopIndexDrift() {
 
     indexDriftManual =
         true;
+
+
+    if (
+        indexDriftTimer !== null
+    ) {
+
+        clearTimeout(
+            indexDriftTimer
+        );
+
+
+        indexDriftTimer =
+            null;
+
+    }
 
 
     if (
@@ -3170,11 +3356,18 @@ function stopIndexDrift() {
     indexDriftLastTime =
         null;
 
+
+    indexScroller
+        .classList
+        .add(
+            "manual"
+        );
+
 }
 
 
 /* =====================================================
-   DRIFT FRAME
+   INDEX DRIFT LOOP
    ===================================================== */
 
 function runIndexDrift(
@@ -3206,7 +3399,7 @@ function runIndexDrift(
     }
 
 
-    const delta =
+    const deltaSeconds =
         (
             now -
             indexDriftLastTime
@@ -3224,32 +3417,44 @@ function runIndexDrift(
 
 
     if (
-        maxScroll > 0
+        maxScroll <= 0
     ) {
 
-        /*
-            Move slowly right.
-        */
-
-        indexScroller.scrollLeft +=
-            INDEX_DRIFT_SPEED *
-            delta;
+        indexDriftFrame =
+            requestAnimationFrame(
+                runIndexDrift
+            );
 
 
-        /*
-            Once the end is reached, loop
-            softly back to the beginning.
-        */
+        return;
 
-        if (
-            indexScroller.scrollLeft >=
-            maxScroll - 1
-        ) {
+    }
 
-            indexScroller.scrollLeft =
-                0;
 
-        }
+    indexScroller.scrollLeft +=
+        INDEX_DRIFT_SPEED *
+        deltaSeconds;
+
+
+    /*
+        At the end we simply stop.
+        No ugly jump back to beginning.
+    */
+
+    if (
+        indexScroller.scrollLeft >=
+        maxScroll - 1
+    ) {
+
+        indexScroller.scrollLeft =
+            maxScroll;
+
+
+        indexDriftFrame =
+            null;
+
+
+        return;
 
     }
 
@@ -3263,7 +3468,7 @@ function runIndexDrift(
 
 
 /* =====================================================
-   START DRIFT
+   START INDEX DRIFT
    ===================================================== */
 
 function startIndexDrift() {
@@ -3277,13 +3482,27 @@ function startIndexDrift() {
     }
 
 
-    stopIndexDrift();
+    if (
+        indexDriftTimer !== null
+    ) {
+
+        clearTimeout(
+            indexDriftTimer
+        );
+
+    }
 
 
-    /*
-        New index session:
-        automation is enabled again.
-    */
+    if (
+        indexDriftFrame !== null
+    ) {
+
+        cancelAnimationFrame(
+            indexDriftFrame
+        );
+
+    }
+
 
     indexDriftManual =
         false;
@@ -3293,19 +3512,42 @@ function startIndexDrift() {
         null;
 
 
-    indexDriftFrame =
-        requestAnimationFrame(
-            runIndexDrift
+    indexScroller
+        .classList
+        .remove(
+            "manual"
+        );
+
+
+    indexDriftTimer =
+        setTimeout(
+            () => {
+
+                indexDriftTimer =
+                    null;
+
+
+                if (
+                    indexMode &&
+                    !indexDriftManual
+                ) {
+
+                    indexDriftFrame =
+                        requestAnimationFrame(
+                            runIndexDrift
+                        );
+
+                }
+
+            },
+            INDEX_DRIFT_DELAY
         );
 
 }
 
 
 /* =====================================================
-   USER TAKES OVER INDEX
-
-   pointerdown is enough:
-   from that moment onward rail is manual.
+   USER TAKES CONTROL OF INDEX
    ===================================================== */
 
 indexScroller.addEventListener(
@@ -3375,7 +3617,7 @@ async function enterIndex() {
 
 
     /*
-        Lock word uppercase in index mode.
+        Locked uppercase state.
     */
 
     await morphIndexTo(
@@ -3388,7 +3630,8 @@ async function enterIndex() {
     ) {
 
         /*
-            First project begins aligned to --side.
+            0 means the REAL left margin
+            on #index-grid is visible.
         */
 
         indexScroller.scrollLeft =
@@ -3451,6 +3694,9 @@ async function returnFromIndex() {
     updateMobileStage();
 
 
+    syncMetadataAfterRender();
+
+
     if (
         autoplayBeforeIndex
     ) {
@@ -3483,7 +3729,7 @@ async function returnFromIndex() {
 
 
 /* =====================================================
-   INDEX THUMBNAIL -> PROJECT
+   EXIT INDEX TO PROJECT
    ===================================================== */
 
 async function exitIndexToProject(
@@ -3535,6 +3781,9 @@ async function exitIndexToProject(
     updateMobileStage();
 
 
+    syncMetadataAfterRender();
+
+
     manualMode =
         false;
 
@@ -3569,11 +3818,11 @@ indexButton.addEventListener(
 
 
         /*
-            Desktop index view:
-            only lowercase "index" exits.
+            Desktop in INDEX view:
+            user first hovers it into lowercase
+            and then clicks.
 
-            Uppercase INDEX is the locked
-            current-view state.
+            Clicking locked uppercase does nothing.
         */
 
         if (
@@ -3607,12 +3856,6 @@ indexButton.addEventListener(
 
 /* =====================================================
    SLIDESHOW CLICK
-
-   first = stop
-
-   later:
-   left 25% = previous
-   rest = next
    ===================================================== */
 
 body.addEventListener(
@@ -3631,7 +3874,8 @@ body.addEventListener(
 
         if (
             indexMode ||
-            interfaceAnimating
+            interfaceAnimating ||
+            navigationAnimating
         ) {
 
             return;
@@ -3649,6 +3893,10 @@ body.addEventListener(
 
         }
 
+
+        /*
+            First click only stops.
+        */
 
         if (
             !manualMode
@@ -3715,7 +3963,8 @@ document.addEventListener(
 
 
         if (
-            interfaceAnimating
+            interfaceAnimating ||
+            navigationAnimating
         ) {
 
             return;
@@ -3766,10 +4015,6 @@ document.addEventListener(
     "touchstart",
     event => {
 
-        /*
-            Index uses native horizontal scroll.
-        */
-
         if (
             indexMode
         ) {
@@ -3808,6 +4053,7 @@ document.addEventListener(
         if (
             indexMode ||
             interfaceAnimating ||
+            navigationAnimating ||
             touchStartX === null ||
             touchStartY === null
         ) {
@@ -3840,8 +4086,12 @@ document.addEventListener(
 
 
         if (
-            Math.abs(deltaX) <=
-            Math.abs(deltaY)
+            Math.abs(
+                deltaX
+            ) <=
+            Math.abs(
+                deltaY
+            )
         ) {
 
             return;
@@ -3850,7 +4100,10 @@ document.addEventListener(
 
 
         if (
-            Math.abs(deltaX) < 45
+            Math.abs(
+                deltaX
+            ) <
+            45
         ) {
 
             return;
@@ -3859,7 +4112,8 @@ document.addEventListener(
 
 
         suppressClickUntil =
-            Date.now() + 500;
+            Date.now() +
+            500;
 
 
         stopAutoSlideshow();
@@ -3946,8 +4200,7 @@ function updateMobileStage() {
 
 
     const infoRect =
-        info
-            .getBoundingClientRect();
+        info.getBoundingClientRect();
 
 
     const gapAfterInfo =
@@ -3971,15 +4224,11 @@ function updateMobileStage() {
     ) {
 
         viewportTop =
-            window
-                .visualViewport
-                .offsetTop;
+            window.visualViewport.offsetTop;
 
 
         viewportHeight =
-            window
-                .visualViewport
-                .height;
+            window.visualViewport.height;
 
     }
 
@@ -4009,7 +4258,7 @@ function updateMobileStage() {
 
     projectStage.style.height =
         `${Math.max(
-            120,
+            160,
             stageBottom -
             stageTop
         )}px`;
@@ -4017,6 +4266,14 @@ function updateMobileStage() {
 
     projectStage.style.bottom =
         "auto";
+
+
+    /*
+        Metadata horizontal measurement
+        may change after viewport resize.
+    */
+
+    syncMetadataAfterRender();
 
 }
 
@@ -4294,10 +4551,6 @@ let switchFrame =
     null;
 
 
-/* =====================================================
-   RENDER WORD CASE
-   ===================================================== */
-
 function renderSwitch(
     upperCount
 ) {
@@ -4374,7 +4627,8 @@ function morphSwitchTo(
             Math.min(
                 1,
                 (
-                    now - start
+                    now -
+                    start
                 ) /
                 duration
             );
@@ -4478,7 +4732,8 @@ async function refreshResponsiveSpread() {
 
     if (
         projects.length === 0 ||
-        indexMode
+        indexMode ||
+        navigationAnimating
     ) {
 
         return;
@@ -4490,13 +4745,16 @@ async function refreshResponsiveSpread() {
 
 
     /*
-        Preserve project and current first frame.
+        Preserve same first visible frame.
     */
 
     await showSpread(
         projectIndex,
         spreadStart
     );
+
+
+    syncMetadataAfterRender();
 
 }
 
@@ -4530,6 +4788,9 @@ window.addEventListener(
 
                     await refreshResponsiveSpread();
 
+
+                    syncMetadataAfterRender();
+
                 },
                 150
             );
@@ -4557,6 +4818,9 @@ window.addEventListener(
 
                 await refreshResponsiveSpread();
 
+
+                syncMetadataAfterRender();
+
             },
             250
         );
@@ -4583,6 +4847,9 @@ if (
 
 
                 updateMobileStage();
+
+
+                syncMetadataAfterRender();
 
             }
         );
@@ -4655,9 +4922,7 @@ async function loadProjects() {
 
 
         /*
-            Start first project without
-            treating it as a transition from
-            an existing project.
+            Initial spread without morphing from blank.
         */
 
         const firstData =
@@ -4677,6 +4942,10 @@ async function loadProjects() {
 
         spreadEnd =
             firstData.end;
+
+
+        renderedProjectIndex =
+            0;
 
 
         renderImages(
@@ -4705,8 +4974,11 @@ async function loadProjects() {
             );
 
 
-        renderedProjectIndex =
-            0;
+        /*
+            Measure the actual spread after render.
+        */
+
+        syncMetadataAfterRender();
 
 
         projects.forEach(
