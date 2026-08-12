@@ -1337,6 +1337,10 @@ const LOGO_STEP_DURATION =
     80;
 
 
+const MOBILE_NAV_HOLD =
+    520;
+
+
 /* =====================================================
    INDEX
    ===================================================== */
@@ -5772,6 +5776,10 @@ let logoTimer =
     null;
 
 
+let logoResolve =
+    null;
+
+
 function setLogoState(
     state
 ) {
@@ -5811,6 +5819,23 @@ function moveLogo() {
 
         logoTimer =
             null;
+
+
+        if (
+            logoResolve
+        ) {
+
+            const resolve =
+                logoResolve;
+
+
+            logoResolve =
+                null;
+
+
+            resolve();
+
+        }
 
 
         return;
@@ -5854,7 +5879,29 @@ function animateLogoTo(
     }
 
 
-    moveLogo();
+    if (
+        logoResolve
+    ) {
+
+        logoResolve();
+
+        logoResolve =
+            null;
+
+    }
+
+
+    return new Promise(
+        resolve => {
+
+            logoResolve =
+                resolve;
+
+
+            moveLogo();
+
+        }
+    );
 
 }
 
@@ -5896,56 +5943,54 @@ logo.addEventListener(
 
 
 /* =====================================================
-   MOBILE LOGO LOOP
+   MOBILE LOGO TAP
+
+   Mobile only:
+   Denizalp / aybak
+        ->
+   denizalp / AYBAK
+        -> short hold
+        -> landing page
+
+   No automatic logo animation.
+   Desktop hover/click behaviour stays unchanged.
    ===================================================== */
 
-function mobileLogoCycle() {
+logo.addEventListener(
+    "click",
+    async event => {
 
-    setTimeout(
-        () => {
+        if (
+            !isPhoneLayout()
+        ) {
 
-            if (
-                !isPhoneLayout()
-            ) {
+            return;
 
+        }
+
+
+        event.preventDefault();
+
+
+        await animateLogoTo(
+            5
+        );
+
+
+        await new Promise(
+            resolve =>
                 setTimeout(
-                    mobileLogoCycle,
-                    1500
-                );
+                    resolve,
+                    MOBILE_NAV_HOLD
+                )
+        );
 
 
-                return;
+        window.location.href =
+            logo.href;
 
-            }
-
-
-            animateLogoTo(
-                5
-            );
-
-
-            setTimeout(
-                () => {
-
-                    animateLogoTo(
-                        0
-                    );
-
-
-                    setTimeout(
-                        mobileLogoCycle,
-                        2200
-                    );
-
-                },
-                2000
-            );
-
-        },
-        1700
-    );
-
-}
+    }
+);
 
 
 /* =====================================================
@@ -6010,7 +6055,12 @@ function morphSwitchTo(
         startState === target
     ) {
 
-        return;
+        renderSwitch(
+            target
+        );
+
+
+        return Promise.resolve();
 
     }
 
@@ -6019,40 +6069,68 @@ function morphSwitchTo(
         performance.now();
 
 
-    function frame(
-        now
-    ) {
+    return new Promise(
+        resolve => {
 
-        const progress =
-            Math.min(
-                1,
-                (
-                    now -
-                    start
-                ) /
-                WORD_TRANSITION_DURATION
-            );
+            function frame(
+                now
+            ) {
 
-
-        const state =
-            Math.round(
-                startState +
-                (
-                    target -
-                    startState
-                ) *
-                progress
-            );
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        WORD_TRANSITION_DURATION
+                    );
 
 
-        renderSwitch(
-            state
-        );
+                const state =
+                    Math.round(
+                        startState +
+                        (
+                            target -
+                            startState
+                        ) *
+                        progress
+                    );
 
 
-        if (
-            progress < 1
-        ) {
+                renderSwitch(
+                    state
+                );
+
+
+                if (
+                    progress < 1
+                ) {
+
+                    switchFrame =
+                        requestAnimationFrame(
+                            frame
+                        );
+
+                }
+
+                else {
+
+                    renderSwitch(
+                        target
+                    );
+
+
+                    switchFrame =
+                        null;
+
+
+                    resolve();
+
+                }
+
+            }
+
 
             switchFrame =
                 requestAnimationFrame(
@@ -6060,26 +6138,7 @@ function morphSwitchTo(
                 );
 
         }
-
-        else {
-
-            renderSwitch(
-                target
-            );
-
-
-            switchFrame =
-                null;
-
-        }
-
-    }
-
-
-    switchFrame =
-        requestAnimationFrame(
-            frame
-        );
+    );
 
 }
 
@@ -6115,6 +6174,52 @@ sectionSwitch.addEventListener(
             );
 
         }
+
+    }
+);
+
+
+/* =====================================================
+   MOBILE FILM TAP
+
+   Mobile only:
+   film -> FILM -> short hold -> film site
+
+   Desktop remains normal hover + immediate link.
+   ===================================================== */
+
+sectionSwitch.addEventListener(
+    "click",
+    async event => {
+
+        if (
+            !isPhoneLayout()
+        ) {
+
+            return;
+
+        }
+
+
+        event.preventDefault();
+
+
+        await morphSwitchTo(
+            switchWord.length
+        );
+
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    MOBILE_NAV_HOLD
+                )
+        );
+
+
+        window.location.href =
+            sectionSwitch.href;
 
     }
 );
@@ -6382,8 +6487,6 @@ async function loadProjects() {
 
         startAutoSlideshow();
 
-
-        mobileLogoCycle();
 
     }
 
