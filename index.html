@@ -1107,7 +1107,14 @@ body.phone-landscape .card-image-wrap img {
 
     transform: none;
 
-    object-fit: contain;
+    width: auto !important;
+    height: auto !important;
+
+    max-width: 100% !important;
+    max-height: 100% !important;
+
+    object-fit: contain !important;
+    object-position: center center !important;
 }
 
 body.phone-landscape .card-copy {
@@ -4873,17 +4880,33 @@ function syncPhotoIndexCardSize(
         `${mediaHeight}px`;
 
 
+    /*
+        IMPORTANT:
+        Never force both pixel width AND pixel height on index images.
+
+        Some portrait files can carry orientation / rendering metadata
+        that makes an explicit width+height pair look visually cropped
+        on mobile landscape.
+
+        The wrapper already defines the exact available media area.
+        Let the browser preserve the image's intrinsic aspect ratio and
+        fit the whole frame inside that area.
+    */
+
     img.style.width =
-        `${width}px`;
+        "auto";
 
     img.style.height =
-        `${height}px`;
+        "auto";
 
     img.style.maxWidth =
-        "none";
+        "100%";
 
     img.style.maxHeight =
-        "none";
+        "100%";
+
+    img.style.objectFit =
+        "contain";
 
 
     if (
