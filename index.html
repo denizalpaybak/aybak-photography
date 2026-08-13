@@ -1054,16 +1054,8 @@ body.phone-landscape #index-scroller {
 
     align-items: center;
 
-    /*
-        Horizontal scrolling must remain clipped by the
-        viewport, but portrait thumbnails must never be
-        vertically clipped by the scroller's box.
-
-        The previous overflow-y:hidden was the actual
-        source of the apparent crop on tall covers.
-    */
     overflow-x: auto;
-    overflow-y: visible;
+    overflow-y: hidden;
 }
 
 body.phone-landscape #index-grid {
@@ -1139,9 +1131,11 @@ body.phone-landscape .card-copy {
 body.phone-landscape .card-title,
 body.phone-landscape .card-date {
 
-    max-width: 100%;
+    max-width: none;
 
-    overflow: hidden;
+    overflow: visible;
+
+    text-overflow: clip;
 
     white-space: nowrap;
 }
@@ -2387,6 +2381,17 @@ function updateResponsiveMode() {
     ) {
 
         updateLandscapeGeometry();
+
+
+        /*
+            updateLandscapeGeometry() changes the authoritative
+            landscape media height/card width, so already-loaded
+            thumbnails must be resized from those fresh values.
+        */
+
+        requestAnimationFrame(
+            resizePhotoIndexCards
+        );
 
     }
 
@@ -4703,20 +4708,75 @@ function getPhotoIndexGeometry() {
         isPhoneLandscape()
     ) {
 
+        /*
+            IMPORTANT:
+            Landscape already has a dedicated safe-area calculation
+            in updateLandscapeGeometry().
+
+            That function computes the exact image height that fits:
+                info/contact block
+                +
+                thumbnail
+                +
+                two caption lines
+                +
+                INDEX button
+
+            The previous index rewrite ignored that calculated value
+            and introduced a second viewport-based height. On some
+            landscape phones that second value was taller than the
+            actual available space, so the whole card was vertically
+            clipped by the index viewport. It looked like the JPEG
+            itself was cropped, and the date disappeared below the
+            viewport.
+
+            Use the ONE authoritative landscape height here.
+        */
+
+        const computed =
+            getComputedStyle(
+                document.documentElement
+            );
+
+
+        const safeMediaHeight =
+            parseFloat(
+                computed.getPropertyValue(
+                    "--landscape-index-image-height"
+                )
+            ) || 136;
+
+
+        const safeCardWidth =
+            parseFloat(
+                computed.getPropertyValue(
+                    "--landscape-index-card-width"
+                )
+            ) || 205;
+
+
         return {
 
             mediaHeight:
-                clampNumber(
-                    window.innerHeight * 0.405,
-                    136,
-                    166
-                ),
+                safeMediaHeight,
+
+            /*
+                Keep landscape images broad enough to have the same
+                visual weight as the film index, but NEVER wider than
+                the safe card produced by updateLandscapeGeometry().
+            */
 
             maxLandscapeWidth:
                 Math.min(
-                    window.innerWidth * 0.19,
-                    174
-                )
+                    safeCardWidth,
+                    Math.max(
+                        150,
+                        safeMediaHeight * 1.55
+                    )
+                ),
+
+            cardWidth:
+                safeCardWidth
 
         };
 
@@ -4844,15 +4904,16 @@ function syncPhotoIndexCardSize(
         );
 
 
+    const geometry =
+        getPhotoIndexGeometry();
+
+
     const cardWidth =
         isPhoneLandscape()
             ? Math.max(
                 width,
-                clampNumber(
-                    window.innerWidth * 0.175,
-                    178,
-                    204
-                )
+                geometry.cardWidth ||
+                    width
             )
             : width;
 
