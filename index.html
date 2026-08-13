@@ -1053,6 +1053,17 @@ body.phone-landscape #index-scroller {
         );
 
     align-items: center;
+
+    /*
+        Horizontal scrolling must remain clipped by the
+        viewport, but portrait thumbnails must never be
+        vertically clipped by the scroller's box.
+
+        The previous overflow-y:hidden was the actual
+        source of the apparent crop on tall covers.
+    */
+    overflow-x: auto;
+    overflow-y: visible;
 }
 
 body.phone-landscape #index-grid {
@@ -1080,6 +1091,8 @@ body.phone-landscape .project-card {
 
     width:
         var(--landscape-index-card-width);
+
+    overflow: visible;
 }
 
 body.phone-landscape .card-image-wrap {
