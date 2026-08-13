@@ -686,11 +686,12 @@ body.project-all-mode #project-all-view {
    ===================================================== */
 
 .card-image-wrap {
-    position: relative;
-
-    display: block;
+    display: flex;
 
     flex: 0 0 auto;
+
+    align-items: center;
+    justify-content: flex-start;
 
     overflow: visible;
 
@@ -698,14 +699,11 @@ body.project-all-mode #project-all-view {
 }
 
 .card-image-wrap img {
-    position: absolute;
-
-    top: 50%;
-    left: 0;
+    position: static;
 
     display: block;
 
-    transform: translateY(-50%);
+    flex: 0 0 auto;
 
     margin: 0;
 
@@ -1085,17 +1083,18 @@ body.phone-landscape .project-card {
 }
 
 body.phone-landscape .card-image-wrap {
-    display: flex;
-
     align-items: center;
     justify-content: center;
+
+    overflow: visible;
 }
 
 body.phone-landscape .card-image-wrap img {
-    left: 50%;
+    position: static;
 
-    transform:
-        translate(-50%, -50%);
+    transform: none;
+
+    object-fit: contain;
 }
 
 body.phone-landscape .card-copy {
