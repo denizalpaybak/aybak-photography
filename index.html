@@ -1564,6 +1564,145 @@ const imageCache =
 
 
 /* =====================================================
+   INDEX IMAGE LAZY LOADING
+   ===================================================== */
+
+/*
+    Index covers are no longer all downloaded during the
+    initial page load.
+
+    They begin loading only when they approach the visible
+    horizontal index viewport. This is especially useful on
+    phones, where downloading every full-resolution cover
+    before the index is opened was unnecessary work.
+*/
+
+const indexImageObserver =
+    new IntersectionObserver(
+        entries => {
+
+            entries.forEach(
+                entry => {
+
+                    if (
+                        !entry.isIntersecting
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const img =
+                        entry.target;
+
+
+                    if (
+                        !img.src &&
+                        img.dataset.src
+                    ) {
+
+                        img.src =
+                            img.dataset.src;
+
+                    }
+
+
+                    indexImageObserver.unobserve(
+                        img
+                    );
+
+                }
+            );
+
+        },
+        {
+            root:
+                indexScroller,
+
+            rootMargin:
+                isPhoneLayout()
+                    ? "0px 220px"
+                    : "0px 500px"
+        }
+    );
+
+
+function activateIndexImagesNearViewport() {
+
+    const scrollerRect =
+        indexScroller.getBoundingClientRect();
+
+
+    indexGrid
+        .querySelectorAll(
+            "img[data-src]"
+        )
+        .forEach(
+            img => {
+
+                if (
+                    img.src
+                ) {
+
+                    return;
+
+                }
+
+
+                const card =
+                    img.closest(
+                        ".project-card"
+                    );
+
+
+                if (
+                    !card
+                ) {
+
+                    return;
+
+                }
+
+
+                const rect =
+                    card.getBoundingClientRect();
+
+
+                const margin =
+                    isPhoneLayout()
+                        ? 220
+                        : 500;
+
+
+                if (
+                    rect.right >=
+                    scrollerRect.left -
+                    margin &&
+                    rect.left <=
+                    scrollerRect.right +
+                    margin
+                ) {
+
+                    img.src =
+                        img.dataset.src;
+
+
+                    indexImageObserver.unobserve(
+                        img
+                    );
+
+                }
+
+            }
+        );
+
+}
+
+
+
+
+/* =====================================================
    RESPONSIVE HELPERS
    ===================================================== */
 
@@ -1664,6 +1803,146 @@ function normalizeProjectIndex(
         projects.length
     ) %
     projects.length;
+
+}
+
+
+
+/* =====================================================
+   RANDOM PROJECT START / COVER
+   ===================================================== */
+
+/*
+    A project is never fully shuffled.
+
+    Instead, one image is chosen as the starting point and
+    the existing sequence is rotated around it.
+
+    Example:
+        1, 2, 3, 4
+    random start = 3
+        3, 4, 1, 2
+
+    This preserves the relationships between neighbouring
+    frames / looks while removing the need to manually pick
+    a cover for every project.
+
+    Optional JSON override:
+        "coverOverride": "filename.jpg"
+
+    When present, that image always becomes the first frame
+    and therefore the index cover.
+*/
+
+function rotateImagesFromIndex(
+    images,
+    startIndex
+) {
+
+    if (
+        images.length <= 1 ||
+        startIndex <= 0
+    ) {
+
+        return images.slice();
+
+    }
+
+
+    return [
+        ...images.slice(
+            startIndex
+        ),
+        ...images.slice(
+            0,
+            startIndex
+        )
+    ];
+
+}
+
+
+function prepareProject(
+    project
+) {
+
+    const originalImages =
+        project.images.slice();
+
+
+    let startIndex =
+        0;
+
+
+    if (
+        project.coverOverride
+    ) {
+
+        const overrideIndex =
+            originalImages.indexOf(
+                project.coverOverride
+            );
+
+
+        if (
+            overrideIndex >= 0
+        ) {
+
+            startIndex =
+                overrideIndex;
+
+        }
+
+        else {
+
+            console.warn(
+                `coverOverride "${project.coverOverride}" was not found in`,
+                project.title
+            );
+
+
+            startIndex =
+                Math.floor(
+                    Math.random() *
+                    originalImages.length
+                );
+
+        }
+
+    }
+
+    else {
+
+        startIndex =
+            Math.floor(
+                Math.random() *
+                originalImages.length
+            );
+
+    }
+
+
+    const rotatedImages =
+        rotateImagesFromIndex(
+            originalImages,
+            startIndex
+        );
+
+
+    return {
+        ...project,
+
+        images:
+            rotatedImages,
+
+        /*
+            Existing index code can keep using project.cover.
+            It is generated at runtime instead of maintained
+            manually in projects.json.
+        */
+        cover:
+            rotatedImages[0]
+    };
 
 }
 
@@ -3585,6 +3864,22 @@ function buildProjectAllGrid() {
                 "eager";
 
 
+            img.decoding =
+                "async";
+
+
+            /*
+                The first few frames are usually already in
+                imageCache because of preloadAhead(). Keep
+                the remainder at normal priority so opening
+                View All does not starve the UI thread.
+            */
+            img.fetchPriority =
+                index < 4
+                    ? "high"
+                    : "auto";
+
+
             button.appendChild(
                 img
             );
@@ -4379,7 +4674,7 @@ function buildIndex() {
                     );
 
 
-                img.src =
+                img.dataset.src =
                     getPhotoUrl(
                         project.cover
                     );
@@ -4390,7 +4685,20 @@ function buildIndex() {
 
 
                 img.loading =
-                    "eager";
+                    "lazy";
+
+
+                img.decoding =
+                    "async";
+
+
+                img.fetchPriority =
+                    "low";
+
+
+                indexImageObserver.observe(
+                    img
+                );
 
 
                 imageWrap.appendChild(
@@ -4874,6 +5182,11 @@ async function enterIndex() {
 
 
     restoreIndexPosition();
+
+
+    requestAnimationFrame(
+        activateIndexImagesNearViewport
+    );
 
 
     await morphIndexTo(
@@ -6348,14 +6661,18 @@ async function loadProjects() {
 
 
         projects =
-            data.filter(
-                project =>
-                    project &&
-                    Array.isArray(
-                        project.images
-                    ) &&
-                    project.images.length > 0
-            );
+            data
+                .filter(
+                    project =>
+                        project &&
+                        Array.isArray(
+                            project.images
+                        ) &&
+                        project.images.length > 0
+                )
+                .map(
+                    prepareProject
+                );
 
 
         if (
@@ -6452,20 +6769,65 @@ async function loadProjects() {
             "view all";
 
 
-        projects.forEach(
-            project => {
+        /*
+            Do not preload every project cover at startup.
 
-                preloadImage(
-                    project.cover
-                ).catch(
-                    () => {}
-                );
-
-            }
-        );
-
+            That used to make the first page load much more
+            expensive on mobile. The index now lazy-loads its
+            covers, while only the next project is warmed by
+            preloadAhead().
+        */
 
         preloadAhead();
+
+
+        const warmInitialIndexCovers =
+            () => {
+
+                projects
+                    .slice(
+                        0,
+                        isPhoneLayout()
+                            ? 2
+                            : 3
+                    )
+                    .forEach(
+                        project => {
+
+                            preloadImage(
+                                project.cover
+                            ).catch(
+                                () => {}
+                            );
+
+                        }
+                    );
+
+            };
+
+
+        if (
+            "requestIdleCallback" in window
+        ) {
+
+            requestIdleCallback(
+                warmInitialIndexCovers,
+                {
+                    timeout:
+                        1500
+                }
+            );
+
+        }
+
+        else {
+
+            setTimeout(
+                warmInitialIndexCovers,
+                500
+            );
+
+        }
 
 
         updateIndexContentTop();
