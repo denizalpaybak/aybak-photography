@@ -686,20 +686,28 @@ body.project-all-mode #project-all-view {
    ===================================================== */
 
 .card-image-wrap {
-    display: flex;
+    position: relative;
 
-    align-items: center;
-    justify-content: flex-start;
-
-    width: 100%;
-    height: 365px;
-}
-
-.project-card img {
     display: block;
 
-    max-width: 100%;
-    max-height: 100%;
+    flex: 0 0 auto;
+
+    overflow: visible;
+
+    pointer-events: none;
+}
+
+.card-image-wrap img {
+    position: absolute;
+
+    top: 50%;
+    left: 0;
+
+    display: block;
+
+    transform: translateY(-50%);
+
+    margin: 0;
 
     width: auto;
     height: auto;
@@ -787,10 +795,6 @@ body.index-mode #project-stage {
             250px;
 
         width: 250px;
-    }
-
-    .card-image-wrap {
-        height: 325px;
     }
 
     #index-grid {
@@ -925,9 +929,6 @@ body.phone-portrait .project-card {
     width: 48vw;
 }
 
-body.phone-portrait .card-image-wrap {
-    height: 56vw;
-}
 
 body.phone-portrait #project-all-grid {
     gap: 5px;
@@ -1084,19 +1085,22 @@ body.phone-landscape .project-card {
 }
 
 body.phone-landscape .card-image-wrap {
+    display: flex;
 
-    width: 100%;
-
-    height:
-        var(--landscape-index-image-height);
-
-    justify-content: flex-start;
+    align-items: center;
+    justify-content: center;
 }
 
-body.phone-landscape .project-card img {
+body.phone-landscape .card-image-wrap img {
+    left: 50%;
 
-    max-width: 100%;
-    max-height: 100%;
+    transform:
+        translate(-50%, -50%);
+}
+
+body.phone-landscape .card-copy {
+    margin-left:
+        var(--landscape-preview-offset, 0px);
 }
 
 body.phone-landscape .card-copy {
@@ -4623,6 +4627,328 @@ function createCaseController(
 
 
 /* =====================================================
+   INDEX GEOMETRY
+   ===================================================== */
+
+/*
+    Same visual logic as the film index:
+
+    - every project owns the same invisible media stage height
+    - portrait images can use almost all of that height
+    - landscape images are width-limited instead of becoming tiny
+    - the actual image is vertically centered inside the common stage
+    - title/date always begin after the common stage
+*/
+
+function clampNumber(
+    value,
+    min,
+    max
+) {
+
+    return Math.min(
+        max,
+        Math.max(
+            min,
+            value
+        )
+    );
+
+}
+
+
+function getPhotoIndexGeometry() {
+
+    if (
+        isPhonePortrait()
+    ) {
+
+        return {
+
+            mediaHeight:
+                clampNumber(
+                    window.innerHeight * 0.255,
+                    205,
+                    235
+                ),
+
+            maxLandscapeWidth:
+                window.innerWidth * 0.47
+
+        };
+
+    }
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        return {
+
+            mediaHeight:
+                clampNumber(
+                    window.innerHeight * 0.405,
+                    136,
+                    166
+                ),
+
+            maxLandscapeWidth:
+                Math.min(
+                    window.innerWidth * 0.19,
+                    174
+                )
+
+        };
+
+    }
+
+
+    return {
+
+        mediaHeight:
+            clampNumber(
+                window.innerHeight * 0.34,
+                280,
+                365
+            ),
+
+        maxLandscapeWidth:
+            Math.min(
+                window.innerWidth * 0.29,
+                480
+            )
+
+    };
+
+}
+
+
+function getPhotoIndexItemMetrics(
+    ratio
+) {
+
+    const geometry =
+        getPhotoIndexGeometry();
+
+
+    let displayHeight =
+        geometry.mediaHeight;
+
+
+    let displayWidth =
+        displayHeight *
+        ratio;
+
+
+    if (
+        displayWidth >
+        geometry.maxLandscapeWidth
+    ) {
+
+        displayWidth =
+            geometry.maxLandscapeWidth;
+
+
+        displayHeight =
+            displayWidth /
+            ratio;
+
+    }
+
+
+    return {
+
+        mediaHeight:
+            geometry.mediaHeight,
+
+        displayWidth,
+
+        displayHeight
+
+    };
+
+}
+
+
+function syncPhotoIndexCardSize(
+    img,
+    button,
+    wrap
+) {
+
+    if (
+        !img.naturalWidth ||
+        !img.naturalHeight
+    ) {
+
+        return;
+
+    }
+
+
+    const ratio =
+        img.naturalWidth /
+        img.naturalHeight;
+
+
+    const metrics =
+        getPhotoIndexItemMetrics(
+            ratio
+        );
+
+
+    const width =
+        Math.max(
+            1,
+            Math.round(
+                metrics.displayWidth
+            )
+        );
+
+
+    const height =
+        Math.max(
+            1,
+            Math.round(
+                metrics.displayHeight
+            )
+        );
+
+
+    const mediaHeight =
+        Math.max(
+            height,
+            Math.round(
+                metrics.mediaHeight
+            )
+        );
+
+
+    const cardWidth =
+        isPhoneLandscape()
+            ? Math.max(
+                width,
+                clampNumber(
+                    window.innerWidth * 0.175,
+                    178,
+                    204
+                )
+            )
+            : width;
+
+
+    button.style.width =
+        `${cardWidth}px`;
+
+    button.style.flex =
+        `0 0 ${cardWidth}px`;
+
+    button.style.minWidth =
+        `${cardWidth}px`;
+
+    button.style.maxWidth =
+        `${cardWidth}px`;
+
+
+    wrap.style.width =
+        `${cardWidth}px`;
+
+    wrap.style.height =
+        `${mediaHeight}px`;
+
+    wrap.style.flexBasis =
+        `${mediaHeight}px`;
+
+
+    img.style.width =
+        `${width}px`;
+
+    img.style.height =
+        `${height}px`;
+
+    img.style.maxWidth =
+        "none";
+
+    img.style.maxHeight =
+        "none";
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        const previewOffset =
+            Math.max(
+                0,
+                (
+                    cardWidth -
+                    width
+                ) / 2
+            );
+
+
+        button.style.setProperty(
+            "--landscape-preview-offset",
+            `${previewOffset}px`
+        );
+
+    }
+
+    else {
+
+        button.style.removeProperty(
+            "--landscape-preview-offset"
+        );
+
+    }
+
+}
+
+
+function resizePhotoIndexCards() {
+
+    document
+        .querySelectorAll(
+            ".project-card"
+        )
+        .forEach(
+            card => {
+
+                const img =
+                    card.querySelector(
+                        ".card-image-wrap img"
+                    );
+
+
+                const wrap =
+                    card.querySelector(
+                        ".card-image-wrap"
+                    );
+
+
+                if (
+                    img &&
+                    wrap &&
+                    img.naturalWidth &&
+                    img.naturalHeight
+                ) {
+
+                    syncPhotoIndexCardSize(
+                        img,
+                        card,
+                        wrap
+                    );
+
+                }
+
+            }
+        );
+
+}
+
+
+/* =====================================================
    BUILD INDEX
    ===================================================== */
 
@@ -4658,6 +4984,27 @@ function buildIndex() {
                     "button";
 
 
+                const geometry =
+                    getPhotoIndexGeometry();
+
+
+                const fallbackWidth =
+                    Math.round(
+                        geometry.mediaHeight *
+                        0.72
+                    );
+
+
+                button.style.width =
+                    `${fallbackWidth}px`;
+
+                button.style.flex =
+                    `0 0 ${fallbackWidth}px`;
+
+                button.style.minWidth =
+                    `${fallbackWidth}px`;
+
+
                 const imageWrap =
                     document.createElement(
                         "span"
@@ -4666,6 +5013,13 @@ function buildIndex() {
 
                 imageWrap.className =
                     "card-image-wrap";
+
+
+                imageWrap.style.width =
+                    `${fallbackWidth}px`;
+
+                imageWrap.style.height =
+                    `${geometry.mediaHeight}px`;
 
 
                 const img =
@@ -4694,6 +5048,34 @@ function buildIndex() {
 
                 img.fetchPriority =
                     "low";
+
+
+                img.addEventListener(
+                    "load",
+                    () => {
+
+                        syncPhotoIndexCardSize(
+                            img,
+                            button,
+                            imageWrap
+                        );
+
+                    }
+                );
+
+
+                if (
+                    img.complete &&
+                    img.naturalWidth
+                ) {
+
+                    syncPhotoIndexCardSize(
+                        img,
+                        button,
+                        imageWrap
+                    );
+
+                }
 
 
                 indexImageObserver.observe(
@@ -6883,6 +7265,49 @@ renderIndexWord(
 
 
 loadProjects();
+
+
+/* =====================================================
+   INDEX RESPONSIVE RESYNC
+   ===================================================== */
+
+let photoIndexResizeFrame =
+    null;
+
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        if (
+            photoIndexResizeFrame
+        ) {
+
+            cancelAnimationFrame(
+                photoIndexResizeFrame
+            );
+
+        }
+
+
+        photoIndexResizeFrame =
+            requestAnimationFrame(
+                () => {
+
+                    resizePhotoIndexCards();
+
+                    photoIndexResizeFrame =
+                        null;
+
+                }
+            );
+
+    },
+    {
+        passive: true
+    }
+);
+
 
 </script>
 
