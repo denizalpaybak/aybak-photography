@@ -1114,6 +1114,23 @@ body.phone-landscape .card-copy {
         var(--landscape-preview-offset, 0px);
 }
 
+
+/*
+    The first INDEX work should begin on the same left axis
+    as Denizalp / contact.
+
+    Other cards keep the centered-image / wider-caption-card
+    logic, but the first project's visible thumbnail and copy
+    start exactly at --side.
+*/
+body.phone-landscape .project-card:first-child .card-image-wrap {
+    justify-content: flex-start;
+}
+
+body.phone-landscape .project-card:first-child .card-copy {
+    margin-left: 0;
+}
+
 body.phone-landscape .card-copy {
 
     width: 100%;
@@ -4770,8 +4787,8 @@ function getPhotoIndexGeometry() {
                 Math.min(
                     safeCardWidth,
                     Math.max(
-                        150,
-                        safeMediaHeight * 1.55
+                        138,
+                        safeMediaHeight * 1.05
                     )
                 ),
 
@@ -4986,7 +5003,10 @@ function syncPhotoIndexCardSize(
 
         button.style.setProperty(
             "--landscape-preview-offset",
-            `${previewOffset}px`
+            button ===
+                indexGrid.firstElementChild
+                    ? "0px"
+                    : `${previewOffset}px`
         );
 
     }
