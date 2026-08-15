@@ -15,7 +15,8 @@
       "vogue_260213_0881.jpg",
       "vogue_260213_1922.jpg",
       "vogue_260213_05312.jpg"
-    ]
+    ],
+    "id": "vogue-260213"
   },
   {
     "title": "Harper's Bazaar Türkiye",
@@ -34,7 +35,8 @@
       "harpersbazaar_260625_1454_alt.jpg",
       "harpersbazaar_260625_0357.jpg",
       "harpersbazaar_260625_0506.jpg"
-    ]
+    ],
+    "id": "harpersbazaar-260625"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -42,7 +44,8 @@
     "sortDate": "2025-02",
     "images": [
       "lofficiel_250130_cover.jpg"
-    ]
+    ],
+    "id": "lofficiel-250130-cover"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -53,7 +56,8 @@
       "lofficiel_250130_layout_1.jpg",
       "lofficiel_250130_layout_4.jpg",
       "lofficiel_250130_layout_5.jpg"
-    ]
+    ],
+    "id": "lofficiel-250130"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -61,7 +65,8 @@
     "sortDate": "2024-11",
     "images": [
       "lofficiel_241106_cover.jpg"
-    ]
+    ],
+    "id": "lofficiel-241106-cover"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -71,7 +76,8 @@
       "lofficiel_241106_0131_retouched.jpg",
       "lofficiel_241106_0376.jpg",
       "lofficiel_241106_0928.jpg"
-    ]
+    ],
+    "id": "lofficiel-241106"
   },
   {
     "title": "Bee Goddess",
@@ -80,7 +86,8 @@
     "images": [
       "beegoddess_full_1.jpg",
       "beegoddess_full_2.jpg"
-    ]
+    ],
+    "id": "beegoddess-fw24"
   },
   {
     "title": "The Push",
@@ -89,7 +96,8 @@
     "images": [
       "skater_01.jpg",
       "skater_02.jpg"
-    ]
+    ],
+    "id": "the-push"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -98,7 +106,8 @@
     "images": [
       "lofficiel_260116_0984.jpg",
       "lofficiel_260116_1608.jpg"
-    ]
+    ],
+    "id": "lofficiel-260116"
   },
   {
     "title": "MANC",
@@ -106,7 +115,8 @@
     "sortDate": "2024-05",
     "images": [
       "manc_231124_01.jpg"
-    ]
+    ],
+    "id": "manc-231124"
   },
   {
     "title": "Mudo Home",
@@ -115,7 +125,8 @@
     "images": [
       "mudo_home_1.jpg",
       "mudo_home_5.jpg"
-    ]
+    ],
+    "id": "mudo-home-fw24"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -125,7 +136,8 @@
       "lofficiel_251213_1647_retouched_3.jpg",
       "lofficiel_251213_1900_ig.jpg"
     ],
-    "coverOverride": "lofficiel_251213_1647_retouched_3.jpg"
+    "coverOverride": "lofficiel_251213_1647_retouched_3.jpg",
+    "id": "lofficiel-251213-cover"
   },
   {
     "title": "Vakko",
@@ -135,7 +147,8 @@
       "vakko_2.jpg",
       "vakko_3.jpg",
       "vakko_5.jpg"
-    ]
+    ],
+    "id": "vakko-fw24"
   },
   {
     "title": "Q-P Magazine",
@@ -143,7 +156,8 @@
     "sortDate": "2025-06",
     "images": [
       "qp_250421_01.jpg"
-    ]
+    ],
+    "id": "qp-250421"
   },
   {
     "title": "Manifesto",
@@ -152,7 +166,8 @@
     "images": [
       "personal_01.jpg",
       "personal_02.jpg"
-    ]
+    ],
+    "id": "manifesto"
   },
   {
     "title": "ELLE Türkiye",
@@ -164,6 +179,7 @@
       "elle_250919_03.jpg",
       "elle_250919_04.jpg",
       "elle_250919_05.jpg"
-    ]
+    ],
+    "id": "elle-250919"
   }
 ]
