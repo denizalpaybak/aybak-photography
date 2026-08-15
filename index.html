@@ -1966,6 +1966,16 @@ function prepareProject(
     return {
         ...project,
 
+        /*
+            Keep an immutable copy of projects.json order.
+
+            The runtime images[] array may rotate around a random
+            cover, but permanent external links use this original
+            order so PDF / shared URLs never change meaning.
+        */
+        originalImages:
+            originalImages.slice(),
+
         images:
             rotatedImages,
 
@@ -1977,6 +1987,306 @@ function prepareProject(
         cover:
             rotatedImages[0]
     };
+
+}
+
+
+/* =====================================================
+   PROJECT + IMAGE DEEP LINKS
+   ===================================================== */
+
+/*
+    Permanent URL structure:
+
+        ?project=vogue-260213&image=2
+
+    "image=2" ALWAYS means the second image in projects.json.
+
+    This remains true even when the site randomly rotates a
+    project's runtime opening image.
+
+    Example JSON:
+        1, 2, 3, 4
+
+    Runtime random opening:
+        3, 4, 1, 2
+
+    Deep link:
+        image=2
+
+    still opens original image #2.
+*/
+
+function getDeepLinkRequest() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const projectId =
+        params.get(
+            "project"
+        );
+
+
+    const rawImage =
+        params.get(
+            "image"
+        );
+
+
+    let imageNumber =
+        null;
+
+
+    if (
+        rawImage !==
+        null
+    ) {
+
+        const parsed =
+            Number.parseInt(
+                rawImage,
+                10
+            );
+
+
+        if (
+            Number.isFinite(
+                parsed
+            ) &&
+            parsed >= 1
+        ) {
+
+            imageNumber =
+                parsed;
+
+        }
+
+    }
+
+
+    return {
+        projectId,
+        imageNumber
+    };
+
+}
+
+
+function findProjectIndexById(
+    projectId
+) {
+
+    if (
+        !projectId
+    ) {
+
+        return -1;
+
+    }
+
+
+    return projects.findIndex(
+        project =>
+            project.id ===
+            projectId
+    );
+
+}
+
+
+function getOriginalImages(
+    project
+) {
+
+    if (
+        !project
+    ) {
+
+        return [];
+
+    }
+
+
+    return Array.isArray(
+        project.originalImages
+    )
+        ? project.originalImages
+        : project.images;
+
+}
+
+
+function getOriginalImageNumber(
+    project,
+    runtimeFrameIndex =
+        frameIndex
+) {
+
+    if (
+        !project ||
+        !project.images.length
+    ) {
+
+        return 1;
+
+    }
+
+
+    const filename =
+        project.images[
+            runtimeFrameIndex
+        ];
+
+
+    const originalImages =
+        getOriginalImages(
+            project
+        );
+
+
+    const originalIndex =
+        originalImages.indexOf(
+            filename
+        );
+
+
+    return originalIndex >= 0
+        ? originalIndex + 1
+        : 1;
+
+}
+
+
+function getRuntimeFrameIndexFromOriginalNumber(
+    project,
+    imageNumber
+) {
+
+    if (
+        !project ||
+        !Number.isFinite(
+            imageNumber
+        )
+    ) {
+
+        return -1;
+
+    }
+
+
+    const originalImages =
+        getOriginalImages(
+            project
+        );
+
+
+    const originalIndex =
+        imageNumber - 1;
+
+
+    if (
+        originalIndex < 0 ||
+        originalIndex >=
+            originalImages.length
+    ) {
+
+        return -1;
+
+    }
+
+
+    const filename =
+        originalImages[
+            originalIndex
+        ];
+
+
+    return project.images.indexOf(
+        filename
+    );
+
+}
+
+
+function syncProjectUrl(
+    mode = "replace"
+) {
+
+    const project =
+        currentProject();
+
+
+    if (
+        !project ||
+        !project.id
+    ) {
+
+        return;
+
+    }
+
+
+    const imageNumber =
+        getOriginalImageNumber(
+            project,
+            frameIndex
+        );
+
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+
+    url.searchParams.set(
+        "project",
+        project.id
+    );
+
+
+    url.searchParams.set(
+        "image",
+        String(
+            imageNumber
+        )
+    );
+
+
+    const state = {
+        projectId:
+            project.id,
+
+        imageNumber
+    };
+
+
+    if (
+        mode ===
+        "push"
+    ) {
+
+        window.history.pushState(
+            state,
+            "",
+            url
+        );
+
+    }
+
+    else {
+
+        window.history.replaceState(
+            state,
+            "",
+            url
+        );
+
+    }
 
 }
 
@@ -3258,7 +3568,9 @@ function preloadAhead() {
 
 async function showFrame(
     targetProjectIndex,
-    targetFrameIndex
+    targetFrameIndex,
+    urlMode =
+        "push"
 ) {
 
     if (
@@ -3312,6 +3624,11 @@ async function showFrame(
 
         frameIndex =
             normalizedFrame;
+
+
+        syncProjectUrl(
+            urlMode
+        );
 
 
         renderImage(
@@ -3370,7 +3687,10 @@ async function showFrame(
    NEXT
    ===================================================== */
 
-async function nextFrame() {
+async function nextFrame(
+    urlMode =
+        "push"
+) {
 
     if (
         navigationAnimating ||
@@ -3393,7 +3713,8 @@ async function nextFrame() {
 
         return showFrame(
             projectIndex,
-            frameIndex + 1
+            frameIndex + 1,
+            urlMode
         );
 
     }
@@ -3401,7 +3722,8 @@ async function nextFrame() {
 
     return showFrame(
         projectIndex + 1,
-        0
+        0,
+        urlMode
     );
 
 }
@@ -3411,7 +3733,10 @@ async function nextFrame() {
    PREVIOUS
    ===================================================== */
 
-async function previousFrame() {
+async function previousFrame(
+    urlMode =
+        "push"
+) {
 
     if (
         navigationAnimating ||
@@ -3429,7 +3754,8 @@ async function previousFrame() {
 
         return showFrame(
             projectIndex,
-            frameIndex - 1
+            frameIndex - 1,
+            urlMode
         );
 
     }
@@ -3449,7 +3775,8 @@ async function previousFrame() {
 
     return showFrame(
         previousProjectIndex,
-        previousProject.images.length - 1
+        previousProject.images.length - 1,
+        urlMode
     );
 
 }
@@ -3481,7 +3808,9 @@ function scheduleNextSlide() {
         setTimeout(
             async () => {
 
-                await nextFrame();
+                await nextFrame(
+                    "replace"
+                );
 
 
                 scheduleNextSlide();
@@ -4224,6 +4553,11 @@ async function leaveProjectAll(
 
         frameIndex =
             selectedIndex;
+
+
+        syncProjectUrl(
+            "push"
+        );
 
 
         renderImage(
@@ -7127,6 +7461,141 @@ if (
 
 
 /* =====================================================
+   BROWSER BACK / FORWARD
+   ===================================================== */
+
+window.addEventListener(
+    "popstate",
+    async () => {
+
+        if (
+            !projects.length
+        ) {
+
+            return;
+
+        }
+
+
+        const deepLink =
+            getDeepLinkRequest();
+
+
+        const requestedProjectIndex =
+            findProjectIndexById(
+                deepLink.projectId
+            );
+
+
+        const targetProjectIndex =
+            requestedProjectIndex >= 0
+                ? requestedProjectIndex
+                : 0;
+
+
+        const targetProject =
+            projects[
+                targetProjectIndex
+            ];
+
+
+        let targetFrameIndex =
+            0;
+
+
+        if (
+            requestedProjectIndex >= 0 &&
+            deepLink.imageNumber !==
+                null
+        ) {
+
+            const resolved =
+                getRuntimeFrameIndexFromOriginalNumber(
+                    targetProject,
+                    deepLink.imageNumber
+                );
+
+
+            if (
+                resolved >= 0
+            ) {
+
+                targetFrameIndex =
+                    resolved;
+
+            }
+
+        }
+
+
+        if (
+            targetProjectIndex ===
+                projectIndex &&
+            targetFrameIndex ===
+                frameIndex &&
+            !indexMode &&
+            !projectAllMode
+        ) {
+
+            return;
+
+        }
+
+
+        clearTimeout(
+            slideTimer
+        );
+
+
+        indexMode =
+            false;
+
+
+        projectAllMode =
+            false;
+
+
+        body.classList.remove(
+            "index-mode",
+            "project-all-mode",
+            "project-all-preparing"
+        );
+
+
+        indexView.classList.remove(
+            "visible"
+        );
+
+
+        projectAllGrid.innerHTML =
+            "";
+
+
+        /*
+            "replace" avoids creating a new history entry while
+            the browser itself is restoring an existing one.
+        */
+
+        await showFrame(
+            targetProjectIndex,
+            targetFrameIndex,
+            "replace"
+        );
+
+
+        manualMode =
+            true;
+
+
+        clearTimeout(
+            slideTimer
+        );
+
+    }
+);
+
+
+/* =====================================================
    LOAD
    ===================================================== */
 
@@ -7188,26 +7657,118 @@ async function loadProjects() {
         buildIndex();
 
 
-        const firstImage =
-            await preloadImage(
-                projects[
-                    0
-                ].images[
-                    0
-                ]
+        const deepLink =
+            getDeepLinkRequest();
+
+
+        const requestedProjectIndex =
+            findProjectIndexById(
+                deepLink.projectId
             );
 
 
         projectIndex =
-            0;
+            requestedProjectIndex >= 0
+                ? requestedProjectIndex
+                : 0;
 
+
+        const requestedProject =
+            currentProject();
+
+
+        let requestedRuntimeFrameIndex =
+            -1;
+
+
+        if (
+            requestedProjectIndex >= 0 &&
+            deepLink.imageNumber !==
+                null
+        ) {
+
+            requestedRuntimeFrameIndex =
+                getRuntimeFrameIndexFromOriginalNumber(
+                    requestedProject,
+                    deepLink.imageNumber
+                );
+
+        }
+
+
+        /*
+            Project-only links keep the random opening-image
+            behaviour.
+
+            Valid project + image links open that exact original
+            projects.json image.
+
+            Invalid image numbers safely fall back to the current
+            project's runtime first image.
+        */
 
         frameIndex =
-            0;
+            requestedRuntimeFrameIndex >= 0
+                ? requestedRuntimeFrameIndex
+                : 0;
+
+
+        if (
+            deepLink.projectId &&
+            requestedProjectIndex < 0
+        ) {
+
+            const cleanUrl =
+                new URL(
+                    window.location.href
+                );
+
+
+            cleanUrl.searchParams.delete(
+                "project"
+            );
+
+
+            cleanUrl.searchParams.delete(
+                "image"
+            );
+
+
+            window.history.replaceState(
+                {},
+                "",
+                cleanUrl
+            );
+
+        }
+
+
+        else if (
+            requestedProjectIndex >= 0
+        ) {
+
+            /*
+                Normalize project-only / invalid-image deep links
+                to the exact stable original image number.
+            */
+
+            syncProjectUrl(
+                "replace"
+            );
+
+        }
+
+
+        const firstImage =
+            await preloadImage(
+                currentProject().images[
+                    frameIndex
+                ]
+            );
 
 
         renderedProjectIndex =
-            0;
+            projectIndex;
 
 
         renderImage(
@@ -7216,16 +7777,14 @@ async function loadProjects() {
 
 
         const title =
-            projects[
-                0
-            ].title.toLowerCase();
+            currentProject()
+                .title
+                .toLowerCase();
 
 
         const date =
             (
-                projects[
-                    0
-                ].date ||
+                currentProject().date ||
                 ""
             ).toLowerCase();
 
@@ -7248,10 +7807,9 @@ async function loadProjects() {
 
         projectCounter.textContent =
             getCounterText(
-                0,
-                projects[
-                    0
-                ].images.length
+                frameIndex,
+                currentProject()
+                    .images.length
             );
 
 
