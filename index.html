@@ -1509,6 +1509,17 @@ let manualMode =
     false;
 
 
+/*
+    Autoplay is allowed only for the untouched initial slideshow.
+
+    The moment the visitor interacts with the slideshow, VIEW ALL,
+    or INDEX, this becomes true and autoplay can never restart during
+    the current page session.
+*/
+let autoplayPermanentlyDisabled =
+    false;
+
+
 let indexMode =
     false;
 
@@ -3794,6 +3805,7 @@ function scheduleNextSlide() {
 
 
     if (
+        autoplayPermanentlyDisabled ||
         manualMode ||
         indexMode ||
         projectAllMode
@@ -3824,6 +3836,24 @@ function scheduleNextSlide() {
 
 function startAutoSlideshow() {
 
+    if (
+        autoplayPermanentlyDisabled
+    ) {
+
+        manualMode =
+            true;
+
+
+        clearTimeout(
+            slideTimer
+        );
+
+
+        return;
+
+    }
+
+
     manualMode =
         false;
 
@@ -3834,6 +3864,10 @@ function startAutoSlideshow() {
 
 
 function stopAutoSlideshow() {
+
+    autoplayPermanentlyDisabled =
+        true;
+
 
     manualMode =
         true;
@@ -4419,13 +4453,11 @@ async function enterProjectAll() {
         true;
 
 
-    autoplayBeforeProjectAll =
-        !manualMode;
-
-
-    clearTimeout(
-        slideTimer
-    );
+    /*
+        VIEW ALL is an explicit interaction.
+        From this point on the initial autoplay may never resume.
+    */
+    stopAutoSlideshow();
 
 
     prepareProjectAllGrid();
@@ -4648,55 +4680,18 @@ async function leaveProjectAll(
     preloadAhead();
 
 
-    if (
-        resume
-    ) {
-
-        if (
-            selectedIndex !== null
-        ) {
-
-            manualMode =
-                false;
+    /*
+        Returning from VIEW ALL is always manual.
+        Selecting a frame, closing VIEW ALL, or moving from VIEW ALL
+        to INDEX must never restart the initial autoplay.
+    */
+    manualMode =
+        true;
 
 
-            scheduleNextSlide();
-
-        }
-
-        else if (
-            autoplayBeforeProjectAll
-        ) {
-
-            manualMode =
-                false;
-
-
-            scheduleNextSlide();
-
-        }
-
-        else {
-
-            manualMode =
-                true;
-
-
-            clearTimeout(
-                slideTimer
-            );
-
-        }
-
-    }
-
-    else {
-
-        clearTimeout(
-            slideTimer
-        );
-
-    }
+    clearTimeout(
+        slideTimer
+    );
 
 
     projectViewAnimating =
@@ -5978,13 +5973,11 @@ async function enterIndex() {
         true;
 
 
-    autoplayBeforeIndex =
-        !manualMode;
-
-
-    clearTimeout(
-        slideTimer
-    );
+    /*
+        INDEX is an explicit interaction.
+        From this point on the initial autoplay may never resume.
+    */
+    stopAutoSlideshow();
 
 
     updateIndexContentTop();
@@ -6115,29 +6108,16 @@ async function returnFromIndex() {
     syncMetadataAfterRender();
 
 
-    if (
-        autoplayBeforeIndex
-    ) {
-
-        manualMode =
-            false;
-
-
-        scheduleNextSlide();
-
-    }
-
-    else {
-
-        manualMode =
-            true;
+    /*
+        Leaving INDEX always returns to a manual slideshow.
+    */
+    manualMode =
+        true;
 
 
-        clearTimeout(
-            slideTimer
-        );
-
-    }
+    clearTimeout(
+        slideTimer
+    );
 
 
     interfaceAnimating =
@@ -6202,11 +6182,17 @@ async function exitIndexToProject(
     syncMetadataAfterRender();
 
 
+    /*
+        Opening a project from INDEX is a manual selection.
+        Do not restart autoplay.
+    */
     manualMode =
-        false;
+        true;
 
 
-    scheduleNextSlide();
+    clearTimeout(
+        slideTimer
+    );
 
 
     interfaceAnimating =
