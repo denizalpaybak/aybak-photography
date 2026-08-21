@@ -57,6 +57,21 @@ button {
     --font-size: 15px;
     --line-height: 1.15;
 
+    /*
+        TYPOGRAPHIC STATES
+        Passive/lowercase = existing sans
+        Interactive uppercase letters = Times New Roman
+    */
+    --sans-font:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    --active-serif-font:
+        "Times New Roman",
+        Times,
+        serif;
+
     --side: 48px;
     --top: 32px;
 
@@ -2842,6 +2857,72 @@ function updateIndexContentTop() {
 
 
 /* =====================================================
+   INTERACTIVE TYPOGRAPHY
+
+   Only letters that become uppercase through an interaction switch
+   to Times New Roman. Lowercase letters remain in the site's existing
+   sans. Fixed uppercase branding (for example AYBAK) is untouched.
+   ===================================================== */
+
+function renderInteractiveTypography(
+    element,
+    text
+) {
+
+    const fragment =
+        document.createDocumentFragment();
+
+
+    Array.from(
+        String(
+            text
+        )
+    ).forEach(
+        character => {
+
+            const span =
+                document.createElement(
+                    "span"
+                );
+
+
+            span.textContent =
+                character;
+
+
+            const isLetter =
+                character.toLowerCase() !==
+                character.toUpperCase();
+
+
+            const isUppercase =
+                isLetter &&
+                character ===
+                    character.toUpperCase();
+
+
+            span.style.fontFamily =
+                isUppercase
+                    ? 'var(--active-serif-font)'
+                    : 'var(--sans-font)';
+
+
+            fragment.appendChild(
+                span
+            );
+
+        }
+    );
+
+
+    element.replaceChildren(
+        fragment
+    );
+
+}
+
+
+/* =====================================================
    SIMPLE SEQUENTIAL CHARACTER MORPH
    ===================================================== */
 
@@ -2864,8 +2945,10 @@ function morphSequential(
         nextText
     ) {
 
-        element.textContent =
-            nextText;
+        renderInteractiveTypography(
+            element,
+            nextText
+        );
 
 
         element.dataset.rawText =
@@ -3014,12 +3097,14 @@ function morphSequential(
                 }
 
 
-                element.textContent =
+                renderInteractiveTypography(
+                    element,
                     current
                         .join(
                             ""
                         )
-                        .trimEnd();
+                        .trimEnd()
+                );
 
 
                 if (
@@ -3034,8 +3119,10 @@ function morphSequential(
 
                 else {
 
-                    element.textContent =
-                        nextText;
+                    renderInteractiveTypography(
+                        element,
+                        nextText
+                    );
 
 
                     element.dataset.rawText =
@@ -3230,11 +3317,13 @@ function animateCase(
         currentState === target
     ) {
 
-        element.textContent =
+        renderInteractiveTypography(
+            element,
             renderPrefixCase(
                 base,
                 target
-            );
+            )
+        );
 
 
         return Promise.resolve();
@@ -3275,11 +3364,13 @@ function animateCase(
                     );
 
 
-                element.textContent =
+                renderInteractiveTypography(
+                    element,
                     renderPrefixCase(
                         base,
                         state
-                    );
+                    )
+                );
 
 
                 if (
@@ -3294,11 +3385,13 @@ function animateCase(
 
                 else {
 
-                    element.textContent =
+                    renderInteractiveTypography(
+                        element,
                         renderPrefixCase(
                             base,
                             target
-                        );
+                        )
+                    );
 
 
                     resolve();
@@ -6293,11 +6386,13 @@ function renderIndexWord(
         state;
 
 
-    indexButton.textContent =
+    renderInteractiveTypography(
+        indexButton,
         renderWordCase(
             indexWord,
             state
-        );
+        )
+    );
 
 }
 
@@ -7700,11 +7795,13 @@ function renderSwitch(
         state;
 
 
-    sectionSwitchText.textContent =
+    renderInteractiveTypography(
+        sectionSwitchText,
         renderWordCase(
             switchWord,
             state
-        );
+        )
+    );
 
 }
 
