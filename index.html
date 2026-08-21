@@ -6554,7 +6554,8 @@ async function enterIndex() {
     );
 
 
-    await morphIndexTo(
+    /* The INDEX word morph is cosmetic; unlock the grid immediately. */
+    morphIndexTo(
         indexWord.length
     );
 
@@ -6981,7 +6982,7 @@ window.addEventListener(
         if (
             Math.abs(
                 delta
-            ) > 4
+            ) > 10
         ) {
 
             indexDragMoved =
