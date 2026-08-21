@@ -3763,6 +3763,23 @@ function buildNormalProjectSequence(
     }
 
 
+    /*
+        The chosen frames are random, but their playback order follows
+        the project's own frame order.
+
+        Example:
+            randomly chosen: 05, 07, 02
+            playback:        02, 05, 07
+    */
+    selected.sort(
+        (
+            a,
+            b
+        ) =>
+            a - b
+    );
+
+
     normalSequenceProjectIndex =
         normalized;
 
@@ -8276,6 +8293,23 @@ async function loadProjects() {
         }
 
 
+        /*
+            Build the first max-3 pass before rendering so the initial
+            slideshow also follows ascending frame order.
+        */
+        buildNormalProjectSequence(
+            projectIndex
+        );
+
+
+        normalSequencePosition =
+            0;
+
+
+        frameIndex =
+            normalSequenceFrames[0];
+
+
         const firstImage =
             await preloadImage(
                 currentProject().images[
@@ -8296,15 +8330,6 @@ async function loadProjects() {
         markFrameSeen(
             projectIndex,
             frameIndex
-        );
-
-
-        buildNormalProjectSequence(
-            projectIndex,
-            {
-                includeFrame:
-                    frameIndex
-            }
         );
 
 
