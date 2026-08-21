@@ -1565,6 +1565,48 @@ let previousResponsiveMode =
 
 
 /* =====================================================
+   PROJECT ROTATION
+
+   Normal slideshow:
+   - maximum 3 images per project per pass
+   - unseen images are always prioritised
+   - once every image has been seen, repeats fill the remaining slots
+
+   Focused project mode:
+   - INDEX opens the complete project from frame 1
+   - VIEW ALL opens the complete project from the selected frame
+   - after that project's final frame, normal max-3 rotation resumes
+   ===================================================== */
+
+const NORMAL_PROJECT_FRAME_LIMIT =
+    3;
+
+
+const seenFramesByProject =
+    new Map();
+
+
+let normalSequenceProjectIndex =
+    null;
+
+
+let normalSequenceFrames =
+    [];
+
+
+let normalSequencePosition =
+    -1;
+
+
+let focusedProjectMode =
+    false;
+
+
+let focusedProjectIndex =
+    null;
+
+
+/* =====================================================
    INDEX DRAG
    ===================================================== */
 
@@ -3501,6 +3543,298 @@ async function updateMetadata(
 
 
 /* =====================================================
+   PROJECT ROTATION HELPERS
+   ===================================================== */
+
+function shuffledCopy(
+    values
+) {
+
+    const copy =
+        values.slice();
+
+
+    for (
+        let i =
+            copy.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
+
+
+        [
+            copy[i],
+            copy[j]
+        ] =
+        [
+            copy[j],
+            copy[i]
+        ];
+
+    }
+
+
+    return copy;
+
+}
+
+
+function getSeenFrameSet(
+    targetProjectIndex
+) {
+
+    const normalized =
+        normalizeProjectIndex(
+            targetProjectIndex
+        );
+
+
+    if (
+        !seenFramesByProject.has(
+            normalized
+        )
+    ) {
+
+        seenFramesByProject.set(
+            normalized,
+            new Set()
+        );
+
+    }
+
+
+    return seenFramesByProject.get(
+        normalized
+    );
+
+}
+
+
+function markFrameSeen(
+    targetProjectIndex,
+    targetFrameIndex
+) {
+
+    getSeenFrameSet(
+        targetProjectIndex
+    ).add(
+        targetFrameIndex
+    );
+
+}
+
+
+function buildNormalProjectSequence(
+    targetProjectIndex,
+    {
+        includeFrame =
+            null
+    } = {}
+) {
+
+    const normalized =
+        normalizeProjectIndex(
+            targetProjectIndex
+        );
+
+
+    const project =
+        projects[
+            normalized
+        ];
+
+
+    const total =
+        project.images.length;
+
+
+    const limit =
+        Math.min(
+            NORMAL_PROJECT_FRAME_LIMIT,
+            total
+        );
+
+
+    const seen =
+        getSeenFrameSet(
+            normalized
+        );
+
+
+    const selected =
+        [];
+
+
+    if (
+        Number.isInteger(
+            includeFrame
+        ) &&
+        includeFrame >= 0 &&
+        includeFrame < total
+    ) {
+
+        selected.push(
+            includeFrame
+        );
+
+    }
+
+
+    const allFrames =
+        Array.from(
+            {
+                length:
+                    total
+            },
+            (
+                _,
+                index
+            ) => index
+        );
+
+
+    /*
+        First priority: frames this visitor has not seen yet.
+        This guarantees that a leftover unseen frame is included
+        on the next pass before any repeat is used.
+    */
+    const unseen =
+        shuffledCopy(
+            allFrames.filter(
+                index =>
+                    !seen.has(
+                        index
+                    ) &&
+                    !selected.includes(
+                        index
+                    )
+            )
+        );
+
+
+    while (
+        selected.length < limit &&
+        unseen.length
+    ) {
+
+        selected.push(
+            unseen.shift()
+        );
+
+    }
+
+
+    /*
+        If fewer than 3 unseen frames remain, complete the pass with
+        random repeats, without duplicating a frame inside one pass.
+    */
+    if (
+        selected.length < limit
+    ) {
+
+        const repeats =
+            shuffledCopy(
+                allFrames.filter(
+                    index =>
+                        !selected.includes(
+                            index
+                        )
+                )
+            );
+
+
+        while (
+            selected.length < limit &&
+            repeats.length
+        ) {
+
+            selected.push(
+                repeats.shift()
+            );
+
+        }
+
+    }
+
+
+    normalSequenceProjectIndex =
+        normalized;
+
+
+    normalSequenceFrames =
+        selected;
+
+
+    normalSequencePosition =
+        includeFrame !== null
+            ? normalSequenceFrames.indexOf(
+                includeFrame
+            )
+            : -1;
+
+
+    return normalSequenceFrames;
+
+}
+
+
+function clearNormalSequence() {
+
+    normalSequenceProjectIndex =
+        null;
+
+
+    normalSequenceFrames =
+        [];
+
+
+    normalSequencePosition =
+        -1;
+
+}
+
+
+function enterFocusedProjectMode(
+    targetProjectIndex
+) {
+
+    focusedProjectMode =
+        true;
+
+
+    focusedProjectIndex =
+        normalizeProjectIndex(
+            targetProjectIndex
+        );
+
+
+    clearNormalSequence();
+
+}
+
+
+function leaveFocusedProjectMode() {
+
+    focusedProjectMode =
+        false;
+
+
+    focusedProjectIndex =
+        null;
+
+
+    clearNormalSequence();
+
+}
+
+
+/* =====================================================
    PRELOAD AHEAD
    ===================================================== */
 
@@ -3637,6 +3971,12 @@ async function showFrame(
             normalizedFrame;
 
 
+        markFrameSeen(
+            normalizedProject,
+            normalizedFrame
+        );
+
+
         syncProjectUrl(
             urlMode
         );
@@ -3717,23 +4057,134 @@ async function nextFrame(
         currentProject();
 
 
+    /*
+        INDEX / VIEW ALL focused mode:
+        continue through every remaining frame in this project.
+    */
     if (
-        frameIndex <
-        project.images.length - 1
+        focusedProjectMode &&
+        focusedProjectIndex ===
+            projectIndex
     ) {
 
+        if (
+            frameIndex <
+            project.images.length - 1
+        ) {
+
+            return showFrame(
+                projectIndex,
+                frameIndex + 1,
+                urlMode
+            );
+
+        }
+
+
+        /*
+            The complete requested project is finished.
+            The following project returns to normal max-3 rotation.
+        */
+        leaveFocusedProjectMode();
+
+
+        const nextProjectIndex =
+            normalizeProjectIndex(
+                projectIndex + 1
+            );
+
+
+        const sequence =
+            buildNormalProjectSequence(
+                nextProjectIndex
+            );
+
+
+        normalSequencePosition =
+            0;
+
+
         return showFrame(
-            projectIndex,
-            frameIndex + 1,
+            nextProjectIndex,
+            sequence[0],
             urlMode
         );
 
     }
 
 
+    /*
+        Normal mode. If this is the first movement in the current
+        project, build this pass around the frame already on screen.
+    */
+    if (
+        normalSequenceProjectIndex !==
+            projectIndex ||
+        !normalSequenceFrames.includes(
+            frameIndex
+        )
+    ) {
+
+        buildNormalProjectSequence(
+            projectIndex,
+            {
+                includeFrame:
+                    frameIndex
+            }
+        );
+
+    }
+
+
+    normalSequencePosition =
+        normalSequenceFrames.indexOf(
+            frameIndex
+        );
+
+
+    if (
+        normalSequencePosition >= 0 &&
+        normalSequencePosition <
+            normalSequenceFrames.length - 1
+    ) {
+
+        normalSequencePosition++;
+
+
+        return showFrame(
+            projectIndex,
+            normalSequenceFrames[
+                normalSequencePosition
+            ],
+            urlMode
+        );
+
+    }
+
+
+    /*
+        This project's maximum-three pass is complete.
+        Build a fresh pass for the next project.
+    */
+    const nextProjectIndex =
+        normalizeProjectIndex(
+            projectIndex + 1
+        );
+
+
+    const nextSequence =
+        buildNormalProjectSequence(
+            nextProjectIndex
+        );
+
+
+    normalSequencePosition =
+        0;
+
+
     return showFrame(
-        projectIndex + 1,
-        0,
+        nextProjectIndex,
+        nextSequence[0],
         urlMode
     );
 
@@ -3759,34 +4210,95 @@ async function previousFrame(
     }
 
 
+    const project =
+        currentProject();
+
+
+    /*
+        While a project was explicitly opened from INDEX / VIEW ALL,
+        backwards navigation stays inside its full sequential run.
+    */
     if (
-        frameIndex > 0
+        focusedProjectMode &&
+        focusedProjectIndex ===
+            projectIndex
     ) {
 
-        return showFrame(
-            projectIndex,
-            frameIndex - 1,
-            urlMode
-        );
+        if (
+            frameIndex > 0
+        ) {
+
+            return showFrame(
+                projectIndex,
+                frameIndex - 1,
+                urlMode
+            );
+
+        }
+
+
+        leaveFocusedProjectMode();
 
     }
 
 
+    if (
+        normalSequenceProjectIndex ===
+            projectIndex
+    ) {
+
+        const position =
+            normalSequenceFrames.indexOf(
+                frameIndex
+            );
+
+
+        if (
+            position > 0
+        ) {
+
+            normalSequencePosition =
+                position - 1;
+
+
+            return showFrame(
+                projectIndex,
+                normalSequenceFrames[
+                    normalSequencePosition
+                ],
+                urlMode
+            );
+
+        }
+
+    }
+
+
+    /*
+        Crossing backwards into another project creates a normal
+        max-3 pass there and lands on its last selected frame.
+    */
     const previousProjectIndex =
         normalizeProjectIndex(
             projectIndex - 1
         );
 
 
-    const previousProject =
-        projects[
+    const sequence =
+        buildNormalProjectSequence(
             previousProjectIndex
-        ];
+        );
+
+
+    normalSequencePosition =
+        sequence.length - 1;
 
 
     return showFrame(
         previousProjectIndex,
-        previousProject.images.length - 1,
+        sequence[
+            normalSequencePosition
+        ],
         urlMode
     );
 
@@ -4585,6 +5097,17 @@ async function leaveProjectAll(
 
         frameIndex =
             selectedIndex;
+
+
+        markFrameSeen(
+            projectIndex,
+            selectedIndex
+        );
+
+
+        enterFocusedProjectMode(
+            projectIndex
+        );
 
 
         syncProjectUrl(
@@ -6170,6 +6693,11 @@ async function exitIndexToProject(
     );
 
 
+    enterFocusedProjectMode(
+        targetProjectIndex
+    );
+
+
     await showFrame(
         targetProjectIndex,
         0
@@ -7533,6 +8061,9 @@ window.addEventListener(
         );
 
 
+        leaveFocusedProjectMode();
+
+
         indexMode =
             false;
 
@@ -7759,6 +8290,21 @@ async function loadProjects() {
 
         renderImage(
             firstImage
+        );
+
+
+        markFrameSeen(
+            projectIndex,
+            frameIndex
+        );
+
+
+        buildNormalProjectSequence(
+            projectIndex,
+            {
+                includeFrame:
+                    frameIndex
+            }
         );
 
 
