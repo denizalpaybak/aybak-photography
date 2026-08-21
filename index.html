@@ -68,12 +68,12 @@ button {
         sans-serif;
 
     --active-serif-font:
-        "Times New Roman",
-        Times,
-        serif;
+        Arial,
+        Helvetica,
+        sans-serif;
 
     --active-serif-weight:
-        500;
+        400;
 
     --side: 48px;
     --top: 32px;
@@ -2917,15 +2917,11 @@ function renderInteractiveTypography(
 
 
             span.style.fontFamily =
-                isSerifMorph
-                    ? 'var(--active-serif-font)'
-                    : 'var(--sans-font)';
+                'var(--sans-font)';
 
 
             span.style.fontWeight =
-                isSerifMorph
-                    ? 'var(--active-serif-weight)'
-                    : '400';
+                '400';
 
 
             fragment.appendChild(
@@ -5542,25 +5538,11 @@ function createCaseController(
 
     function render() {
 
-        const positions =
-            getLetterPositions(
-                base
-            );
-
-
-        renderInteractiveTypography(
-            element,
+        element.textContent =
             renderPrefixCase(
                 base,
                 state
-            ),
-            new Set(
-                positions.slice(
-                    0,
-                    state
-                )
-            )
-        );
+            );
 
     }
 
@@ -7636,40 +7618,16 @@ function setLogoState(
             : "denizalp";
 
 
-    logoName.style.fontFamily =
-        'var(--sans-font)';
-
-
-    logoName.style.fontWeight =
-        '400';
-
-
     for (
         let i = 0;
         i < letters.length;
         i++
     ) {
 
-        const isMorphedUppercase =
-            i < state;
-
-
         letters[i].textContent =
-            isMorphedUppercase
+            i < state
                 ? uppercase[i]
                 : lowercase[i];
-
-
-        letters[i].style.fontFamily =
-            isMorphedUppercase
-                ? 'var(--active-serif-font)'
-                : 'var(--sans-font)';
-
-
-        letters[i].style.fontWeight =
-            isMorphedUppercase
-                ? 'var(--active-serif-weight)'
-                : '400';
 
     }
 
