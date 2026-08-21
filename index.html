@@ -72,6 +72,9 @@ button {
         Times,
         serif;
 
+    --active-serif-weight:
+        500;
+
     --side: 48px;
     --top: 32px;
 
@@ -2859,18 +2862,32 @@ function updateIndexContentTop() {
 /* =====================================================
    INTERACTIVE TYPOGRAPHY
 
-   Only letters that become uppercase through an interaction switch
-   to Times New Roman. Lowercase letters remain in the site's existing
-   sans. Fixed uppercase branding (for example AYBAK) is untouched.
+   Only characters that are actively in an UPPERCASE MORPH STATE
+   use Times New Roman 500.
+
+   Important:
+   - Initial/static uppercase stays sans.
+     Example: the D in "Denizalp" remains Helvetica/Arial.
+   - A character that changes lowercase -> uppercase through hover/state
+     becomes Times New Roman.
+   - As the morph reverses, that character returns to sans.
    ===================================================== */
 
 function renderInteractiveTypography(
     element,
-    text
+    text,
+    serifPositions =
+        null
 ) {
 
     const fragment =
         document.createDocumentFragment();
+
+
+    const activeSerifPositions =
+        serifPositions instanceof Set
+            ? serifPositions
+            : new Set();
 
 
     Array.from(
@@ -2878,7 +2895,10 @@ function renderInteractiveTypography(
             text
         )
     ).forEach(
-        character => {
+        (
+            character,
+            index
+        ) => {
 
             const span =
                 document.createElement(
@@ -2890,21 +2910,22 @@ function renderInteractiveTypography(
                 character;
 
 
-            const isLetter =
-                character.toLowerCase() !==
-                character.toUpperCase();
-
-
-            const isUppercase =
-                isLetter &&
-                character ===
-                    character.toUpperCase();
+            const isSerifMorph =
+                activeSerifPositions.has(
+                    index
+                );
 
 
             span.style.fontFamily =
-                isUppercase
+                isSerifMorph
                     ? 'var(--active-serif-font)'
                     : 'var(--sans-font)';
+
+
+            span.style.fontWeight =
+                isSerifMorph
+                    ? 'var(--active-serif-weight)'
+                    : '400';
 
 
             fragment.appendChild(
@@ -2947,7 +2968,8 @@ function morphSequential(
 
         renderInteractiveTypography(
             element,
-            nextText
+            nextText,
+            new Set()
         );
 
 
@@ -3098,13 +3120,14 @@ function morphSequential(
 
 
                 renderInteractiveTypography(
-                    element,
-                    current
+            element,
+            current
                         .join(
                             ""
                         )
-                        .trimEnd()
-                );
+                        .trimEnd(),
+            new Set()
+        );
 
 
                 if (
@@ -3120,9 +3143,10 @@ function morphSequential(
                 else {
 
                     renderInteractiveTypography(
-                        element,
-                        nextText
-                    );
+            element,
+            nextText,
+            new Set()
+        );
 
 
                     element.dataset.rawText =
@@ -3262,6 +3286,12 @@ function animateCase(
         positions.length;
 
 
+    /*
+        Determine the current morph state from text itself.
+        Static initial uppercase letters are NOT counted here because
+        baseText is deliberately lowercased before this interaction
+        animation begins.
+    */
     const currentText =
         element.textContent;
 
@@ -3289,9 +3319,9 @@ function animateCase(
         if (
             character &&
             character ===
-            character.toUpperCase() &&
+                character.toUpperCase() &&
             character !==
-            character.toLowerCase()
+                character.toLowerCase()
         ) {
 
             currentState++;
@@ -3313,16 +3343,42 @@ function animateCase(
             : 0;
 
 
-    if (
-        currentState === target
+    function renderState(
+        state
     ) {
+
+        const renderedText =
+            renderPrefixCase(
+                base,
+                state
+            );
+
+
+        const serifPositions =
+            new Set(
+                positions.slice(
+                    0,
+                    state
+                )
+            );
+
 
         renderInteractiveTypography(
             element,
-            renderPrefixCase(
-                base,
-                target
-            )
+            renderedText,
+            serifPositions
+        );
+
+    }
+
+
+    if (
+        currentState ===
+        target
+    ) {
+
+        renderState(
+            target
         );
 
 
@@ -3364,12 +3420,8 @@ function animateCase(
                     );
 
 
-                renderInteractiveTypography(
-                    element,
-                    renderPrefixCase(
-                        base,
-                        state
-                    )
+                renderState(
+                    state
                 );
 
 
@@ -3385,12 +3437,8 @@ function animateCase(
 
                 else {
 
-                    renderInteractiveTypography(
-                        element,
-                        renderPrefixCase(
-                            base,
-                            target
-                        )
+                    renderState(
+                        target
                     );
 
 
@@ -6391,6 +6439,14 @@ function renderIndexWord(
         renderWordCase(
             indexWord,
             state
+        ),
+        new Set(
+            getLetterPositions(
+                indexWord
+            ).slice(
+                0,
+                state
+            )
         )
     );
 
@@ -7800,6 +7856,14 @@ function renderSwitch(
         renderWordCase(
             switchWord,
             state
+        ),
+        new Set(
+            getLetterPositions(
+                switchWord
+            ).slice(
+                0,
+                state
+            )
         )
     );
 
