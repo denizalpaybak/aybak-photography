@@ -11,6 +11,8 @@
 
 <title>Denizalp Aybak — Photography</title>
 
+<link rel="stylesheet" href="https://use.typekit.net/lel7okr.css">
+
 <style>
 
 /* =====================================================
@@ -35,9 +37,12 @@ body {
     color: #000;
 
     font-family:
+        "aktiv-grotesk",
         Arial,
         Helvetica,
         sans-serif;
+
+    font-weight: 400;
 
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -45,6 +50,12 @@ body {
 
 button {
     font: inherit;
+}
+
+button,
+a {
+    font-family: inherit;
+    font-weight: inherit;
 }
 
 
@@ -59,20 +70,34 @@ button {
 
     /*
         TYPOGRAPHIC STATES
-        Passive/lowercase = existing sans
-        Interactive uppercase letters = Times New Roman
+
+        Default/static text:
+        Aktiv Grotesk Regular
+
+        Only letters that become uppercase through the existing
+        interaction morph:
+        Aktiv Grotesk Extended Regular
+
+        Static uppercase letters do NOT switch width.
+        Example: the initial D in "Denizalp" stays normal Aktiv Grotesk.
     */
     --sans-font:
+        "aktiv-grotesk",
         Arial,
         Helvetica,
         sans-serif;
 
-    --active-serif-font:
+    --sans-weight:
+        400;
+
+    --morph-font:
+        "aktiv-grotesk-extended",
+        "aktiv-grotesk",
         Arial,
         Helvetica,
         sans-serif;
 
-    --active-serif-weight:
+    --morph-weight:
         400;
 
     --side: 48px;
@@ -167,6 +192,9 @@ body {
 
 .logo-name {
     position: absolute;
+
+    font-family: var(--sans-font);
+    font-weight: var(--sans-weight);
 
     top: 0;
     left: 0;
@@ -2863,14 +2891,14 @@ function updateIndexContentTop() {
    INTERACTIVE TYPOGRAPHY
 
    Only characters that are actively in an UPPERCASE MORPH STATE
-   use Times New Roman 500.
+   use Aktiv Grotesk Extended Regular.
 
    Important:
-   - Initial/static uppercase stays sans.
-     Example: the D in "Denizalp" remains Helvetica/Arial.
+   - Initial/static uppercase stays normal Aktiv Grotesk Regular.
+     Example: the D in "Denizalp" stays normal width.
    - A character that changes lowercase -> uppercase through hover/state
-     becomes Times New Roman.
-   - As the morph reverses, that character returns to sans.
+     becomes Aktiv Grotesk Extended Regular.
+   - As the morph reverses, that character returns to normal Aktiv Grotesk.
    ===================================================== */
 
 function renderInteractiveTypography(
@@ -2917,11 +2945,15 @@ function renderInteractiveTypography(
 
 
             span.style.fontFamily =
-                'var(--sans-font)';
+                isSerifMorph
+                    ? 'var(--morph-font)'
+                    : 'var(--sans-font)';
 
 
             span.style.fontWeight =
-                '400';
+                isSerifMorph
+                    ? 'var(--morph-weight)'
+                    : 'var(--sans-weight)';
 
 
             fragment.appendChild(
@@ -5538,11 +5570,25 @@ function createCaseController(
 
     function render() {
 
-        element.textContent =
+        const positions =
+            getLetterPositions(
+                base
+            );
+
+
+        renderInteractiveTypography(
+            element,
             renderPrefixCase(
                 base,
                 state
-            );
+            ),
+            new Set(
+                positions.slice(
+                    0,
+                    state
+                )
+            )
+        );
 
     }
 
@@ -7624,10 +7670,26 @@ function setLogoState(
         i++
     ) {
 
+        const isMorphUpper =
+            i < state;
+
+
         letters[i].textContent =
-            i < state
+            isMorphUpper
                 ? uppercase[i]
                 : lowercase[i];
+
+
+        letters[i].style.fontFamily =
+            isMorphUpper
+                ? 'var(--morph-font)'
+                : 'var(--sans-font)';
+
+
+        letters[i].style.fontWeight =
+            isMorphUpper
+                ? 'var(--morph-weight)'
+                : 'var(--sans-weight)';
 
     }
 
