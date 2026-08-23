@@ -224,17 +224,11 @@ body {
 
 #background-brand {
     position: fixed;
-
-    left: 0;
-    right: 0;
-
-    top: var(--background-brand-top, 118px);
-    bottom: var(--background-brand-bottom, 92px);
+    inset: 0;
 
     z-index: 2;
 
     overflow: hidden;
-
     pointer-events: none;
 
     color: #000;
@@ -252,64 +246,107 @@ body {
 
 #background-brand-rows {
     position: absolute;
-    inset: 0;
+
+    left: 0;
+    right: 0;
+
+    top: var(--background-brand-top, 105px);
+    bottom: var(--background-brand-bottom, 75px);
 
     display: flex;
     flex-direction: column;
+
+    overflow: hidden;
 }
 
 .background-brand-row {
     position: relative;
 
     flex: 1 1 0;
-
     min-height: 0;
 
     overflow: hidden;
 }
 
-.background-brand-left,
-.background-brand-right,
-.background-brand-full {
+/*
+    Each row contains TWO identical full-width copies of the same word.
+
+    Both copies have exactly the same size and center position.
+    JS clips one copy at the photo's left edge and the other at the
+    photo's right edge.
+
+    Therefore the word is continuous behind the photograph:
+    if VOGUE crosses the image as VO | [photo] | GUE, those are the
+    exact pieces of one single centered VOGUE — not separately fitted
+    left/right fragments.
+*/
+.background-brand-word {
     position: absolute;
 
+    left: 50%;
     top: 50%;
 
     display: block;
 
+    width: max-content;
+
     white-space: nowrap;
 
-    line-height: 0.78;
+    line-height: 0.76;
+    letter-spacing: -0.05em;
 
-    letter-spacing: -0.045em;
-
-    transform: translateY(-50%);
-}
-
-.background-brand-left {
-    right: var(--brand-image-left, 50%);
-    text-align: right;
-}
-
-.background-brand-right {
-    left: var(--brand-image-right, 50%);
-    text-align: left;
-}
-
-.background-brand-full {
-    left: 50%;
+    text-align: center;
 
     transform:
         translate(-50%, -50%);
 
+    transform-origin:
+        center center;
+}
+
+.background-brand-word-left {
+    clip-path:
+        inset(
+            0
+            calc(100vw - var(--brand-image-left, 50vw))
+            0
+            0
+        );
+}
+
+.background-brand-word-right {
+    clip-path:
+        inset(
+            0
+            0
+            0
+            var(--brand-image-right, 50vw)
+        );
+}
+
+.background-brand-index {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    display: block;
+
+    width: max-content;
+
+    white-space: nowrap;
+
+    line-height: 0.76;
+    letter-spacing: -0.05em;
+
     text-align: center;
+
+    transform:
+        translate(-50%, -50%);
 }
 
 
-/*
-    In INDEX mode the background becomes a single giant INDEX word.
-    VIEW ALL still hides the background layer.
-*/
+/* VIEW ALL remains clean. INDEX gets its own giant INDEX background. */
 body.project-all-mode #background-brand,
 body.project-all-preparing #background-brand {
     visibility: hidden;
@@ -2674,266 +2711,17 @@ function getCurrentImageRect() {
         image.getBoundingClientRect();
 
 
-    if (
-        rect.width <= 0 ||
-        rect.height <= 0
-    ) {
-
-        return null;
-
-    }
-
-
-    return rect;
+    return (
+        rect.width > 0 &&
+        rect.height > 0
+    )
+        ? rect
+        : null;
 
 }
 
 
-function createBackgroundWordRow(
-    word
-) {
-
-    const row =
-        document.createElement(
-            "div"
-        );
-
-
-    row.className =
-        "background-brand-row";
-
-
-    const left =
-        document.createElement(
-            "span"
-        );
-
-
-    left.className =
-        "background-brand-left";
-
-
-    const right =
-        document.createElement(
-            "span"
-        );
-
-
-    right.className =
-        "background-brand-right";
-
-
-    row.append(
-        left,
-        right
-    );
-
-
-    backgroundBrandRows.appendChild(
-        row
-    );
-
-
-    return {
-        row,
-        left,
-        right,
-        word
-    };
-
-}
-
-
-function chooseBestWordSplit(
-    word,
-    leftWidth,
-    rightWidth,
-    rowHeight
-) {
-
-    if (
-        word.length <= 1
-    ) {
-
-        return {
-            leftText:
-                word,
-            rightText:
-                "",
-            fontSize:
-                Math.min(
-                    rowHeight * 1.22,
-                    leftWidth * 1.7
-                )
-        };
-
-    }
-
-
-    const probeLeft =
-        document.createElement(
-            "span"
-        );
-
-
-    const probeRight =
-        document.createElement(
-            "span"
-        );
-
-
-    [probeLeft, probeRight].forEach(
-        probe => {
-
-            probe.style.position =
-                "fixed";
-
-            probe.style.visibility =
-                "hidden";
-
-            probe.style.pointerEvents =
-                "none";
-
-            probe.style.whiteSpace =
-                "nowrap";
-
-            probe.style.fontFamily =
-                '"Times New Roman", Times, serif';
-
-            probe.style.fontWeight =
-                "400";
-
-            probe.style.fontSize =
-                "1000px";
-
-            probe.style.lineHeight =
-                "0.78";
-
-            probe.style.letterSpacing =
-                "-0.045em";
-
-            document.body.appendChild(
-                probe
-            );
-
-        }
-    );
-
-
-    let best =
-        null;
-
-
-    for (
-        let split = 1;
-        split < word.length;
-        split++
-    ) {
-
-        const leftText =
-            word.slice(
-                0,
-                split
-            );
-
-
-        const rightText =
-            word.slice(
-                split
-            );
-
-
-        probeLeft.textContent =
-            leftText;
-
-
-        probeRight.textContent =
-            rightText;
-
-
-        const leftRect =
-            probeLeft.getBoundingClientRect();
-
-
-        const rightRect =
-            probeRight.getBoundingClientRect();
-
-
-        const widthScale =
-            Math.min(
-                leftWidth /
-                    Math.max(
-                        1,
-                        leftRect.width
-                    ),
-                rightWidth /
-                    Math.max(
-                        1,
-                        rightRect.width
-                    )
-            );
-
-
-        const heightScale =
-            rowHeight /
-            Math.max(
-                1,
-                Math.max(
-                    leftRect.height,
-                    rightRect.height
-                )
-            );
-
-
-        const fontSize =
-            1000 *
-            Math.min(
-                widthScale,
-                heightScale
-            );
-
-
-        /*
-            Prefer the split that yields the largest shared size.
-            On a centered image this naturally gives VOGUE -> VO | GUE.
-        */
-        if (
-            !best ||
-            fontSize >
-                best.fontSize
-        ) {
-
-            best = {
-                leftText,
-                rightText,
-                fontSize
-            };
-
-        }
-
-    }
-
-
-    probeLeft.remove();
-    probeRight.remove();
-
-
-    return best;
-
-}
-
-
-function fitBackgroundBrand() {
-
-    if (
-        !backgroundBrand ||
-        !backgroundBrandRows
-    ) {
-
-        return;
-
-    }
-
+function getBackgroundSafeGeometry() {
 
     const infoRect =
         info.getBoundingClientRect();
@@ -2959,61 +2747,118 @@ function fitBackgroundBrand() {
             ) +
             (
                 isPhoneLayout()
-                    ? 16
-                    : 24
+                    ? 12
+                    : 18
             )
         );
 
 
-    const bottomBoundary =
-        Math.min(
-            metaRect.top > 0
-                ? metaRect.top
-                : window.innerHeight,
-            indexRect.top > 0
-                ? indexRect.top
-                : window.innerHeight
-        );
+    const lowerCandidates =
+        [
+            indexRect.top,
+            metaRect.top
+        ]
+            .filter(
+                value =>
+                    Number.isFinite(
+                        value
+                    ) &&
+                    value > top
+            );
+
+
+    const lowerBoundary =
+        lowerCandidates.length
+            ? Math.min(
+                ...lowerCandidates
+            )
+            : window.innerHeight -
+                40;
 
 
     const bottom =
-        Math.ceil(
-            Math.max(
-                20,
+        Math.max(
+            18,
+            Math.ceil(
                 window.innerHeight -
-                bottomBoundary +
+                lowerBoundary +
                 (
                     isPhoneLayout()
-                        ? 12
-                        : 18
+                        ? 10
+                        : 14
                 )
             )
         );
 
 
-    const root =
-        document.documentElement;
+    return {
+        top,
+        bottom
+    };
+
+}
 
 
-    root.style.setProperty(
-        "--background-brand-top",
-        `${top}px`
-    );
+function fitWordToRow(
+    element,
+    rowRect
+) {
+
+    element.style.fontSize =
+        "1000px";
 
 
-    root.style.setProperty(
-        "--background-brand-bottom",
-        `${bottom}px`
-    );
-
-
-    const box =
-        backgroundBrand.getBoundingClientRect();
+    const measured =
+        element.getBoundingClientRect();
 
 
     if (
-        box.width <= 0 ||
-        box.height <= 0
+        measured.width <= 0 ||
+        measured.height <= 0
+    ) {
+
+        return 100;
+
+    }
+
+
+    /*
+        Every word independently fills almost the full viewport width.
+        Row height is the second constraint.
+
+        This is why a short word becomes dramatically larger than a
+        long word, while every word still reads as one full-screen row.
+    */
+    const widthScale =
+        (
+            window.innerWidth *
+            0.965
+        ) /
+        measured.width;
+
+
+    const heightScale =
+        (
+            rowRect.height *
+            0.90
+        ) /
+        measured.height;
+
+
+    return 1000 *
+        Math.min(
+            widthScale,
+            heightScale
+        );
+
+}
+
+
+function fitBackgroundBrand() {
+
+    if (
+        !backgroundBrand ||
+        !backgroundBrandRows
     ) {
 
         return;
@@ -3021,28 +2866,40 @@ function fitBackgroundBrand() {
     }
 
 
-    /*
-        INDEX mode: one huge centered word that fills its safe field.
-    */
+    const geometry =
+        getBackgroundSafeGeometry();
+
+
+    document
+        .documentElement
+        .style
+        .setProperty(
+            "--background-brand-top",
+            `${geometry.top}px`
+        );
+
+
+    document
+        .documentElement
+        .style
+        .setProperty(
+            "--background-brand-bottom",
+            `${geometry.bottom}px`
+        );
+
+
     if (
         indexMode
     ) {
 
-        const row =
+        const indexWord =
             backgroundBrandRows.querySelector(
-                ".background-brand-row"
-            );
-
-
-        const full =
-            row?.querySelector(
-                ".background-brand-full"
+                ".background-brand-index"
             );
 
 
         if (
-            !row ||
-            !full
+            !indexWord
         ) {
 
             return;
@@ -3050,41 +2907,42 @@ function fitBackgroundBrand() {
         }
 
 
-        full.style.fontSize =
+        const rowsRect =
+            backgroundBrandRows.getBoundingClientRect();
+
+
+        indexWord.style.fontSize =
             "1000px";
 
 
         const measured =
-            full.getBoundingClientRect();
+            indexWord.getBoundingClientRect();
 
 
-        const widthScale =
-            (
-                box.width *
-                0.94
-            ) /
-            Math.max(
-                1,
-                measured.width
+        const size =
+            1000 *
+            Math.min(
+                (
+                    window.innerWidth *
+                    0.965
+                ) /
+                Math.max(
+                    1,
+                    measured.width
+                ),
+                (
+                    rowsRect.height *
+                    0.90
+                ) /
+                Math.max(
+                    1,
+                    measured.height
+                )
             );
 
 
-        const heightScale =
-            (
-                box.height *
-                0.9
-            ) /
-            Math.max(
-                1,
-                measured.height
-            );
-
-
-        full.style.fontSize =
-            `${1000 * Math.min(
-                widthScale,
-                heightScale
-            )}px`;
+        indexWord.style.fontSize =
+            `${size}px`;
 
 
         return;
@@ -3105,76 +2963,45 @@ function fitBackgroundBrand() {
     }
 
 
+    /*
+        Clip coordinates are viewport coordinates because the background
+        layer itself spans the viewport.
+    */
     const imageLeft =
         Math.max(
             0,
-            imageRect.left
+            Math.min(
+                window.innerWidth,
+                imageRect.left
+            )
         );
 
 
     const imageRight =
-        Math.min(
-            window.innerWidth,
-            imageRect.right
-        );
-
-
-    const sideGap =
-        isPhoneLayout()
-            ? 8
-            : 12;
-
-
-    const leftBoundary =
         Math.max(
             0,
-            imageLeft -
-            sideGap
-        );
-
-
-    const rightBoundary =
-        Math.min(
-            window.innerWidth,
-            imageRight +
-            sideGap
-        );
-
-
-    root.style.setProperty(
-        "--brand-image-left",
-        `${leftBoundary}px`
-    );
-
-
-    root.style.setProperty(
-        "--brand-image-right",
-        `${rightBoundary}px`
-    );
-
-
-    const leftWidth =
-        Math.max(
-            1,
-            leftBoundary -
-            (
-                isPhoneLayout()
-                    ? 10
-                    : 18
+            Math.min(
+                window.innerWidth,
+                imageRect.right
             )
         );
 
 
-    const rightWidth =
-        Math.max(
-            1,
-            window.innerWidth -
-            rightBoundary -
-            (
-                isPhoneLayout()
-                    ? 10
-                    : 18
-            )
+    document
+        .documentElement
+        .style
+        .setProperty(
+            "--brand-image-left",
+            `${imageLeft}px`
+        );
+
+
+    document
+        .documentElement
+        .style
+        .setProperty(
+            "--brand-image-right",
+            `${imageRight}px`
         );
 
 
@@ -3186,57 +3013,39 @@ function fitBackgroundBrand() {
         );
 
 
-    const rowHeight =
-        box.height /
-        Math.max(
-            1,
-            rows.length
-        );
-
-
     rows.forEach(
         row => {
 
             const left =
                 row.querySelector(
-                    ".background-brand-left"
+                    ".background-brand-word-left"
                 );
 
 
             const right =
                 row.querySelector(
-                    ".background-brand-right"
+                    ".background-brand-word-right"
                 );
 
 
-            const word =
-                row.dataset.word ||
-                "";
+            if (
+                !left ||
+                !right
+            ) {
+
+                return;
+
+            }
 
 
-            const split =
-                chooseBestWordSplit(
-                    word,
-                    leftWidth,
-                    rightWidth,
-                    rowHeight * 0.9
-                );
-
-
-            left.textContent =
-                split.leftText;
-
-
-            right.textContent =
-                split.rightText;
+            const rowRect =
+                row.getBoundingClientRect();
 
 
             const size =
-                Math.max(
-                    isPhoneLayout()
-                        ? 56
-                        : 92,
-                    split.fontSize
+                fitWordToRow(
+                    left,
+                    rowRect
                 );
 
 
@@ -3257,6 +3066,15 @@ function renderBackgroundBrandProject(
     project
 ) {
 
+    if (
+        !backgroundBrandRows
+    ) {
+
+        return;
+
+    }
+
+
     backgroundBrandRows.replaceChildren();
 
 
@@ -3270,26 +3088,84 @@ function renderBackgroundBrandProject(
         word => {
 
             const row =
-                createBackgroundWordRow(
-                    word
+                document.createElement(
+                    "div"
                 );
 
 
-            row.row.dataset.word =
+            row.className =
+                "background-brand-row";
+
+
+            const left =
+                document.createElement(
+                    "span"
+                );
+
+
+            left.className =
+                "background-brand-word background-brand-word-left";
+
+
+            left.textContent =
                 word;
+
+
+            const right =
+                document.createElement(
+                    "span"
+                );
+
+
+            right.className =
+                "background-brand-word background-brand-word-right";
+
+
+            right.textContent =
+                word;
+
+
+            row.append(
+                left,
+                right
+            );
+
+
+            backgroundBrandRows.appendChild(
+                row
+            );
 
         }
     );
 
 
+    /*
+        The image may have been inserted this same frame.
+        Two RAFs ensure its final responsive geometry is measurable.
+    */
     requestAnimationFrame(
-        fitBackgroundBrand
+        () => {
+
+            requestAnimationFrame(
+                fitBackgroundBrand
+            );
+
+        }
     );
 
 }
 
 
 function renderBackgroundBrandIndex() {
+
+    if (
+        !backgroundBrandRows
+    ) {
+
+        return;
+
+    }
+
 
     backgroundBrandRows.replaceChildren();
 
@@ -3304,22 +3180,22 @@ function renderBackgroundBrandIndex() {
         "background-brand-row";
 
 
-    const full =
+    const word =
         document.createElement(
             "span"
         );
 
 
-    full.className =
-        "background-brand-full";
+    word.className =
+        "background-brand-index";
 
 
-    full.textContent =
+    word.textContent =
         "INDEX";
 
 
     row.appendChild(
-        full
+        word
     );
 
 
@@ -3358,6 +3234,9 @@ function updateBackgroundBrand(
 }
 
 
+/* =====================================================
+   LANDSCAPE GEOMETRY
+   ===================================================== */
 /* =====================================================
    LANDSCAPE GEOMETRY
    ===================================================== */
@@ -4582,6 +4461,32 @@ function renderImage(
     spread.appendChild(
         cell
     );
+
+
+    img.addEventListener(
+        "load",
+        () => {
+
+            requestAnimationFrame(
+                fitBackgroundBrand
+            );
+
+        },
+        {
+            once: true
+        }
+    );
+
+
+    if (
+        img.complete
+    ) {
+
+        requestAnimationFrame(
+            fitBackgroundBrand
+        );
+
+    }
 
 }
 
@@ -9623,6 +9528,15 @@ async function loadProjects() {
 
         renderImage(
             firstImage
+        );
+
+
+        /*
+            Initial page render does not pass through updateMetadata(),
+            so initialize the Times background explicitly here.
+        */
+        updateBackgroundBrand(
+            currentProject()
         );
 
 
