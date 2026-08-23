@@ -12,11 +12,6 @@
 <title>Denizalp Aybak — Photography</title>
 
 <link rel="stylesheet" href="https://use.typekit.net/lel7okr.css">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
-
 <style>
 
 /* =====================================================
@@ -106,12 +101,21 @@ a {
 
     /*
         NUMERALS
-        Every digit 0–9 uses Roboto Mono Regular.
-        Punctuation remains in the surrounding Aktiv face.
+        Default digits: Acumin Regular.
+        Active numeric state: Acumin Wide Regular.
     */
     --number-font:
-        "Roboto Mono",
-        monospace;
+        "acumin-pro",
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    --number-wide-font:
+        "acumin-pro-wide",
+        "acumin-pro",
+        Arial,
+        Helvetica,
+        sans-serif;
 
     --number-weight:
         400;
@@ -2984,7 +2988,11 @@ function renderInteractiveTypography(
 
             span.style.fontFamily =
                 isDigit
-                    ? 'var(--number-font)'
+                    ? (
+                        isSerifMorph
+                            ? 'var(--number-wide-font)'
+                            : 'var(--number-font)'
+                    )
                     : (
                         isSerifMorph
                             ? 'var(--morph-font)'
@@ -5625,10 +5633,41 @@ function createCaseController(
         baseText.toLowerCase();
 
 
-    const total =
+    const letterPositions =
         getLetterPositions(
             base
-        ).length;
+        );
+
+
+    const digitPositions =
+        Array.from(
+            base
+        )
+            .map(
+                (
+                    character,
+                    index
+                ) =>
+                    /[0-9]/.test(
+                        character
+                    )
+                        ? index
+                        : -1
+            )
+            .filter(
+                index =>
+                    index >= 0
+            );
+
+
+    const positions =
+        letterPositions.length
+            ? letterPositions
+            : digitPositions;
+
+
+    const total =
+        positions.length;
 
 
     let state =
@@ -5641,17 +5680,17 @@ function createCaseController(
 
     function render() {
 
-        const positions =
-            getLetterPositions(
-                base
-            );
+        const uppercaseLetterCount =
+            letterPositions.length
+                ? state
+                : 0;
 
 
         renderInteractiveTypography(
             element,
             renderPrefixCase(
                 base,
-                state
+                uppercaseLetterCount
             ),
             new Set(
                 positions.slice(
