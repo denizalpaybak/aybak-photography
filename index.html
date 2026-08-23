@@ -101,21 +101,19 @@ a {
 
     /*
         NUMERALS
-        Default digits: Acumin Regular.
-        Active numeric state: Acumin Wide Regular.
+        Digits use the same Aktiv Grotesk system as letters.
+
+        Default digits:
+        Aktiv Grotesk Regular
+
+        Active / morph-state digits:
+        Aktiv Grotesk Extended Regular
     */
     --number-font:
-        "acumin-pro",
-        Arial,
-        Helvetica,
-        sans-serif;
+        var(--sans-font);
 
     --number-wide-font:
-        "acumin-pro-wide",
-        "acumin-pro",
-        Arial,
-        Helvetica,
-        sans-serif;
+        var(--morph-font);
 
     --number-weight:
         400;
@@ -3356,6 +3354,45 @@ function renderPrefixCase(
 }
 
 
+
+function renderCaseFromActivePositions(
+    baseText,
+    activePositions
+) {
+
+    return baseText
+        .split(
+            ""
+        )
+        .map(
+            (
+                character,
+                index
+            ) => {
+
+                const isLetter =
+                    character.toLowerCase() !==
+                    character.toUpperCase();
+
+
+                return (
+                    isLetter &&
+                    activePositions.has(
+                        index
+                    )
+                )
+                    ? character.toUpperCase()
+                    : character.toLowerCase();
+
+            }
+        )
+        .join(
+            ""
+        );
+
+}
+
+
 /* =====================================================
    CASE ANIMATION
    ===================================================== */
@@ -3372,10 +3409,49 @@ function animateCase(
         baseText.toLowerCase();
 
 
+    /*
+        Morph positions include BOTH letters and digits.
+
+        - Letters: lowercase -> UPPERCASE + Aktiv -> Aktiv Extended
+        - Digits: unchanged character + Aktiv Grotesk -> Aktiv Grotesk Extended
+
+        This means dates such as 2024, 09/19, F/W 2024, etc. visibly
+        widen during the same interaction instead of staying static.
+    */
     const positions =
-        getLetterPositions(
+        Array.from(
             base
-        );
+        )
+            .map(
+                (
+                    character,
+                    index
+                ) => {
+
+                    const isLetter =
+                        character.toLowerCase() !==
+                        character.toUpperCase();
+
+
+                    const isDigit =
+                        /[0-9]/.test(
+                            character
+                        );
+
+
+                    return (
+                        isLetter ||
+                        isDigit
+                    )
+                        ? index
+                        : -1;
+
+                }
+            )
+            .filter(
+                index =>
+                    index >= 0
+            );
 
 
     const total =
@@ -3383,50 +3459,61 @@ function animateCase(
 
 
     /*
-        Determine the current morph state from text itself.
-        Static initial uppercase letters are NOT counted here because
-        baseText is deliberately lowercased before this interaction
-        animation begins.
+        Infer the current state from the DOM spans when available.
+        A morphed character carries the extended/wide family inline.
     */
-    const currentText =
-        element.textContent;
-
-
     let currentState =
         0;
 
 
-    for (
-        let i = 0;
-        i < positions.length;
-        i++
+    const children =
+        Array.from(
+            element.children
+        );
+
+
+    if (
+        children.length ===
+        base.length
     ) {
 
-        const position =
-            positions[i];
-
-
-        const character =
-            currentText[
-                position
-            ];
-
-
-        if (
-            character &&
-            character ===
-                character.toUpperCase() &&
-            character !==
-                character.toLowerCase()
+        for (
+            let i = 0;
+            i < positions.length;
+            i++
         ) {
 
-            currentState++;
+            const position =
+                positions[i];
 
-        }
 
-        else {
+            const span =
+                children[
+                    position
+                ];
 
-            break;
+
+            if (
+                span &&
+                (
+                    span.style.fontFamily.includes(
+                        "--morph-font"
+                    ) ||
+                    span.style.fontFamily.includes(
+                        "--number-wide-font"
+                    )
+                )
+            ) {
+
+                currentState++;
+
+            }
+
+            else {
+
+                break;
+
+            }
 
         }
 
@@ -3443,14 +3530,7 @@ function animateCase(
         state
     ) {
 
-        const renderedText =
-            renderPrefixCase(
-                base,
-                state
-            );
-
-
-        const serifPositions =
+        const activePositions =
             new Set(
                 positions.slice(
                     0,
@@ -3461,8 +3541,11 @@ function animateCase(
 
         renderInteractiveTypography(
             element,
-            renderedText,
-            serifPositions
+            renderCaseFromActivePositions(
+                base,
+                activePositions
+            ),
+            activePositions
         );
 
     }
@@ -5633,13 +5716,7 @@ function createCaseController(
         baseText.toLowerCase();
 
 
-    const letterPositions =
-        getLetterPositions(
-            base
-        );
-
-
-    const digitPositions =
+    const positions =
         Array.from(
             base
         )
@@ -5647,23 +5724,32 @@ function createCaseController(
                 (
                     character,
                     index
-                ) =>
-                    /[0-9]/.test(
-                        character
+                ) => {
+
+                    const isLetter =
+                        character.toLowerCase() !==
+                        character.toUpperCase();
+
+
+                    const isDigit =
+                        /[0-9]/.test(
+                            character
+                        );
+
+
+                    return (
+                        isLetter ||
+                        isDigit
                     )
                         ? index
-                        : -1
+                        : -1;
+
+                }
             )
             .filter(
                 index =>
                     index >= 0
             );
-
-
-    const positions =
-        letterPositions.length
-            ? letterPositions
-            : digitPositions;
 
 
     const total =
@@ -5680,24 +5766,22 @@ function createCaseController(
 
     function render() {
 
-        const uppercaseLetterCount =
-            letterPositions.length
-                ? state
-                : 0;
-
-
-        renderInteractiveTypography(
-            element,
-            renderPrefixCase(
-                base,
-                uppercaseLetterCount
-            ),
+        const activePositions =
             new Set(
                 positions.slice(
                     0,
                     state
                 )
-            )
+            );
+
+
+        renderInteractiveTypography(
+            element,
+            renderCaseFromActivePositions(
+                base,
+                activePositions
+            ),
+            activePositions
         );
 
     }
