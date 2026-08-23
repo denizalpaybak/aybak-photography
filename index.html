@@ -1,17 +1,17 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 
 <meta charset="UTF-8">
 
 <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
->
+name="viewport"
+content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+
+
 
 <title>Denizalp Aybak — Photography</title>
-
-<link rel="stylesheet" href="https://use.typekit.net/trm5bzq.css">
 
 <style>
 
@@ -37,12 +37,9 @@ body {
     color: #000;
 
     font-family:
-        "nimbus-sans",
         Arial,
         Helvetica,
         sans-serif;
-
-    font-weight: 700;
 
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -50,15 +47,6 @@ body {
 
 button {
     font: inherit;
-}
-
-a,
-button,
-input,
-textarea,
-select {
-    font-family: inherit;
-    font-weight: inherit;
 }
 
 
@@ -73,31 +61,21 @@ select {
 
     /*
         TYPOGRAPHIC STATES
-
-        Default = Nimbus Sans Bold.
-        Only letters that become uppercase through a morph use
-        Nimbus Sans Extended Bold.
-
-        Static uppercase letters remain normal Nimbus Sans Bold.
+        Passive/lowercase = existing sans
+        Interactive uppercase letters = Times New Roman
     */
     --sans-font:
-        "nimbus-sans",
         Arial,
         Helvetica,
         sans-serif;
 
-    --sans-weight:
-        700;
-
-    --morph-font:
-        "nimbus-sans-extended",
-        "nimbus-sans",
+    --active-serif-font:
         Arial,
         Helvetica,
         sans-serif;
 
-    --morph-weight:
-        700;
+    --active-serif-weight:
+        400;
 
     --side: 48px;
     --top: 32px;
@@ -1210,7 +1188,6 @@ body.phone-landscape #project-all-grid {
 
 <body>
 
-
 <!-- ===================================================
      INFO
      =================================================== -->
@@ -1220,77 +1197,76 @@ body.phone-landscape #project-all-grid {
     id="info"
 >
 
-    <a
-        class="logo"
-        href="https://denizalpaybak.com/"
+<a
+    class="logo"
+    href="https://denizalpaybak.com/"
+>
+
+    <span
+        class="logo-name"
+        id="logo-name"
     >
+        Denizalp
+    </span>
 
-        <span
-            class="logo-name"
-            id="logo-name"
-        >
-            Denizalp
-        </span>
+    <span class="logo-aybak">
+        <span id="letter-a">a</span><span id="letter-y">y</span><span id="letter-b">b</span><span id="letter-a2">a</span><span id="letter-k">k</span>
+    </span>
 
-        <span class="logo-aybak">
-            <span id="letter-a">a</span><span id="letter-y">y</span><span id="letter-b">b</span><span id="letter-a2">a</span><span id="letter-k">k</span>
-        </span>
+</a>
 
+
+<div class="contact">
+
+    <a
+        href="mailto:d@denizalpaybak.com"
+        target="_blank"
+        rel="noopener"
+    >
+        d@denizalpaybak.com
     </a>
-
-
-    <div class="contact">
-
-        <a
-            href="mailto:d@denizalpaybak.com"
-            target="_blank"
-            rel="noopener"
-        >
-            d@denizalpaybak.com
-        </a>
-
-    </div>
-
-
-    <div class="social">
-
-        <a
-            href="https://www.instagram.com/denizalpaybak/"
-            target="_blank"
-            rel="noopener"
-        >
-            instagram @denizalpaybak
-        </a>
-
-        <a
-            href="https://models.com/people/denizalp-aybak"
-            target="_blank"
-            rel="noopener"
-        >
-            models.com
-        </a>
-
-    </div>
 
 </div>
 
+
+<div class="social">
+
+    <a
+        href="https://www.instagram.com/denizalpaybak/"
+        target="_blank"
+        rel="noopener"
+    >
+        instagram @denizalpaybak
+    </a>
+
+    <a
+        href="https://models.com/people/denizalp-aybak"
+        target="_blank"
+        rel="noopener"
+    >
+        models.com
+    </a>
+
+</div>
+
+</div>
 
 <!-- ===================================================
      FILM
      =================================================== -->
 
 <a
-    class="section-switch"
-    id="section-switch"
-    href="https://film.denizalpaybak.com/"
->
+class="section-switch"
+id="section-switch"
+href="https://film.denizalpaybak.com/"
 
-    <span id="section-switch-text">
-        film
-    </span>
+
+
+<span id="section-switch-text">
+    film
+</span>
 
 </a>
-
 
 <!-- ===================================================
      PROJECT
@@ -1298,36 +1274,35 @@ body.phone-landscape #project-all-grid {
 
 <div id="project-stage">
 
-    <div id="project-block">
+<div id="project-block">
 
-        <div id="visual-zone">
+    <div id="visual-zone">
 
-            <div id="spread"></div>
+        <div id="spread"></div>
 
-        </div>
+    </div>
 
 
-        <div id="project-meta">
+    <div id="project-meta">
 
-            <span id="project-title"></span>
+        <span id="project-title"></span>
 
-            <span id="project-counter"></span>
+        <span id="project-counter"></span>
 
-            <span id="project-date"></span>
+        <span id="project-date"></span>
 
-            <button
-                id="view-all-button"
-                type="button"
-            >
-                view all
-            </button>
-
-        </div>
+        <button
+            id="view-all-button"
+            type="button"
+        >
+            view all
+        </button>
 
     </div>
 
 </div>
 
+</div>
 
 <!-- ===================================================
      VIEW ALL
@@ -1335,36 +1310,36 @@ body.phone-landscape #project-all-grid {
 
 <div id="project-all-view">
 
-    <div id="project-all-grid"></div>
+<div id="project-all-grid"></div>
 
 </div>
-
 
 <!-- ===================================================
      INDEX
      =================================================== -->
 
 <button
-    id="index-button"
-    type="button"
->
-    index
-</button>
+id="index-button"
+type="button"
 
+
+
+index
+
+</button>
 
 <div id="index-view">
 
-    <div
-        id="index-scroller"
-        tabindex="0"
-    >
+<div
+    id="index-scroller"
+    tabindex="0"
+>
 
-        <div id="index-grid"></div>
-
-    </div>
+    <div id="index-grid"></div>
 
 </div>
 
+</div>
 
 <script>
 
@@ -2887,20 +2862,20 @@ function updateIndexContentTop() {
    INTERACTIVE TYPOGRAPHY
 
    Only characters that are actively in an UPPERCASE MORPH STATE
-   use Nimbus Sans Extended Bold.
+   use Times New Roman 500.
 
    Important:
-   - Initial/static uppercase stays normal Nimbus Sans Bold.
-     Example: the D in "Denizalp" stays normal-width Nimbus Sans Bold.
+   - Initial/static uppercase stays sans.
+     Example: the D in "Denizalp" remains Helvetica/Arial.
    - A character that changes lowercase -> uppercase through hover/state
-     becomes Nimbus Sans Extended Bold.
-   - As the morph reverses, that character returns to normal Nimbus Sans Bold.
+     becomes Times New Roman.
+   - As the morph reverses, that character returns to sans.
    ===================================================== */
 
 function renderInteractiveTypography(
     element,
     text,
-    morphPositions =
+    serifPositions =
         null
 ) {
 
@@ -2908,8 +2883,8 @@ function renderInteractiveTypography(
         document.createDocumentFragment();
 
 
-    const activeMorphPositions =
-        morphPositions instanceof Set
+    const activeSerifPositions =
+        serifPositions instanceof Set
             ? serifPositions
             : new Set();
 
@@ -2934,22 +2909,18 @@ function renderInteractiveTypography(
                 character;
 
 
-            const isExtendedMorph =
-                activeMorphPositions.has(
+            const isSerifMorph =
+                activeSerifPositions.has(
                     index
                 );
 
 
             span.style.fontFamily =
-                isExtendedMorph
-                    ? 'var(--morph-font)'
-                    : 'var(--sans-font)';
+                'var(--sans-font)';
 
 
             span.style.fontWeight =
-                isExtendedMorph
-                    ? 'var(--morph-weight)'
-                    : 'var(--sans-weight)';
+                '400';
 
 
             fragment.appendChild(
@@ -3378,7 +3349,7 @@ function animateCase(
             );
 
 
-        const morphPositions =
+        const serifPositions =
             new Set(
                 positions.slice(
                     0,
@@ -3390,7 +3361,7 @@ function animateCase(
         renderInteractiveTypography(
             element,
             renderedText,
-            morphPositions
+            serifPositions
         );
 
     }
@@ -5566,25 +5537,11 @@ function createCaseController(
 
     function render() {
 
-        const positions =
-            getLetterPositions(
-                base
-            );
-
-
-        renderInteractiveTypography(
-            element,
+        element.textContent =
             renderPrefixCase(
                 base,
                 state
-            ),
-            new Set(
-                positions.slice(
-                    0,
-                    state
-                )
-            )
-        );
+            );
 
     }
 
@@ -7666,26 +7623,10 @@ function setLogoState(
         i++
     ) {
 
-        const isExtendedMorph =
-            i < state;
-
-
         letters[i].textContent =
-            isExtendedMorph
+            i < state
                 ? uppercase[i]
                 : lowercase[i];
-
-
-        letters[i].style.fontFamily =
-            isExtendedMorph
-                ? 'var(--morph-font)'
-                : 'var(--sans-font)';
-
-
-        letters[i].style.fontWeight =
-            isExtendedMorph
-                ? 'var(--morph-weight)'
-                : 'var(--sans-weight)';
 
     }
 
