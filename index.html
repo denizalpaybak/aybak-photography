@@ -13,6 +13,10 @@
 
 <link rel="stylesheet" href="https://use.typekit.net/lel7okr.css">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
 <style>
 
 /* =====================================================
@@ -42,7 +46,7 @@ body {
         Helvetica,
         sans-serif;
 
-    font-weight: 500;
+    font-weight: 400;
 
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -72,11 +76,11 @@ a {
         TYPOGRAPHIC STATES
 
         Default/static text:
-        Aktiv Grotesk Medium
+        Aktiv Grotesk Regular
 
         Only letters that become uppercase through the existing
         interaction morph:
-        Aktiv Grotesk Extended Medium
+        Aktiv Grotesk Extended Regular
 
         Static uppercase letters do NOT switch width.
         Example: the initial D in "Denizalp" stays normal Aktiv Grotesk.
@@ -88,7 +92,7 @@ a {
         sans-serif;
 
     --sans-weight:
-        500;
+        400;
 
     --morph-font:
         "aktiv-grotesk-extended",
@@ -98,7 +102,19 @@ a {
         sans-serif;
 
     --morph-weight:
-        500;
+        400;
+
+    /*
+        NUMERALS
+        Every digit 0–9 uses Roboto Mono Regular.
+        Punctuation remains in the surrounding Aktiv face.
+    */
+    --number-font:
+        "Roboto Mono",
+        monospace;
+
+    --number-weight:
+        400;
 
     --side: 48px;
     --top: 32px;
@@ -2907,10 +2923,10 @@ function updateIndexContentTop() {
    INTERACTIVE TYPOGRAPHY
 
    Only characters that are actively in an UPPERCASE MORPH STATE
-   use Aktiv Grotesk Extended Medium.
+   use Aktiv Grotesk Extended Regular.
 
    Important:
-   - Initial/static uppercase stays normal Aktiv Grotesk Medium.
+   - Initial/static uppercase stays normal Aktiv Grotesk Regular.
      Example: the D in "Denizalp" stays normal width.
    - A character that changes lowercase -> uppercase through hover/state
      becomes Aktiv Grotesk Extended Regular.
@@ -2960,16 +2976,30 @@ function renderInteractiveTypography(
                 );
 
 
+            const isDigit =
+                /[0-9]/.test(
+                    character
+                );
+
+
             span.style.fontFamily =
-                isSerifMorph
-                    ? 'var(--morph-font)'
-                    : 'var(--sans-font)';
+                isDigit
+                    ? 'var(--number-font)'
+                    : (
+                        isSerifMorph
+                            ? 'var(--morph-font)'
+                            : 'var(--sans-font)'
+                    );
 
 
             span.style.fontWeight =
-                isSerifMorph
-                    ? 'var(--morph-weight)'
-                    : 'var(--sans-weight)';
+                isDigit
+                    ? 'var(--number-weight)'
+                    : (
+                        isSerifMorph
+                            ? 'var(--morph-weight)'
+                            : 'var(--sans-weight)'
+                    );
 
 
             fragment.appendChild(
@@ -2982,6 +3012,20 @@ function renderInteractiveTypography(
 
     element.replaceChildren(
         fragment
+    );
+
+}
+
+
+function renderBaseTypography(
+    element,
+    text
+) {
+
+    renderInteractiveTypography(
+        element,
+        text,
+        new Set()
     );
 
 }
@@ -3682,11 +3726,22 @@ async function updateMetadata(
         targetProjectIndex;
 
 
-    projectCounter.textContent =
+    renderBaseTypography(
+
+
+
+        projectCounter,
+
+
+
         getCounterText(
             targetFrameIndex,
             project.images.length
-        );
+        )
+
+
+
+    );
 
 
     projectCounter.dataset.rawText =
@@ -6297,8 +6352,10 @@ function buildIndex() {
                         .toLowerCase();
 
 
-                title.textContent =
-                    titleBase;
+                renderBaseTypography(
+                    title,
+                    titleBase
+                );
 
 
                 const date =
@@ -6318,8 +6375,10 @@ function buildIndex() {
                     ).toLowerCase();
 
 
-                date.textContent =
-                    dateBase;
+                renderBaseTypography(
+                    date,
+                    dateBase
+                );
 
 
                 copy.append(
@@ -8582,28 +8641,34 @@ async function loadProjects() {
             ).toLowerCase();
 
 
-        projectTitle.textContent =
-            title;
+        renderBaseTypography(
+            projectTitle,
+            title
+        );
 
 
         projectTitle.dataset.rawText =
             title;
 
 
-        projectDate.textContent =
-            date;
+        renderBaseTypography(
+            projectDate,
+            date
+        );
 
 
         projectDate.dataset.rawText =
             date;
 
 
-        projectCounter.textContent =
+        renderBaseTypography(
+            projectCounter,
             getCounterText(
                 frameIndex,
                 currentProject()
                     .images.length
-            );
+            )
+        );
 
 
         projectCounter.dataset.rawText =
