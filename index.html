@@ -225,24 +225,13 @@ body {
 #background-brand {
     position: fixed;
 
-    left: var(--side);
-    right: var(--side);
+    left: 0;
+    right: 0;
 
-    /*
-        The top/bottom values are recalculated by JS from the
-        real interface geometry so the giant Times word never
-        collides with Denizalp/contact, FILM, project metadata,
-        or INDEX.
-    */
     top: var(--background-brand-top, 118px);
     bottom: var(--background-brand-bottom, 92px);
 
     z-index: 2;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
 
     overflow: hidden;
 
@@ -258,36 +247,69 @@ body {
     font-weight: 400;
     font-style: normal;
 
-    line-height: 0.78;
-
-    white-space: nowrap;
-
-    text-align: center;
-
     user-select: none;
 }
 
-#background-brand-text {
+#background-brand-rows {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.background-brand-row {
+    position: relative;
+
+    flex: 1 1 0;
+
+    min-height: 0;
+
+    overflow: hidden;
+}
+
+.background-brand-left,
+.background-brand-right,
+.background-brand-full {
+    position: absolute;
+
+    top: 50%;
+
     display: block;
 
-    width: max-content;
+    white-space: nowrap;
 
-    transform-origin: center center;
+    line-height: 0.78;
 
-    /*
-        JS fits every project title independently.
-        Short names therefore become much larger than long names.
-    */
-    font-size: 120px;
     letter-spacing: -0.045em;
+
+    transform: translateY(-50%);
+}
+
+.background-brand-left {
+    right: var(--brand-image-left, 50%);
+    text-align: right;
+}
+
+.background-brand-right {
+    left: var(--brand-image-right, 50%);
+    text-align: left;
+}
+
+.background-brand-full {
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    text-align: center;
 }
 
 
 /*
-    Keep the giant type out of INDEX / VIEW ALL.
-    It belongs only to the main slideshow state.
+    In INDEX mode the background becomes a single giant INDEX word.
+    VIEW ALL still hides the background layer.
 */
-body.index-mode #background-brand,
 body.project-all-mode #background-brand,
 body.project-all-preparing #background-brand {
     visibility: hidden;
@@ -1339,7 +1361,7 @@ body.phone-landscape #project-all-grid {
     id="background-brand"
     aria-hidden="true"
 >
-    <span id="background-brand-text"></span>
+    <div id="background-brand-rows"></div>
 </div>
 
 
@@ -1506,9 +1528,9 @@ const backgroundBrand =
     );
 
 
-const backgroundBrandText =
+const backgroundBrandRows =
     document.getElementById(
-        "background-brand-text"
+        "background-brand-rows"
     );
 
 
@@ -2609,7 +2631,7 @@ function preloadImage(
    BACKGROUND BRAND TYPOGRAPHY
    ===================================================== */
 
-function normalizeBackgroundBrandText(
+function normalizeBackgroundBrandWords(
     title
 ) {
 
@@ -2617,7 +2639,286 @@ function normalizeBackgroundBrandText(
         title || ""
     )
         .trim()
-        .toUpperCase();
+        .split(
+            /\s+/
+        )
+        .filter(
+            Boolean
+        )
+        .map(
+            word =>
+                word.toUpperCase()
+        );
+
+}
+
+
+function getCurrentImageRect() {
+
+    const image =
+        spread.querySelector(
+            ".spread-image"
+        );
+
+
+    if (
+        !image
+    ) {
+
+        return null;
+
+    }
+
+
+    const rect =
+        image.getBoundingClientRect();
+
+
+    if (
+        rect.width <= 0 ||
+        rect.height <= 0
+    ) {
+
+        return null;
+
+    }
+
+
+    return rect;
+
+}
+
+
+function createBackgroundWordRow(
+    word
+) {
+
+    const row =
+        document.createElement(
+            "div"
+        );
+
+
+    row.className =
+        "background-brand-row";
+
+
+    const left =
+        document.createElement(
+            "span"
+        );
+
+
+    left.className =
+        "background-brand-left";
+
+
+    const right =
+        document.createElement(
+            "span"
+        );
+
+
+    right.className =
+        "background-brand-right";
+
+
+    row.append(
+        left,
+        right
+    );
+
+
+    backgroundBrandRows.appendChild(
+        row
+    );
+
+
+    return {
+        row,
+        left,
+        right,
+        word
+    };
+
+}
+
+
+function chooseBestWordSplit(
+    word,
+    leftWidth,
+    rightWidth,
+    rowHeight
+) {
+
+    if (
+        word.length <= 1
+    ) {
+
+        return {
+            leftText:
+                word,
+            rightText:
+                "",
+            fontSize:
+                Math.min(
+                    rowHeight * 1.22,
+                    leftWidth * 1.7
+                )
+        };
+
+    }
+
+
+    const probeLeft =
+        document.createElement(
+            "span"
+        );
+
+
+    const probeRight =
+        document.createElement(
+            "span"
+        );
+
+
+    [probeLeft, probeRight].forEach(
+        probe => {
+
+            probe.style.position =
+                "fixed";
+
+            probe.style.visibility =
+                "hidden";
+
+            probe.style.pointerEvents =
+                "none";
+
+            probe.style.whiteSpace =
+                "nowrap";
+
+            probe.style.fontFamily =
+                '"Times New Roman", Times, serif';
+
+            probe.style.fontWeight =
+                "400";
+
+            probe.style.fontSize =
+                "1000px";
+
+            probe.style.lineHeight =
+                "0.78";
+
+            probe.style.letterSpacing =
+                "-0.045em";
+
+            document.body.appendChild(
+                probe
+            );
+
+        }
+    );
+
+
+    let best =
+        null;
+
+
+    for (
+        let split = 1;
+        split < word.length;
+        split++
+    ) {
+
+        const leftText =
+            word.slice(
+                0,
+                split
+            );
+
+
+        const rightText =
+            word.slice(
+                split
+            );
+
+
+        probeLeft.textContent =
+            leftText;
+
+
+        probeRight.textContent =
+            rightText;
+
+
+        const leftRect =
+            probeLeft.getBoundingClientRect();
+
+
+        const rightRect =
+            probeRight.getBoundingClientRect();
+
+
+        const widthScale =
+            Math.min(
+                leftWidth /
+                    Math.max(
+                        1,
+                        leftRect.width
+                    ),
+                rightWidth /
+                    Math.max(
+                        1,
+                        rightRect.width
+                    )
+            );
+
+
+        const heightScale =
+            rowHeight /
+            Math.max(
+                1,
+                Math.max(
+                    leftRect.height,
+                    rightRect.height
+                )
+            );
+
+
+        const fontSize =
+            1000 *
+            Math.min(
+                widthScale,
+                heightScale
+            );
+
+
+        /*
+            Prefer the split that yields the largest shared size.
+            On a centered image this naturally gives VOGUE -> VO | GUE.
+        */
+        if (
+            !best ||
+            fontSize >
+                best.fontSize
+        ) {
+
+            best = {
+                leftText,
+                rightText,
+                fontSize
+            };
+
+        }
+
+    }
+
+
+    probeLeft.remove();
+    probeRight.remove();
+
+
+    return best;
 
 }
 
@@ -2626,7 +2927,7 @@ function fitBackgroundBrand() {
 
     if (
         !backgroundBrand ||
-        !backgroundBrandText
+        !backgroundBrandRows
     ) {
 
         return;
@@ -2650,13 +2951,6 @@ function fitBackgroundBrand() {
         projectMeta.getBoundingClientRect();
 
 
-    /*
-        The usable zone begins below the taller of the two top UI blocks
-        and ends above project metadata / INDEX.
-
-        This keeps the giant Times typography from touching the functional
-        Helvetica interface even on laptop and mobile layouts.
-    */
     const top =
         Math.ceil(
             Math.max(
@@ -2665,8 +2959,8 @@ function fitBackgroundBrand() {
             ) +
             (
                 isPhoneLayout()
-                    ? 18
-                    : 26
+                    ? 16
+                    : 24
             )
         );
 
@@ -2685,13 +2979,13 @@ function fitBackgroundBrand() {
     const bottom =
         Math.ceil(
             Math.max(
-                24,
+                20,
                 window.innerHeight -
                 bottomBoundary +
                 (
                     isPhoneLayout()
-                        ? 16
-                        : 22
+                        ? 12
+                        : 18
                 )
             )
         );
@@ -2713,13 +3007,6 @@ function fitBackgroundBrand() {
     );
 
 
-    /*
-        First set an intentionally large size, measure, then solve the
-        largest font size that fits both width and height.
-
-        Result: Q–P can become enormous; a long magazine / brand title
-        automatically settles at a smaller scale.
-    */
     const box =
         backgroundBrand.getBoundingClientRect();
 
@@ -2734,17 +3021,83 @@ function fitBackgroundBrand() {
     }
 
 
-    backgroundBrandText.style.fontSize =
-        "1000px";
+    /*
+        INDEX mode: one huge centered word that fills its safe field.
+    */
+    if (
+        indexMode
+    ) {
+
+        const row =
+            backgroundBrandRows.querySelector(
+                ".background-brand-row"
+            );
 
 
-    const measured =
-        backgroundBrandText.getBoundingClientRect();
+        const full =
+            row?.querySelector(
+                ".background-brand-full"
+            );
+
+
+        if (
+            !row ||
+            !full
+        ) {
+
+            return;
+
+        }
+
+
+        full.style.fontSize =
+            "1000px";
+
+
+        const measured =
+            full.getBoundingClientRect();
+
+
+        const widthScale =
+            (
+                box.width *
+                0.94
+            ) /
+            Math.max(
+                1,
+                measured.width
+            );
+
+
+        const heightScale =
+            (
+                box.height *
+                0.9
+            ) /
+            Math.max(
+                1,
+                measured.height
+            );
+
+
+        full.style.fontSize =
+            `${1000 * Math.min(
+                widthScale,
+                heightScale
+            )}px`;
+
+
+        return;
+
+    }
+
+
+    const imageRect =
+        getCurrentImageRect();
 
 
     if (
-        measured.width <= 0 ||
-        measured.height <= 0
+        !imageRect
     ) {
 
         return;
@@ -2752,75 +3105,181 @@ function fitBackgroundBrand() {
     }
 
 
-    const widthScale =
-        (
-            box.width *
-            0.965
-        ) /
-        measured.width;
-
-
-    const heightScale =
-        (
-            box.height *
-            0.88
-        ) /
-        measured.height;
-
-
-    const scale =
-        Math.min(
-            widthScale,
-            heightScale
+    const imageLeft =
+        Math.max(
+            0,
+            imageRect.left
         );
 
 
-    const minimum =
+    const imageRight =
+        Math.min(
+            window.innerWidth,
+            imageRect.right
+        );
+
+
+    const sideGap =
         isPhoneLayout()
-            ? 72
-            : 120;
+            ? 8
+            : 12;
 
 
-    const maximum =
-        isPhoneLayout()
-            ? 360
-            : 720;
-
-
-    const fittedSize =
+    const leftBoundary =
         Math.max(
-            minimum,
-            Math.min(
-                maximum,
-                1000 *
-                scale
+            0,
+            imageLeft -
+            sideGap
+        );
+
+
+    const rightBoundary =
+        Math.min(
+            window.innerWidth,
+            imageRight +
+            sideGap
+        );
+
+
+    root.style.setProperty(
+        "--brand-image-left",
+        `${leftBoundary}px`
+    );
+
+
+    root.style.setProperty(
+        "--brand-image-right",
+        `${rightBoundary}px`
+    );
+
+
+    const leftWidth =
+        Math.max(
+            1,
+            leftBoundary -
+            (
+                isPhoneLayout()
+                    ? 10
+                    : 18
             )
         );
 
 
-    backgroundBrandText.style.fontSize =
-        `${fittedSize}px`;
+    const rightWidth =
+        Math.max(
+            1,
+            window.innerWidth -
+            rightBoundary -
+            (
+                isPhoneLayout()
+                    ? 10
+                    : 18
+            )
+        );
+
+
+    const rows =
+        Array.from(
+            backgroundBrandRows.querySelectorAll(
+                ".background-brand-row"
+            )
+        );
+
+
+    const rowHeight =
+        box.height /
+        Math.max(
+            1,
+            rows.length
+        );
+
+
+    rows.forEach(
+        row => {
+
+            const left =
+                row.querySelector(
+                    ".background-brand-left"
+                );
+
+
+            const right =
+                row.querySelector(
+                    ".background-brand-right"
+                );
+
+
+            const word =
+                row.dataset.word ||
+                "";
+
+
+            const split =
+                chooseBestWordSplit(
+                    word,
+                    leftWidth,
+                    rightWidth,
+                    rowHeight * 0.9
+                );
+
+
+            left.textContent =
+                split.leftText;
+
+
+            right.textContent =
+                split.rightText;
+
+
+            const size =
+                Math.max(
+                    isPhoneLayout()
+                        ? 56
+                        : 92,
+                    split.fontSize
+                );
+
+
+            left.style.fontSize =
+                `${size}px`;
+
+
+            right.style.fontSize =
+                `${size}px`;
+
+        }
+    );
 
 }
 
 
-function updateBackgroundBrand(
+function renderBackgroundBrandProject(
     project
 ) {
 
-    if (
-        !backgroundBrandText
-    ) {
-
-        return;
-
-    }
+    backgroundBrandRows.replaceChildren();
 
 
-    backgroundBrandText.textContent =
-        normalizeBackgroundBrandText(
+    const words =
+        normalizeBackgroundBrandWords(
             project?.title
         );
+
+
+    words.forEach(
+        word => {
+
+            const row =
+                createBackgroundWordRow(
+                    word
+                );
+
+
+            row.row.dataset.word =
+                word;
+
+        }
+    );
 
 
     requestAnimationFrame(
@@ -2830,6 +3289,78 @@ function updateBackgroundBrand(
 }
 
 
+function renderBackgroundBrandIndex() {
+
+    backgroundBrandRows.replaceChildren();
+
+
+    const row =
+        document.createElement(
+            "div"
+        );
+
+
+    row.className =
+        "background-brand-row";
+
+
+    const full =
+        document.createElement(
+            "span"
+        );
+
+
+    full.className =
+        "background-brand-full";
+
+
+    full.textContent =
+        "INDEX";
+
+
+    row.appendChild(
+        full
+    );
+
+
+    backgroundBrandRows.appendChild(
+        row
+    );
+
+
+    requestAnimationFrame(
+        fitBackgroundBrand
+    );
+
+}
+
+
+function updateBackgroundBrand(
+    project
+) {
+
+    if (
+        indexMode
+    ) {
+
+        renderBackgroundBrandIndex();
+
+    }
+
+    else {
+
+        renderBackgroundBrandProject(
+            project
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   LANDSCAPE GEOMETRY
+   ===================================================== */
 /* =====================================================
    LANDSCAPE GEOMETRY
    ===================================================== */
@@ -7269,6 +7800,9 @@ async function enterIndex() {
         true;
 
 
+    renderBackgroundBrandIndex();
+
+
     body.classList.add(
         "index-mode"
     );
@@ -7369,6 +7903,11 @@ async function returnFromIndex() {
 
     indexMode =
         false;
+
+
+    updateBackgroundBrand(
+        currentProject()
+    );
 
 
     body.classList.remove(
