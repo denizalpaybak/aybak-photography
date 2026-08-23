@@ -219,6 +219,82 @@ body {
 
 
 /* =====================================================
+   BACKGROUND BRAND TYPOGRAPHY
+   ===================================================== */
+
+#background-brand {
+    position: fixed;
+
+    left: var(--side);
+    right: var(--side);
+
+    /*
+        The top/bottom values are recalculated by JS from the
+        real interface geometry so the giant Times word never
+        collides with Denizalp/contact, FILM, project metadata,
+        or INDEX.
+    */
+    top: var(--background-brand-top, 118px);
+    bottom: var(--background-brand-bottom, 92px);
+
+    z-index: 2;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    pointer-events: none;
+
+    color: #000;
+
+    font-family:
+        "Times New Roman",
+        Times,
+        serif;
+
+    font-weight: 400;
+    font-style: normal;
+
+    line-height: 0.78;
+
+    white-space: nowrap;
+
+    text-align: center;
+
+    user-select: none;
+}
+
+#background-brand-text {
+    display: block;
+
+    width: max-content;
+
+    transform-origin: center center;
+
+    /*
+        JS fits every project title independently.
+        Short names therefore become much larger than long names.
+    */
+    font-size: 120px;
+    letter-spacing: -0.045em;
+}
+
+
+/*
+    Keep the giant type out of INDEX / VIEW ALL.
+    It belongs only to the main slideshow state.
+*/
+body.index-mode #background-brand,
+body.project-all-mode #background-brand,
+body.project-all-preparing #background-brand {
+    visibility: hidden;
+}
+
+
+/* =====================================================
    PROJECT
    ===================================================== */
 
@@ -1256,6 +1332,18 @@ body.phone-landscape #project-all-grid {
 
 
 <!-- ===================================================
+     BACKGROUND BRAND TYPOGRAPHY
+     =================================================== -->
+
+<div
+    id="background-brand"
+    aria-hidden="true"
+>
+    <span id="background-brand-text"></span>
+</div>
+
+
+<!-- ===================================================
      PROJECT
      =================================================== -->
 
@@ -1409,6 +1497,18 @@ const info =
 const sectionSwitch =
     document.getElementById(
         "section-switch"
+    );
+
+
+const backgroundBrand =
+    document.getElementById(
+        "background-brand"
+    );
+
+
+const backgroundBrandText =
+    document.getElementById(
+        "background-brand-text"
     );
 
 
@@ -2506,6 +2606,231 @@ function preloadImage(
 
 
 /* =====================================================
+   BACKGROUND BRAND TYPOGRAPHY
+   ===================================================== */
+
+function normalizeBackgroundBrandText(
+    title
+) {
+
+    return String(
+        title || ""
+    )
+        .trim()
+        .toUpperCase();
+
+}
+
+
+function fitBackgroundBrand() {
+
+    if (
+        !backgroundBrand ||
+        !backgroundBrandText
+    ) {
+
+        return;
+
+    }
+
+
+    const infoRect =
+        info.getBoundingClientRect();
+
+
+    const sectionRect =
+        sectionSwitch.getBoundingClientRect();
+
+
+    const indexRect =
+        indexButton.getBoundingClientRect();
+
+
+    const metaRect =
+        projectMeta.getBoundingClientRect();
+
+
+    /*
+        The usable zone begins below the taller of the two top UI blocks
+        and ends above project metadata / INDEX.
+
+        This keeps the giant Times typography from touching the functional
+        Helvetica interface even on laptop and mobile layouts.
+    */
+    const top =
+        Math.ceil(
+            Math.max(
+                infoRect.bottom,
+                sectionRect.bottom
+            ) +
+            (
+                isPhoneLayout()
+                    ? 18
+                    : 26
+            )
+        );
+
+
+    const bottomBoundary =
+        Math.min(
+            metaRect.top > 0
+                ? metaRect.top
+                : window.innerHeight,
+            indexRect.top > 0
+                ? indexRect.top
+                : window.innerHeight
+        );
+
+
+    const bottom =
+        Math.ceil(
+            Math.max(
+                24,
+                window.innerHeight -
+                bottomBoundary +
+                (
+                    isPhoneLayout()
+                        ? 16
+                        : 22
+                )
+            )
+        );
+
+
+    const root =
+        document.documentElement;
+
+
+    root.style.setProperty(
+        "--background-brand-top",
+        `${top}px`
+    );
+
+
+    root.style.setProperty(
+        "--background-brand-bottom",
+        `${bottom}px`
+    );
+
+
+    /*
+        First set an intentionally large size, measure, then solve the
+        largest font size that fits both width and height.
+
+        Result: Q–P can become enormous; a long magazine / brand title
+        automatically settles at a smaller scale.
+    */
+    const box =
+        backgroundBrand.getBoundingClientRect();
+
+
+    if (
+        box.width <= 0 ||
+        box.height <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    backgroundBrandText.style.fontSize =
+        "1000px";
+
+
+    const measured =
+        backgroundBrandText.getBoundingClientRect();
+
+
+    if (
+        measured.width <= 0 ||
+        measured.height <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    const widthScale =
+        (
+            box.width *
+            0.965
+        ) /
+        measured.width;
+
+
+    const heightScale =
+        (
+            box.height *
+            0.88
+        ) /
+        measured.height;
+
+
+    const scale =
+        Math.min(
+            widthScale,
+            heightScale
+        );
+
+
+    const minimum =
+        isPhoneLayout()
+            ? 72
+            : 120;
+
+
+    const maximum =
+        isPhoneLayout()
+            ? 360
+            : 720;
+
+
+    const fittedSize =
+        Math.max(
+            minimum,
+            Math.min(
+                maximum,
+                1000 *
+                scale
+            )
+        );
+
+
+    backgroundBrandText.style.fontSize =
+        `${fittedSize}px`;
+
+}
+
+
+function updateBackgroundBrand(
+    project
+) {
+
+    if (
+        !backgroundBrandText
+    ) {
+
+        return;
+
+    }
+
+
+    backgroundBrandText.textContent =
+        normalizeBackgroundBrandText(
+            project?.title
+        );
+
+
+    requestAnimationFrame(
+        fitBackgroundBrand
+    );
+
+}
+
+
+/* =====================================================
    LANDSCAPE GEOMETRY
    ===================================================== */
 
@@ -2820,6 +3145,11 @@ function updateResponsiveMode() {
 
     previousResponsiveMode =
         newMode;
+
+
+    requestAnimationFrame(
+        fitBackgroundBrand
+    );
 
 }
 
@@ -3845,6 +4175,11 @@ async function updateMetadata(
         projects[
             targetProjectIndex
         ];
+
+
+    updateBackgroundBrand(
+        project
+    );
 
 
     const projectChanged =
@@ -8970,6 +9305,19 @@ window.addEventListener(
     }
 );
 
+
+
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        requestAnimationFrame(
+            fitBackgroundBrand
+        );
+
+    }
+);
 
 </script>
 
