@@ -10,8 +10,6 @@
 >
 
 <title>Denizalp Aybak — Photography</title>
-
-<link rel="stylesheet" href="https://use.typekit.net/lel7okr.css">
 <style>
 
 /* =====================================================
@@ -36,12 +34,9 @@ body {
     color: #000;
 
     font-family:
-        "aktiv-grotesk",
         Arial,
         Helvetica,
         sans-serif;
-
-    font-weight: 400;
 
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -51,13 +46,6 @@ button {
     font: inherit;
 }
 
-button,
-a {
-    font-family: inherit;
-    font-weight: inherit;
-}
-
-
 /* =====================================================
    VARIABLES
    ===================================================== */
@@ -66,57 +54,6 @@ a {
 
     --font-size: 15px;
     --line-height: 1.15;
-
-    /*
-        TYPOGRAPHIC STATES
-
-        Default/static text:
-        Aktiv Grotesk Regular
-
-        Only letters that become uppercase through the existing
-        interaction morph:
-        Aktiv Grotesk Extended Regular
-
-        Static uppercase letters do NOT switch width.
-        Example: the initial D in "Denizalp" stays normal Aktiv Grotesk.
-    */
-    --sans-font:
-        "aktiv-grotesk",
-        Arial,
-        Helvetica,
-        sans-serif;
-
-    --sans-weight:
-        400;
-
-    --morph-font:
-        "aktiv-grotesk-extended",
-        "aktiv-grotesk",
-        Arial,
-        Helvetica,
-        sans-serif;
-
-    --morph-weight:
-        400;
-
-    /*
-        NUMERALS
-        Digits use the same Aktiv Grotesk system as letters.
-
-        Default digits:
-        Aktiv Grotesk Regular
-
-        Active / morph-state digits:
-        Aktiv Grotesk Extended Regular
-    */
-    --number-font:
-        var(--sans-font);
-
-    --number-wide-font:
-        var(--morph-font);
-
-    --number-weight:
-        400;
 
     --side: 48px;
     --top: 32px;
@@ -210,9 +147,6 @@ body {
 
 .logo-name {
     position: absolute;
-
-    font-family: var(--sans-font);
-    font-weight: var(--sans-weight);
 
     top: 0;
     left: 0;
@@ -2922,103 +2856,18 @@ function updateIndexContentTop() {
 
 
 /* =====================================================
-   INTERACTIVE TYPOGRAPHY
-
-   Only characters that are actively in an UPPERCASE MORPH STATE
-   use Aktiv Grotesk Extended Regular.
-
-   Important:
-   - Initial/static uppercase stays normal Aktiv Grotesk Regular.
-     Example: the D in "Denizalp" stays normal width.
-   - A character that changes lowercase -> uppercase through hover/state
-     becomes Aktiv Grotesk Extended Regular.
-   - As the morph reverses, that character returns to normal Aktiv Grotesk.
+   TYPOGRAPHY
    ===================================================== */
 
 function renderInteractiveTypography(
     element,
-    text,
-    serifPositions =
-        null
+    text
 ) {
 
-    const fragment =
-        document.createDocumentFragment();
-
-
-    const activeSerifPositions =
-        serifPositions instanceof Set
-            ? serifPositions
-            : new Set();
-
-
-    Array.from(
+    element.textContent =
         String(
             text
-        )
-    ).forEach(
-        (
-            character,
-            index
-        ) => {
-
-            const span =
-                document.createElement(
-                    "span"
-                );
-
-
-            span.textContent =
-                character;
-
-
-            const isSerifMorph =
-                activeSerifPositions.has(
-                    index
-                );
-
-
-            const isDigit =
-                /[0-9]/.test(
-                    character
-                );
-
-
-            span.style.fontFamily =
-                isDigit
-                    ? (
-                        isSerifMorph
-                            ? 'var(--number-wide-font)'
-                            : 'var(--number-font)'
-                    )
-                    : (
-                        isSerifMorph
-                            ? 'var(--morph-font)'
-                            : 'var(--sans-font)'
-                    );
-
-
-            span.style.fontWeight =
-                isDigit
-                    ? 'var(--number-weight)'
-                    : (
-                        isSerifMorph
-                            ? 'var(--morph-weight)'
-                            : 'var(--sans-weight)'
-                    );
-
-
-            fragment.appendChild(
-                span
-            );
-
-        }
-    );
-
-
-    element.replaceChildren(
-        fragment
-    );
+        );
 
 }
 
@@ -3028,11 +2877,10 @@ function renderBaseTypography(
     text
 ) {
 
-    renderInteractiveTypography(
-        element,
-        text,
-        new Set()
-    );
+    element.textContent =
+        String(
+            text
+        );
 
 }
 
