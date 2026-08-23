@@ -11,6 +11,8 @@
 
 <title>Denizalp Aybak — Photography</title>
 
+<link rel="stylesheet" href="https://use.typekit.net/trm5bzq.css">
+
 <style>
 
 /* =====================================================
@@ -35,9 +37,12 @@ body {
     color: #000;
 
     font-family:
+        "nimbus-sans",
         Arial,
         Helvetica,
         sans-serif;
+
+    font-weight: 700;
 
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -45,6 +50,15 @@ body {
 
 button {
     font: inherit;
+}
+
+a,
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+    font-weight: inherit;
 }
 
 
@@ -59,21 +73,31 @@ button {
 
     /*
         TYPOGRAPHIC STATES
-        Passive/lowercase = existing sans
-        Interactive uppercase letters = Times New Roman
+
+        Default = Nimbus Sans Bold.
+        Only letters that become uppercase through a morph use
+        Nimbus Sans Extended Bold.
+
+        Static uppercase letters remain normal Nimbus Sans Bold.
     */
     --sans-font:
+        "nimbus-sans",
         Arial,
         Helvetica,
         sans-serif;
 
-    --active-serif-font:
+    --sans-weight:
+        700;
+
+    --morph-font:
+        "nimbus-sans-extended",
+        "nimbus-sans",
         Arial,
         Helvetica,
         sans-serif;
 
-    --active-serif-weight:
-        400;
+    --morph-weight:
+        700;
 
     --side: 48px;
     --top: 32px;
@@ -2863,20 +2887,20 @@ function updateIndexContentTop() {
    INTERACTIVE TYPOGRAPHY
 
    Only characters that are actively in an UPPERCASE MORPH STATE
-   use Times New Roman 500.
+   use Nimbus Sans Extended Bold.
 
    Important:
-   - Initial/static uppercase stays sans.
-     Example: the D in "Denizalp" remains Helvetica/Arial.
+   - Initial/static uppercase stays normal Nimbus Sans Bold.
+     Example: the D in "Denizalp" stays normal-width Nimbus Sans Bold.
    - A character that changes lowercase -> uppercase through hover/state
-     becomes Times New Roman.
-   - As the morph reverses, that character returns to sans.
+     becomes Nimbus Sans Extended Bold.
+   - As the morph reverses, that character returns to normal Nimbus Sans Bold.
    ===================================================== */
 
 function renderInteractiveTypography(
     element,
     text,
-    serifPositions =
+    morphPositions =
         null
 ) {
 
@@ -2884,8 +2908,8 @@ function renderInteractiveTypography(
         document.createDocumentFragment();
 
 
-    const activeSerifPositions =
-        serifPositions instanceof Set
+    const activeMorphPositions =
+        morphPositions instanceof Set
             ? serifPositions
             : new Set();
 
@@ -2910,18 +2934,22 @@ function renderInteractiveTypography(
                 character;
 
 
-            const isSerifMorph =
-                activeSerifPositions.has(
+            const isExtendedMorph =
+                activeMorphPositions.has(
                     index
                 );
 
 
             span.style.fontFamily =
-                'var(--sans-font)';
+                isExtendedMorph
+                    ? 'var(--morph-font)'
+                    : 'var(--sans-font)';
 
 
             span.style.fontWeight =
-                '400';
+                isExtendedMorph
+                    ? 'var(--morph-weight)'
+                    : 'var(--sans-weight)';
 
 
             fragment.appendChild(
@@ -3350,7 +3378,7 @@ function animateCase(
             );
 
 
-        const serifPositions =
+        const morphPositions =
             new Set(
                 positions.slice(
                     0,
@@ -3362,7 +3390,7 @@ function animateCase(
         renderInteractiveTypography(
             element,
             renderedText,
-            serifPositions
+            morphPositions
         );
 
     }
@@ -5538,11 +5566,25 @@ function createCaseController(
 
     function render() {
 
-        element.textContent =
+        const positions =
+            getLetterPositions(
+                base
+            );
+
+
+        renderInteractiveTypography(
+            element,
             renderPrefixCase(
                 base,
                 state
-            );
+            ),
+            new Set(
+                positions.slice(
+                    0,
+                    state
+                )
+            )
+        );
 
     }
 
@@ -7624,10 +7666,26 @@ function setLogoState(
         i++
     ) {
 
+        const isExtendedMorph =
+            i < state;
+
+
         letters[i].textContent =
-            i < state
+            isExtendedMorph
                 ? uppercase[i]
                 : lowercase[i];
+
+
+        letters[i].style.fontFamily =
+            isExtendedMorph
+                ? 'var(--morph-font)'
+                : 'var(--sans-font)';
+
+
+        letters[i].style.fontWeight =
+            isExtendedMorph
+                ? 'var(--morph-weight)'
+                : 'var(--sans-weight)';
 
     }
 
