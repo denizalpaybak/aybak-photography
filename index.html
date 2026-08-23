@@ -42,7 +42,7 @@ body {
         Helvetica,
         sans-serif;
 
-    font-weight: 400;
+    font-weight: 500;
 
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
@@ -72,11 +72,11 @@ a {
         TYPOGRAPHIC STATES
 
         Default/static text:
-        Aktiv Grotesk Regular
+        Aktiv Grotesk Medium
 
         Only letters that become uppercase through the existing
         interaction morph:
-        Aktiv Grotesk Extended Regular
+        Aktiv Grotesk Extended Medium
 
         Static uppercase letters do NOT switch width.
         Example: the initial D in "Denizalp" stays normal Aktiv Grotesk.
@@ -88,7 +88,7 @@ a {
         sans-serif;
 
     --sans-weight:
-        400;
+        500;
 
     --morph-font:
         "aktiv-grotesk-extended",
@@ -98,7 +98,7 @@ a {
         sans-serif;
 
     --morph-weight:
-        400;
+        500;
 
     --side: 48px;
     --top: 32px;
@@ -1999,6 +1999,22 @@ function prepareProject(
     project
 ) {
 
+    /*
+        Typography normalization for the Q–P project title:
+        use an en dash instead of a hyphen in every view/state.
+    */
+    project = {
+        ...project,
+        title:
+            String(
+                project.title || ""
+            ).replace(
+                /q-p/gi,
+                "q–p"
+            )
+    };
+
+
     const originalImages =
         project.images.slice();
 
@@ -2891,10 +2907,10 @@ function updateIndexContentTop() {
    INTERACTIVE TYPOGRAPHY
 
    Only characters that are actively in an UPPERCASE MORPH STATE
-   use Aktiv Grotesk Extended Regular.
+   use Aktiv Grotesk Extended Medium.
 
    Important:
-   - Initial/static uppercase stays normal Aktiv Grotesk Regular.
+   - Initial/static uppercase stays normal Aktiv Grotesk Medium.
      Example: the D in "Denizalp" stays normal width.
    - A character that changes lowercase -> uppercase through hover/state
      becomes Aktiv Grotesk Extended Regular.
