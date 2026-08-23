@@ -55,6 +55,13 @@ button {
     --font-size: 15px;
     --line-height: 1.15;
 
+    /*
+        NUMERAL ACTIVE STATE
+        Digits cannot uppercase, so during the same morph state
+        they gain a subtle amount of tracking instead.
+    */
+    --active-number-tracking: 0.055em;
+
     --side: 48px;
     --top: 32px;
 
@@ -2861,13 +2868,73 @@ function updateIndexContentTop() {
 
 function renderInteractiveTypography(
     element,
-    text
+    text,
+    activePositions =
+        new Set()
 ) {
 
-    element.textContent =
+    const fragment =
+        document.createDocumentFragment();
+
+
+    Array.from(
         String(
             text
-        );
+        )
+    ).forEach(
+        (
+            character,
+            index
+        ) => {
+
+            const span =
+                document.createElement(
+                    "span"
+                );
+
+
+            span.textContent =
+                character;
+
+
+            const isDigit =
+                /[0-9]/.test(
+                    character
+                );
+
+
+            const isActiveDigit =
+                isDigit &&
+                activePositions.has(
+                    index
+                );
+
+
+            /*
+                Keep Helvetica/Arial throughout.
+                Active digits only gain spacing; no font swap.
+            */
+            if (
+                isActiveDigit
+            ) {
+
+                span.style.letterSpacing =
+                    "var(--active-number-tracking)";
+
+            }
+
+
+            fragment.appendChild(
+                span
+            );
+
+        }
+    );
+
+
+    element.replaceChildren(
+        fragment
+    );
 
 }
 
@@ -2877,9 +2944,93 @@ function renderBaseTypography(
     text
 ) {
 
-    element.textContent =
+    renderInteractiveTypography(
+        element,
+        text,
+        new Set()
+    );
+
+}
+
+
+function getMorphPositions(
+    text
+) {
+
+    return Array.from(
         String(
             text
+        )
+    )
+        .map(
+            (
+                character,
+                index
+            ) => {
+
+                const isLetter =
+                    character.toLowerCase() !==
+                    character.toUpperCase();
+
+
+                const isDigit =
+                    /[0-9]/.test(
+                        character
+                    );
+
+
+                return (
+                    isLetter ||
+                    isDigit
+                )
+                    ? index
+                    : -1;
+
+            }
+        )
+        .filter(
+            index =>
+                index >= 0
+        );
+
+}
+
+
+function renderCaseFromActivePositions(
+    baseText,
+    activePositions
+) {
+
+    return String(
+        baseText
+    )
+        .split(
+            ""
+        )
+        .map(
+            (
+                character,
+                index
+            ) => {
+
+                const isLetter =
+                    character.toLowerCase() !==
+                    character.toUpperCase();
+
+
+                return (
+                    isLetter &&
+                    activePositions.has(
+                        index
+                    )
+                )
+                    ? character.toUpperCase()
+                    : character.toLowerCase();
+
+            }
+        )
+        .join(
+            ""
         );
 
 }
@@ -3254,52 +3405,15 @@ function animateCase(
 ) {
 
     const base =
-        baseText.toLowerCase();
+        String(
+            baseText
+        ).toLowerCase();
 
 
-    /*
-        Morph positions include BOTH letters and digits.
-
-        - Letters: lowercase -> UPPERCASE + Aktiv -> Aktiv Extended
-        - Digits: unchanged character + Aktiv Grotesk -> Aktiv Grotesk Extended
-
-        This means dates such as 2024, 09/19, F/W 2024, etc. visibly
-        widen during the same interaction instead of staying static.
-    */
     const positions =
-        Array.from(
+        getMorphPositions(
             base
-        )
-            .map(
-                (
-                    character,
-                    index
-                ) => {
-
-                    const isLetter =
-                        character.toLowerCase() !==
-                        character.toUpperCase();
-
-
-                    const isDigit =
-                        /[0-9]/.test(
-                            character
-                        );
-
-
-                    return (
-                        isLetter ||
-                        isDigit
-                    )
-                        ? index
-                        : -1;
-
-                }
-            )
-            .filter(
-                index =>
-                    index >= 0
-            );
+        );
 
 
     const total =
@@ -3307,8 +3421,9 @@ function animateCase(
 
 
     /*
-        Infer the current state from the DOM spans when available.
-        A morphed character carries the extended/wide family inline.
+        Detect the current uppercase-letter prefix from text.
+        Digits do not reveal state in text, so when spans exist we
+        also detect active tracking from their inline style.
     */
     let currentState =
         0;
@@ -3335,22 +3450,94 @@ function animateCase(
                 positions[i];
 
 
+            const character =
+                base[
+                    position
+                ];
+
+
             const span =
                 children[
                     position
                 ];
 
 
-            if (
-                span &&
-                (
-                    span.style.fontFamily.includes(
-                        "--morph-font"
-                    ) ||
-                    span.style.fontFamily.includes(
-                        "--number-wide-font"
+            const isDigit =
+                /[0-9]/.test(
+                    character
+                );
+
+
+            const isLetter =
+                character.toLowerCase() !==
+                character.toUpperCase();
+
+
+            const active =
+                isDigit
+                    ? (
+                        span &&
+                        !!span.style.letterSpacing
                     )
-                )
+                    : (
+                        isLetter &&
+                        span &&
+                        span.textContent ===
+                            character.toUpperCase()
+                    );
+
+
+            if (
+                active
+            ) {
+
+                currentState++;
+
+            }
+
+            else {
+
+                break;
+
+            }
+
+        }
+
+    }
+
+    else {
+
+        const currentText =
+            element.textContent;
+
+
+        for (
+            let i = 0;
+            i < positions.length;
+            i++
+        ) {
+
+            const position =
+                positions[i];
+
+
+            const character =
+                base[
+                    position
+                ];
+
+
+            const isLetter =
+                character.toLowerCase() !==
+                character.toUpperCase();
+
+
+            if (
+                isLetter &&
+                currentText[
+                    position
+                ] ===
+                    character.toUpperCase()
             ) {
 
                 currentState++;
@@ -5561,43 +5748,15 @@ function createCaseController(
 ) {
 
     const base =
-        baseText.toLowerCase();
+        String(
+            baseText
+        ).toLowerCase();
 
 
     const positions =
-        Array.from(
+        getMorphPositions(
             base
-        )
-            .map(
-                (
-                    character,
-                    index
-                ) => {
-
-                    const isLetter =
-                        character.toLowerCase() !==
-                        character.toUpperCase();
-
-
-                    const isDigit =
-                        /[0-9]/.test(
-                            character
-                        );
-
-
-                    return (
-                        isLetter ||
-                        isDigit
-                    )
-                        ? index
-                        : -1;
-
-                }
-            )
-            .filter(
-                index =>
-                    index >= 0
-            );
+        );
 
 
     const total =
