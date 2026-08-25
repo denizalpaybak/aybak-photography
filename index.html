@@ -8718,21 +8718,69 @@ async function loadProjects() {
         }
 
 
-        /*
-            Build the first max-3 pass before rendering so the initial
-            slideshow also follows ascending frame order.
-        */
-        buildNormalProjectSequence(
-            projectIndex
-        );
+        const hasValidImageDeepLink =
+            requestedProjectIndex >= 0 &&
+            requestedRuntimeFrameIndex >= 0;
 
 
-        normalSequencePosition =
-            0;
+        if (
+            hasValidImageDeepLink
+        ) {
+
+            /*
+                An explicit project + image deep link (for example from
+                the PDF portfolio) must stay on the exact requested image.
+
+                Treat it like an INDEX / VIEW ALL project selection:
+                show the complete selected project manually first, then
+                return to the normal max-3 project rotation.
+
+                Autoplay is permanently disabled for this page session.
+            */
+
+            frameIndex =
+                requestedRuntimeFrameIndex;
 
 
-        frameIndex =
-            normalSequenceFrames[0];
+            enterFocusedProjectMode(
+                projectIndex
+            );
+
+
+            autoplayPermanentlyDisabled =
+                true;
+
+
+            manualMode =
+                true;
+
+
+            clearTimeout(
+                slideTimer
+            );
+
+        }
+
+        else {
+
+            /*
+                Ordinary site entry keeps the existing max-3 autoplay
+                behaviour and ascending frame order within each pass.
+            */
+
+            buildNormalProjectSequence(
+                projectIndex
+            );
+
+
+            normalSequencePosition =
+                0;
+
+
+            frameIndex =
+                normalSequenceFrames[0];
+
+        }
 
 
         const firstImage =
@@ -8891,7 +8939,25 @@ async function loadProjects() {
         syncMetadataAfterRender();
 
 
-        startAutoSlideshow();
+        if (
+            hasValidImageDeepLink
+        ) {
+
+            clearTimeout(
+                slideTimer
+            );
+
+
+            manualMode =
+                true;
+
+        }
+
+        else {
+
+            startAutoSlideshow();
+
+        }
 
 
     }
