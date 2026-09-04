@@ -34,8 +34,8 @@ body {
     color: #000;
 
     font-family:
-        Helvetica,
         Arial,
+        Helvetica,
         sans-serif;
 
     -webkit-text-size-adjust: 100%;
@@ -51,10 +51,6 @@ button {
    ===================================================== */
 
 :root {
-
-    --serif-font: "Times New Roman", Times, serif;
-    --sans-font: Helvetica, Arial, sans-serif;
-    --mono-font: "Courier New", Courier, monospace;
 
     --font-size: 15px;
     --line-height: 1.15;
@@ -146,26 +142,32 @@ body {
 
 .logo {
     position: relative;
+
     display: block;
-    width: max-content;
-    height: 34px;
+
+    width: 190px;
+    height: 52px;
+
     color: inherit;
     text-decoration: none;
-    font-family: var(--serif-font);
-    font-style: normal;
+}
+
+.logo-name {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
     white-space: nowrap;
 }
 
-.logo-name,
 .logo-aybak {
-    position: static;
-    display: inline;
-    white-space: nowrap;
-}
+    position: absolute;
 
-.info .logo:hover {
-    font-style: italic;
-    text-decoration: none;
+    top: 17px;
+    left: 0;
+
+    white-space: nowrap;
 }
 
 
@@ -191,49 +193,6 @@ body {
 
 .info a:hover {
     text-decoration: underline;
-}
-
-/* =====================================================
-   TYPOGRAPHIC IDENTITY
-   Serif = identity, sans = content/interface, mono = system/archive.
-   ===================================================== */
-
-.logo {
-    font-family: var(--serif-font);
-}
-
-.contact,
-.social,
-.section-switch,
-#project-title,
-#view-all-button,
-.card-title {
-    font-family: var(--sans-font);
-}
-
-#index-button,
-#project-date,
-#project-counter,
-.card-date {
-    font-family: var(--mono-font);
-}
-
-.section-switch,
-#index-button,
-#view-all-button {
-    transition: letter-spacing 160ms ease;
-}
-
-@media (hover: hover) {
-    .section-switch:hover,
-    #index-button:hover,
-    #view-all-button:hover {
-        letter-spacing: -0.025em;
-    }
-
-    .project-card:hover .card-title {
-        text-decoration: underline;
-    }
 }
 
 
@@ -868,8 +827,13 @@ body.phone-landscape {
 
 body.phone-portrait .logo,
 body.phone-landscape .logo {
-    width: max-content;
-    height: 31px;
+    width: 160px;
+    height: 45px;
+}
+
+body.phone-portrait .logo-aybak,
+body.phone-landscape .logo-aybak {
+    top: 15px;
 }
 
 
@@ -1229,8 +1193,10 @@ body.phone-landscape #project-all-grid {
             id="logo-name"
         >
             Denizalp
-        </span> <span class="logo-aybak">
-            <span id="letter-a">A</span><span id="letter-y">y</span><span id="letter-b">b</span><span id="letter-a2">a</span><span id="letter-k">k</span>
+        </span>
+
+        <span class="logo-aybak">
+            <span id="letter-a">a</span><span id="letter-y">y</span><span id="letter-b">b</span><span id="letter-a2">a</span><span id="letter-k">k</span>
         </span>
 
     </a>
@@ -1256,7 +1222,7 @@ body.phone-landscape #project-all-grid {
             target="_blank"
             rel="noopener"
         >
-            Instagram @denizalpaybak
+            instagram @denizalpaybak
         </a>
 
         <a
@@ -1264,7 +1230,7 @@ body.phone-landscape #project-all-grid {
             target="_blank"
             rel="noopener"
         >
-            Models.com
+            models.com
         </a>
 
     </div>
@@ -1283,7 +1249,7 @@ body.phone-landscape #project-all-grid {
 >
 
     <span id="section-switch-text">
-        Film
+        film
     </span>
 
 </a>
@@ -1316,7 +1282,7 @@ body.phone-landscape #project-all-grid {
                 id="view-all-button"
                 type="button"
             >
-                View All
+                view all
             </button>
 
         </div>
@@ -1345,7 +1311,7 @@ body.phone-landscape #project-all-grid {
     id="index-button"
     type="button"
 >
-    Index
+    index
 </button>
 
 
@@ -1411,7 +1377,7 @@ const LOGO_STEP_DURATION =
 
 
 const MOBILE_NAV_HOLD =
-    0;
+    520;
 
 
 /* =====================================================
@@ -2428,7 +2394,7 @@ function getAllCounterText(
 ) {
 
     return (
-        "All (" +
+        "all (" +
         String(
             total
         ).padStart(
@@ -3438,23 +3404,271 @@ function animateCase(
         CASE_DURATION
 ) {
 
-    const text =
+    const base =
         String(
             baseText
+        ).toLowerCase();
+
+
+    const positions =
+        getMorphPositions(
+            base
         );
 
 
-    renderBaseTypography(
-        element,
-        text
+    const total =
+        positions.length;
+
+
+    /*
+        Detect the current uppercase-letter prefix from text.
+        Digits do not reveal state in text, so when spans exist we
+        also detect active tracking from their inline style.
+    */
+    let currentState =
+        0;
+
+
+    const children =
+        Array.from(
+            element.children
+        );
+
+
+    if (
+        children.length ===
+        base.length
+    ) {
+
+        for (
+            let i = 0;
+            i < positions.length;
+            i++
+        ) {
+
+            const position =
+                positions[i];
+
+
+            const character =
+                base[
+                    position
+                ];
+
+
+            const span =
+                children[
+                    position
+                ];
+
+
+            const isDigit =
+                /[0-9]/.test(
+                    character
+                );
+
+
+            const isLetter =
+                character.toLowerCase() !==
+                character.toUpperCase();
+
+
+            const active =
+                isDigit
+                    ? (
+                        span &&
+                        !!span.style.letterSpacing
+                    )
+                    : (
+                        isLetter &&
+                        span &&
+                        span.textContent ===
+                            character.toUpperCase()
+                    );
+
+
+            if (
+                active
+            ) {
+
+                currentState++;
+
+            }
+
+            else {
+
+                break;
+
+            }
+
+        }
+
+    }
+
+    else {
+
+        const currentText =
+            element.textContent;
+
+
+        for (
+            let i = 0;
+            i < positions.length;
+            i++
+        ) {
+
+            const position =
+                positions[i];
+
+
+            const character =
+                base[
+                    position
+                ];
+
+
+            const isLetter =
+                character.toLowerCase() !==
+                character.toUpperCase();
+
+
+            if (
+                isLetter &&
+                currentText[
+                    position
+                ] ===
+                    character.toUpperCase()
+            ) {
+
+                currentState++;
+
+            }
+
+            else {
+
+                break;
+
+            }
+
+        }
+
+    }
+
+
+    const target =
+        toUpper
+            ? total
+            : 0;
+
+
+    function renderState(
+        state
+    ) {
+
+        const activePositions =
+            new Set(
+                positions.slice(
+                    0,
+                    state
+                )
+            );
+
+
+        renderInteractiveTypography(
+            element,
+            renderCaseFromActivePositions(
+                base,
+                activePositions
+            ),
+            activePositions
+        );
+
+    }
+
+
+    if (
+        currentState ===
+        target
+    ) {
+
+        renderState(
+            target
+        );
+
+
+        return Promise.resolve();
+
+    }
+
+
+    const start =
+        performance.now();
+
+
+    return new Promise(
+        resolve => {
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        duration
+                    );
+
+
+                const state =
+                    Math.round(
+                        currentState +
+                        (
+                            target -
+                            currentState
+                        ) *
+                        progress
+                    );
+
+
+                renderState(
+                    state
+                );
+
+
+                if (
+                    progress < 1
+                ) {
+
+                    requestAnimationFrame(
+                        frame
+                    );
+
+                }
+
+                else {
+
+                    renderState(
+                        target
+                    );
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            requestAnimationFrame(
+                frame
+            );
+
+        }
     );
-
-
-    element.dataset.rawText =
-        text;
-
-
-    return Promise.resolve();
 
 }
 
@@ -3669,7 +3883,7 @@ async function updateMetadata(
 
                 morphSequential(
                     projectTitle,
-                    project.title,
+                    project.title.toLowerCase(),
                     TEXT_MORPH_DURATION
                 ),
 
@@ -3678,7 +3892,7 @@ async function updateMetadata(
                     (
                         project.date ||
                         ""
-                    ),
+                    ).toLowerCase(),
                     TEXT_MORPH_DURATION
                 )
 
@@ -5055,8 +5269,8 @@ viewAllButton.addEventListener(
 
         const base =
             projectAllMode
-                ? "Close"
-                : "View All";
+                ? "close"
+                : "view all";
 
 
         await animateCase(
@@ -5095,8 +5309,8 @@ viewAllButton.addEventListener(
 
         const base =
             projectAllMode
-                ? "Close"
-                : "View All";
+                ? "close"
+                : "view all";
 
 
         await animateCase(
@@ -5167,8 +5381,8 @@ async function enterProjectAll() {
             ).matches &&
             viewButtonHovered
         )
-            ? "Close"
-            : "Close";
+            ? "CLOSE"
+            : "close";
 
 
     await Promise.all(
@@ -5306,8 +5520,8 @@ async function leaveProjectAll(
             ).matches &&
             viewButtonHovered
         )
-            ? "View All"
-            : "View All";
+            ? "VIEW ALL"
+            : "view all";
 
 
     await Promise.all(
@@ -5536,18 +5750,171 @@ function createCaseController(
     const base =
         String(
             baseText
+        ).toLowerCase();
+
+
+    const positions =
+        getMorphPositions(
+            base
         );
 
 
-    renderBaseTypography(
-        element,
-        base
-    );
+    const total =
+        positions.length;
+
+
+    let state =
+        0;
+
+
+    let frameId =
+        null;
+
+
+    function render() {
+
+        const activePositions =
+            new Set(
+                positions.slice(
+                    0,
+                    state
+                )
+            );
+
+
+        renderInteractiveTypography(
+            element,
+            renderCaseFromActivePositions(
+                base,
+                activePositions
+            ),
+            activePositions
+        );
+
+    }
+
+
+    function animateTo(
+        target
+    ) {
+
+        if (
+            frameId !== null
+        ) {
+
+            cancelAnimationFrame(
+                frameId
+            );
+
+        }
+
+
+        const startState =
+            state;
+
+
+        if (
+            startState === target
+        ) {
+
+            render();
+
+
+            return;
+
+        }
+
+
+        const start =
+            performance.now();
+
+
+        function frame(
+            now
+        ) {
+
+            const progress =
+                Math.min(
+                    1,
+                    (
+                        now -
+                        start
+                    ) /
+                    CASE_DURATION
+                );
+
+
+            state =
+                Math.round(
+                    startState +
+                    (
+                        target -
+                        startState
+                    ) *
+                    progress
+                );
+
+
+            render();
+
+
+            if (
+                progress < 1
+            ) {
+
+                frameId =
+                    requestAnimationFrame(
+                        frame
+                    );
+
+            }
+
+            else {
+
+                state =
+                    target;
+
+
+                render();
+
+
+                frameId =
+                    null;
+
+            }
+
+        }
+
+
+        frameId =
+            requestAnimationFrame(
+                frame
+            );
+
+    }
+
+
+    render();
 
 
     return {
-        upper: () => Promise.resolve(),
-        lower: () => Promise.resolve()
+
+        upper() {
+
+            animateTo(
+                total
+            );
+
+        },
+
+        lower() {
+
+            animateTo(
+                0
+            );
+
+        }
+
     };
 
 }
@@ -6111,7 +6478,8 @@ function buildIndex() {
 
 
                 const titleBase =
-                    project.title;
+                    project.title
+                        .toLowerCase();
 
 
                 renderBaseTypography(
@@ -6134,7 +6502,7 @@ function buildIndex() {
                     (
                         project.date ||
                         ""
-                    );
+                    ).toLowerCase();
 
 
                 renderBaseTypography(
@@ -6266,9 +6634,25 @@ function renderWordCase(
     upperCount
 ) {
 
-    return String(
-        word
-    );
+    let result =
+        "";
+
+
+    for (
+        let i = 0;
+        i < word.length;
+        i++
+    ) {
+
+        result +=
+            i < upperCount
+                ? word[i].toUpperCase()
+                : word[i].toLowerCase();
+
+    }
+
+
+    return result;
 
 }
 
@@ -6278,7 +6662,7 @@ function renderWordCase(
    ===================================================== */
 
 const indexWord =
-    "Index";
+    "index";
 
 
 let indexWordState =
@@ -6324,13 +6708,109 @@ function morphIndexTo(
     target
 ) {
 
-    renderBaseTypography(
-        indexButton,
-        indexWord
+    if (
+        indexWordFrame !== null
+    ) {
+
+        cancelAnimationFrame(
+            indexWordFrame
+        );
+
+    }
+
+
+    const startState =
+        indexWordState;
+
+
+    if (
+        startState === target
+    ) {
+
+        renderIndexWord(
+            target
+        );
+
+
+        return Promise.resolve();
+
+    }
+
+
+    const start =
+        performance.now();
+
+
+    return new Promise(
+        resolve => {
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        INDEX_TRANSITION_DURATION
+                    );
+
+
+                const state =
+                    Math.round(
+                        startState +
+                        (
+                            target -
+                            startState
+                        ) *
+                        progress
+                    );
+
+
+                renderIndexWord(
+                    state
+                );
+
+
+                if (
+                    progress < 1
+                ) {
+
+                    indexWordFrame =
+                        requestAnimationFrame(
+                            frame
+                        );
+
+                }
+
+                else {
+
+                    renderIndexWord(
+                        target
+                    );
+
+
+                    indexWordFrame =
+                        null;
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            indexWordFrame =
+                requestAnimationFrame(
+                    frame
+                );
+
+        }
     );
-
-
-    return Promise.resolve();
 
 }
 
@@ -7380,21 +7860,13 @@ function setLogoState(
 ) {
 
     logoState =
-        0;
+        state;
 
 
     logoName.textContent =
-        "Denizalp";
-
-
-    const proper =
-        [
-            "A",
-            "y",
-            "b",
-            "a",
-            "k"
-        ];
+        state === 0
+            ? "Denizalp"
+            : "denizalp";
 
 
     for (
@@ -7403,16 +7875,26 @@ function setLogoState(
         i++
     ) {
 
+        const isMorphUpper =
+            i < state;
+
+
         letters[i].textContent =
-            proper[i];
+            isMorphUpper
+                ? uppercase[i]
+                : lowercase[i];
 
 
         letters[i].style.fontFamily =
-            "";
+            isMorphUpper
+                ? 'var(--morph-font)'
+                : 'var(--sans-font)';
 
 
         letters[i].style.fontWeight =
-            "";
+            isMorphUpper
+                ? 'var(--morph-weight)'
+                : 'var(--sans-weight)';
 
     }
 
@@ -7473,7 +7955,44 @@ function animateLogoTo(
     target
 ) {
 
-    return Promise.resolve();
+    logoTarget =
+        target;
+
+
+    if (
+        logoTimer !== null
+    ) {
+
+        clearTimeout(
+            logoTimer
+        );
+
+    }
+
+
+    if (
+        logoResolve
+    ) {
+
+        logoResolve();
+
+        logoResolve =
+            null;
+
+    }
+
+
+    return new Promise(
+        resolve => {
+
+            logoResolve =
+                resolve;
+
+
+            moveLogo();
+
+        }
+    );
 
 }
 
@@ -7576,7 +8095,7 @@ const sectionSwitchText =
 
 
 const switchWord =
-    "Film";
+    "film";
 
 
 let switchState =
@@ -7618,15 +8137,147 @@ function morphSwitchTo(
     target
 ) {
 
-    renderBaseTypography(
-        sectionSwitchText,
-        switchWord
+    if (
+        switchFrame !== null
+    ) {
+
+        cancelAnimationFrame(
+            switchFrame
+        );
+
+    }
+
+
+    const startState =
+        switchState;
+
+
+    if (
+        startState === target
+    ) {
+
+        renderSwitch(
+            target
+        );
+
+
+        return Promise.resolve();
+
+    }
+
+
+    const start =
+        performance.now();
+
+
+    return new Promise(
+        resolve => {
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        WORD_TRANSITION_DURATION
+                    );
+
+
+                const state =
+                    Math.round(
+                        startState +
+                        (
+                            target -
+                            startState
+                        ) *
+                        progress
+                    );
+
+
+                renderSwitch(
+                    state
+                );
+
+
+                if (
+                    progress < 1
+                ) {
+
+                    switchFrame =
+                        requestAnimationFrame(
+                            frame
+                        );
+
+                }
+
+                else {
+
+                    renderSwitch(
+                        target
+                    );
+
+
+                    switchFrame =
+                        null;
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            switchFrame =
+                requestAnimationFrame(
+                    frame
+                );
+
+        }
     );
 
-
-    return Promise.resolve();
-
 }
+
+
+sectionSwitch.addEventListener(
+    "mouseenter",
+    () => {
+
+        if (
+            !isPhoneLayout()
+        ) {
+
+            morphSwitchTo(
+                switchWord.length
+            );
+
+        }
+
+    }
+);
+
+
+sectionSwitch.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            !isPhoneLayout()
+        ) {
+
+            morphSwitchTo(
+                0
+            );
+
+        }
+
+    }
+);
 
 
 /* =====================================================
@@ -8157,14 +8808,15 @@ async function loadProjects() {
 
         const title =
             currentProject()
-                .title;
+                .title
+                .toLowerCase();
 
 
         const date =
             (
                 currentProject().date ||
                 ""
-            );
+            ).toLowerCase();
 
 
         renderBaseTypography(
@@ -8202,11 +8854,11 @@ async function loadProjects() {
 
 
         viewAllButton.textContent =
-            "View All";
+            "view all";
 
 
         viewAllButton.dataset.rawText =
-            "View All";
+            "view all";
 
 
         /*
