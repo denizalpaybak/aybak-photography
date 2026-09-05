@@ -525,17 +525,12 @@ body.project-all-mode #project-all-view {
 #index-button {
     position: fixed;
 
-    left: 50%;
-
-    bottom:
-        calc(
-            var(--index-bottom) +
-            env(safe-area-inset-bottom)
-        );
+    top: var(--top);
+    right: var(--side);
 
     z-index: 600;
 
-    transform: translateX(-50%);
+    transform: none;
 
     appearance: none;
     -webkit-appearance: none;
@@ -595,9 +590,8 @@ body.project-all-mode #project-all-view {
 
     bottom:
         calc(
-            var(--index-bottom) +
-            env(safe-area-inset-bottom) +
-            34px
+            18px +
+            env(safe-area-inset-bottom)
         );
 
     display: flex;
@@ -911,9 +905,8 @@ body.phone-portrait .spread-image {
 body.phone-portrait #index-scroller {
     bottom:
         calc(
-            var(--index-bottom) +
-            env(safe-area-inset-bottom) +
-            32px
+            14px +
+            env(safe-area-inset-bottom)
         );
 }
 
@@ -1052,9 +1045,8 @@ body.phone-landscape #index-scroller {
 
     bottom:
         calc(
-            var(--index-bottom) +
-            env(safe-area-inset-bottom) +
-            32px
+            12px +
+            env(safe-area-inset-bottom)
         );
 
     align-items: center;
@@ -1516,9 +1508,9 @@ function fitAybakEndCardWord() {
         can be positioned, rather than relying on the font's invisible text
         box. One common gap is used on all three relevant sides:
 
-        left visible A edge  -> viewport left
-        right visible K edge -> viewport right
-        bottom visible ink   -> viewport bottom
+        left visible A edge  -> contact copy left edge
+        right visible K edge -> film copy right edge
+        bottom visible ink   -> same shared edge gap
 
         Therefore the three distances stay mathematically equal at every
         viewport size and on every device, with no cropping.
@@ -1538,17 +1530,69 @@ function fitAybakEndCardWord() {
 
 
     /*
-        Small responsive breathing room. Because the SAME value is used for
-        both horizontal edges and the bottom edge, the requested rule is
-        preserved regardless of aspect ratio.
+        Align the visible A exactly with the contact copy's left edge and
+        the visible K exactly with the FILM copy's right edge. The bottom
+        gap is the same horizontal margin, so the three edges share one
+        consistent spacing system on desktop, tablet and phone.
     */
+    const contactAnchor =
+        aybakEndCard.querySelector(
+            ".aybak-end-card-contact"
+        );
+
+
+    const filmAnchor =
+        aybakEndCard.querySelector(
+            ".aybak-end-card-film"
+        );
+
+
+    const contactRect =
+        contactAnchor
+            ? contactAnchor.getBoundingClientRect()
+            : null;
+
+
+    const filmRect =
+        filmAnchor
+            ? filmAnchor.getBoundingClientRect()
+            : null;
+
+
+    const computedSide =
+        parseFloat(
+            getComputedStyle(
+                document.documentElement
+            ).getPropertyValue(
+                "--side"
+            )
+        ) || 0;
+
+
+    const targetInkLeft =
+        contactRect
+            ? contactRect.left
+            : computedSide;
+
+
+    const targetInkRight =
+        filmRect
+            ? filmRect.right
+            : viewportWidth - computedSide;
+
+
+    const leftGap =
+        targetInkLeft;
+
+
+    const rightGap =
+        viewportWidth - targetInkRight;
+
+
     const edgeGap =
         Math.max(
-            10,
-            Math.min(
-                24,
-                viewportWidth * 0.012
-            )
+            0,
+            (leftGap + rightGap) / 2
         );
 
 
@@ -1811,8 +1855,8 @@ function fitAybakEndCardWord() {
     const targetInkWidth =
         Math.max(
             1,
-            viewportWidth -
-            edgeGap * 2
+            targetInkRight -
+            targetInkLeft
         );
 
 
@@ -1828,7 +1872,7 @@ function fitAybakEndCardWord() {
 
 
     const originX =
-        edgeGap -
+        targetInkLeft -
         sampleInkLeft *
         scale;
 
@@ -3479,8 +3523,8 @@ function updateLandscapeGeometry() {
         info.getBoundingClientRect();
 
 
-    const filmRect =
-        sectionSwitch.getBoundingClientRect();
+    const rightControlRect =
+        indexButton.getBoundingClientRect();
 
 
     const indexRect =
@@ -3539,7 +3583,7 @@ function updateLandscapeGeometry() {
             24,
             Math.ceil(
                 window.innerWidth -
-                filmRect.left +
+                rightControlRect.left +
                 slideRightGap
             )
         );
