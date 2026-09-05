@@ -1211,31 +1211,17 @@ body.aybak-end-card-active #aybak-end-card {
 
 #aybak-end-card-word {
     position: absolute;
+    inset: 0;
 
-    left: var(--aybak-ink-left, 0px);
-    bottom: max(8px, calc(env(safe-area-inset-bottom) + 6px));
+    display: block;
 
-    transform: none;
+    width: 100%;
+    height: 100%;
 
     margin: 0;
     padding: 0;
 
-    font-family:
-        "Times New Roman",
-        Times,
-        serif;
-
-    font-size: var(--aybak-end-font-size, 24vw);
-
-    font-weight: 400;
-    font-style: normal;
-    line-height: 0.72;
-
-    letter-spacing: -0.045em;
-
-    white-space: nowrap;
-
-    color: #fff;
+    pointer-events: none;
 }
 
 </style>
@@ -1409,7 +1395,7 @@ body.aybak-end-card-active #aybak-end-card {
     id="aybak-end-card"
     aria-hidden="true"
 >
-    <div id="aybak-end-card-word">AYBAK</div>
+    <canvas id="aybak-end-card-word" aria-label="AYBAK"></canvas>
 </section>
 
 <script>
@@ -1435,14 +1421,14 @@ let aybakEndCardActive =
 */
 function fitAybakEndCardWord() {
 
-    const word =
+    const canvas =
         document.getElementById(
             "aybak-end-card-word"
         );
 
 
     if (
-        !word ||
+        !canvas ||
         !aybakEndCard
     ) {
 
@@ -1452,14 +1438,49 @@ function fitAybakEndCardWord() {
 
 
     /*
-        Restore the tighter Times New Roman spacing used in the earlier
-        version. The negative tracking is part of the intended drawing:
-        Y/B and A/K visually lock into one another.
+        Keep the earlier tight Times New Roman drawing exactly as it was:
+        -0.045em tracking makes the Y/B and A/K terminals visually meet.
 
-        Measure that exact tracked word as rasterized pixels, then scale its
-        visible ink slightly wider than the viewport so both outer edges crop
-        by the same small amount on every device.
+        The word is drawn on a full-screen canvas so its ACTUAL visible ink
+        can be positioned, rather than relying on the font's invisible text
+        box. One common gap is used on all three relevant sides:
+
+        left visible A edge  -> viewport left
+        right visible K edge -> viewport right
+        bottom visible ink   -> viewport bottom
+
+        Therefore the three distances stay mathematically equal at every
+        viewport size and on every device, with no cropping.
     */
+    const viewportWidth =
+        Math.max(
+            1,
+            aybakEndCard.clientWidth
+        );
+
+
+    const viewportHeight =
+        Math.max(
+            1,
+            aybakEndCard.clientHeight
+        );
+
+
+    /*
+        Small responsive breathing room. Because the SAME value is used for
+        both horizontal edges and the bottom edge, the requested rule is
+        preserved regardless of aspect ratio.
+    */
+    const edgeGap =
+        Math.max(
+            10,
+            Math.min(
+                24,
+                viewportWidth * 0.012
+            )
+        );
+
+
     const sampleSize =
         1000;
 
@@ -1521,26 +1542,20 @@ function fitAybakEndCardWord() {
         );
 
 
-    const canvas =
-        document.createElement(
-            "canvas"
-        );
-
-
-    canvas.width =
+    measureCanvas.width =
         Math.ceil(
             advance +
             padding * 2
         );
 
 
-    canvas.height =
+    measureCanvas.height =
         sampleSize +
         padding * 2;
 
 
-    const context =
-        canvas.getContext(
+    const measureDrawContext =
+        measureCanvas.getContext(
             "2d",
             {
                 willReadFrequently:
@@ -1549,29 +1564,29 @@ function fitAybakEndCardWord() {
         );
 
 
-    context.font =
+    measureDrawContext.font =
         `400 ${sampleSize}px "Times New Roman", Times, serif`;
 
 
-    context.textBaseline =
+    measureDrawContext.textBaseline =
         "alphabetic";
 
 
-    context.fillStyle =
+    measureDrawContext.fillStyle =
         "#fff";
 
 
-    const originX =
+    const sampleOriginX =
         padding;
 
 
-    const baselineY =
+    const sampleBaselineY =
         padding +
         sampleSize;
 
 
-    let drawX =
-        originX;
+    let sampleDrawX =
+        sampleOriginX;
 
 
     letters.forEach(
@@ -1580,14 +1595,14 @@ function fitAybakEndCardWord() {
             index
         ) => {
 
-            context.fillText(
+            measureDrawContext.fillText(
                 letter,
-                drawX,
-                baselineY
+                sampleDrawX,
+                sampleBaselineY
             );
 
 
-            drawX +=
+            sampleDrawX +=
                 advances[index];
 
 
@@ -1596,7 +1611,7 @@ function fitAybakEndCardWord() {
                 letters.length - 1
             ) {
 
-                drawX +=
+                sampleDrawX +=
                     trackingPx;
 
             }
@@ -1606,11 +1621,11 @@ function fitAybakEndCardWord() {
 
 
     const imageData =
-        context.getImageData(
+        measureDrawContext.getImageData(
             0,
             0,
-            canvas.width,
-            canvas.height
+            measureCanvas.width,
+            measureCanvas.height
         );
 
 
@@ -1619,22 +1634,30 @@ function fitAybakEndCardWord() {
 
 
     let minX =
-        canvas.width;
+        measureCanvas.width;
 
 
     let maxX =
         -1;
 
 
+    let minY =
+        measureCanvas.height;
+
+
+    let maxY =
+        -1;
+
+
     for (
         let y = 0;
-        y < canvas.height;
+        y < measureCanvas.height;
         y++
     ) {
 
         for (
             let x = 0;
-            x < canvas.width;
+            x < measureCanvas.width;
             x++
         ) {
 
@@ -1642,7 +1665,7 @@ function fitAybakEndCardWord() {
                 data[
                     (
                         y *
-                        canvas.width +
+                        measureCanvas.width +
                         x
                     ) *
                     4 +
@@ -1667,6 +1690,20 @@ function fitAybakEndCardWord() {
                         x
                     );
 
+
+                minY =
+                    Math.min(
+                        minY,
+                        y
+                    );
+
+
+                maxY =
+                    Math.max(
+                        maxY,
+                        y
+                    );
+
             }
 
         }
@@ -1675,7 +1712,8 @@ function fitAybakEndCardWord() {
 
 
     if (
-        maxX < minX
+        maxX < minX ||
+        maxY < minY
     ) {
 
         return;
@@ -1685,7 +1723,7 @@ function fitAybakEndCardWord() {
 
     const sampleInkLeft =
         minX -
-        originX;
+        sampleOriginX;
 
 
     const sampleInkWidth =
@@ -1694,21 +1732,17 @@ function fitAybakEndCardWord() {
         1;
 
 
-    const viewportWidth =
+    const sampleInkBottom =
+        maxY -
+        sampleBaselineY;
+
+
+    const targetInkWidth =
         Math.max(
             1,
-            aybakEndCard.clientWidth
+            viewportWidth -
+            edgeGap * 2
         );
-
-
-    /*
-        4% wider than the viewport = about 2% crop on each side.
-        Enough to feel like the word continues beyond the screen, but still
-        only a small crop.
-    */
-    const targetInkWidth =
-        viewportWidth *
-        1.04;
 
 
     const fontSize =
@@ -1717,29 +1751,137 @@ function fitAybakEndCardWord() {
         sampleInkWidth;
 
 
-    const leftOffset =
-        (
-            viewportWidth -
-            targetInkWidth
-        ) / 2 -
-        sampleInkLeft *
+    const scale =
         fontSize /
         sampleSize;
 
 
-    word.style.setProperty(
-        "--aybak-end-font-size",
-        `${fontSize}px`
+    const originX =
+        edgeGap -
+        sampleInkLeft *
+        scale;
+
+
+    const baselineY =
+        viewportHeight -
+        edgeGap -
+        sampleInkBottom *
+        scale;
+
+
+    const pixelRatio =
+        Math.max(
+            1,
+            window.devicePixelRatio || 1
+        );
+
+
+    canvas.width =
+        Math.max(
+            1,
+            Math.round(
+                viewportWidth *
+                pixelRatio
+            )
+        );
+
+
+    canvas.height =
+        Math.max(
+            1,
+            Math.round(
+                viewportHeight *
+                pixelRatio
+            )
+        );
+
+
+    canvas.style.width =
+        `${viewportWidth}px`;
+
+
+    canvas.style.height =
+        `${viewportHeight}px`;
+
+
+    const context =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    context.setTransform(
+        pixelRatio,
+        0,
+        0,
+        pixelRatio,
+        0,
+        0
     );
 
 
-    word.style.setProperty(
-        "--aybak-ink-left",
-        `${leftOffset}px`
+    context.clearRect(
+        0,
+        0,
+        viewportWidth,
+        viewportHeight
+    );
+
+
+    context.font =
+        `400 ${fontSize}px "Times New Roman", Times, serif`;
+
+
+    context.textBaseline =
+        "alphabetic";
+
+
+    context.fillStyle =
+        "#fff";
+
+
+    const finalTracking =
+        trackingEm *
+        fontSize;
+
+
+    let drawX =
+        originX;
+
+
+    letters.forEach(
+        (
+            letter,
+            index
+        ) => {
+
+            context.fillText(
+                letter,
+                drawX,
+                baselineY
+            );
+
+
+            drawX +=
+                context.measureText(
+                    letter
+                ).width;
+
+
+            if (
+                index <
+                letters.length - 1
+            ) {
+
+                drawX +=
+                    finalTracking;
+
+            }
+
+        }
     );
 
 }
-
 
 fitAybakEndCardWord();
 
