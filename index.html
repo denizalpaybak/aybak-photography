@@ -116,21 +116,7 @@ button {
 
 body {
     cursor: pointer;
-    overflow-y: auto;
-}
-
-/*
-   A short real vertical scroll range is reserved for the wordmark.
-   All portfolio UI remains fixed exactly as before.
-*/
-#wordmark-scroll-space {
-    width: 1px;
-    height: calc(100vh + clamp(90px, 7vw, 140px));
-    pointer-events: none;
-}
-
-body.index-mode {
-    overflow-y: hidden;
+    overflow: hidden;
 }
 
 
@@ -1186,35 +1172,24 @@ body.phone-landscape #project-all-grid {
 /* =====================================================
    AYBAK WORDMARK
 
-   Static identity layer:
+   Identity layer:
    - Times New Roman Regular
-   - slightly larger than the viewport, not dramatically oversized
-   - initially cropped only a little at the bottom
-   - vertical page scroll reveals the full wordmark, then leaves air below
+   - smaller letters + much wider tracking
+   - slightly cropped on BOTH left and right
+   - full lower edge remains visible
+   - bottom optical margin follows --top
    - no hover / no interaction
-
-   The black wordmark sits in the same project stacking context as the
-   metadata. White + DIFFERENCE is applied to the individual text
-   elements, so only the actual glyph pixels that cross black AYBAK
-   strokes turn white. Counter-spaces inside A/B etc. stay white
-   background, therefore overlaid copy stays black there.
    ===================================================== */
-
-:root {
-    --aybak-scroll-y: 0px;
-}
 
 #aybak-wordmark {
     position: absolute;
 
     left: 50%;
-    bottom: -0.055em;
+    bottom: var(--top);
 
     z-index: 0;
 
-    transform:
-        translateX(-50%)
-        translateY(calc(-1 * var(--aybak-scroll-y)));
+    transform: translateX(-50%);
 
     margin: 0;
     padding: 0;
@@ -1226,12 +1201,17 @@ body.phone-landscape #project-all-grid {
         Times,
         serif;
 
-    font-size: 27.5vw;
+    font-size: 18.5vw;
     font-weight: 400;
     font-style: normal;
-    line-height: 0.78;
+    line-height: 0.72;
 
-    letter-spacing: 0.035em;
+    /*
+       The letters themselves are now substantially smaller.
+       Wide tracking stretches the five-letter mark just beyond
+       the viewport, producing a controlled crop at both edges.
+    */
+    letter-spacing: 0.50em;
 
     white-space: nowrap;
 
@@ -1240,46 +1220,84 @@ body.phone-landscape #project-all-grid {
 
     -webkit-font-smoothing: antialiased;
     text-rendering: geometricPrecision;
-
-    will-change: transform;
 }
 
 /*
-   Do NOT blend the whole metadata box as one composited rectangle.
-   Blend each painted text object independently. On white it resolves
-   to black; only the pixels directly over a black AYBAK stroke become
-   white.
+   PROJECT META KNOCKOUT
+
+   The original project-meta text stays in place for layout and
+   interaction, but is visually transparent. JavaScript mirrors each
+   item as a body-level fixed layer using white + DIFFERENCE.
+
+   Keeping the mirror at body level avoids the project-stage compositing
+   issue that made whole labels appear white. Because DIFFERENCE works
+   pixel-by-pixel, text is white only where its painted glyph pixels sit
+   on black AYBAK strokes. Text over the white counters inside A/B etc.
+   remains black.
 */
 #project-title,
 #project-date,
 #project-counter,
-#view-all-button,
+#view-all-button {
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+.knockout-mirror {
+    position: fixed;
+    z-index: 550;
+
+    margin: 0;
+    padding: 0;
+
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+    mix-blend-mode: difference;
+
+    background: transparent;
+    border: 0;
+
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* INDEX already blends correctly as a body-level element. */
 #index-button {
     color: #fff;
     mix-blend-mode: difference;
 }
 
-/*
-   The INDEX overlay owns an opaque white page. The wordmark belongs to
-   the normal project view only.
-*/
-body.index-mode #aybak-wordmark {
-    visibility: hidden;
+body.index-mode #aybak-wordmark,
+body.index-mode .knockout-mirror {
+    visibility: hidden !important;
 }
 
 /*
-   Phones: keep the same idea, but avoid huge side-cropping.
+   Phones keep the same principle: smaller type, wider spacing,
+   subtle two-sided crop, and a safe-area-aware bottom margin.
 */
 body.phone-portrait #aybak-wordmark {
-    font-size: 29vw;
-    bottom: -0.045em;
-    letter-spacing: 0.025em;
+    bottom:
+        calc(
+            var(--top) +
+            env(safe-area-inset-bottom)
+        );
+
+    font-size: 19vw;
+    line-height: 0.74;
+    letter-spacing: 0.47em;
 }
 
 body.phone-landscape #aybak-wordmark {
-    font-size: 27vw;
-    bottom: -0.05em;
-    letter-spacing: 0.03em;
+    bottom:
+        calc(
+            var(--top) +
+            env(safe-area-inset-bottom)
+        );
+
+    font-size: 18vw;
+    line-height: 0.72;
+    letter-spacing: 0.50em;
 }
 
 </style>
@@ -1288,7 +1306,6 @@ body.phone-landscape #aybak-wordmark {
 
 <body>
 
-<div id="wordmark-scroll-space" aria-hidden="true"></div>
 
 
 <!-- ===================================================
@@ -1522,12 +1539,6 @@ const INDEX_KEY_STEP =
 
 const body =
     document.body;
-
-
-const aybakWordmark =
-    document.getElementById(
-        "aybak-wordmark"
-    );
 
 
 const info =
@@ -1925,28 +1936,158 @@ function activateIndexImagesNearViewport() {
 
 
 /* =====================================================
-   AYBAK WORDMARK SCROLL
+   PROJECT META — PIXEL KNOCKOUT MIRRORS
    ===================================================== */
 
-function updateAybakWordmarkScroll() {
+const knockoutSources = [
+    projectTitle,
+    projectDate,
+    projectCounter,
+    viewAllButton
+];
 
-    document
-        .documentElement
-        .style
-        .setProperty(
-            "--aybak-scroll-y",
-            `${window.scrollY}px`
+const knockoutMirrors =
+    knockoutSources.map(
+        source => {
+
+            const mirror =
+                document.createElement(
+                    "div"
+                );
+
+            mirror.className =
+                "knockout-mirror";
+
+            mirror.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+            document.body.appendChild(
+                mirror
+            );
+
+            return {
+                source,
+                mirror,
+                lastHTML: null
+            };
+
+        }
+    );
+
+
+function syncKnockoutMirror(
+    item
+) {
+
+    const source =
+        item.source;
+
+    const mirror =
+        item.mirror;
+
+    const rect =
+        source.getBoundingClientRect();
+
+    const style =
+        getComputedStyle(
+            source
         );
+
+    const html =
+        source.innerHTML;
+
+
+    if (
+        html !==
+        item.lastHTML
+    ) {
+
+        mirror.innerHTML =
+            html;
+
+        /* Never duplicate DOM ids into the visual mirror. */
+        mirror
+            .querySelectorAll(
+                "[id]"
+            )
+            .forEach(
+                node =>
+                    node.removeAttribute(
+                        "id"
+                    )
+            );
+
+        item.lastHTML =
+            html;
+
+    }
+
+
+    mirror.style.left =
+        `${rect.left}px`;
+
+    mirror.style.top =
+        `${rect.top}px`;
+
+    mirror.style.width =
+        `${rect.width}px`;
+
+    mirror.style.height =
+        `${rect.height}px`;
+
+    mirror.style.fontFamily =
+        style.fontFamily;
+
+    mirror.style.fontSize =
+        style.fontSize;
+
+    mirror.style.fontWeight =
+        style.fontWeight;
+
+    mirror.style.fontStyle =
+        style.fontStyle;
+
+    mirror.style.lineHeight =
+        style.lineHeight;
+
+    mirror.style.letterSpacing =
+        style.letterSpacing;
+
+    mirror.style.textAlign =
+        style.textAlign;
+
+    mirror.style.visibility =
+        style.visibility;
+
+    mirror.style.opacity =
+        style.opacity;
+
+    mirror.style.display =
+        style.display === "none"
+            ? "none"
+            : "block";
 
 }
 
-window.addEventListener(
-    "scroll",
-    updateAybakWordmarkScroll,
-    { passive: true }
-);
 
-updateAybakWordmarkScroll();
+function syncKnockoutMirrors() {
+
+    knockoutMirrors.forEach(
+        syncKnockoutMirror
+    );
+
+    requestAnimationFrame(
+        syncKnockoutMirrors
+    );
+
+}
+
+
+requestAnimationFrame(
+    syncKnockoutMirrors
+);
 
 
 /* =====================================================
