@@ -28,7 +28,7 @@ body {
     width: 100%;
     height: 100%;
 
-    overflow: hidden;
+    overflow-x: hidden;
 
     background: #fff;
     color: #000;
@@ -116,6 +116,21 @@ button {
 
 body {
     cursor: pointer;
+    overflow-y: auto;
+}
+
+/*
+   A short real vertical scroll range is reserved for the wordmark.
+   All portfolio UI remains fixed exactly as before.
+*/
+#wordmark-scroll-space {
+    width: 1px;
+    height: calc(100vh + clamp(90px, 7vw, 140px));
+    pointer-events: none;
+}
+
+body.index-mode {
+    overflow-y: hidden;
 }
 
 
@@ -1172,24 +1187,34 @@ body.phone-landscape #project-all-grid {
    AYBAK WORDMARK
 
    Static identity layer:
-   - Times New Roman
-   - intentionally oversized and cropped by the viewport
+   - Times New Roman Regular
+   - slightly larger than the viewport, not dramatically oversized
+   - initially cropped only a little at the bottom
+   - vertical page scroll reveals the full wordmark, then leaves air below
    - no hover / no interaction
-   - sits behind imagery + interface
 
-   Bottom interface copy uses DIFFERENCE so the exact
-   portion crossing the black wordmark turns white.
+   The black wordmark sits in the same project stacking context as the
+   metadata. White + DIFFERENCE is applied to the individual text
+   elements, so only the actual glyph pixels that cross black AYBAK
+   strokes turn white. Counter-spaces inside A/B etc. stay white
+   background, therefore overlaid copy stays black there.
    ===================================================== */
 
+:root {
+    --aybak-scroll-y: 0px;
+}
+
 #aybak-wordmark {
-    position: fixed;
+    position: absolute;
 
     left: 50%;
-    bottom: -0.17em;
+    bottom: -0.055em;
 
-    z-index: 5;
+    z-index: 0;
 
-    transform: translateX(-50%);
+    transform:
+        translateX(-50%)
+        translateY(calc(-1 * var(--aybak-scroll-y)));
 
     margin: 0;
     padding: 0;
@@ -1201,12 +1226,12 @@ body.phone-landscape #project-all-grid {
         Times,
         serif;
 
-    font-size: 34vw;
+    font-size: 27.5vw;
     font-weight: 400;
     font-style: normal;
-    line-height: 0.72;
+    line-height: 0.78;
 
-    letter-spacing: 0.055em;
+    letter-spacing: 0.035em;
 
     white-space: nowrap;
 
@@ -1215,40 +1240,46 @@ body.phone-landscape #project-all-grid {
 
     -webkit-font-smoothing: antialiased;
     text-rendering: geometricPrecision;
+
+    will-change: transform;
 }
 
 /*
-   Black on white in the normal page area.
-   White only where these elements cross the black AYBAK.
+   Do NOT blend the whole metadata box as one composited rectangle.
+   Blend each painted text object independently. On white it resolves
+   to black; only the pixels directly over a black AYBAK stroke become
+   white.
 */
-#project-meta,
+#project-title,
+#project-date,
+#project-counter,
+#view-all-button,
 #index-button {
     color: #fff;
     mix-blend-mode: difference;
 }
 
 /*
-   The INDEX overlay has its own opaque white page, so for this
-   first identity test the wordmark belongs to the project view only.
+   The INDEX overlay owns an opaque white page. The wordmark belongs to
+   the normal project view only.
 */
 body.index-mode #aybak-wordmark {
     visibility: hidden;
 }
 
 /*
-   Keep the crop dramatic on phones without making the wordmark
-   disproportionately tall.
+   Phones: keep the same idea, but avoid huge side-cropping.
 */
 body.phone-portrait #aybak-wordmark {
-    font-size: 36vw;
-    bottom: -0.14em;
-    letter-spacing: 0.045em;
+    font-size: 29vw;
+    bottom: -0.045em;
+    letter-spacing: 0.025em;
 }
 
 body.phone-landscape #aybak-wordmark {
-    font-size: 31vw;
-    bottom: -0.18em;
-    letter-spacing: 0.045em;
+    font-size: 27vw;
+    bottom: -0.05em;
+    letter-spacing: 0.03em;
 }
 
 </style>
@@ -1257,17 +1288,7 @@ body.phone-landscape #aybak-wordmark {
 
 <body>
 
-
-<!-- ===================================================
-     AYBAK WORDMARK
-     =================================================== -->
-
-<div
-    id="aybak-wordmark"
-    aria-hidden="true"
->
-    AYBAK
-</div>
+<div id="wordmark-scroll-space" aria-hidden="true"></div>
 
 
 <!-- ===================================================
@@ -1356,6 +1377,13 @@ body.phone-landscape #aybak-wordmark {
      =================================================== -->
 
 <div id="project-stage">
+
+    <div
+        id="aybak-wordmark"
+        aria-hidden="true"
+    >
+        AYBAK
+    </div>
 
     <div id="project-block">
 
@@ -1494,6 +1522,12 @@ const INDEX_KEY_STEP =
 
 const body =
     document.body;
+
+
+const aybakWordmark =
+    document.getElementById(
+        "aybak-wordmark"
+    );
 
 
 const info =
@@ -1888,6 +1922,31 @@ function activateIndexImagesNearViewport() {
 }
 
 
+
+
+/* =====================================================
+   AYBAK WORDMARK SCROLL
+   ===================================================== */
+
+function updateAybakWordmarkScroll() {
+
+    document
+        .documentElement
+        .style
+        .setProperty(
+            "--aybak-scroll-y",
+            `${window.scrollY}px`
+        );
+
+}
+
+window.addEventListener(
+    "scroll",
+    updateAybakWordmarkScroll,
+    { passive: true }
+);
+
+updateAybakWordmarkScroll();
 
 
 /* =====================================================
