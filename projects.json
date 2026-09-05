@@ -90,16 +90,6 @@
     "id": "beegoddess-fw24"
   },
   {
-    "title": "The Push",
-    "date": "Personal",
-    "sortDate": "",
-    "images": [
-      "skater_01.jpg",
-      "skater_02.jpg"
-    ],
-    "id": "the-push"
-  },
-  {
     "title": "L'Officiel Türkiye",
     "date": "February 2026",
     "sortDate": "2026-02",
@@ -160,16 +150,6 @@
     "id": "qp-250421"
   },
   {
-    "title": "Manifesto",
-    "date": "Personal",
-    "sortDate": "",
-    "images": [
-      "personal_01.jpg",
-      "personal_02.jpg"
-    ],
-    "id": "manifesto"
-  },
-  {
     "title": "ELLE Türkiye",
     "date": "October 2025",
     "sortDate": "2025-10",
@@ -181,5 +161,22 @@
       "elle_250919_05.jpg"
     ],
     "id": "elle-250919"
+  },
+  {
+    "title": "Work-in-Progress",
+    "date": "Personal",
+    "sortDate": "",
+    "images": [
+      "denizalp_aybak_01.jpg",
+      "denizalp_aybak_02.jpg",
+      "denizalp_aybak_03.jpg",
+      "denizalp_aybak_04.jpg",
+      "denizalp_aybak_05.jpg",
+      "denizalp_aybak_06.jpg",
+      "denizalp_aybak_07.jpg",
+      "denizalp_aybak_08.jpg",
+      "denizalp_aybak_09.jpg"
+    ],
+    "id": "work-in-progress"
   }
 ]
