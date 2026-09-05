@@ -1211,10 +1211,10 @@ body.aybak-end-card-active #aybak-end-card {
 #aybak-end-card-word {
     position: absolute;
 
-    left: 50%;
-    bottom: clamp(24px, 4vh, 56px);
+    left: var(--aybak-ink-left, 0px);
+    bottom: max(6px, env(safe-area-inset-bottom));
 
-    transform: translateX(-50%);
+    transform: none;
 
     margin: 0;
     padding: 0;
@@ -1224,11 +1224,7 @@ body.aybak-end-card-active #aybak-end-card {
         Times,
         serif;
 
-    font-size:
-        min(
-            24vw,
-            58vh
-        );
+    font-size: var(--aybak-end-font-size, 24vw);
 
     font-weight: 400;
     font-style: normal;
@@ -1429,6 +1425,119 @@ const aybakEndCard =
 
 let aybakEndCardActive =
     false;
+
+
+/*
+    Fit the actual Times New Roman ink — not the CSS text box —
+    exactly to the viewport width. This makes the outermost visible
+    point of A touch the left edge and the outermost visible point of K
+    touch the right edge on every viewport size.
+*/
+function fitAybakEndCardWord() {
+
+    const word =
+        document.getElementById(
+            "aybak-end-card-word"
+        );
+
+
+    if (
+        !word
+    ) {
+
+        return;
+
+    }
+
+
+    const sampleSize =
+        1000;
+
+
+    const canvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    const context =
+        canvas.getContext(
+            "2d"
+        );
+
+
+    context.font =
+        `400 ${sampleSize}px "Times New Roman", Times, serif`;
+
+
+    const metrics =
+        context.measureText(
+            "AYBAK"
+        );
+
+
+    const inkWidth =
+        metrics.actualBoundingBoxLeft +
+        metrics.actualBoundingBoxRight;
+
+
+    if (
+        !inkWidth
+    ) {
+
+        return;
+
+    }
+
+
+    const fontSize =
+        window.innerWidth *
+        sampleSize /
+        inkWidth;
+
+
+    const leftOffset =
+        -metrics.actualBoundingBoxLeft *
+        fontSize /
+        sampleSize;
+
+
+    word.style.setProperty(
+        "--aybak-end-font-size",
+        `${fontSize}px`
+    );
+
+
+    word.style.setProperty(
+        "--aybak-ink-left",
+        `${leftOffset}px`
+    );
+
+}
+
+
+fitAybakEndCardWord();
+
+window.addEventListener(
+    "resize",
+    fitAybakEndCardWord
+);
+
+window.addEventListener(
+    "orientationchange",
+    fitAybakEndCardWord
+);
+
+if (
+    document.fonts &&
+    document.fonts.ready
+) {
+
+    document.fonts.ready.then(
+        fitAybakEndCardWord
+    );
+
+}
 
 
 let aybakTouchStartX =
