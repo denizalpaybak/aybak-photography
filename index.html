@@ -1174,16 +1174,15 @@ body.phone-landscape #project-all-grid {
 
    Identity layer:
    - Times New Roman Regular
-   - optically centered in the viewport
+   - original Times spacing / kerning
+   - centered in the viewport
    - black and behind photography at rest
-   - on hover, ONLY the pieces physically crossing a photograph
-     receive a DIFFERENCE overlay; the exposed black wordmark
-     remains visible and unchanged
-   - no interface/text knockout behaviour
+   - on hover, ONLY the part crossing a photograph is
+     redrawn above that photograph with DIFFERENCE
    ===================================================== */
 
 #aybak-wordmark,
-.aybak-hover-slice {
+.aybak-hover-copy {
     position: fixed;
 
     left: 50%;
@@ -1197,21 +1196,16 @@ body.phone-landscape #project-all-grid {
         Times,
         serif;
 
-    font-size: 18.5vw;
+    font-size: 31vw;
     font-weight: 400;
     font-style: normal;
     line-height: 0.72;
-    letter-spacing: 0.50em;
+    letter-spacing: normal;
+    font-kerning: auto;
 
-    /*
-       CSS letter-spacing also contributes space after the final K.
-       Shifting right by half that trailing spacing centers the visible
-       letterforms, rather than the larger CSS text box.
-    */
-    transform: translate(calc(-50% + 0.25em), -50%);
+    transform: translate(-50%, -50%);
 
     white-space: nowrap;
-
     user-select: none;
 
     -webkit-font-smoothing: antialiased;
@@ -1225,9 +1219,9 @@ body.phone-landscape #project-all-grid {
 }
 
 /*
-   Difference is drawn by clipped duplicate slices, one for each
-   currently visible slideshow image. Nothing is blended outside
-   the actual photograph rectangles.
+   Each hover window is positioned exactly on top of a visible photo.
+   It clips a second, viewport-centered AYBAK copy without changing
+   that copy's geometry. This avoids the old clip-path coordinate bug.
 */
 #aybak-hover-overlays {
     position: fixed;
@@ -1242,7 +1236,13 @@ body.phone-landscape #project-all-grid {
     visibility: visible;
 }
 
-.aybak-hover-slice {
+.aybak-hover-window {
+    position: fixed;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.aybak-hover-copy {
     z-index: 40;
     color: #fff;
     mix-blend-mode: difference;
@@ -1256,19 +1256,15 @@ body.index-mode #aybak-hover-overlays {
 }
 
 body.phone-portrait #aybak-wordmark,
-body.phone-portrait .aybak-hover-slice {
-    font-size: 19vw;
+body.phone-portrait .aybak-hover-copy {
+    font-size: 31vw;
     line-height: 0.74;
-    letter-spacing: 0.47em;
-    transform: translate(calc(-50% + 0.235em), -50%);
 }
 
 body.phone-landscape #aybak-wordmark,
-body.phone-landscape .aybak-hover-slice {
-    font-size: 18vw;
+body.phone-landscape .aybak-hover-copy {
+    font-size: 30vw;
     line-height: 0.72;
-    letter-spacing: 0.50em;
-    transform: translate(calc(-50% + 0.25em), -50%);
 }
 
 </style>
@@ -9091,14 +9087,13 @@ async function loadProjects() {
 
 
 /* =====================================================
-   AYBAK / PHOTOGRAPH DIFFERENCE SLICES
+   AYBAK / PHOTOGRAPH DIFFERENCE WINDOWS
 
-   The resting wordmark always stays black behind the photographs.
-   On hover, clipped duplicates are generated for the exact visible
-   image rectangles. This means:
-   - outside photography: original black AYBAK remains visible
-   - over photography: AYBAK uses difference
-   - no difference is applied to surrounding white space or UI copy
+   Resting AYBAK stays black behind the photographs.
+   On hover we create one clipping window per visible photo.
+   Inside each window sits an IDENTICALLY positioned fixed AYBAK copy.
+   This keeps the wordmark black outside photographs and applies
+   difference only to the pixels that actually overlap photography.
    ===================================================== */
 
 const aybakWordmark =
@@ -9115,7 +9110,7 @@ let aybakOverlayFrame =
     null;
 
 
-function rebuildAybakHoverSlices() {
+function rebuildAybakHoverWindows() {
 
     aybakHoverOverlays.replaceChildren();
 
@@ -9128,13 +9123,6 @@ function rebuildAybakHoverSlices() {
         return;
 
     }
-
-
-    const viewportWidth =
-        window.innerWidth;
-
-    const viewportHeight =
-        window.innerHeight;
 
 
     spread
@@ -9158,53 +9146,45 @@ function rebuildAybakHoverSlices() {
                 }
 
 
-                const top =
-                    Math.max(
-                        0,
-                        rect.top
-                    );
-
-                const right =
-                    Math.max(
-                        0,
-                        viewportWidth -
-                        rect.right
-                    );
-
-                const bottom =
-                    Math.max(
-                        0,
-                        viewportHeight -
-                        rect.bottom
-                    );
-
-                const left =
-                    Math.max(
-                        0,
-                        rect.left
-                    );
-
-
-                const slice =
+                const windowEl =
                     document.createElement(
                         "div"
                     );
 
-                slice.className =
-                    "aybak-hover-slice";
+                windowEl.className =
+                    "aybak-hover-window";
 
-                slice.textContent =
+                windowEl.style.left =
+                    `${rect.left}px`;
+
+                windowEl.style.top =
+                    `${rect.top}px`;
+
+                windowEl.style.width =
+                    `${rect.width}px`;
+
+                windowEl.style.height =
+                    `${rect.height}px`;
+
+
+                const copy =
+                    document.createElement(
+                        "div"
+                    );
+
+                copy.className =
+                    "aybak-hover-copy";
+
+                copy.textContent =
                     "AYBAK";
 
-                slice.style.clipPath =
-                    `inset(${top}px ${right}px ${bottom}px ${left}px)`;
 
-                slice.style.webkitClipPath =
-                    `inset(${top}px ${right}px ${bottom}px ${left}px)`;
-
+                windowEl.appendChild(
+                    copy
+                );
 
                 aybakHoverOverlays.appendChild(
-                    slice
+                    windowEl
                 );
 
             }
@@ -9213,7 +9193,7 @@ function rebuildAybakHoverSlices() {
 }
 
 
-function scheduleAybakHoverSlices() {
+function scheduleAybakHoverWindows() {
 
     if (
         aybakOverlayFrame
@@ -9230,7 +9210,7 @@ function scheduleAybakHoverSlices() {
         requestAnimationFrame(
             () => {
 
-                rebuildAybakHoverSlices();
+                rebuildAybakHoverWindows();
 
                 aybakOverlayFrame =
                     null;
@@ -9243,7 +9223,7 @@ function scheduleAybakHoverSlices() {
 
 const aybakSpreadObserver =
     new MutationObserver(
-        scheduleAybakHoverSlices
+        scheduleAybakHoverWindows
     );
 
 
@@ -9266,7 +9246,7 @@ aybakWordmark.addEventListener(
     "mouseenter",
     () => {
 
-        scheduleAybakHoverSlices();
+        scheduleAybakHoverWindows();
 
         aybakHoverOverlays.classList.add(
             "active"
@@ -9290,7 +9270,7 @@ aybakWordmark.addEventListener(
 
 window.addEventListener(
     "resize",
-    scheduleAybakHoverSlices,
+    scheduleAybakHoverWindows,
     {
         passive: true
     }
@@ -9299,12 +9279,11 @@ window.addEventListener(
 
 window.addEventListener(
     "load",
-    scheduleAybakHoverSlices,
+    scheduleAybakHoverWindows,
     {
         once: true
     }
 );
-
 
 /* =====================================================
    START
