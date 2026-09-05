@@ -1213,7 +1213,7 @@ body.aybak-end-card-active #aybak-end-card {
     position: absolute;
 
     left: var(--aybak-ink-left, 0px);
-    bottom: max(4px, env(safe-area-inset-bottom));
+    bottom: max(8px, calc(env(safe-area-inset-bottom) + 6px));
 
     transform: none;
 
@@ -1231,7 +1231,7 @@ body.aybak-end-card-active #aybak-end-card {
     font-style: normal;
     line-height: 0.72;
 
-    letter-spacing: 0;
+    letter-spacing: -0.045em;
 
     white-space: nowrap;
 
@@ -1452,22 +1452,91 @@ function fitAybakEndCardWord() {
 
 
     /*
-        Measure the actual rendered white pixels instead of relying on
-        TextMetrics. This avoids the small A/K mismatch that can happen
-        between browsers and operating systems with Times New Roman.
+        Restore the tighter Times New Roman spacing used in the earlier
+        version. The negative tracking is part of the intended drawing:
+        Y/B and A/K visually lock into one another.
+
+        Measure that exact tracked word as rasterized pixels, then scale its
+        visible ink slightly wider than the viewport so both outer edges crop
+        by the same small amount on every device.
     */
     const sampleSize =
         1000;
 
 
+    const trackingEm =
+        -0.045;
+
+
+    const trackingPx =
+        trackingEm *
+        sampleSize;
+
+
     const padding =
-        300;
+        320;
+
+
+    const measureCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    const measureContext =
+        measureCanvas.getContext(
+            "2d"
+        );
+
+
+    measureContext.font =
+        `400 ${sampleSize}px "Times New Roman", Times, serif`;
+
+
+    const letters =
+        Array.from(
+            "AYBAK"
+        );
+
+
+    const advances =
+        letters.map(
+            letter =>
+                measureContext.measureText(
+                    letter
+                ).width
+        );
+
+
+    const advance =
+        advances.reduce(
+            (sum, width) =>
+                sum + width,
+            0
+        ) +
+        trackingPx *
+        Math.max(
+            0,
+            letters.length - 1
+        );
 
 
     const canvas =
         document.createElement(
             "canvas"
         );
+
+
+    canvas.width =
+        Math.ceil(
+            advance +
+            padding * 2
+        );
+
+
+    canvas.height =
+        sampleSize +
+        padding * 2;
 
 
     const context =
@@ -1480,29 +1549,6 @@ function fitAybakEndCardWord() {
         );
 
 
-    context.font =
-        `400 ${sampleSize}px "Times New Roman", Times, serif`;
-
-
-    const advance =
-        Math.ceil(
-            context.measureText(
-                "AYBAK"
-            ).width
-        );
-
-
-    canvas.width =
-        advance +
-        padding * 2;
-
-
-    canvas.height =
-        sampleSize +
-        padding * 2;
-
-
-    /* Resizing the canvas resets its context state. */
     context.font =
         `400 ${sampleSize}px "Times New Roman", Times, serif`;
 
@@ -1524,10 +1570,38 @@ function fitAybakEndCardWord() {
         sampleSize;
 
 
-    context.fillText(
-        "AYBAK",
-        originX,
-        baselineY
+    let drawX =
+        originX;
+
+
+    letters.forEach(
+        (
+            letter,
+            index
+        ) => {
+
+            context.fillText(
+                letter,
+                drawX,
+                baselineY
+            );
+
+
+            drawX +=
+                advances[index];
+
+
+            if (
+                index <
+                letters.length - 1
+            ) {
+
+                drawX +=
+                    trackingPx;
+
+            }
+
+        }
     );
 
 
@@ -1552,10 +1626,6 @@ function fitAybakEndCardWord() {
         -1;
 
 
-    /*
-        Alpha > 8 includes antialiased outer pixels while ignoring empty
-        canvas. These are the actual visible extremities of A and K.
-    */
     for (
         let y = 0;
         y < canvas.height;
@@ -1584,24 +1654,18 @@ function fitAybakEndCardWord() {
                 alpha > 8
             ) {
 
-                if (
-                    x < minX
-                ) {
-
-                    minX =
-                        x;
-
-                }
+                minX =
+                    Math.min(
+                        minX,
+                        x
+                    );
 
 
-                if (
-                    x > maxX
-                ) {
-
-                    maxX =
-                        x;
-
-                }
+                maxX =
+                    Math.max(
+                        maxX,
+                        x
+                    );
 
             }
 
@@ -1630,14 +1694,6 @@ function fitAybakEndCardWord() {
         1;
 
 
-    /*
-        Use the end card's exact visible width as the reference.
-    */
-    /*
-        Make the visible Times New Roman ink just slightly wider than the
-        viewport. The crop is deliberately tiny and symmetrical: A slips
-        just beyond the left edge and K slips just beyond the right edge.
-    */
     const viewportWidth =
         Math.max(
             1,
@@ -1645,9 +1701,14 @@ function fitAybakEndCardWord() {
         );
 
 
+    /*
+        4% wider than the viewport = about 2% crop on each side.
+        Enough to feel like the word continues beyond the screen, but still
+        only a small crop.
+    */
     const targetInkWidth =
         viewportWidth *
-        1.018;
+        1.04;
 
 
     const fontSize =
@@ -1656,11 +1717,6 @@ function fitAybakEndCardWord() {
         sampleInkWidth;
 
 
-    /*
-        Center the ACTUAL rendered ink, not the CSS text box.
-        Because targetInkWidth is 1.8% wider than the viewport, roughly
-        0.9% is cropped from each side on every screen size.
-    */
     const leftOffset =
         (
             viewportWidth -
