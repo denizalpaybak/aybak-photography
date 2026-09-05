@@ -2334,6 +2334,39 @@ body.phone-landscape #index-project-action {
     text-align: right !important;
     margin-top: calc(var(--font-size) * 0.75) !important;
 }
+
+
+/* =====================================================
+   V20 — END CARD / LANDSCAPE ACTION FINAL FIXES
+   ===================================================== */
+
+/* Fill iOS landscape safe-area gutters as well as the layout viewport. */
+html.aybak-end-card-active,
+body.aybak-end-card-active {
+    background: #000 !important;
+}
+
+#aybak-end-card {
+    left: calc(-1 * env(safe-area-inset-left)) !important;
+    right: calc(-1 * env(safe-area-inset-right)) !important;
+    top: calc(-1 * env(safe-area-inset-top)) !important;
+    bottom: calc(-1 * env(safe-area-inset-bottom)) !important;
+}
+
+/* In phone landscape, action copy uses the exact right edge of preview/image. */
+body.phone-landscape #index-project-action {
+    width: 100% !important;
+    align-self: stretch !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+}
+
+body.phone-landscape #index-project-view-all,
+body.phone-landscape #index-project-count {
+    width: 100% !important;
+    text-align: right !important;
+}
+
 </style>
 
 </head>
@@ -3104,6 +3137,10 @@ let aybakTouchStartY =
     null;
 
 
+let aybakTouchStartedInIndexScroller =
+    false;
+
+
 let aybakWheelAccumulator =
     0;
 
@@ -3131,6 +3168,12 @@ function setAybakEndCard(
 
 
     body.classList.toggle(
+        "aybak-end-card-active",
+        aybakEndCardActive
+    );
+
+
+    document.documentElement.classList.toggle(
         "aybak-end-card-active",
         aybakEndCardActive
     );
@@ -3180,10 +3223,27 @@ window.addEventListener(
         if (
             !aybakEndCardActive &&
             (
-                indexMode ||
                 interfaceAnimating ||
                 navigationAnimating ||
                 projectViewAnimating
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+            INDEX owns wheel gestures only when they begin inside its actual
+            scrolling list. Everywhere else on the page, the same downward
+            gesture opens AYBAK immediately.
+        */
+        if (
+            !aybakEndCardActive &&
+            indexMode &&
+            indexScroller.contains(
+                event.target
             )
         ) {
 
@@ -3274,6 +3334,15 @@ window.addEventListener(
         aybakTouchStartY =
             touch.clientY;
 
+
+        aybakTouchStartedInIndexScroller =
+            Boolean(
+                indexMode &&
+                indexScroller.contains(
+                    event.target
+                )
+            );
+
     },
     {
         passive: true
@@ -3339,16 +3408,26 @@ window.addEventListener(
         if (
             !aybakEndCardActive &&
             (
-                indexMode ||
                 interfaceAnimating ||
                 navigationAnimating ||
-                projectViewAnimating
+                projectViewAnimating ||
+                (
+                    indexMode &&
+                    aybakTouchStartedInIndexScroller
+                )
             )
         ) {
+
+            aybakTouchStartedInIndexScroller =
+                false;
 
             return;
 
         }
+
+
+        aybakTouchStartedInIndexScroller =
+            false;
 
 
         suppressClickUntil =
@@ -4910,6 +4989,13 @@ function updateResponsiveMode() {
     body.classList.toggle(
         "phone-landscape",
         landscape
+    );
+
+
+    /* Body responsive variables (--side / --top) changed; redraw the
+       canvas against the new actual contact + FILM axes immediately. */
+    requestAnimationFrame(
+        fitAybakEndCardWord
     );
 
 
