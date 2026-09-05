@@ -1178,6 +1178,8 @@ body.phone-landscape #project-all-grid {
    ===================================================== */
 
 #aybak-end-card {
+    --aybak-frame-width: clamp(8px, 2.15vw, 56px);
+
     position: fixed;
     inset: 0;
 
@@ -1188,7 +1190,7 @@ body.phone-landscape #project-all-grid {
     overflow: hidden;
 
     box-sizing: border-box;
-    border: 1px solid #fff;
+    border: var(--aybak-frame-width) solid #fff;
 
     background: #000;
     color: #fff;
@@ -1214,7 +1216,7 @@ body.aybak-end-card-active #aybak-end-card {
 #aybak-end-card-word {
     position: absolute;
 
-    left: var(--aybak-ink-left, 1px);
+    left: var(--aybak-ink-left, 0px);
     bottom: max(2px, calc(env(safe-area-inset-bottom) * 0.18));
 
     transform: none;
@@ -1445,7 +1447,8 @@ function fitAybakEndCardWord() {
 
 
     if (
-        !word
+        !word ||
+        !aybakEndCard
     ) {
 
         return;
@@ -1453,8 +1456,17 @@ function fitAybakEndCardWord() {
     }
 
 
+    /*
+        Measure the actual rendered white pixels instead of relying on
+        TextMetrics. This avoids the small A/K mismatch that can happen
+        between browsers and operating systems with Times New Roman.
+    */
     const sampleSize =
         1000;
+
+
+    const padding =
+        300;
 
 
     const canvas =
@@ -1465,7 +1477,11 @@ function fitAybakEndCardWord() {
 
     const context =
         canvas.getContext(
-            "2d"
+            "2d",
+            {
+                willReadFrequently:
+                    true
+            }
         );
 
 
@@ -1473,19 +1489,134 @@ function fitAybakEndCardWord() {
         `400 ${sampleSize}px "Times New Roman", Times, serif`;
 
 
-    const metrics =
-        context.measureText(
-            "AYBAK"
+    const advance =
+        Math.ceil(
+            context.measureText(
+                "AYBAK"
+            ).width
         );
 
 
-    const inkWidth =
-        metrics.actualBoundingBoxLeft +
-        metrics.actualBoundingBoxRight;
+    canvas.width =
+        advance +
+        padding * 2;
+
+
+    canvas.height =
+        sampleSize +
+        padding * 2;
+
+
+    /* Resizing the canvas resets its context state. */
+    context.font =
+        `400 ${sampleSize}px "Times New Roman", Times, serif`;
+
+
+    context.textBaseline =
+        "alphabetic";
+
+
+    context.fillStyle =
+        "#fff";
+
+
+    const originX =
+        padding;
+
+
+    const baselineY =
+        padding +
+        sampleSize;
+
+
+    context.fillText(
+        "AYBAK",
+        originX,
+        baselineY
+    );
+
+
+    const imageData =
+        context.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+    const data =
+        imageData.data;
+
+
+    let minX =
+        canvas.width;
+
+
+    let maxX =
+        -1;
+
+
+    /*
+        Alpha > 8 includes antialiased outer pixels while ignoring empty
+        canvas. These are the actual visible extremities of A and K.
+    */
+    for (
+        let y = 0;
+        y < canvas.height;
+        y++
+    ) {
+
+        for (
+            let x = 0;
+            x < canvas.width;
+            x++
+        ) {
+
+            const alpha =
+                data[
+                    (
+                        y *
+                        canvas.width +
+                        x
+                    ) *
+                    4 +
+                    3
+                ];
+
+
+            if (
+                alpha > 8
+            ) {
+
+                if (
+                    x < minX
+                ) {
+
+                    minX =
+                        x;
+
+                }
+
+
+                if (
+                    x > maxX
+                ) {
+
+                    maxX =
+                        x;
+
+                }
+
+            }
+
+        }
+
+    }
 
 
     if (
-        !inkWidth
+        maxX < minX
     ) {
 
         return;
@@ -1493,33 +1624,42 @@ function fitAybakEndCardWord() {
     }
 
 
-    /*
-        The white frame is 1px. Fit the visible Times New Roman ink
-        exactly between the frame's INNER left and right edges.
-        No CSS letter-spacing is used here, so Canvas and DOM geometry
-        stay in agreement across browsers/platforms.
-    */
-    const frameWidth =
+    const sampleInkLeft =
+        minX -
+        originX;
+
+
+    const sampleInkWidth =
+        maxX -
+        minX +
         1;
 
 
+    /*
+        Absolute children are positioned from the end card's padding box,
+        i.e. from the INNER edge of the white border. clientWidth is that
+        exact usable black width, so no border value should be added again.
+    */
     const targetInkWidth =
         Math.max(
             1,
-            window.innerWidth -
-            frameWidth * 2
+            aybakEndCard.clientWidth
         );
 
 
     const fontSize =
         targetInkWidth *
         sampleSize /
-        inkWidth;
+        sampleInkWidth;
 
 
+    /*
+        Position the DOM text so the first visible A pixel lands on the
+        frame's inner left edge. Because font size is calculated from the
+        same raster bounds, K lands on the inner right edge at the same time.
+    */
     const leftOffset =
-        frameWidth -
-        metrics.actualBoundingBoxLeft *
+        -sampleInkLeft *
         fontSize /
         sampleSize;
 
