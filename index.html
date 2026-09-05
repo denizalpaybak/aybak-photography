@@ -1167,11 +1167,107 @@ body.phone-landscape #project-all-grid {
     gap: 4px;
 }
 
+
+/* =====================================================
+   AYBAK WORDMARK
+
+   Static identity layer:
+   - Times New Roman
+   - intentionally oversized and cropped by the viewport
+   - no hover / no interaction
+   - sits behind imagery + interface
+
+   Bottom interface copy uses DIFFERENCE so the exact
+   portion crossing the black wordmark turns white.
+   ===================================================== */
+
+#aybak-wordmark {
+    position: fixed;
+
+    left: 50%;
+    bottom: -0.17em;
+
+    z-index: 5;
+
+    transform: translateX(-50%);
+
+    margin: 0;
+    padding: 0;
+
+    color: #000;
+
+    font-family:
+        "Times New Roman",
+        Times,
+        serif;
+
+    font-size: 34vw;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 0.72;
+
+    letter-spacing: 0.055em;
+
+    white-space: nowrap;
+
+    pointer-events: none;
+    user-select: none;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+}
+
+/*
+   Black on white in the normal page area.
+   White only where these elements cross the black AYBAK.
+*/
+#project-meta,
+#index-button {
+    color: #fff;
+    mix-blend-mode: difference;
+}
+
+/*
+   The INDEX overlay has its own opaque white page, so for this
+   first identity test the wordmark belongs to the project view only.
+*/
+body.index-mode #aybak-wordmark {
+    visibility: hidden;
+}
+
+/*
+   Keep the crop dramatic on phones without making the wordmark
+   disproportionately tall.
+*/
+body.phone-portrait #aybak-wordmark {
+    font-size: 36vw;
+    bottom: -0.14em;
+    letter-spacing: 0.045em;
+}
+
+body.phone-landscape #aybak-wordmark {
+    font-size: 31vw;
+    bottom: -0.18em;
+    letter-spacing: 0.045em;
+}
+
 </style>
 
 </head>
 
 <body>
+
+
+<!-- ===================================================
+     AYBAK WORDMARK
+     =================================================== -->
+
+<div
+    id="aybak-wordmark"
+    aria-hidden="true"
+>
+    AYBAK
+</div>
 
 
 <!-- ===================================================
