@@ -2037,6 +2037,203 @@ body.phone-landscape .index-project-date {
     max-width: 100% !important;
 }
 
+
+/* =====================================================
+   INDEX RESPONSIVE STRUCTURE — V18
+   ===================================================== */
+
+/* Index can scroll only when the calculated minimum spacing no longer fits. */
+#index-scroller {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    touch-action: pan-y !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+#index-scroller::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Default / desktop-like layout: text columns stay on the left,
+   preview/action stay on the INDEX/FILM right axis. */
+body:not(.phone-portrait) #index-scroller {
+    right: calc(var(--side) + min(36vw, 560px) + clamp(34px, 4vw, 76px)) !important;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+}
+
+body:not(.phone-portrait) #index-grid {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-template-rows:
+        repeat(
+            var(--index-row-count, 1),
+            calc(var(--font-size) * var(--line-height) * 2)
+        ) !important;
+    grid-template-columns:
+        repeat(
+            var(--index-column-count, 2),
+            minmax(0, 1fr)
+        ) !important;
+    column-gap: var(--index-column-gap, clamp(32px, 4vw, 72px)) !important;
+    row-gap: var(--index-row-gap, calc(var(--font-size) * var(--line-height))) !important;
+    align-content: start !important;
+    height: auto !important;
+    min-height: 100% !important;
+}
+
+body:not(.phone-portrait) .index-project-row {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+}
+
+body:not(.phone-portrait) .index-project-title,
+body:not(.phone-portrait) .index-project-date {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    max-width: none !important;
+}
+
+body:not(.phone-portrait) #index-preview {
+    left: auto !important;
+    right: var(--side) !important;
+    top: 50% !important;
+    bottom: auto !important;
+    width: min(36vw, 560px) !important;
+    height: auto !important;
+    max-height: 68vh !important;
+    transform: translateY(-50%) !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+}
+
+body:not(.phone-portrait) #index-preview-image {
+    max-width: 100% !important;
+    max-height: 54vh !important;
+}
+
+body:not(.phone-portrait) #index-project-action {
+    display: flex !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+    margin-top: calc(var(--font-size) * 0.75) !important;
+}
+
+/* Mobile landscape behaves like desktop, only denser. */
+body.phone-landscape #index-scroller {
+    top: calc(var(--top) + 46px) !important;
+    right: calc(var(--side) + min(31vw, 300px) + 24px) !important;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+}
+
+body.phone-landscape #index-grid {
+    --index-list-edge-gap: calc(var(--font-size) * var(--line-height));
+}
+
+body.phone-landscape #index-preview {
+    width: min(31vw, 300px) !important;
+    max-height: 72vh !important;
+}
+
+body.phone-landscape #index-preview-image {
+    max-height: 54vh !important;
+}
+
+body.phone-landscape #index-project-action {
+    display: flex !important;
+}
+
+/* Mobile portrait is a separate composition:
+   title left, date right, preview in the reserved middle column. */
+body.phone-portrait #index-scroller {
+    top: calc(var(--top) + 58px) !important;
+    left: var(--side) !important;
+    right: var(--side) !important;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+}
+
+body.phone-portrait #index-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--index-portrait-gap, calc(var(--font-size) * var(--line-height))) !important;
+    align-content: initial !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    padding-top: var(--index-list-edge-gap) !important;
+    padding-bottom: var(--index-list-edge-gap) !important;
+}
+
+body.phone-portrait .index-project-row {
+    display: grid !important;
+    grid-template-columns:
+        minmax(0, 1fr)
+        clamp(104px, 31vw, 138px)
+        minmax(0, 1fr) !important;
+    align-items: start !important;
+    width: 100% !important;
+    min-height: 0 !important;
+}
+
+body.phone-portrait .index-project-title {
+    grid-column: 1 !important;
+    justify-self: start !important;
+    align-self: start !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    text-align: left !important;
+}
+
+body.phone-portrait .index-project-date {
+    grid-column: 3 !important;
+    justify-self: end !important;
+    align-self: start !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    text-align: right !important;
+}
+
+body.phone-portrait #index-preview {
+    left: 50% !important;
+    right: auto !important;
+    top: 52% !important;
+    bottom: auto !important;
+    width: clamp(104px, 29vw, 132px) !important;
+    height: auto !important;
+    max-height: 54vh !important;
+    transform: translate(-50%, -50%) !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body.phone-portrait #index-preview-image {
+    max-width: 100% !important;
+    max-height: 35vh !important;
+}
+
+body.phone-portrait #index-project-action {
+    display: flex !important;
+    align-items: center !important;
+    text-align: center !important;
+    margin-top: calc(var(--font-size) * 0.75) !important;
+}
+
+body.phone-portrait #index-project-view-all,
+body.phone-portrait #index-project-count {
+    text-align: center !important;
+}
+
+/* When scrolling is required, keep the minimum one-line gap.
+   When it is not required, JS expands the gap responsively. */
+body.index-needs-scroll #index-grid {
+    min-height: 0 !important;
+}
+
 </style>
 
 </head>
@@ -8429,168 +8626,215 @@ function layoutTypographicIndex() {
         ) || lineHeight;
 
 
-    const availableHeight =
-        Math.max(
-            1,
-            indexScroller.clientHeight -
-            edgeGap * 2
-        );
-
-
-    const itemHeight =
-        lineHeight * 2;
-
-
     const minimumGap =
         lineHeight;
 
 
-    const maxRows =
+    body.classList.remove(
+        "index-needs-scroll"
+    );
+
+
+    indexProjectRows.forEach(
+        state => {
+
+            state.row.style.removeProperty(
+                "grid-column"
+            );
+
+
+            state.row.style.removeProperty(
+                "grid-row"
+            );
+
+        }
+    );
+
+
+    /* =================================================
+       PHONE PORTRAIT
+       Title on the left, date on the right, preview in
+       the reserved middle column. Rows breathe as much
+       as the viewport allows; once the gap would fall
+       below one text line, the list becomes scrollable.
+       ================================================= */
+
+    if (
+        body.classList.contains(
+            "phone-portrait"
+        )
+    ) {
+
+        indexGrid.style.removeProperty(
+            "--index-row-count"
+        );
+
+
+        indexGrid.style.removeProperty(
+            "--index-column-count"
+        );
+
+
+        const availableHeight =
+            Math.max(
+                1,
+                indexScroller.clientHeight -
+                edgeGap * 2
+            );
+
+
+        const rowHeights =
+            indexProjectRows.map(
+                state =>
+                    Math.max(
+                        state.row.scrollHeight,
+                        lineHeight * 2
+                    )
+            );
+
+
+        const occupiedHeight =
+            rowHeights.reduce(
+                (
+                    sum,
+                    value
+                ) =>
+                    sum + value,
+                0
+            );
+
+
+        const gapCount =
+            Math.max(
+                0,
+                total - 1
+            );
+
+
+        const idealGap =
+            gapCount
+                ? (
+                    availableHeight -
+                    occupiedHeight
+                ) /
+                gapCount
+                : 0;
+
+
+        const needsScroll =
+            gapCount > 0 &&
+            idealGap <
+            minimumGap;
+
+
+        const rowGap =
+            gapCount
+                ? (
+                    needsScroll
+                        ? minimumGap
+                        : Math.max(
+                            minimumGap,
+                            idealGap
+                        )
+                )
+                : 0;
+
+
+        indexGrid.style.setProperty(
+            "--index-portrait-gap",
+            `${rowGap}px`
+        );
+
+
+        body.classList.toggle(
+            "index-needs-scroll",
+            needsScroll
+        );
+
+
+        return;
+
+    }
+
+
+    /* =================================================
+       DESKTOP + MOBILE LANDSCAPE
+       Text occupies the left field, preview the right.
+       Use as many columns as comfortably fit that field,
+       never fewer than two when two are possible.
+       If the resulting rows cannot keep a one-line gap,
+       the text field scrolls vertically.
+       ================================================= */
+
+    const usableWidth =
+        Math.max(
+            1,
+            indexScroller.clientWidth
+        );
+
+
+    const widestProjectText =
+        Math.max(
+            1,
+            ...indexProjectRows.map(
+                state =>
+                    Math.max(
+                        state.titleButton.scrollWidth,
+                        state.dateButton.scrollWidth
+                    )
+            )
+        );
+
+
+    const columnGap =
+        Math.max(
+            22,
+            Math.min(
+                72,
+                usableWidth * 0.06
+            )
+        );
+
+
+    const preferredColumnWidth =
+        widestProjectText +
+        Math.max(
+            18,
+            fontSize * 1.25
+        );
+
+
+    const maxColumnsByWidth =
         Math.max(
             1,
             Math.floor(
                 (
-                    availableHeight +
-                    minimumGap
+                    usableWidth +
+                    columnGap
                 ) /
                 (
-                    itemHeight +
-                    minimumGap
+                    preferredColumnWidth +
+                    columnGap
                 )
             )
         );
 
 
-    const desktopLike =
-        window.matchMedia(
-            "(hover: hover) and (pointer: fine)"
-        ).matches;
-
-
-    /*
-       Desktop always uses at least two columns. Touch layouts use the
-       fewest columns that can fit the text field vertically. Because the
-       mobile preview is smaller in V16, this usually means fewer, wider
-       text columns and prevents long titles from colliding.
-    */
     const minimumColumns =
-        desktopLike
-            ? Math.min(2, total)
+        total > 1 &&
+        maxColumnsByWidth >= 2
+            ? 2
             : 1;
 
 
-    let columnCount =
+    const columnCount =
         Math.max(
             minimumColumns,
-            Math.ceil(
-                total /
-                maxRows
+            Math.min(
+                total,
+                maxColumnsByWidth
             )
         );
-
-
-    /*
-       Keep touch columns wide enough for the site's fixed typography.
-       If the height-based result would create very narrow columns, prefer
-       another row before adding another column whenever the text field can
-       support it.
-    */
-    if (
-        !desktopLike
-    ) {
-
-        const usableWidth =
-            indexScroller.clientWidth;
-
-
-        /*
-           Size columns from the actual rendered project text, not from a
-           guessed character count. This prevents long names from spilling
-           into the next column on narrow phones.
-        */
-        let widestProjectText =
-            Math.max(
-                1,
-                ...indexProjectRows.map(
-                    state =>
-                        Math.max(
-                            state.titleButton.scrollWidth,
-                            state.dateButton.scrollWidth
-                        )
-                )
-            );
-
-
-        widestProjectText +=
-            Math.max(
-                10,
-                fontSize * 0.9
-            );
-
-
-        const gridStyles =
-            getComputedStyle(
-                indexGrid
-            );
-
-
-        const columnGap =
-            parseFloat(
-                gridStyles.columnGap
-            ) || 12;
-
-
-        const widthLimitedColumns =
-            Math.max(
-                1,
-                Math.floor(
-                    (
-                        usableWidth +
-                        columnGap
-                    ) /
-                    (
-                        widestProjectText +
-                        columnGap
-                    )
-                )
-            );
-
-
-        columnCount =
-            Math.min(
-                columnCount,
-                widthLimitedColumns
-            );
-
-
-        /* If fewer, wider columns need more rows, use them whenever the
-           expanded mobile text zone can accommodate those rows. */
-        const rowsNeeded =
-            Math.ceil(
-                total /
-                columnCount
-            );
-
-
-        if (
-            rowsNeeded >
-            maxRows
-        ) {
-
-            /* Height wins only as a last resort. The preview has already
-               been reduced in V17 to make this branch uncommon. */
-            columnCount =
-                Math.max(
-                    1,
-                    Math.ceil(
-                        total /
-                        maxRows
-                    )
-                );
-
-        }
-
-    }
 
 
     const rowCount =
@@ -8600,20 +8844,55 @@ function layoutTypographicIndex() {
         );
 
 
+    const itemHeight =
+        lineHeight * 2;
+
+
+    const availableHeight =
+        Math.max(
+            1,
+            indexScroller.clientHeight -
+            edgeGap * 2
+        );
+
+
     const occupiedHeight =
         rowCount *
         itemHeight;
 
 
+    const gapCount =
+        Math.max(
+            0,
+            rowCount - 1
+        );
+
+
+    const idealGap =
+        gapCount
+            ? (
+                availableHeight -
+                occupiedHeight
+            ) /
+            gapCount
+            : 0;
+
+
+    const needsScroll =
+        gapCount > 0 &&
+        idealGap <
+        minimumGap;
+
+
     const rowGap =
-        rowCount > 1
-            ? Math.max(
-                minimumGap,
-                (
-                    availableHeight -
-                    occupiedHeight
-                ) /
-                (rowCount - 1)
+        gapCount
+            ? (
+                needsScroll
+                    ? minimumGap
+                    : Math.max(
+                        minimumGap,
+                        idealGap
+                    )
             )
             : 0;
 
@@ -8631,8 +8910,20 @@ function layoutTypographicIndex() {
 
 
     indexGrid.style.setProperty(
+        "--index-column-gap",
+        `${columnGap}px`
+    );
+
+
+    indexGrid.style.setProperty(
         "--index-row-gap",
         `${rowGap}px`
+    );
+
+
+    body.classList.toggle(
+        "index-needs-scroll",
+        needsScroll
     );
 
 
@@ -8984,17 +9275,19 @@ function buildIndex() {
                                    Touch: first tap selects/previews, second
                                    tap on the same project opens View All.
                                 */
-                                const touchOnly =
-                                    window.matchMedia(
-                                        "(hover: none) and (pointer: coarse)"
-                                    ).matches &&
-                                    !window.matchMedia(
-                                        "(any-hover: hover) and (any-pointer: fine)"
-                                    ).matches;
+                                /*
+                                   Only phone portrait keeps the deliberate
+                                   two-tap pattern. Desktop and landscape
+                                   open View All on the first click/tap.
+                                */
+                                const portraitTwoTap =
+                                    body.classList.contains(
+                                        "phone-portrait"
+                                    );
 
 
                                 if (
-                                    !touchOnly
+                                    !portraitTwoTap
                                 ) {
 
                                     selectIndexProject(
