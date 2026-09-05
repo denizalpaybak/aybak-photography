@@ -1643,6 +1643,161 @@ body.phone-landscape #index-project-action {
     bottom: calc(var(--top) + env(safe-area-inset-bottom));
 }
 
+
+
+/* =====================================================
+   INDEX / META REFINEMENT — V14
+   ===================================================== */
+
+/* Slide: right side is VIEW ALL over total photo count. */
+#view-all-button {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+}
+
+#project-counter {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    padding-left: 28px;
+}
+
+/* View All mode keeps ALL (...) over CLOSE. */
+body.project-all-mode #project-counter,
+body.project-all-preparing #project-counter {
+    grid-row: 1 !important;
+}
+
+body.project-all-mode #view-all-button,
+body.project-all-preparing #view-all-button {
+    grid-row: 2 !important;
+}
+
+/* Typographic index: no internal scrolling; projects flow into columns. */
+#index-view {
+    overflow: hidden !important;
+}
+
+#index-scroller {
+    top: calc(var(--top) + 72px) !important;
+    left: var(--side) !important;
+    right: var(--side) !important;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+    overflow: hidden !important;
+    touch-action: none !important;
+}
+
+#index-grid {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-template-rows: repeat(var(--index-row-count, 1), auto) !important;
+    grid-template-columns: repeat(var(--index-column-count, 1), minmax(0, 1fr)) !important;
+    column-gap: clamp(34px, 5.5vw, 104px) !important;
+    row-gap: 0 !important;
+    align-content: space-between !important;
+    align-items: start !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+}
+
+.index-project-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    pointer-events: none;
+}
+
+.index-project-title,
+.index-project-date {
+    justify-self: auto !important;
+    align-self: flex-start !important;
+    width: max-content !important;
+    max-width: 100% !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+}
+
+/* Preview right edge shares the INDEX / FILM axis. */
+#index-preview {
+    position: fixed !important;
+    left: auto !important;
+    right: var(--side) !important;
+    top: 50% !important;
+    width: min(36vw, 560px) !important;
+    height: auto !important;
+    max-height: 62vh !important;
+    transform: translateY(-50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    pointer-events: none !important;
+}
+
+#index-preview-image {
+    display: block;
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 50vh !important;
+    object-fit: contain;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+#index-project-action {
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin-top: calc(var(--font-size) * var(--line-height)) !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+    pointer-events: none;
+}
+
+#index-project-action.visible {
+    pointer-events: auto;
+}
+
+#index-project-view-all,
+#index-project-count {
+    text-align: right !important;
+}
+
+body.phone-portrait #index-scroller,
+body.phone-landscape #index-scroller {
+    top: calc(var(--top) + 58px) !important;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+}
+
+body.phone-portrait #index-preview {
+    width: min(52vw, 360px) !important;
+    max-height: 58vh !important;
+}
+
+body.phone-portrait #index-preview-image {
+    max-height: 42vh !important;
+}
+
+body.phone-landscape #index-preview {
+    width: min(34vw, 360px) !important;
+    max-height: 70vh !important;
+}
+
+body.phone-landscape #index-preview-image {
+    max-height: 52vh !important;
+}
+
 </style>
 
 </head>
@@ -1760,19 +1915,19 @@ body.phone-landscape #index-project-action {
             id="index-preview-image"
             alt=""
         >
-    </div>
 
-    <div
-        id="index-project-action"
-        aria-hidden="true"
-    >
-        <button
-            id="index-project-view-all"
-            type="button"
+        <div
+            id="index-project-action"
+            aria-hidden="true"
         >
-            view all
-        </button>
-        <span id="index-project-count"></span>
+            <button
+                id="index-project-view-all"
+                type="button"
+            >
+                view all
+            </button>
+            <span id="index-project-count"></span>
+        </div>
     </div>
 
 </div>
@@ -2985,6 +3140,14 @@ let indexViewAllCase =
     null;
 
 
+let projectAllOpenedFromIndex =
+    false;
+
+
+let indexSelectionBeforeProjectAll =
+    null;
+
+
 let indexLastWheelTime =
     0;
 
@@ -3833,17 +3996,31 @@ function getCounterText(
 }
 
 
+function getPhotoCountText(
+    total
+) {
+
+    return (
+        String(total) +
+        " " +
+        (
+            total === 1
+                ? "photo"
+                : "photos"
+        )
+    );
+
+}
+
+
 function getAllCounterText(
     total
 ) {
 
     return (
         "all (" +
-        String(
+        getPhotoCountText(
             total
-        ).padStart(
-            2,
-            "0"
         ) +
         ")"
     );
@@ -5245,8 +5422,7 @@ async function updateMetadata(
 
 
 
-        getCounterText(
-            targetFrameIndex,
+        getPhotoCountText(
             project.images.length
         )
 
@@ -6733,6 +6909,14 @@ async function enterProjectAll() {
         true;
 
 
+    projectAllOpenedFromIndex =
+        false;
+
+
+    indexSelectionBeforeProjectAll =
+        null;
+
+
     /*
         VIEW ALL is an explicit interaction.
         From this point on the initial autoplay may never resume.
@@ -6926,8 +7110,7 @@ async function leaveProjectAll(
 
             morphSequential(
                 projectCounter,
-                getCounterText(
-                    frameIndex,
+                getPhotoCountText(
                     project.images.length
                 ),
                 STATE_MORPH_DURATION
@@ -6997,6 +7180,14 @@ async function leaveProjectAll(
 
 async function exitProjectAll() {
 
+    projectAllOpenedFromIndex =
+        false;
+
+
+    indexSelectionBeforeProjectAll =
+        null;
+
+
     await leaveProjectAll(
         {
             resume: true
@@ -7014,12 +7205,167 @@ async function exitProjectAllToFrame(
     selectedIndex
 ) {
 
+    projectAllOpenedFromIndex =
+        false;
+
+
+    indexSelectionBeforeProjectAll =
+        null;
+
+
     await leaveProjectAll(
         {
             selectedIndex,
             resume: true
         }
     );
+
+}
+
+
+async function returnProjectAllToIndex() {
+
+    if (
+        !projectAllMode ||
+        projectViewAnimating ||
+        !projectAllOpenedFromIndex
+    ) {
+
+        return;
+
+    }
+
+
+    projectViewAnimating =
+        true;
+
+
+    projectAllOpenedFromIndex =
+        false;
+
+
+    projectAllMode =
+        false;
+
+
+    body.classList.remove(
+        "project-all-mode"
+    );
+
+
+    body.classList.remove(
+        "project-all-preparing"
+    );
+
+
+    projectAllGrid.innerHTML =
+        "";
+
+
+    const project =
+        currentProject();
+
+
+    renderBaseTypography(
+        projectTitle,
+        project.title.toLowerCase()
+    );
+
+
+    projectTitle.dataset.rawText =
+        project.title.toLowerCase();
+
+
+    renderBaseTypography(
+        projectDate,
+        (
+            project.date ||
+            ""
+        ).toLowerCase()
+    );
+
+
+    projectDate.dataset.rawText =
+        (
+            project.date ||
+            ""
+        ).toLowerCase();
+
+
+    const countText =
+        getPhotoCountText(
+            project.images.length
+        );
+
+
+    renderBaseTypography(
+        projectCounter,
+        countText
+    );
+
+
+    projectCounter.dataset.rawText =
+        countText;
+
+
+    renderBaseTypography(
+        viewAllButton,
+        "view all"
+    );
+
+
+    viewAllButton.dataset.rawText =
+        "view all";
+
+
+    selectedIndexProject =
+        indexSelectionBeforeProjectAll;
+
+
+    indexMode =
+        true;
+
+
+    body.classList.add(
+        "index-mode"
+    );
+
+
+    indexView.classList.add(
+        "visible"
+    );
+
+
+    layoutTypographicIndex();
+
+
+    if (
+        selectedIndexProject
+    ) {
+
+        selectIndexProject(
+            selectedIndexProject
+        );
+
+    }
+
+
+    morphIndexTo(
+        indexWord.length
+    );
+
+
+    manualMode =
+        true;
+
+
+    clearTimeout(
+        slideTimer
+    );
+
+
+    projectViewAnimating =
+        false;
 
 }
 
@@ -7048,7 +7394,19 @@ viewAllButton.addEventListener(
             projectAllMode
         ) {
 
-            await exitProjectAll();
+            if (
+                projectAllOpenedFromIndex
+            ) {
+
+                await returnProjectAllToIndex();
+
+            }
+
+            else {
+
+                await exitProjectAll();
+
+            }
 
         }
 
@@ -7753,6 +8111,10 @@ function resetIndexSelection() {
         "";
 
 
+    indexProjectCount.dataset.rawText =
+        "";
+
+
     if (
         indexViewAllCase
     ) {
@@ -7760,6 +8122,120 @@ function resetIndexSelection() {
         indexViewAllCase.lower();
 
     }
+
+}
+
+
+function layoutTypographicIndex() {
+
+    if (
+        !indexGrid ||
+        !indexScroller
+    ) {
+
+        return;
+
+    }
+
+
+    const total =
+        Math.max(
+            1,
+            indexProjectRows.length
+        );
+
+
+    const computed =
+        getComputedStyle(
+            document.documentElement
+        );
+
+
+    const fontSize =
+        parseFloat(
+            computed.getPropertyValue(
+                "--font-size"
+            )
+        ) || 13;
+
+
+    const lineHeightMultiplier =
+        parseFloat(
+            computed.getPropertyValue(
+                "--line-height"
+            )
+        ) || 1.15;
+
+
+    const lineHeight =
+        fontSize *
+        lineHeightMultiplier;
+
+
+    const availableHeight =
+        Math.max(
+            1,
+            indexScroller.clientHeight
+        );
+
+
+    /*
+        Each project occupies two text lines. The minimum
+        separation between two projects is one full text line.
+        Only when that minimum no longer fits do we start a
+        new column.
+    */
+    const itemHeight =
+        lineHeight * 2;
+
+
+    const minimumGap =
+        lineHeight;
+
+
+    const maxRows =
+        Math.max(
+            1,
+            Math.floor(
+                (
+                    availableHeight +
+                    minimumGap
+                ) /
+                (
+                    itemHeight +
+                    minimumGap
+                )
+            )
+        );
+
+
+    const rowCount =
+        Math.min(
+            total,
+            maxRows
+        );
+
+
+    const columnCount =
+        Math.max(
+            1,
+            Math.ceil(
+                total /
+                rowCount
+            )
+        );
+
+
+    indexGrid.style.setProperty(
+        "--index-row-count",
+        String(rowCount)
+    );
+
+
+    indexGrid.style.setProperty(
+        "--index-column-count",
+        String(columnCount)
+    );
 
 }
 
@@ -7775,6 +8251,10 @@ function selectIndexProject(
         return;
 
     }
+
+
+    const previousSelection =
+        selectedIndexProject;
 
 
     selectedIndexProject =
@@ -7841,8 +8321,40 @@ function selectIndexProject(
         project.images.length;
 
 
-    indexProjectCount.textContent =
-        `${photoCount} ${photoCount === 1 ? "photo" : "photos"}`;
+    const nextCountText =
+        getPhotoCountText(
+            photoCount
+        );
+
+
+    if (
+        previousSelection &&
+        previousSelection !== rowState &&
+        indexProjectCount.textContent
+    ) {
+
+        morphSequential(
+            indexProjectCount,
+            nextCountText,
+            STATE_MORPH_DURATION
+        ).catch(
+            () => {}
+        );
+
+    }
+
+    else {
+
+        renderBaseTypography(
+            indexProjectCount,
+            nextCountText
+        );
+
+
+        indexProjectCount.dataset.rawText =
+            nextCountText;
+
+    }
 
 
     indexProjectAction.classList.add(
@@ -7978,25 +8490,6 @@ function buildIndex() {
                 );
 
 
-                const activate =
-                    event => {
-
-                        if (
-                            event
-                        ) {
-
-                            event.stopPropagation();
-
-                        }
-
-
-                        selectIndexProject(
-                            rowState
-                        );
-
-                    };
-
-
                 [
                     titleButton,
                     dateButton
@@ -8030,6 +8523,17 @@ function buildIndex() {
                             "focus",
                             () => {
 
+                                if (
+                                    !window.matchMedia(
+                                        "(hover: hover)"
+                                    ).matches
+                                ) {
+
+                                    return;
+
+                                }
+
+
                                 selectIndexProject(
                                     rowState
                                 );
@@ -8040,7 +8544,29 @@ function buildIndex() {
 
                         button.addEventListener(
                             "click",
-                            activate
+                            async event => {
+
+                                event.stopPropagation();
+
+
+                                if (
+                                    selectedIndexProject ===
+                                    rowState
+                                ) {
+
+                                    await openSelectedIndexProjectAll();
+
+                                }
+
+                                else {
+
+                                    selectIndexProject(
+                                        rowState
+                                    );
+
+                                }
+
+                            }
                         );
 
                     }
@@ -8059,6 +8585,11 @@ function buildIndex() {
 
             }
         );
+
+
+    requestAnimationFrame(
+        layoutTypographicIndex
+    );
 
 }
 
@@ -8310,7 +8841,7 @@ indexButton.addEventListener(
 function saveIndexPosition() {
 
     savedIndexScrollTop =
-        indexScroller.scrollTop;
+        0;
 
 }
 
@@ -8321,7 +8852,7 @@ function restoreIndexPosition() {
         () => {
 
             indexScroller.scrollTop =
-                savedIndexScrollTop;
+                0;
 
         }
     );
@@ -8333,7 +8864,11 @@ function restoreIndexPosition() {
    ENTER INDEX
    ===================================================== */
 
-async function enterIndex() {
+async function enterIndex(
+    {
+        preserveSelection = false
+    } = {}
+) {
 
     if (
         indexMode ||
@@ -8385,7 +8920,26 @@ async function enterIndex() {
     restoreIndexPosition();
 
 
-    resetIndexSelection();
+    layoutTypographicIndex();
+
+
+    if (
+        !preserveSelection
+    ) {
+
+        resetIndexSelection();
+
+    }
+
+    else if (
+        selectedIndexProject
+    ) {
+
+        selectIndexProject(
+            selectedIndexProject
+        );
+
+    }
 
 
     /* The INDEX word morph is cosmetic; unlock the list immediately. */
@@ -8528,6 +9082,14 @@ async function openSelectedIndexProjectAll() {
 
     stopAutoSlideshow();
     saveIndexPosition();
+
+
+    projectAllOpenedFromIndex =
+        true;
+
+
+    indexSelectionBeforeProjectAll =
+        selectedIndexProject;
 
 
     const targetProjectIndex =
@@ -8703,6 +9265,32 @@ async function openSelectedIndexProjectAll() {
 
 
 /* =====================================================
+   INDEX PREVIEW CLICK
+   ===================================================== */
+
+indexPreviewImage.addEventListener(
+    "click",
+    async event => {
+
+        event.stopPropagation();
+
+
+        if (
+            !selectedIndexProject
+        ) {
+
+            return;
+
+        }
+
+
+        await openSelectedIndexProjectAll();
+
+    }
+);
+
+
+/* =====================================================
    INDEX VIEW ALL INTERACTION
    ===================================================== */
 
@@ -8806,7 +9394,19 @@ indexButton.addEventListener(
             projectAllMode
         ) {
 
-            await enterIndexFromProjectAll();
+            if (
+                projectAllOpenedFromIndex
+            ) {
+
+                await returnProjectAllToIndex();
+
+            }
+
+            else {
+
+                await enterIndexFromProjectAll();
+
+            }
 
 
             return;
@@ -8828,6 +9428,27 @@ indexButton.addEventListener(
 
         }
 
+    }
+);
+
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        if (
+            indexMode
+        ) {
+
+            requestAnimationFrame(
+                layoutTypographicIndex
+            );
+
+        }
+
+    },
+    {
+        passive: true
     }
 );
 
@@ -9115,36 +9736,16 @@ indexScroller.addEventListener(
     event => {
 
         if (
-            event.key ===
-            "ArrowDown"
+            event.key === "ArrowDown" ||
+            event.key === "PageDown" ||
+            event.key === "End"
         ) {
 
             event.preventDefault();
 
 
-            indexScroller.scrollBy(
-                {
-                    top: 44,
-                    behavior: "smooth"
-                }
-            );
-
-        }
-
-
-        else if (
-            event.key ===
-            "ArrowUp"
-        ) {
-
-            event.preventDefault();
-
-
-            indexScroller.scrollBy(
-                {
-                    top: -44,
-                    behavior: "smooth"
-                }
+            setAybakEndCard(
+                true
             );
 
         }
@@ -10611,8 +11212,7 @@ async function loadProjects() {
 
         renderBaseTypography(
             projectCounter,
-            getCounterText(
-                frameIndex,
+            getPhotoCountText(
                 currentProject()
                     .images.length
             )
