@@ -1177,8 +1177,9 @@ body.phone-landscape #project-all-grid {
    - original Times spacing / kerning
    - centered in the viewport
    - black and behind photography at rest
-   - on hover, ONLY the part crossing a photograph is
-     redrawn above that photograph with DIFFERENCE
+   - on AYBAK hover, ONLY the part crossing a photograph is
+     redrawn above that photograph in solid white
+   - on photograph hover, the entire AYBAK disappears
    ===================================================== */
 
 #aybak-wordmark,
@@ -1236,6 +1237,12 @@ body.phone-landscape #project-all-grid {
     visibility: visible;
 }
 
+/* Photograph hover takes precedence: hide the identity mark completely. */
+body.aybak-photo-hover #aybak-wordmark,
+body.aybak-photo-hover #aybak-hover-overlays {
+    visibility: hidden !important;
+}
+
 .aybak-hover-window {
     position: fixed;
     overflow: hidden;
@@ -1245,7 +1252,7 @@ body.phone-landscape #project-all-grid {
 .aybak-hover-copy {
     z-index: 40;
     color: #fff;
-    mix-blend-mode: difference;
+    mix-blend-mode: normal;
     pointer-events: none;
 }
 
@@ -9087,13 +9094,16 @@ async function loadProjects() {
 
 
 /* =====================================================
-   AYBAK / PHOTOGRAPH DIFFERENCE WINDOWS
+   AYBAK / PHOTOGRAPH WHITE WINDOWS
 
    Resting AYBAK stays black behind the photographs.
-   On hover we create one clipping window per visible photo.
-   Inside each window sits an IDENTICALLY positioned fixed AYBAK copy.
-   This keeps the wordmark black outside photographs and applies
-   difference only to the pixels that actually overlap photography.
+   On AYBAK hover we create one clipping window per visible photo.
+   Inside each window sits an IDENTICALLY positioned fixed AYBAK copy
+   in solid white. The black base remains untouched outside photography.
+
+   Photograph hover is detected geometrically because slideshow images
+   themselves intentionally use pointer-events:none in the site layout.
+   When the pointer is inside any visible photograph, AYBAK is hidden.
    ===================================================== */
 
 const aybakWordmark =
@@ -9262,6 +9272,94 @@ aybakWordmark.addEventListener(
 
         aybakHoverOverlays.classList.remove(
             "active"
+        );
+
+    }
+);
+
+
+function pointerIsOverVisiblePhoto(
+    clientX,
+    clientY
+) {
+
+    if (
+        body.classList.contains(
+            "index-mode"
+        )
+    ) {
+
+        return false;
+
+    }
+
+
+    return Array.from(
+        spread.querySelectorAll(
+            ".spread-image"
+        )
+    ).some(
+        image => {
+
+            const rect =
+                image.getBoundingClientRect();
+
+
+            return (
+                rect.width > 0 &&
+                rect.height > 0 &&
+                clientX >= rect.left &&
+                clientX <= rect.right &&
+                clientY >= rect.top &&
+                clientY <= rect.bottom
+            );
+
+        }
+    );
+
+}
+
+
+document.addEventListener(
+    "mousemove",
+    event => {
+
+        const overPhoto =
+            pointerIsOverVisiblePhoto(
+                event.clientX,
+                event.clientY
+            );
+
+
+        body.classList.toggle(
+            "aybak-photo-hover",
+            overPhoto
+        );
+
+
+        if (
+            overPhoto
+        ) {
+
+            aybakHoverOverlays.classList.remove(
+                "active"
+            );
+
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+document.addEventListener(
+    "mouseleave",
+    () => {
+
+        body.classList.remove(
+            "aybak-photo-hover"
         );
 
     }
