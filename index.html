@@ -115,6 +115,20 @@ button {
    ===================================================== */
 
 body {
+    cursor: default;
+}
+
+/* Explicit pointer states only for genuinely interactive elements. */
+a,
+button,
+.project-card,
+.project-all-thumb {
+    cursor: pointer;
+}
+
+/* The slideshow itself remains clickable, without making empty page space look clickable. */
+.spread-image {
+    pointer-events: auto;
     cursor: pointer;
 }
 
@@ -1275,6 +1289,19 @@ body.aybak-end-card-active .aybak-end-card-copy {
 
 .aybak-end-card-copy a:hover {
     text-decoration: underline;
+}
+
+/* FILM is a section switch, not a text link: never underline it in any state. */
+.aybak-end-card-film a,
+.aybak-end-card-film a:hover,
+.aybak-end-card-film a:focus,
+.aybak-end-card-film a:active,
+#aybak-end-card .section-switch,
+#aybak-end-card .section-switch:hover,
+#aybak-end-card .section-switch:focus,
+#aybak-end-card .section-switch:active {
+    text-decoration: none !important;
+    outline: 0;
 }
 
 #aybak-end-card .section-switch {
@@ -6956,9 +6983,9 @@ function getPhotoIndexGeometry() {
 
             mediaHeight:
                 clampNumber(
-                    window.innerHeight * 0.255,
-                    205,
-                    235
+                    window.innerHeight * 0.285,
+                    220,
+                    265
                 ),
 
             maxLandscapeWidth:
@@ -7052,15 +7079,15 @@ function getPhotoIndexGeometry() {
 
         mediaHeight:
             clampNumber(
-                window.innerHeight * 0.34,
-                280,
-                365
+                window.innerHeight * 0.395,
+                320,
+                430
             ),
 
         maxLandscapeWidth:
             Math.min(
-                window.innerWidth * 0.29,
-                480
+                window.innerWidth * 0.33,
+                540
             )
 
     };
