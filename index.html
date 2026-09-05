@@ -1187,6 +1187,9 @@ body.phone-landscape #project-all-grid {
 
     overflow: hidden;
 
+    box-sizing: border-box;
+    border: 1px solid #fff;
+
     background: #000;
     color: #fff;
 
@@ -1211,8 +1214,8 @@ body.aybak-end-card-active #aybak-end-card {
 #aybak-end-card-word {
     position: absolute;
 
-    left: var(--aybak-ink-left, 0px);
-    bottom: max(6px, env(safe-area-inset-bottom));
+    left: var(--aybak-ink-left, 1px);
+    bottom: max(2px, calc(env(safe-area-inset-bottom) * 0.18));
 
     transform: none;
 
@@ -1230,7 +1233,7 @@ body.aybak-end-card-active #aybak-end-card {
     font-style: normal;
     line-height: 0.72;
 
-    letter-spacing: -0.045em;
+    letter-spacing: 0;
 
     white-space: nowrap;
 
@@ -1490,14 +1493,33 @@ function fitAybakEndCardWord() {
     }
 
 
+    /*
+        The white frame is 1px. Fit the visible Times New Roman ink
+        exactly between the frame's INNER left and right edges.
+        No CSS letter-spacing is used here, so Canvas and DOM geometry
+        stay in agreement across browsers/platforms.
+    */
+    const frameWidth =
+        1;
+
+
+    const targetInkWidth =
+        Math.max(
+            1,
+            window.innerWidth -
+            frameWidth * 2
+        );
+
+
     const fontSize =
-        window.innerWidth *
+        targetInkWidth *
         sampleSize /
         inkWidth;
 
 
     const leftOffset =
-        -metrics.actualBoundingBoxLeft *
+        frameWidth -
+        metrics.actualBoundingBoxLeft *
         fontSize /
         sampleSize;
 
