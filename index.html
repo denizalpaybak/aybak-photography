@@ -1171,15 +1171,12 @@ body.phone-landscape #project-all-grid {
 /* =====================================================
    AYBAK END CARD
 
-   This is deliberately a two-state screen rather than a
-   physically scrollable second page. Vertical scroll / swipe
-   switches between the existing site and this card, so the
-   viewport can never rest halfway between white and black.
+   Full-screen black end card. The white Times New Roman wordmark
+   sits low in the viewport and extends only very slightly beyond
+   the left and right edges.
    ===================================================== */
 
 #aybak-end-card {
-    --aybak-frame-width: clamp(8px, 2.15vw, 56px);
-
     position: fixed;
     inset: 0;
 
@@ -1190,7 +1187,6 @@ body.phone-landscape #project-all-grid {
     overflow: hidden;
 
     box-sizing: border-box;
-    border: var(--aybak-frame-width) solid #fff;
 
     background: #000;
     color: #fff;
@@ -1217,7 +1213,7 @@ body.aybak-end-card-active #aybak-end-card {
     position: absolute;
 
     left: var(--aybak-ink-left, 0px);
-    bottom: max(2px, calc(env(safe-area-inset-bottom) * 0.18));
+    bottom: max(4px, env(safe-area-inset-bottom));
 
     transform: none;
 
@@ -1434,9 +1430,8 @@ let aybakEndCardActive =
 
 /*
     Fit the actual Times New Roman ink — not the CSS text box —
-    exactly to the viewport width. This makes the outermost visible
-    point of A touch the left edge and the outermost visible point of K
-    touch the right edge on every viewport size.
+    slightly wider than the viewport, then center those visible ink bounds.
+    This creates the same tiny, symmetrical side crop on every screen size.
 */
 function fitAybakEndCardWord() {
 
@@ -1636,15 +1631,23 @@ function fitAybakEndCardWord() {
 
 
     /*
-        Absolute children are positioned from the end card's padding box,
-        i.e. from the INNER edge of the white border. clientWidth is that
-        exact usable black width, so no border value should be added again.
+        Use the end card's exact visible width as the reference.
     */
-    const targetInkWidth =
+    /*
+        Make the visible Times New Roman ink just slightly wider than the
+        viewport. The crop is deliberately tiny and symmetrical: A slips
+        just beyond the left edge and K slips just beyond the right edge.
+    */
+    const viewportWidth =
         Math.max(
             1,
             aybakEndCard.clientWidth
         );
+
+
+    const targetInkWidth =
+        viewportWidth *
+        1.018;
 
 
     const fontSize =
@@ -1654,12 +1657,16 @@ function fitAybakEndCardWord() {
 
 
     /*
-        Position the DOM text so the first visible A pixel lands on the
-        frame's inner left edge. Because font size is calculated from the
-        same raster bounds, K lands on the inner right edge at the same time.
+        Center the ACTUAL rendered ink, not the CSS text box.
+        Because targetInkWidth is 1.8% wider than the viewport, roughly
+        0.9% is cropped from each side on every screen size.
     */
     const leftOffset =
-        -sampleInkLeft *
+        (
+            viewportWidth -
+            targetInkWidth
+        ) / 2 -
+        sampleInkLeft *
         fontSize /
         sampleSize;
 
