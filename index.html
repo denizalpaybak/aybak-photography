@@ -1182,8 +1182,7 @@ body.phone-landscape #project-all-grid {
    - on photograph hover, the entire AYBAK disappears
    ===================================================== */
 
-#aybak-wordmark,
-.aybak-hover-copy {
+#aybak-wordmark {
     position: fixed;
 
     left: 50%;
@@ -1250,15 +1249,41 @@ body.aybak-photo-hover #aybak-hover-overlays {
 }
 
 .aybak-hover-copy {
+    position: absolute;
+
+    margin: 0;
+    padding: 0;
+
+    font-family:
+        "Times New Roman",
+        Times,
+        serif;
+
+    font-size: 31vw;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 0.72;
+    letter-spacing: normal;
+    font-kerning: auto;
+
+    white-space: nowrap;
+    user-select: none;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+
     z-index: 40;
     color: #fff;
-    mix-blend-mode: normal;
     pointer-events: none;
 }
 
-/* Keep the identity mark out of the index interface. */
+/* AYBAK exists only in the normal single-slide view. */
 body.index-mode #aybak-wordmark,
-body.index-mode #aybak-hover-overlays {
+body.index-mode #aybak-hover-overlays,
+body.project-all-mode #aybak-wordmark,
+body.project-all-mode #aybak-hover-overlays,
+body.project-all-preparing #aybak-wordmark,
+body.project-all-preparing #aybak-hover-overlays {
     visibility: hidden !important;
 }
 
@@ -9127,6 +9152,12 @@ function rebuildAybakHoverWindows() {
     if (
         body.classList.contains(
             "index-mode"
+        ) ||
+        body.classList.contains(
+            "project-all-mode"
+        ) ||
+        body.classList.contains(
+            "project-all-preparing"
         )
     ) {
 
@@ -9187,6 +9218,21 @@ function rebuildAybakHoverWindows() {
 
                 copy.textContent =
                     "AYBAK";
+
+                /*
+                   Recreate the viewport-centered wordmark inside this
+                   photo-sized clipping window. Because this copy is
+                   ABSOLUTE (not fixed), overflow:hidden clips only the
+                   exact portion that crosses the photograph.
+                */
+                copy.style.left =
+                    `${window.innerWidth / 2 - rect.left}px`;
+
+                copy.style.top =
+                    `${window.innerHeight / 2 - rect.top}px`;
+
+                copy.style.transform =
+                    "translate(-50%, -50%)";
 
 
                 windowEl.appendChild(
