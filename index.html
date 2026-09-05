@@ -1972,6 +1972,71 @@ body.phone-landscape #index-project-action {
     text-align: right !important;
 }
 
+
+/* =====================================================
+   INDEX MOBILE COLLISION / ACTION CLEANUP — V17
+   ===================================================== */
+
+/*
+   On phones the project list owns more of the viewport. The preview gets
+   a smaller dedicated lower zone and its secondary action copy is hidden;
+   tapping the selected project/preview still opens View All.
+*/
+body.phone-portrait #index-scroller {
+    bottom: 24vh !important;
+}
+
+body.phone-landscape #index-scroller {
+    bottom: 30vh !important;
+}
+
+body.phone-portrait #index-preview {
+    left: var(--side) !important;
+    right: var(--side) !important;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+    height: calc(18vh - var(--top)) !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+}
+
+body.phone-landscape #index-preview {
+    left: var(--side) !important;
+    right: var(--side) !important;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+    height: calc(23vh - var(--top)) !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+}
+
+body.phone-portrait #index-preview-image {
+    max-width: min(46vw, 260px) !important;
+    max-height: 15vh !important;
+}
+
+body.phone-landscape #index-preview-image {
+    max-width: min(31vw, 270px) !important;
+    max-height: 19vh !important;
+}
+
+body.phone-portrait #index-project-action,
+body.phone-landscape #index-project-action {
+    display: none !important;
+}
+
+/* Keep text inside the column chosen by JS; never let neighbouring columns
+   paint through one another. */
+body.phone-portrait .index-project-row,
+body.phone-landscape .index-project-row {
+    overflow: visible !important;
+}
+
+body.phone-portrait .index-project-title,
+body.phone-portrait .index-project-date,
+body.phone-landscape .index-project-title,
+body.phone-landscape .index-project-date {
+    max-width: 100% !important;
+}
+
 </style>
 
 </head>
@@ -8438,44 +8503,90 @@ function layoutTypographicIndex() {
             indexScroller.clientWidth;
 
 
-        const preferredColumnWidth =
+        /*
+           Size columns from the actual rendered project text, not from a
+           guessed character count. This prevents long names from spilling
+           into the next column on narrow phones.
+        */
+        let widestProjectText =
             Math.max(
-                128,
-                fontSize * 8.6
+                1,
+                ...indexProjectRows.map(
+                    state =>
+                        Math.max(
+                            state.titleButton.scrollWidth,
+                            state.dateButton.scrollWidth
+                        )
+                )
             );
+
+
+        widestProjectText +=
+            Math.max(
+                10,
+                fontSize * 0.9
+            );
+
+
+        const gridStyles =
+            getComputedStyle(
+                indexGrid
+            );
+
+
+        const columnGap =
+            parseFloat(
+                gridStyles.columnGap
+            ) || 12;
 
 
         const widthLimitedColumns =
             Math.max(
                 1,
                 Math.floor(
-                    usableWidth /
-                    preferredColumnWidth
+                    (
+                        usableWidth +
+                        columnGap
+                    ) /
+                    (
+                        widestProjectText +
+                        columnGap
+                    )
                 )
             );
 
 
+        columnCount =
+            Math.min(
+                columnCount,
+                widthLimitedColumns
+            );
+
+
+        /* If fewer, wider columns need more rows, use them whenever the
+           expanded mobile text zone can accommodate those rows. */
+        const rowsNeeded =
+            Math.ceil(
+                total /
+                columnCount
+            );
+
+
         if (
-            widthLimitedColumns <
-            columnCount
+            rowsNeeded >
+            maxRows
         ) {
 
-            const rowsNeeded =
-                Math.ceil(
-                    total /
-                    widthLimitedColumns
+            /* Height wins only as a last resort. The preview has already
+               been reduced in V17 to make this branch uncommon. */
+            columnCount =
+                Math.max(
+                    1,
+                    Math.ceil(
+                        total /
+                        maxRows
+                    )
                 );
-
-
-            if (
-                rowsNeeded <=
-                maxRows
-            ) {
-
-                columnCount =
-                    widthLimitedColumns;
-
-            }
 
         }
 
@@ -8868,26 +8979,37 @@ function buildIndex() {
                                 event.stopPropagation();
 
 
-                                const desktopPointer =
-                                    !window.matchMedia(
+                                /*
+                                   Mouse/trackpad: one click always opens.
+                                   Touch: first tap selects/previews, second
+                                   tap on the same project opens View All.
+                                */
+                                const touchOnly =
+                                    window.matchMedia(
                                         "(hover: none) and (pointer: coarse)"
+                                    ).matches &&
+                                    !window.matchMedia(
+                                        "(any-hover: hover) and (any-pointer: fine)"
                                     ).matches;
 
 
                                 if (
-                                    desktopPointer
+                                    !touchOnly
                                 ) {
 
-                                    if (
-                                        selectedIndexProject !==
+                                    selectIndexProject(
                                         rowState
-                                    ) {
+                                    );
 
-                                        selectIndexProject(
-                                            rowState
-                                        );
 
-                                    }
+                                    /* Let selection state settle before the
+                                       View All transition guard is checked. */
+                                    await new Promise(
+                                        resolve =>
+                                            requestAnimationFrame(
+                                                resolve
+                                            )
+                                    );
 
 
                                     await openSelectedIndexProjectAll();
