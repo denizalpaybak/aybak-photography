@@ -1901,6 +1901,77 @@ body.phone-landscape #index-project-action {
     margin-top: calc(var(--font-size) * 0.7) !important;
 }
 
+
+/* =====================================================
+   INDEX GRID / MOBILE PREVIEW — V16
+   ===================================================== */
+
+/*
+   Grid rows are now real, fixed row positions. Extra vertical room is
+   converted into one consistent row-gap, so a shorter final column fills
+   from the top and simply leaves its unused rows empty at the bottom.
+*/
+#index-grid {
+    align-content: start !important;
+    grid-template-rows:
+        repeat(
+            var(--index-row-count, 1),
+            calc(var(--font-size) * var(--line-height) * 2)
+        ) !important;
+    row-gap: var(--index-row-gap, calc(var(--font-size) * var(--line-height))) !important;
+}
+
+/* Phones get more room for type and a smaller, truly centered preview. */
+body.phone-portrait #index-scroller {
+    bottom: 33vh !important;
+}
+
+body.phone-landscape #index-scroller {
+    bottom: 39vh !important;
+}
+
+body.phone-portrait #index-grid,
+body.phone-landscape #index-grid {
+    column-gap: clamp(12px, 3.5vw, 24px) !important;
+}
+
+body.phone-portrait #index-preview,
+body.phone-landscape #index-preview {
+    left: var(--side) !important;
+    right: var(--side) !important;
+    top: auto !important;
+    transform: none !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+}
+
+body.phone-portrait #index-preview {
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+    height: calc(27vh - var(--top)) !important;
+}
+
+body.phone-landscape #index-preview {
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+    height: calc(31vh - var(--top)) !important;
+}
+
+body.phone-portrait #index-preview-image {
+    max-width: min(54vw, 310px) !important;
+    max-height: 20vh !important;
+}
+
+body.phone-landscape #index-preview-image {
+    max-width: min(36vw, 310px) !important;
+    max-height: 22vh !important;
+}
+
+body.phone-portrait #index-project-action,
+body.phone-landscape #index-project-action {
+    align-self: center !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+}
+
 </style>
 
 </head>
@@ -2748,7 +2819,6 @@ window.addEventListener(
             !aybakEndCardActive &&
             (
                 indexMode ||
-                projectAllMode ||
                 interfaceAnimating ||
                 navigationAnimating ||
                 projectViewAnimating
@@ -2908,7 +2978,6 @@ window.addEventListener(
             !aybakEndCardActive &&
             (
                 indexMode ||
-                projectAllMode ||
                 interfaceAnimating ||
                 navigationAnimating ||
                 projectViewAnimating
@@ -8303,13 +8372,6 @@ function layoutTypographicIndex() {
         );
 
 
-    /*
-        A project is two text lines high. There must always be
-        at least one complete text line between neighbouring
-        projects. Any extra vertical room is distributed by the
-        CSS grid, so a short index breathes more while the type
-        size itself never changes.
-    */
     const itemHeight =
         lineHeight * 2;
 
@@ -8334,24 +8396,25 @@ function layoutTypographicIndex() {
         );
 
 
-    const hoverCapable =
+    const desktopLike =
         window.matchMedia(
             "(hover: hover) and (pointer: fine)"
         ).matches;
 
 
     /*
-        Desktop always starts with at least two columns, even if
-        every project could technically fit in one. Phones use
-        only as many columns as the reserved text area requires.
+       Desktop always uses at least two columns. Touch layouts use the
+       fewest columns that can fit the text field vertically. Because the
+       mobile preview is smaller in V16, this usually means fewer, wider
+       text columns and prevents long titles from colliding.
     */
     const minimumColumns =
-        hoverCapable
+        desktopLike
             ? Math.min(2, total)
             : 1;
 
 
-    const columnCount =
+    let columnCount =
         Math.max(
             minimumColumns,
             Math.ceil(
@@ -8361,40 +8424,87 @@ function layoutTypographicIndex() {
         );
 
 
-    const basePerColumn =
-        Math.floor(
+    /*
+       Keep touch columns wide enough for the site's fixed typography.
+       If the height-based result would create very narrow columns, prefer
+       another row before adding another column whenever the text field can
+       support it.
+    */
+    if (
+        !desktopLike
+    ) {
+
+        const usableWidth =
+            indexScroller.clientWidth;
+
+
+        const preferredColumnWidth =
+            Math.max(
+                128,
+                fontSize * 8.6
+            );
+
+
+        const widthLimitedColumns =
+            Math.max(
+                1,
+                Math.floor(
+                    usableWidth /
+                    preferredColumnWidth
+                )
+            );
+
+
+        if (
+            widthLimitedColumns <
+            columnCount
+        ) {
+
+            const rowsNeeded =
+                Math.ceil(
+                    total /
+                    widthLimitedColumns
+                );
+
+
+            if (
+                rowsNeeded <=
+                maxRows
+            ) {
+
+                columnCount =
+                    widthLimitedColumns;
+
+            }
+
+        }
+
+    }
+
+
+    const rowCount =
+        Math.ceil(
             total /
             columnCount
         );
 
 
-    const extraItems =
-        total % columnCount;
+    const occupiedHeight =
+        rowCount *
+        itemHeight;
 
 
-    const countsByColumn =
-        Array.from(
-            {
-                length:
-                    columnCount
-            },
-            (
-                _,
-                columnIndex
-            ) =>
-                basePerColumn +
+    const rowGap =
+        rowCount > 1
+            ? Math.max(
+                minimumGap,
                 (
-                    columnIndex < extraItems
-                        ? 1
-                        : 0
-                )
-        );
-
-
-    const rowCount =
-        Math.max(
-            ...countsByColumn
-        );
+                    availableHeight -
+                    occupiedHeight
+                ) /
+                (rowCount - 1)
+            )
+            : 0;
 
 
     indexGrid.style.setProperty(
@@ -8409,86 +8519,45 @@ function layoutTypographicIndex() {
     );
 
 
-    let itemIndex = 0;
+    indexGrid.style.setProperty(
+        "--index-row-gap",
+        `${rowGap}px`
+    );
 
 
-    countsByColumn.forEach(
+    indexProjectRows.forEach(
         (
-            count,
-            columnIndex
+            state,
+            itemIndex
         ) => {
 
-            for (
-                let localIndex = 0;
-                localIndex < count;
-                localIndex++
-            ) {
-
-                const state =
-                    indexProjectRows[
-                        itemIndex++
-                    ];
+            const columnIndex =
+                Math.floor(
+                    itemIndex /
+                    rowCount
+                );
 
 
-                if (
-                    !state
-                ) {
-
-                    continue;
-
-                }
+            const localRow =
+                itemIndex %
+                rowCount;
 
 
-                let gridRow = 1;
+            state.row.style.gridColumn =
+                String(
+                    columnIndex + 1
+                );
 
 
-                if (
-                    count > 1 &&
-                    rowCount > 1
-                ) {
-
-                    gridRow =
-                        1 +
-                        Math.round(
-                            localIndex *
-                            (rowCount - 1) /
-                            (count - 1)
-                        );
-
-                }
-
-                else if (
-                    count === 1 &&
-                    columnIndex === columnCount - 1 &&
-                    columnCount > 1
-                ) {
-
-                    /* Keep the final project anchored to the
-                       same lower edge as the populated columns. */
-                    gridRow =
-                        rowCount;
-
-                }
-
-
-                state.row.style.gridColumn =
-                    String(
-                        columnIndex + 1
-                    );
-
-
-                state.row.style.gridRow =
-                    String(
-                        gridRow
-                    );
-
-            }
+            state.row.style.gridRow =
+                String(
+                    localRow + 1
+                );
 
         }
     );
 
 }
-
 
 function selectIndexProject(
     rowState
@@ -8800,8 +8869,8 @@ function buildIndex() {
 
 
                                 const desktopPointer =
-                                    window.matchMedia(
-                                        "(hover: hover) and (pointer: fine)"
+                                    !window.matchMedia(
+                                        "(hover: none) and (pointer: coarse)"
                                     ).matches;
 
 
@@ -9543,6 +9612,59 @@ async function openSelectedIndexProjectAll() {
 /* =====================================================
    INDEX PREVIEW CLICK
    ===================================================== */
+
+indexPreviewImage.addEventListener(
+    "load",
+    () => {
+
+        if (
+            !indexProjectAction
+        ) {
+
+            return;
+
+        }
+
+
+        const phoneLayout =
+            body.classList.contains(
+                "phone-portrait"
+            ) ||
+            body.classList.contains(
+                "phone-landscape"
+            );
+
+
+        if (
+            phoneLayout
+        ) {
+
+            requestAnimationFrame(
+                () => {
+
+                    const rect =
+                        indexPreviewImage.getBoundingClientRect();
+
+
+                    indexProjectAction.style.width =
+                        `${rect.width}px`;
+
+                }
+            );
+
+        }
+
+        else {
+
+            indexProjectAction.style.removeProperty(
+                "width"
+            );
+
+        }
+
+    }
+);
+
 
 indexPreviewImage.addEventListener(
     "click",
