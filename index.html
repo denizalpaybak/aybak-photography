@@ -1212,7 +1212,7 @@ body.aybak-end-card-active #aybak-end-card {
     position: absolute;
 
     left: 50%;
-    bottom: -0.055em;
+    bottom: clamp(24px, 4vh, 56px);
 
     transform: translateX(-50%);
 
@@ -1226,8 +1226,8 @@ body.aybak-end-card-active #aybak-end-card {
 
     font-size:
         min(
-            36vw,
-            70vh
+            24vw,
+            58vh
         );
 
     font-weight: 400;
