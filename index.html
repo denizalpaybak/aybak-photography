@@ -1167,6 +1167,80 @@ body.phone-landscape #project-all-grid {
     gap: 4px;
 }
 
+
+/* =====================================================
+   AYBAK END CARD
+
+   This is deliberately a two-state screen rather than a
+   physically scrollable second page. Vertical scroll / swipe
+   switches between the existing site and this card, so the
+   viewport can never rest halfway between white and black.
+   ===================================================== */
+
+#aybak-end-card {
+    position: fixed;
+    inset: 0;
+
+    z-index: 10000;
+
+    display: block;
+
+    overflow: hidden;
+
+    background: #000;
+    color: #fff;
+
+    visibility: hidden;
+    opacity: 0;
+
+    pointer-events: none;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    touch-action: none;
+}
+
+body.aybak-end-card-active #aybak-end-card {
+    visibility: visible;
+    opacity: 1;
+
+    pointer-events: auto;
+}
+
+#aybak-end-card-word {
+    position: absolute;
+
+    left: 50%;
+    bottom: -0.055em;
+
+    transform: translateX(-50%);
+
+    margin: 0;
+    padding: 0;
+
+    font-family:
+        "Times New Roman",
+        Times,
+        serif;
+
+    font-size:
+        min(
+            36vw,
+            70vh
+        );
+
+    font-weight: 400;
+    font-style: normal;
+    line-height: 0.72;
+
+    letter-spacing: -0.045em;
+
+    white-space: nowrap;
+
+    color: #fff;
+}
+
 </style>
 
 </head>
@@ -1329,7 +1403,337 @@ body.phone-landscape #project-all-grid {
 </div>
 
 
+
+<!-- ===================================================
+     AYBAK END CARD
+     =================================================== -->
+
+<section
+    id="aybak-end-card"
+    aria-hidden="true"
+>
+    <div id="aybak-end-card-word">AYBAK</div>
+</section>
+
 <script>
+
+/* =====================================================
+   AYBAK END CARD — TWO-STATE VERTICAL NAVIGATION
+   ===================================================== */
+
+const aybakEndCard =
+    document.getElementById(
+        "aybak-end-card"
+    );
+
+
+let aybakEndCardActive =
+    false;
+
+
+let aybakTouchStartX =
+    null;
+
+
+let aybakTouchStartY =
+    null;
+
+
+let aybakWheelAccumulator =
+    0;
+
+
+let aybakWheelResetTimer =
+    null;
+
+
+const AYBAK_WHEEL_THRESHOLD =
+    48;
+
+
+const AYBAK_SWIPE_THRESHOLD =
+    52;
+
+
+function setAybakEndCard(
+    active
+) {
+
+    aybakEndCardActive =
+        Boolean(
+            active
+        );
+
+
+    body.classList.toggle(
+        "aybak-end-card-active",
+        aybakEndCardActive
+    );
+
+
+    aybakEndCard.setAttribute(
+        "aria-hidden",
+        aybakEndCardActive
+            ? "false"
+            : "true"
+    );
+
+
+    if (
+        aybakEndCardActive
+    ) {
+
+        stopAutoSlideshow();
+
+    }
+
+
+    aybakWheelAccumulator =
+        0;
+
+}
+
+
+window.addEventListener(
+    "wheel",
+    event => {
+
+        if (
+            Math.abs(
+                event.deltaY
+            ) <=
+            Math.abs(
+                event.deltaX
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !aybakEndCardActive &&
+            (
+                indexMode ||
+                projectAllMode ||
+                interfaceAnimating ||
+                navigationAnimating ||
+                projectViewAnimating
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        event.preventDefault();
+
+
+        clearTimeout(
+            aybakWheelResetTimer
+        );
+
+
+        aybakWheelAccumulator +=
+            event.deltaY;
+
+
+        aybakWheelResetTimer =
+            setTimeout(
+                () => {
+
+                    aybakWheelAccumulator =
+                        0;
+
+                },
+                140
+            );
+
+
+        if (
+            !aybakEndCardActive &&
+            aybakWheelAccumulator >=
+                AYBAK_WHEEL_THRESHOLD
+        ) {
+
+            setAybakEndCard(
+                true
+            );
+
+            return;
+
+        }
+
+
+        if (
+            aybakEndCardActive &&
+            aybakWheelAccumulator <=
+                -AYBAK_WHEEL_THRESHOLD
+        ) {
+
+            setAybakEndCard(
+                false
+            );
+
+        }
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+window.addEventListener(
+    "touchstart",
+    event => {
+
+        if (
+            !event.changedTouches.length
+        ) {
+
+            return;
+
+        }
+
+
+        const touch =
+            event.changedTouches[0];
+
+
+        aybakTouchStartX =
+            touch.clientX;
+
+
+        aybakTouchStartY =
+            touch.clientY;
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+window.addEventListener(
+    "touchend",
+    event => {
+
+        if (
+            aybakTouchStartX === null ||
+            aybakTouchStartY === null ||
+            !event.changedTouches.length
+        ) {
+
+            return;
+
+        }
+
+
+        const touch =
+            event.changedTouches[0];
+
+
+        const deltaX =
+            touch.clientX -
+            aybakTouchStartX;
+
+
+        const deltaY =
+            touch.clientY -
+            aybakTouchStartY;
+
+
+        aybakTouchStartX =
+            null;
+
+
+        aybakTouchStartY =
+            null;
+
+
+        if (
+            Math.abs(
+                deltaY
+            ) <=
+            Math.abs(
+                deltaX
+            ) ||
+            Math.abs(
+                deltaY
+            ) <
+            AYBAK_SWIPE_THRESHOLD
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !aybakEndCardActive &&
+            (
+                indexMode ||
+                projectAllMode ||
+                interfaceAnimating ||
+                navigationAnimating ||
+                projectViewAnimating
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        suppressClickUntil =
+            Date.now() +
+            500;
+
+
+        if (
+            !aybakEndCardActive &&
+            deltaY < 0
+        ) {
+
+            setAybakEndCard(
+                true
+            );
+
+            return;
+
+        }
+
+
+        if (
+            aybakEndCardActive &&
+            deltaY > 0
+        ) {
+
+            setAybakEndCard(
+                false
+            );
+
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+aybakEndCard.addEventListener(
+    "click",
+    event => {
+
+        event.stopPropagation();
+
+    }
+);
+
 
 
 /* =====================================================
@@ -7470,6 +7874,7 @@ body.addEventListener(
 
 
         if (
+            aybakEndCardActive ||
             indexMode ||
             projectAllMode ||
             interfaceAnimating ||
@@ -7537,6 +7942,31 @@ document.addEventListener(
     async event => {
 
         if (
+            aybakEndCardActive
+        ) {
+
+            if (
+                event.key === "ArrowUp" ||
+                event.key === "Escape" ||
+                event.key === "PageUp" ||
+                event.key === "Home"
+            ) {
+
+                event.preventDefault();
+
+                setAybakEndCard(
+                    false
+                );
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (
             indexMode
         ) {
 
@@ -7585,6 +8015,24 @@ document.addEventListener(
             navigationAnimating ||
             projectViewAnimating
         ) {
+
+            return;
+
+        }
+
+
+        if (
+            event.key === "ArrowDown" ||
+            event.key === "PageDown" ||
+            event.key === "End"
+        ) {
+
+            event.preventDefault();
+
+            setAybakEndCard(
+                true
+            );
+
 
             return;
 
