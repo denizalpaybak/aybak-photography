@@ -1175,6 +1175,45 @@ body.phone-landscape #project-all-grid {
 
 
 /* =====================================================
+   SLIDE META — GLOBAL EDGE ALIGNMENT
+
+   Keep the slide copy on the same outer grid as the
+   site identity / section switch on every viewport:
+
+   title + date       -> left edge = --side
+   counter + view all -> right edge = --side
+   bottom gap         -> same value as top gap = --top
+
+   These rules intentionally come after the phone-specific
+   metadata rules above so one geometry system wins on every
+   device and orientation.
+   ===================================================== */
+
+#project-meta,
+body.phone-portrait #project-meta,
+body.phone-landscape #project-meta {
+    top: auto !important;
+    left: var(--side) !important;
+    right: var(--side) !important;
+
+    width: auto !important;
+
+    bottom: var(--top) !important;
+}
+
+#project-title,
+#project-date {
+    justify-self: start;
+    text-align: left;
+}
+
+#project-counter,
+#view-all-button {
+    justify-self: end;
+    text-align: right;
+}
+
+/* =====================================================
    AYBAK END CARD
 
    The black layer fades in like the room lights quietly going out.
@@ -4772,88 +4811,26 @@ function renderImage(
 
 function syncMetadataHorizontal() {
 
-    if (
-        isPhoneLayout()
-    ) {
+    /*
+        Metadata no longer follows the rendered image width.
+        The CSS outer grid is authoritative on every device:
 
-        const style =
-            getComputedStyle(
-                document.documentElement
-            );
+        left  = Denizalp / contact axis (--side)
+        right = FILM / INDEX axis (--side)
 
-
-        const side =
-            parseFloat(
-                style.getPropertyValue(
-                    "--side"
-                )
-            ) || 24;
-
-
-        projectMeta.style.left =
-            `${side}px`;
-
-
-        projectMeta.style.width =
-            `calc(100vw - ${side * 2}px)`;
-
-
-        return;
-
-    }
-
-
-    if (
-        indexMode ||
-        projectAllMode
-    ) {
-
-        return;
-
-    }
-
-
-    const image =
-        spread.querySelector(
-            ".spread-image"
-        );
-
-
-    if (
-        !image
-    ) {
-
-        return;
-
-    }
-
-
-    const imageRect =
-        image.getBoundingClientRect();
-
-
-    const blockRect =
-        projectBlock.getBoundingClientRect();
-
-
-    if (
-        imageRect.width <= 0
-    ) {
-
-        return;
-
-    }
-
-
+        Clear any legacy inline values that may have been written
+        by an earlier render or responsive state.
+    */
     projectMeta.style.left =
-        `${
-            imageRect.left -
-            blockRect.left
-        }px`;
+        "";
+
+
+    projectMeta.style.right =
+        "";
 
 
     projectMeta.style.width =
-        `${imageRect.width}px`;
+        "";
 
 }
 
