@@ -1174,22 +1174,22 @@ body.phone-landscape #project-all-grid {
 
    Identity layer:
    - Times New Roman Regular
-   - smaller letters + much wider tracking
-   - slightly cropped on BOTH left and right
-   - full lower edge remains visible
-   - bottom optical margin follows --top
-   - no hover / no interaction
+   - centered exactly in the viewport
+   - black and behind photography at rest
+   - on hover, moves above photography and uses DIFFERENCE
+     so only the part crossing the photograph becomes inverted
+   - no text/interface knockout behaviour
    ===================================================== */
 
 #aybak-wordmark {
-    position: absolute;
+    position: fixed;
 
     left: 50%;
-    bottom: var(--top);
+    top: 50%;
 
     z-index: 0;
 
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
 
     margin: 0;
     padding: 0;
@@ -1205,17 +1205,11 @@ body.phone-landscape #project-all-grid {
     font-weight: 400;
     font-style: normal;
     line-height: 0.72;
-
-    /*
-       The letters themselves are now substantially smaller.
-       Wide tracking stretches the five-letter mark just beyond
-       the viewport, producing a controlled crop at both edges.
-    */
     letter-spacing: 0.50em;
 
     white-space: nowrap;
 
-    pointer-events: none;
+    pointer-events: auto;
     user-select: none;
 
     -webkit-font-smoothing: antialiased;
@@ -1223,78 +1217,28 @@ body.phone-landscape #project-all-grid {
 }
 
 /*
-   PROJECT META KNOCKOUT
-
-   The original project-meta text stays in place for layout and
-   interaction, but is visually transparent. JavaScript mirrors each
-   item as a body-level fixed layer using white + DIFFERENCE.
-
-   Keeping the mirror at body level avoids the project-stage compositing
-   issue that made whole labels appear white. Because DIFFERENCE works
-   pixel-by-pixel, text is white only where its painted glyph pixels sit
-   on black AYBAK strokes. Text over the white counters inside A/B etc.
-   remains black.
+   Hover state:
+   white + difference reproduces black over the white page,
+   while the same glyphs invert the photography where they overlap it.
 */
-#project-title,
-#project-date,
-#project-counter,
-#view-all-button {
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
-}
-
-.knockout-mirror {
-    position: fixed;
-    z-index: 550;
-
-    margin: 0;
-    padding: 0;
-
-    color: #fff;
-    -webkit-text-fill-color: #fff;
-    mix-blend-mode: difference;
-
-    background: transparent;
-    border: 0;
-
-    pointer-events: none;
-    white-space: nowrap;
-}
-
-/* INDEX already blends correctly as a body-level element. */
-#index-button {
+#aybak-wordmark:hover {
+    z-index: 40;
     color: #fff;
     mix-blend-mode: difference;
 }
 
-body.index-mode #aybak-wordmark,
-body.index-mode .knockout-mirror {
+/* Keep the identity mark out of the index interface. */
+body.index-mode #aybak-wordmark {
     visibility: hidden !important;
 }
 
-/*
-   Phones keep the same principle: smaller type, wider spacing,
-   subtle two-sided crop, and a safe-area-aware bottom margin.
-*/
 body.phone-portrait #aybak-wordmark {
-    bottom:
-        calc(
-            var(--top) +
-            env(safe-area-inset-bottom)
-        );
-
     font-size: 19vw;
     line-height: 0.74;
     letter-spacing: 0.47em;
 }
 
 body.phone-landscape #aybak-wordmark {
-    bottom:
-        calc(
-            var(--top) +
-            env(safe-area-inset-bottom)
-        );
-
     font-size: 18vw;
     line-height: 0.72;
     letter-spacing: 0.50em;
@@ -1933,161 +1877,6 @@ function activateIndexImagesNearViewport() {
 }
 
 
-
-
-/* =====================================================
-   PROJECT META — PIXEL KNOCKOUT MIRRORS
-   ===================================================== */
-
-const knockoutSources = [
-    projectTitle,
-    projectDate,
-    projectCounter,
-    viewAllButton
-];
-
-const knockoutMirrors =
-    knockoutSources.map(
-        source => {
-
-            const mirror =
-                document.createElement(
-                    "div"
-                );
-
-            mirror.className =
-                "knockout-mirror";
-
-            mirror.setAttribute(
-                "aria-hidden",
-                "true"
-            );
-
-            document.body.appendChild(
-                mirror
-            );
-
-            return {
-                source,
-                mirror,
-                lastHTML: null
-            };
-
-        }
-    );
-
-
-function syncKnockoutMirror(
-    item
-) {
-
-    const source =
-        item.source;
-
-    const mirror =
-        item.mirror;
-
-    const rect =
-        source.getBoundingClientRect();
-
-    const style =
-        getComputedStyle(
-            source
-        );
-
-    const html =
-        source.innerHTML;
-
-
-    if (
-        html !==
-        item.lastHTML
-    ) {
-
-        mirror.innerHTML =
-            html;
-
-        /* Never duplicate DOM ids into the visual mirror. */
-        mirror
-            .querySelectorAll(
-                "[id]"
-            )
-            .forEach(
-                node =>
-                    node.removeAttribute(
-                        "id"
-                    )
-            );
-
-        item.lastHTML =
-            html;
-
-    }
-
-
-    mirror.style.left =
-        `${rect.left}px`;
-
-    mirror.style.top =
-        `${rect.top}px`;
-
-    mirror.style.width =
-        `${rect.width}px`;
-
-    mirror.style.height =
-        `${rect.height}px`;
-
-    mirror.style.fontFamily =
-        style.fontFamily;
-
-    mirror.style.fontSize =
-        style.fontSize;
-
-    mirror.style.fontWeight =
-        style.fontWeight;
-
-    mirror.style.fontStyle =
-        style.fontStyle;
-
-    mirror.style.lineHeight =
-        style.lineHeight;
-
-    mirror.style.letterSpacing =
-        style.letterSpacing;
-
-    mirror.style.textAlign =
-        style.textAlign;
-
-    mirror.style.visibility =
-        style.visibility;
-
-    mirror.style.opacity =
-        style.opacity;
-
-    mirror.style.display =
-        style.display === "none"
-            ? "none"
-            : "block";
-
-}
-
-
-function syncKnockoutMirrors() {
-
-    knockoutMirrors.forEach(
-        syncKnockoutMirror
-    );
-
-    requestAnimationFrame(
-        syncKnockoutMirrors
-    );
-
-}
-
-
-requestAnimationFrame(
-    syncKnockoutMirrors
-);
 
 
 /* =====================================================
