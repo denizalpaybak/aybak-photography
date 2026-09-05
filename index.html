@@ -1616,10 +1616,26 @@ function fitAybakEndCardWord() {
         viewportWidth - targetInkRight;
 
 
-    const edgeGap =
+    /*
+        Horizontal alignment keeps using the actual contact / FILM anchors.
+        Vertically, the visible bottom of AYBAK uses the same spacing as the
+        top copy: --top. This keeps the top and bottom rhythm identical on
+        desktop, tablet, portrait phone and landscape phone.
+    */
+    const computedTop =
+        parseFloat(
+            getComputedStyle(
+                document.documentElement
+            ).getPropertyValue(
+                "--top"
+            )
+        ) || 0;
+
+
+    const bottomGap =
         Math.max(
             0,
-            (leftGap + rightGap) / 2
+            computedTop
         );
 
 
@@ -1906,7 +1922,7 @@ function fitAybakEndCardWord() {
 
     const baselineY =
         viewportHeight -
-        edgeGap -
+        bottomGap -
         sampleInkBottom *
         scale;
 
@@ -3643,14 +3659,17 @@ function updateLandscapeGeometry() {
 
     const safeIndexTop =
         Math.ceil(
-            infoRect.bottom +
+            Math.max(
+                infoRect.bottom,
+                indexRect.bottom
+            ) +
             indexTopGap
         );
 
 
     const safeIndexBottom =
         Math.floor(
-            indexRect.top -
+            window.innerHeight -
             indexBottomGap
         );
 
@@ -3712,10 +3731,10 @@ function updateLandscapeGeometry() {
         Math.max(
             205,
             Math.min(
-                250,
+                275,
                 Math.round(
                     imageHeight *
-                    1.08
+                    1.12
                 )
             )
         );
@@ -6983,13 +7002,13 @@ function getPhotoIndexGeometry() {
 
             mediaHeight:
                 clampNumber(
-                    window.innerHeight * 0.285,
-                    220,
-                    265
+                    window.innerHeight * 0.31,
+                    230,
+                    285
                 ),
 
             maxLandscapeWidth:
-                window.innerWidth * 0.47
+                window.innerWidth * 0.50
 
         };
 
