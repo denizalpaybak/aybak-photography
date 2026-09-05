@@ -1365,6 +1365,284 @@ body.aybak-end-card-active .aybak-end-card-copy {
 
 }
 
+
+
+/* =====================================================
+   TYPOGRAPHIC INDEX — V13
+
+   Desktop / tablet / phone use the same alignment system:
+   - client/title left edge = Denizalp Aybak left edge (--side)
+   - date right edge = INDEX right edge (--side)
+   - preview is viewport-centred
+   - project action sits bottom-centre
+   ===================================================== */
+
+#index-view {
+    overflow: hidden;
+}
+
+#index-scroller {
+    top: calc(var(--top) + 72px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(var(--top) + 72px + env(safe-area-inset-bottom)) !important;
+
+    display: block !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+
+    cursor: default !important;
+
+    outline: none;
+}
+
+#index-scroller::-webkit-scrollbar {
+    display: none;
+}
+
+#index-grid {
+    position: relative;
+
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+
+    gap: 0 !important;
+
+    width: 100% !important;
+    min-height: 100%;
+
+    padding: 0 !important;
+
+    transform: none !important;
+}
+
+.index-project-row {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: baseline;
+
+    width: 100%;
+
+    min-height: calc(var(--font-size) * var(--line-height) + 8px);
+
+    padding: 4px var(--side);
+
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+
+    pointer-events: none;
+}
+
+.index-project-title,
+.index-project-date {
+    appearance: none;
+    -webkit-appearance: none;
+
+    display: block;
+
+    width: max-content;
+    max-width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+    color: #000;
+
+    font: inherit;
+    line-height: inherit;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+    pointer-events: auto;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.index-project-title {
+    justify-self: start;
+    text-align: left;
+}
+
+.index-project-date {
+    justify-self: end;
+    text-align: right;
+}
+
+.index-project-title:hover,
+.index-project-title:focus,
+.index-project-title:active,
+.index-project-date:hover,
+.index-project-date:focus,
+.index-project-date:active {
+    text-decoration: none;
+    outline: 0;
+}
+
+#index-preview {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+
+    z-index: 101;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: min(38vw, 560px);
+    height: min(48vh, 590px);
+
+    transform: translate(-50%, -50%);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        opacity 140ms ease,
+        visibility 0s linear 140ms;
+}
+
+#index-preview.visible {
+    opacity: 1;
+    visibility: visible;
+
+    transition:
+        opacity 140ms ease,
+        visibility 0s linear 0s;
+}
+
+#index-preview-image {
+    display: block;
+
+    width: auto;
+    height: auto;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    object-fit: contain;
+
+    pointer-events: none;
+}
+
+#index-project-action {
+    position: fixed;
+
+    left: 50%;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom));
+
+    z-index: 102;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    transform: translateX(-50%);
+
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    text-align: center;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition:
+        opacity 140ms ease,
+        visibility 0s linear 140ms;
+}
+
+#index-project-action.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+
+    transition:
+        opacity 140ms ease,
+        visibility 0s linear 0s;
+}
+
+#index-project-view-all {
+    appearance: none;
+    -webkit-appearance: none;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+    color: #000;
+
+    font: inherit;
+    line-height: inherit;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+#index-project-view-all:hover,
+#index-project-view-all:focus,
+#index-project-view-all:active {
+    text-decoration: none;
+    outline: 0;
+}
+
+#index-project-count {
+    display: block;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+body.phone-portrait #index-scroller,
+body.phone-landscape #index-scroller {
+    top: calc(var(--top) + 58px) !important;
+    bottom: calc(var(--top) + 62px + env(safe-area-inset-bottom)) !important;
+}
+
+body.phone-portrait .index-project-row,
+body.phone-landscape .index-project-row {
+    min-height: calc(var(--font-size) * var(--line-height) + 7px);
+    padding-top: 3.5px;
+    padding-bottom: 3.5px;
+}
+
+body.phone-portrait #index-preview {
+    width: min(58vw, 360px);
+    height: 38vh;
+}
+
+body.phone-landscape #index-preview {
+    width: min(38vw, 360px);
+    height: 44vh;
+}
+
+body.phone-portrait #index-project-action,
+body.phone-landscape #index-project-action {
+    bottom: calc(var(--top) + env(safe-area-inset-bottom));
+}
+
 </style>
 
 </head>
@@ -1472,6 +1750,29 @@ body.aybak-end-card-active .aybak-end-card-copy {
 
         <div id="index-grid"></div>
 
+    </div>
+
+    <div
+        id="index-preview"
+        aria-hidden="true"
+    >
+        <img
+            id="index-preview-image"
+            alt=""
+        >
+    </div>
+
+    <div
+        id="index-project-action"
+        aria-hidden="true"
+    >
+        <button
+            id="index-project-view-all"
+            type="button"
+        >
+            view all
+        </button>
+        <span id="index-project-count"></span>
     </div>
 
 </div>
@@ -2567,6 +2868,36 @@ const indexGrid =
     );
 
 
+const indexPreview =
+    document.getElementById(
+        "index-preview"
+    );
+
+
+const indexPreviewImage =
+    document.getElementById(
+        "index-preview-image"
+    );
+
+
+const indexProjectAction =
+    document.getElementById(
+        "index-project-action"
+    );
+
+
+const indexProjectViewAll =
+    document.getElementById(
+        "index-project-view-all"
+    );
+
+
+const indexProjectCount =
+    document.getElementById(
+        "index-project-count"
+    );
+
+
 /* =====================================================
    STATE
    ===================================================== */
@@ -2636,6 +2967,42 @@ let autoplayBeforeProjectAll =
 
 let savedIndexScrollLeft =
     0;
+
+
+let savedIndexScrollTop =
+    0;
+
+
+let selectedIndexProject =
+    null;
+
+
+let indexProjectRows =
+    [];
+
+
+let indexViewAllCase =
+    null;
+
+
+let indexLastWheelTime =
+    0;
+
+
+let indexBoundaryWheelAccumulator =
+    0;
+
+
+let indexBoundaryWheelResetTimer =
+    null;
+
+
+let indexTouchStartedAtBottom =
+    false;
+
+
+let indexTouchStartY =
+    null;
 
 
 let viewButtonHovered =
@@ -3888,11 +4255,11 @@ function updateResponsiveMode() {
         )
     ) {
 
-        savedIndexScrollLeft =
+        savedIndexScrollTop =
             0;
 
 
-        indexScroller.scrollLeft =
+        indexScroller.scrollTop =
             0;
 
     }
@@ -7336,13 +7703,181 @@ function resizePhotoIndexCards() {
 
 
 /* =====================================================
-   BUILD INDEX
+   BUILD TYPOGRAPHIC INDEX
    ===================================================== */
+
+function resetIndexSelection() {
+
+    selectedIndexProject =
+        null;
+
+
+    indexProjectRows.forEach(
+        rowState => {
+
+            rowState.titleCase.lower();
+            rowState.dateCase.lower();
+
+        }
+    );
+
+
+    indexPreview.classList.remove(
+        "visible"
+    );
+
+
+    indexPreview.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    indexProjectAction.classList.remove(
+        "visible"
+    );
+
+
+    indexProjectAction.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    indexPreviewImage.removeAttribute(
+        "src"
+    );
+
+
+    indexProjectCount.textContent =
+        "";
+
+
+    if (
+        indexViewAllCase
+    ) {
+
+        indexViewAllCase.lower();
+
+    }
+
+}
+
+
+function selectIndexProject(
+    rowState
+) {
+
+    if (
+        !rowState
+    ) {
+
+        return;
+
+    }
+
+
+    selectedIndexProject =
+        rowState;
+
+
+    indexProjectRows.forEach(
+        state => {
+
+            if (
+                state === rowState
+            ) {
+
+                state.titleCase.upper();
+                state.dateCase.upper();
+
+            }
+
+            else {
+
+                state.titleCase.lower();
+                state.dateCase.lower();
+
+            }
+
+        }
+    );
+
+
+    const project =
+        rowState.project;
+
+
+    const previewUrl =
+        getPhotoUrl(
+            project.cover ||
+            project.images[0]
+        );
+
+
+    if (
+        indexPreviewImage.src !==
+        previewUrl
+    ) {
+
+        indexPreviewImage.src =
+            previewUrl;
+
+    }
+
+
+    indexPreview.classList.add(
+        "visible"
+    );
+
+
+    indexPreview.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    const photoCount =
+        project.images.length;
+
+
+    indexProjectCount.textContent =
+        `${photoCount} ${photoCount === 1 ? "photo" : "photos"}`;
+
+
+    indexProjectAction.classList.add(
+        "visible"
+    );
+
+
+    indexProjectAction.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    if (
+        indexViewAllCase
+    ) {
+
+        indexViewAllCase.lower();
+
+    }
+
+}
+
 
 function buildIndex() {
 
     indexGrid.innerHTML =
         "";
+
+
+    indexProjectRows =
+        [];
+
+
+    resetIndexSelection();
 
 
     getChronologicalProjects()
@@ -7357,163 +7892,52 @@ function buildIndex() {
                     item.originalIndex;
 
 
-                const button =
+                const row =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                row.className =
+                    "index-project-row";
+
+
+                const titleButton =
                     document.createElement(
                         "button"
                     );
 
 
-                button.className =
-                    "project-card";
-
-
-                button.type =
+                titleButton.type =
                     "button";
 
 
-                const geometry =
-                    getPhotoIndexGeometry();
-
-
-                const fallbackWidth =
-                    Math.round(
-                        geometry.mediaHeight *
-                        0.72
-                    );
-
-
-                button.style.width =
-                    `${fallbackWidth}px`;
-
-                button.style.flex =
-                    `0 0 ${fallbackWidth}px`;
-
-                button.style.minWidth =
-                    `${fallbackWidth}px`;
-
-
-                const imageWrap =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                imageWrap.className =
-                    "card-image-wrap";
-
-
-                imageWrap.style.width =
-                    `${fallbackWidth}px`;
-
-                imageWrap.style.height =
-                    `${geometry.mediaHeight}px`;
-
-
-                const img =
-                    document.createElement(
-                        "img"
-                    );
-
-
-                img.dataset.src =
-                    getPhotoUrl(
-                        project.cover
-                    );
-
-
-                img.alt =
-                    "";
-
-
-                img.loading =
-                    "lazy";
-
-
-                img.decoding =
-                    "async";
-
-
-                img.fetchPriority =
-                    "low";
-
-
-                img.addEventListener(
-                    "load",
-                    () => {
-
-                        syncPhotoIndexCardSize(
-                            img,
-                            button,
-                            imageWrap
-                        );
-
-                    }
-                );
-
-
-                if (
-                    img.complete &&
-                    img.naturalWidth
-                ) {
-
-                    syncPhotoIndexCardSize(
-                        img,
-                        button,
-                        imageWrap
-                    );
-
-                }
-
-
-                indexImageObserver.observe(
-                    img
-                );
-
-
-                imageWrap.appendChild(
-                    img
-                );
-
-
-                const copy =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                copy.className =
-                    "card-copy";
-
-
-                const title =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                title.className =
-                    "card-title";
+                titleButton.className =
+                    "index-project-title";
 
 
                 const titleBase =
-                    project.title
-                        .toLowerCase();
+                    project.title.toLowerCase();
 
 
                 renderBaseTypography(
-                    title,
+                    titleButton,
                     titleBase
                 );
 
 
-                const date =
+                const dateButton =
                     document.createElement(
-                        "span"
+                        "button"
                     );
 
 
-                date.className =
-                    "card-date";
+                dateButton.type =
+                    "button";
+
+
+                dateButton.className =
+                    "index-project-date";
 
 
                 const dateBase =
@@ -7524,117 +7948,113 @@ function buildIndex() {
 
 
                 renderBaseTypography(
-                    date,
+                    dateButton,
                     dateBase
                 );
 
 
-                copy.append(
-                    title,
-                    date
+                const rowState =
+                    {
+                        row,
+                        project,
+                        originalIndex,
+                        titleButton,
+                        dateButton,
+                        titleCase:
+                            createCaseController(
+                                titleButton,
+                                titleBase
+                            ),
+                        dateCase:
+                            createCaseController(
+                                dateButton,
+                                dateBase
+                            )
+                    };
+
+
+                indexProjectRows.push(
+                    rowState
                 );
 
 
-                button.append(
-                    imageWrap,
-                    copy
-                );
-
-
-                const titleCase =
-                    createCaseController(
-                        title,
-                        titleBase
-                    );
-
-
-                const dateCase =
-                    createCaseController(
-                        date,
-                        dateBase
-                    );
-
-
-                button.addEventListener(
-                    "mouseenter",
-                    () => {
-
-                        if (
-                            !window.matchMedia(
-                                "(hover: hover)"
-                            ).matches
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        titleCase.upper();
-
-
-                        dateCase.upper();
-
-                    }
-                );
-
-
-                button.addEventListener(
-                    "mouseleave",
-                    () => {
-
-                        if (
-                            !window.matchMedia(
-                                "(hover: hover)"
-                            ).matches
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        titleCase.lower();
-
-
-                        dateCase.lower();
-
-                    }
-                );
-
-
-                button.addEventListener(
-                    "click",
+                const activate =
                     event => {
 
                         if (
-                            indexDragMoved
+                            event
                         ) {
 
-                            event.preventDefault();
-
-
                             event.stopPropagation();
-
-
-                            return;
 
                         }
 
 
-                        event.stopPropagation();
+                        selectIndexProject(
+                            rowState
+                        );
+
+                    };
 
 
-                        exitIndexToProject(
-                            originalIndex
+                [
+                    titleButton,
+                    dateButton
+                ].forEach(
+                    button => {
+
+                        button.addEventListener(
+                            "mouseenter",
+                            () => {
+
+                                if (
+                                    !window.matchMedia(
+                                        "(hover: hover)"
+                                    ).matches
+                                ) {
+
+                                    return;
+
+                                }
+
+
+                                selectIndexProject(
+                                    rowState
+                                );
+
+                            }
+                        );
+
+
+                        button.addEventListener(
+                            "focus",
+                            () => {
+
+                                selectIndexProject(
+                                    rowState
+                                );
+
+                            }
+                        );
+
+
+                        button.addEventListener(
+                            "click",
+                            activate
                         );
 
                     }
                 );
 
 
+                row.append(
+                    titleButton,
+                    dateButton
+                );
+
+
                 indexGrid.appendChild(
-                    button
+                    row
                 );
 
             }
@@ -7889,8 +8309,8 @@ indexButton.addEventListener(
 
 function saveIndexPosition() {
 
-    savedIndexScrollLeft =
-        indexScroller.scrollLeft;
+    savedIndexScrollTop =
+        indexScroller.scrollTop;
 
 }
 
@@ -7900,8 +8320,8 @@ function restoreIndexPosition() {
     requestAnimationFrame(
         () => {
 
-            indexScroller.scrollLeft =
-                savedIndexScrollLeft;
+            indexScroller.scrollTop =
+                savedIndexScrollTop;
 
         }
     );
@@ -7965,12 +8385,10 @@ async function enterIndex() {
     restoreIndexPosition();
 
 
-    requestAnimationFrame(
-        activateIndexImagesNearViewport
-    );
+    resetIndexSelection();
 
 
-    /* The INDEX word morph is cosmetic; unlock the grid immediately. */
+    /* The INDEX word morph is cosmetic; unlock the list immediately. */
     morphIndexTo(
         indexWord.length
     );
@@ -8040,6 +8458,9 @@ async function returnFromIndex() {
     saveIndexPosition();
 
 
+    resetIndexSelection();
+
+
     await morphIndexTo(
         0
     );
@@ -8084,16 +8505,16 @@ async function returnFromIndex() {
 
 
 /* =====================================================
-   INDEX -> PROJECT
+   INDEX -> PROJECT VIEW ALL
    ===================================================== */
 
-async function exitIndexToProject(
-    targetProjectIndex
-) {
+async function openSelectedIndexProjectAll() {
 
     if (
         !indexMode ||
-        interfaceAnimating
+        !selectedIndexProject ||
+        interfaceAnimating ||
+        projectViewAnimating
     ) {
 
         return;
@@ -8105,62 +8526,259 @@ async function exitIndexToProject(
         true;
 
 
+    stopAutoSlideshow();
     saveIndexPosition();
 
 
-    await morphIndexTo(
-        0
-    );
+    const targetProjectIndex =
+        selectedIndexProject.originalIndex;
 
 
-    indexView.classList.remove(
-        "visible"
-    );
+    const targetProject =
+        projects[
+            normalizeProjectIndex(
+                targetProjectIndex
+            )
+        ];
 
 
-    indexMode =
-        false;
+    try {
+
+        /*
+            Load and prepare the selected project while INDEX is still
+            covering the page. This prevents a slideshow frame from
+            flashing between INDEX and VIEW ALL.
+        */
+        const loadedImage =
+            await preloadImage(
+                targetProject.images[0]
+            );
 
 
-    body.classList.remove(
-        "index-mode"
-    );
+        projectIndex =
+            normalizeProjectIndex(
+                targetProjectIndex
+            );
 
 
-    enterFocusedProjectMode(
-        targetProjectIndex
-    );
+        frameIndex =
+            0;
 
 
-    await showFrame(
-        targetProjectIndex,
-        0
-    );
+        enterFocusedProjectMode(
+            projectIndex
+        );
 
 
-    updateResponsiveMode();
+        markFrameSeen(
+            projectIndex,
+            0
+        );
 
 
-    syncMetadataAfterRender();
+        syncProjectUrl(
+            "push"
+        );
 
 
-    /*
-        Opening a project from INDEX is a manual selection.
-        Do not restart autoplay.
-    */
-    manualMode =
-        true;
+        renderImage(
+            loadedImage
+        );
 
 
-    clearTimeout(
-        slideTimer
-    );
+        syncMetadataAfterRender();
+
+
+        await updateMetadata(
+            projectIndex,
+            0
+        );
+
+
+        prepareProjectAllGrid();
+
+
+        viewAllButton.dataset.rawText =
+            viewAllButton.textContent;
+
+
+        projectCounter.dataset.rawText =
+            projectCounter.textContent;
+
+
+        await morphIndexTo(
+            0
+        );
+
+
+        indexView.classList.remove(
+            "visible"
+        );
+
+
+        indexMode =
+            false;
+
+
+        body.classList.remove(
+            "index-mode"
+        );
+
+
+        projectAllMode =
+            true;
+
+
+        body.classList.remove(
+            "project-all-preparing"
+        );
+
+
+        body.classList.add(
+            "project-all-mode"
+        );
+
+
+        const project =
+            currentProject();
+
+
+        await Promise.all(
+            [
+                animateCase(
+                    projectTitle,
+                    project.title,
+                    true
+                ),
+
+                animateCase(
+                    projectDate,
+                    project.date || "",
+                    true
+                ),
+
+                morphSequential(
+                    projectCounter,
+                    getAllCounterText(
+                        project.images.length
+                    ),
+                    STATE_MORPH_DURATION
+                ),
+
+                morphSequential(
+                    viewAllButton,
+                    "close",
+                    STATE_MORPH_DURATION
+                )
+            ]
+        );
+
+
+        manualMode =
+            true;
+
+
+        clearTimeout(
+            slideTimer
+        );
+
+
+        preloadAhead();
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            error
+        );
+
+    }
 
 
     interfaceAnimating =
         false;
 
 }
+
+
+/* =====================================================
+   INDEX VIEW ALL INTERACTION
+   ===================================================== */
+
+indexViewAllCase =
+    createCaseController(
+        indexProjectViewAll,
+        "view all"
+    );
+
+
+indexProjectViewAll.addEventListener(
+    "mouseenter",
+    () => {
+
+        if (
+            !window.matchMedia(
+                "(hover: hover)"
+            ).matches ||
+            !selectedIndexProject
+        ) {
+
+            return;
+
+        }
+
+
+        indexViewAllCase.upper();
+
+    }
+);
+
+
+indexProjectViewAll.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            !window.matchMedia(
+                "(hover: hover)"
+            ).matches
+        ) {
+
+            return;
+
+        }
+
+
+        indexViewAllCase.lower();
+
+    }
+);
+
+
+indexProjectViewAll.addEventListener(
+    "click",
+    async event => {
+
+        event.stopPropagation();
+
+
+        if (
+            !selectedIndexProject
+        ) {
+
+            return;
+
+        }
+
+
+        await indexViewAllCase.upper();
+
+
+        await openSelectedIndexProjectAll();
+
+    }
+);
 
 
 /* =====================================================
@@ -8215,15 +8833,68 @@ indexButton.addEventListener(
 
 
 /* =====================================================
-   INDEX WHEEL
+   INDEX SCROLL / AYBAK BOUNDARY
+
+   A scrollable index consumes the current gesture first.
+   AYBAK can open only from a NEW downward gesture that
+   STARTS while the list is already at its bottom boundary.
+   This prevents trackpad momentum from accidentally opening
+   the black page as the list reaches its end.
    ===================================================== */
+
+const INDEX_BOUNDARY_WHEEL_THRESHOLD =
+    48;
+
+
+const INDEX_NEW_GESTURE_GAP =
+    190;
+
+
+function indexCanScrollVertically() {
+
+    return (
+        indexScroller.scrollHeight -
+        indexScroller.clientHeight
+    ) > 2;
+
+}
+
+
+function indexIsAtBottom() {
+
+    return (
+        indexScroller.scrollTop +
+        indexScroller.clientHeight
+    ) >=
+    (
+        indexScroller.scrollHeight -
+        2
+    );
+
+}
+
 
 indexScroller.addEventListener(
     "wheel",
     event => {
 
         if (
-            !indexMode
+            !indexMode ||
+            aybakEndCardActive
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            Math.abs(
+                event.deltaY
+            ) <=
+            Math.abs(
+                event.deltaX
+            )
         ) {
 
             return;
@@ -8234,24 +8905,203 @@ indexScroller.addEventListener(
         event.preventDefault();
 
 
-        const movement =
-            Math.abs(
-                event.deltaX
+        const now =
+            performance.now();
+
+
+        const newGesture =
+            (
+                now -
+                indexLastWheelTime
             ) >
-            Math.abs(
-                event.deltaY
+            INDEX_NEW_GESTURE_GAP;
+
+
+        indexLastWheelTime =
+            now;
+
+
+        const canScroll =
+            indexCanScrollVertically();
+
+
+        const atBottomBefore =
+            indexIsAtBottom();
+
+
+        if (
+            canScroll &&
+            (
+                event.deltaY < 0 ||
+                !atBottomBefore
             )
-                ? event.deltaX
-                : event.deltaY;
+        ) {
+
+            indexScroller.scrollTop +=
+                event.deltaY;
 
 
-        indexScroller.scrollLeft +=
-            movement *
-            INDEX_WHEEL_MULTIPLIER;
+            indexBoundaryWheelAccumulator =
+                0;
+
+
+            return;
+
+        }
+
+
+        if (
+            event.deltaY <= 0
+        ) {
+
+            indexBoundaryWheelAccumulator =
+                0;
+
+
+            return;
+
+        }
+
+
+        /*
+            If the list has content to scroll, boundary activation
+            is allowed only when this wheel sequence is a fresh gesture.
+            If the list already fits, the normal first downward gesture
+            can open AYBAK immediately, matching slideshow behaviour.
+        */
+        if (
+            canScroll &&
+            !newGesture
+        ) {
+
+            return;
+
+        }
+
+
+        clearTimeout(
+            indexBoundaryWheelResetTimer
+        );
+
+
+        indexBoundaryWheelAccumulator +=
+            event.deltaY;
+
+
+        indexBoundaryWheelResetTimer =
+            setTimeout(
+                () => {
+
+                    indexBoundaryWheelAccumulator =
+                        0;
+
+                },
+                150
+            );
+
+
+        if (
+            indexBoundaryWheelAccumulator >=
+            INDEX_BOUNDARY_WHEEL_THRESHOLD
+        ) {
+
+            indexBoundaryWheelAccumulator =
+                0;
+
+
+            setAybakEndCard(
+                true
+            );
+
+        }
 
     },
     {
         passive: false
+    }
+);
+
+
+/* =====================================================
+   INDEX TOUCH BOUNDARY
+   ===================================================== */
+
+indexScroller.addEventListener(
+    "touchstart",
+    event => {
+
+        if (
+            !indexMode ||
+            !event.changedTouches.length
+        ) {
+
+            return;
+
+        }
+
+
+        indexTouchStartY =
+            event.changedTouches[0].clientY;
+
+
+        indexTouchStartedAtBottom =
+            !indexCanScrollVertically() ||
+            indexIsAtBottom();
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+indexScroller.addEventListener(
+    "touchend",
+    event => {
+
+        if (
+            !indexMode ||
+            indexTouchStartY === null ||
+            !event.changedTouches.length
+        ) {
+
+            return;
+
+        }
+
+
+        const endY =
+            event.changedTouches[0].clientY;
+
+
+        const deltaY =
+            endY -
+            indexTouchStartY;
+
+
+        indexTouchStartY =
+            null;
+
+
+        if (
+            indexTouchStartedAtBottom &&
+            deltaY < -52
+        ) {
+
+            suppressClickUntil =
+                Date.now() +
+                500;
+
+
+            setAybakEndCard(
+                true
+            );
+
+        }
+
+    },
+    {
+        passive: true
     }
 );
 
@@ -8266,7 +9116,7 @@ indexScroller.addEventListener(
 
         if (
             event.key ===
-            "ArrowRight"
+            "ArrowDown"
         ) {
 
             event.preventDefault();
@@ -8274,11 +9124,8 @@ indexScroller.addEventListener(
 
             indexScroller.scrollBy(
                 {
-                    left:
-                        INDEX_KEY_STEP,
-
-                    behavior:
-                        "smooth"
+                    top: 44,
+                    behavior: "smooth"
                 }
             );
 
@@ -8287,7 +9134,7 @@ indexScroller.addEventListener(
 
         else if (
             event.key ===
-            "ArrowLeft"
+            "ArrowUp"
         ) {
 
             event.preventDefault();
@@ -8295,11 +9142,8 @@ indexScroller.addEventListener(
 
             indexScroller.scrollBy(
                 {
-                    left:
-                        -INDEX_KEY_STEP,
-
-                    behavior:
-                        "smooth"
+                    top: -44,
+                    behavior: "smooth"
                 }
             );
 
@@ -8321,8 +9165,8 @@ indexScroller.addEventListener(
             indexMode
         ) {
 
-            savedIndexScrollLeft =
-                indexScroller.scrollLeft;
+            savedIndexScrollTop =
+                indexScroller.scrollTop;
 
         }
 
@@ -8330,142 +9174,6 @@ indexScroller.addEventListener(
     {
         passive: true
     }
-);
-
-
-/* =====================================================
-   INDEX DRAG
-   ===================================================== */
-
-indexScroller.addEventListener(
-    "mousedown",
-    event => {
-
-        if (
-            event.button !== 0
-        ) {
-
-            return;
-
-        }
-
-
-        indexDragging =
-            true;
-
-
-        indexDragMoved =
-            false;
-
-
-        indexDragStartX =
-            event.clientX;
-
-
-        indexDragStartScroll =
-            indexScroller.scrollLeft;
-
-
-        indexScroller.classList.add(
-            "dragging"
-        );
-
-
-        event.preventDefault();
-
-    }
-);
-
-
-window.addEventListener(
-    "mousemove",
-    event => {
-
-        if (
-            !indexDragging
-        ) {
-
-            return;
-
-        }
-
-
-        const delta =
-            event.clientX -
-            indexDragStartX;
-
-
-        if (
-            Math.abs(
-                delta
-            ) > 10
-        ) {
-
-            indexDragMoved =
-                true;
-
-        }
-
-
-        indexScroller.scrollLeft =
-            indexDragStartScroll -
-            delta;
-
-    }
-);
-
-
-function endIndexDrag() {
-
-    if (
-        !indexDragging
-    ) {
-
-        return;
-
-    }
-
-
-    indexDragging =
-        false;
-
-
-    indexScroller.classList.remove(
-        "dragging"
-    );
-
-
-    saveIndexPosition();
-
-
-    if (
-        indexDragMoved
-    ) {
-
-        setTimeout(
-            () => {
-
-                indexDragMoved =
-                    false;
-
-            },
-            0
-        );
-
-    }
-
-}
-
-
-window.addEventListener(
-    "mouseup",
-    endIndexDrag
-);
-
-
-window.addEventListener(
-    "blur",
-    endIndexDrag
 );
 
 
