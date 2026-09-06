@@ -7203,7 +7203,6 @@ function calculateProjectAllLayout(
         projectAllView
             .getBoundingClientRect();
 
-
     const gap =
         isPhoneLandscape()
             ? 4
@@ -7213,97 +7212,77 @@ function calculateProjectAllLayout(
                     : 7
             );
 
+    /*
+        Score each possible grid by the ACTUAL visible image area,
+        rather than by square-cell size. This makes small sets such as
+        three portrait frames naturally choose a single horizontal row,
+        while larger / mixed-orientation projects still choose the layout
+        that uses the available viewport most efficiently.
+    */
+    const loadedRatios =
+        Array.from(
+            projectAllGrid.querySelectorAll("img")
+        )
+        .slice(0, count)
+        .map(img =>
+            (img.naturalWidth && img.naturalHeight)
+                ? img.naturalWidth / img.naturalHeight
+                : 0.8
+        );
 
-    let best =
-        {
-            columns: 1,
-            rows: count,
-            score: 0
-        };
+    let best = {
+        columns: 1,
+        rows: count,
+        score: -Infinity
+    };
 
-
-    for (
-        let columns = 1;
-        columns <= count;
-        columns++
-    ) {
-
-        const rows =
-            Math.ceil(
-                count /
-                columns
-            );
-
+    for (let columns = 1; columns <= count; columns++) {
+        const rows = Math.ceil(count / columns);
 
         const usableWidth =
-            rect.width -
-            gap *
-            (
-                columns - 1
-            );
-
+            rect.width - gap * (columns - 1);
 
         const usableHeight =
-            rect.height -
-            gap *
-            (
-                rows - 1
-            );
+            rect.height - gap * (rows - 1);
 
-
-        if (
-            usableWidth <= 0 ||
-            usableHeight <= 0
-        ) {
-
+        if (usableWidth <= 0 || usableHeight <= 0) {
             continue;
-
         }
 
+        const cellWidth = usableWidth / columns;
+        const cellHeight = usableHeight / rows;
 
-        const cellWidth =
-            usableWidth /
-            columns;
+        let visibleArea = 0;
 
+        loadedRatios.forEach(ratio => {
+            const displayWidth = Math.min(
+                cellWidth,
+                cellHeight * ratio
+            );
 
-        const cellHeight =
-            usableHeight /
-            rows;
+            const displayHeight =
+                displayWidth / ratio;
 
+            visibleArea +=
+                displayWidth * displayHeight;
+        });
 
         /*
-            More neutral scoring than before.
-
-            This tends to produce slightly larger
-            thumbnails instead of overly cautious grids.
+            A tiny orphan-cell penalty breaks near-ties in favour of
+            balanced grids without overpowering the actual image area.
         */
+        const emptyCells =
+            rows * columns - count;
 
         const score =
-            Math.min(
-                cellWidth,
-                cellHeight * 1.28
-            );
+            visibleArea * Math.pow(0.985, emptyCells);
 
-
-        if (
-            score >
-            best.score
-        ) {
-
-            best =
-                {
-                    columns,
-                    rows,
-                    score
-                };
-
+        if (score > best.score) {
+            best = { columns, rows, score };
         }
-
     }
 
-
     return best;
-
 }
 
 
@@ -8065,19 +8044,8 @@ viewAllButton.addEventListener(
             projectAllMode
         ) {
 
-            if (
-                projectAllOpenedFromIndex
-            ) {
-
-                await returnProjectAllToIndex();
-
-            }
-
-            else {
-
-                await exitProjectAll();
-
-            }
+            /* In VIEW ALL this control is PREVIOUS PROJECT. */
+            await switchProjectAll(-1);
 
         }
 
@@ -12539,8 +12507,8 @@ body:not(.theme-dark) #view-all-button {
 }
 
 body:not(.project-all-mode):not(.project-all-preparing) #project-counter {
-    cursor: default;
-    pointer-events: none;
+    cursor: pointer;
+    pointer-events: auto;
 }
 
 body.project-all-mode #project-counter,
@@ -12847,33 +12815,61 @@ projectTitle.addEventListener("click", async event => {
    VIEW ALL NEXT / PREVIOUS BUTTONS
    ----------------------------------------------------- */
 projectCounter.addEventListener("mouseenter", async () => {
-    if (projectAllMode && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        return;
+    }
+
+    if (projectAllMode) {
         await animateCase(projectCounter, "next project", true);
+    } else {
+        await animateCase(
+            projectCounter,
+            getProjectPhotoCountText(currentProject().images.length),
+            true
+        );
     }
 });
+
 projectCounter.addEventListener("mouseleave", async () => {
-    if (projectAllMode && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        return;
+    }
+
+    if (projectAllMode) {
         await animateCase(projectCounter, "next project", false);
+    } else {
+        await animateCase(
+            projectCounter,
+            getProjectPhotoCountText(currentProject().images.length),
+            false
+        );
     }
 });
 
 projectCounter.addEventListener("click", async event => {
-    if (!projectAllMode) return;
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    await animateCase(projectCounter, "next project", true);
-    await switchProjectAll(1);
-}, true);
 
-/* Capture the existing VIEW ALL button only while inside VIEW ALL. */
-viewAllButton.addEventListener("click", async event => {
-    if (!projectAllMode) return;
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    await animateCase(viewAllButton, "previous project", true);
-    await switchProjectAll(-1);
+    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) {
+        return;
+    }
+
+    if (projectAllMode) {
+        await animateCase(projectCounter, "next project", true);
+        await switchProjectAll(1);
+        return;
+    }
+
+    stopAutoSlideshow();
+
+    await animateCase(
+        projectCounter,
+        getProjectPhotoCountText(currentProject().images.length),
+        true
+    );
+
+    await enterProjectAll();
 }, true);
 
 viewAllButton.addEventListener("mouseenter", async event => {
@@ -12969,6 +12965,23 @@ document.addEventListener("touchend", async event => {
 
     requestAnimationFrame(tryOpen);
 })();
+
+
+/* Re-score VIEW ALL as soon as thumbnail aspect ratios are available. */
+projectAllGrid.addEventListener(
+    "load",
+    event => {
+        if (
+            projectAllMode &&
+            event.target instanceof HTMLImageElement
+        ) {
+            requestAnimationFrame(() => {
+                layoutProjectAllGrid(true);
+            });
+        }
+    },
+    true
+);
 </script>
 
 </body>
