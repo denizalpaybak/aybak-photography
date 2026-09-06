@@ -2881,6 +2881,13 @@ function setAybakEndCard(
 
         stopAutoSlideshow();
 
+        /* Refit after the card becomes visible. This is especially important
+           on mobile Safari, where the layout viewport can settle only after
+           the swipe has completed. */
+        requestAnimationFrame(
+            fitAybakEndCardWord
+        );
+
     }
 
 
@@ -12573,6 +12580,62 @@ document.addEventListener("keydown", async event => {
         }
     }
 }, true);
+
+/* -----------------------------------------------------
+   MOBILE AYBAK PAGE SWIPE — RELIABLE CAPTURE FALLBACK
+
+   Keep the existing gesture system intact, but capture the physical
+   up/down page gesture before project/view listeners can consume it.
+   INDEX keeps its own boundary-aware swipe logic.
+   ----------------------------------------------------- */
+let mobileAybakTouchStartX = null;
+let mobileAybakTouchStartY = null;
+
+document.addEventListener("touchstart", event => {
+    if (!event.changedTouches.length) return;
+
+    const touch = event.changedTouches[0];
+    mobileAybakTouchStartX = touch.clientX;
+    mobileAybakTouchStartY = touch.clientY;
+}, { passive: true, capture: true });
+
+document.addEventListener("touchend", event => {
+    if (
+        mobileAybakTouchStartX === null ||
+        mobileAybakTouchStartY === null ||
+        !event.changedTouches.length
+    ) {
+        return;
+    }
+
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - mobileAybakTouchStartX;
+    const dy = touch.clientY - mobileAybakTouchStartY;
+
+    mobileAybakTouchStartX = null;
+    mobileAybakTouchStartY = null;
+
+    if (
+        Math.abs(dy) <= Math.abs(dx) ||
+        Math.abs(dy) < AYBAK_SWIPE_THRESHOLD
+    ) {
+        return;
+    }
+
+    /* INDEX already has boundary-aware touch handling. */
+    if (indexMode && !aybakEndCardActive) return;
+
+    if (!aybakEndCardActive && dy < 0) {
+        suppressClickUntil = Date.now() + 500;
+        setAybakEndCard(true);
+        return;
+    }
+
+    if (aybakEndCardActive && dy > 0) {
+        suppressClickUntil = Date.now() + 500;
+        setAybakEndCard(false);
+    }
+}, { passive: true, capture: true });
 
 /* -----------------------------------------------------
    MOBILE VIEW ALL SWIPE = PROJECT NAVIGATION
