@@ -4665,6 +4665,18 @@ function getPhotoCountText(
 }
 
 
+function getProjectPhotoCountText(
+    total
+) {
+
+    return (
+        getPhotoCountText(total) +
+        " in this project"
+    );
+
+}
+
+
 function getAllCounterText(
     total
 ) {
@@ -6081,7 +6093,7 @@ async function updateMetadata(
 
 
 
-        getPhotoCountText(
+        getProjectPhotoCountText(
             project.images.length
         )
 
@@ -7769,7 +7781,7 @@ async function leaveProjectAll(
 
             morphSequential(
                 projectCounter,
-                getPhotoCountText(
+                getProjectPhotoCountText(
                     project.images.length
                 ),
                 STATE_MORPH_DURATION
@@ -7952,7 +7964,7 @@ async function returnProjectAllToIndex() {
 
 
     const countText =
-        getPhotoCountText(
+        getProjectPhotoCountText(
             project.images.length
         );
 
@@ -9266,7 +9278,7 @@ function selectIndexProject(
 
 
     const nextCountText =
-        getPhotoCountText(
+        getProjectPhotoCountText(
             photoCount
         );
 
@@ -12246,7 +12258,7 @@ async function loadProjects() {
 
         renderBaseTypography(
             projectCounter,
-            getPhotoCountText(
+            getProjectPhotoCountText(
                 currentProject()
                     .images.length
             )
@@ -12450,7 +12462,23 @@ body,
 #project-stage,
 #project-all-view,
 #index-view {
-    transition: background-color 260ms ease, color 260ms ease;
+    transition:
+        background-color 220ms cubic-bezier(.22, .61, .36, 1),
+        color 220ms cubic-bezier(.22, .61, .36, 1);
+    will-change: background-color, color;
+}
+
+.section-switch,
+#index-button,
+.index-project-title,
+.index-project-date,
+#index-project-view-all,
+.project-card,
+#project-title,
+#project-date,
+#project-counter,
+#view-all-button {
+    transition: color 220ms cubic-bezier(.22, .61, .36, 1);
 }
 
 body.theme-dark,
@@ -12623,9 +12651,20 @@ const showFrameV19 = showFrame;
 showFrame = async function(targetProjectIndex, targetFrameIndex, urlMode = "push") {
     const normalized = normalizeProjectIndex(targetProjectIndex);
     const projectWillChange = normalized !== projectIndex;
+
+    /*
+        Start the black/white transition at the same instant as the
+        navigation gesture. Do not wait for the next full-resolution
+        image to finish loading/decoding.
+    */
+    if (projectWillChange) {
+        invertPageTheme();
+    }
+
     const ok = await showFrameV19(targetProjectIndex, targetFrameIndex, urlMode);
 
-    if (ok && projectWillChange) {
+    /* If navigation fails, restore the previous theme. */
+    if (!ok && projectWillChange) {
         invertPageTheme();
     }
 
@@ -12675,11 +12714,11 @@ function setProjectAllNavigationCopy() {
         return;
     }
 
-    renderBaseTypography(projectCounter, "next");
+    renderBaseTypography(projectCounter, "next project");
     projectCounter.dataset.rawText = projectCounter.textContent;
     projectCounter.setAttribute("aria-label", "Next project");
 
-    renderBaseTypography(viewAllButton, "previous");
+    renderBaseTypography(viewAllButton, "previous project");
     viewAllButton.dataset.rawText = viewAllButton.textContent;
     viewAllButton.setAttribute("aria-label", "Previous project");
 }
@@ -12809,12 +12848,12 @@ projectTitle.addEventListener("click", async event => {
    ----------------------------------------------------- */
 projectCounter.addEventListener("mouseenter", async () => {
     if (projectAllMode && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-        await animateCase(projectCounter, "next", true);
+        await animateCase(projectCounter, "next project", true);
     }
 });
 projectCounter.addEventListener("mouseleave", async () => {
     if (projectAllMode && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-        await animateCase(projectCounter, "next", false);
+        await animateCase(projectCounter, "next project", false);
     }
 });
 
@@ -12823,7 +12862,7 @@ projectCounter.addEventListener("click", async event => {
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    await animateCase(projectCounter, "next", true);
+    await animateCase(projectCounter, "next project", true);
     await switchProjectAll(1);
 }, true);
 
@@ -12833,20 +12872,20 @@ viewAllButton.addEventListener("click", async event => {
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    await animateCase(viewAllButton, "previous", true);
+    await animateCase(viewAllButton, "previous project", true);
     await switchProjectAll(-1);
 }, true);
 
 viewAllButton.addEventListener("mouseenter", async event => {
     if (!projectAllMode || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     event.stopImmediatePropagation();
-    await animateCase(viewAllButton, "previous", true);
+    await animateCase(viewAllButton, "previous project", true);
 }, true);
 
 viewAllButton.addEventListener("mouseleave", async event => {
     if (!projectAllMode || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     event.stopImmediatePropagation();
-    await animateCase(viewAllButton, "previous", false);
+    await animateCase(viewAllButton, "previous project", false);
 }, true);
 
 /* -----------------------------------------------------
