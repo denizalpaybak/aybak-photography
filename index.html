@@ -26,6 +26,7 @@
 </script>
 
 <title>Denizalp Aybak — Photography</title>
+<link rel="stylesheet" href="https://use.typekit.net/rmn7qgm.css">
 <style>
 
 /* =====================================================
@@ -2363,10 +2364,11 @@ body.phone-landscape #index-project-action {
    V20 — END CARD / LANDSCAPE ACTION FINAL FIXES
    ===================================================== */
 
-/* Fill iOS landscape safe-area gutters as well as the layout viewport. */
+/* The upper photography page always stays white.
+   Only the AYBAK end-card layer itself becomes black. */
 html.aybak-end-card-active,
 body.aybak-end-card-active {
-    background: #000 !important;
+    background: #fff !important;
 }
 
 #aybak-end-card {
@@ -2603,420 +2605,123 @@ function fitAybakEndCardWord() {
             "aybak-end-card-word"
         );
 
-
-    if (
-        !canvas ||
-        !aybakEndCard
-    ) {
-
+    if (!canvas || !aybakEndCard) {
         return;
-
     }
 
-
-    /*
-        Keep the earlier tight Times New Roman drawing exactly as it was:
-        -0.045em tracking makes the Y/B and A/K terminals visually meet.
-
-        The word is drawn on a full-screen canvas so its ACTUAL visible ink
-        can be positioned, rather than relying on the font's invisible text
-        box. One common gap is used on all three relevant sides:
-
-        left visible A edge  -> contact copy left edge
-        right visible K edge -> film copy right edge
-        bottom visible ink   -> same shared edge gap
-
-        Therefore the three distances stay mathematically equal at every
-        viewport size and on every device, with no cropping.
-    */
     const viewportWidth =
-        Math.max(
-            1,
-            aybakEndCard.clientWidth
-        );
-
+        Math.max(1, aybakEndCard.clientWidth);
 
     const viewportHeight =
-        Math.max(
-            1,
-            aybakEndCard.clientHeight
-        );
+        Math.max(1, aybakEndCard.clientHeight);
 
-
-    /*
-        Align the visible A exactly with the contact copy's left edge and
-        the visible K exactly with the FILM copy's right edge. The bottom
-        gap is the same horizontal margin, so the three edges share one
-        consistent spacing system on desktop, tablet and phone.
-    */
-    const contactAnchor =
-        aybakEndCard.querySelector(
-            ".aybak-end-card-contact"
-        );
-
-
-    const filmAnchor =
-        aybakEndCard.querySelector(
-            ".aybak-end-card-film"
-        );
-
-
-    const contactRect =
-        contactAnchor
-            ? contactAnchor.getBoundingClientRect()
-            : null;
-
-
-    const filmRect =
-        filmAnchor
-            ? filmAnchor.getBoundingClientRect()
-            : null;
-
+    const rootStyles =
+        getComputedStyle(document.documentElement);
 
     const computedSide =
         parseFloat(
-            getComputedStyle(
-                document.documentElement
-            ).getPropertyValue(
-                "--side"
-            )
+            rootStyles.getPropertyValue("--side")
         ) || 0;
 
+    /* Match the normal page's outer axes exactly. */
+    const infoRect =
+        info
+            ? info.getBoundingClientRect()
+            : null;
 
     const targetInkLeft =
-        contactRect
-            ? contactRect.left
+        infoRect
+            ? infoRect.left
             : computedSide;
 
-
     const targetInkRight =
-        filmRect
-            ? filmRect.right
-            : viewportWidth - computedSide;
-
-
-    const leftGap =
-        targetInkLeft;
-
-
-    const rightGap =
-        viewportWidth - targetInkRight;
-
+        viewportWidth - computedSide;
 
     /*
-        Horizontal alignment keeps using the actual contact / FILM anchors.
-        Vertically, the visible bottom of AYBAK uses the same spacing as the
-        top copy: --top. This keeps the top and bottom rhythm identical on
-        desktop, tablet, portrait phone and landscape phone.
+        The AYBAK bottom edge follows the actual bottom gap of the
+        project brand/date metadata. This keeps mobile correct even if
+        its bottom inset differs from the top inset.
     */
     const computedTop =
         parseFloat(
-            getComputedStyle(
-                document.documentElement
-            ).getPropertyValue(
-                "--top"
-            )
+            rootStyles.getPropertyValue("--top")
         ) || 0;
 
+    const metaRect =
+        projectMeta
+            ? projectMeta.getBoundingClientRect()
+            : null;
 
     const bottomGap =
-        Math.max(
-            0,
-            computedTop
-        );
+        metaRect &&
+        Number.isFinite(metaRect.bottom) &&
+        metaRect.bottom > 0
+            ? Math.max(0, window.innerHeight - metaRect.bottom)
+            : computedTop;
 
-
-    const FIRST_A_SCALE =
-        1.14;
-
+    const word = "AYBAK";
     const sampleSize = 1000;
-    const trackingEm = -0.045;
-
-    /*
-        A-Y spacing is solved from the actual glyph bounds so that the B sits
-        exactly on the visual horizontal center of the complete AYBAK word.
-        Only the A-Y pair changes; the first A stays at 114% and the final
-        word is still refitted to the same left / right / bottom page limits.
-    */
-
-    const trackingPx = trackingEm * sampleSize;
-
-    const padding = 420;
 
     const measureCanvas =
-        document.createElement(
-            "canvas"
-        );
+        document.createElement("canvas");
 
     const mctx =
-        measureCanvas.getContext(
-            "2d"
-        );
+        measureCanvas.getContext("2d");
 
-    const letters =
-        Array.from(
-            "AYBAK"
-        );
+    /* Acumin Pro Wide Semibold, with the font's own kerning untouched. */
+    mctx.font =
+        `600 ${sampleSize}px "acumin-pro-wide", sans-serif`;
 
-    const letterScales =
-        letters.map(
-            (_, index) =>
-                index === 0
-                    ? FIRST_A_SCALE
-                    : 1
-        );
+    if ("fontKerning" in mctx) {
+        mctx.fontKerning = "auto";
+    }
 
     const metrics =
-        letters.map(
-            (letter, index) => {
+        mctx.measureText(word);
 
-                mctx.font =
-                    `400 ${sampleSize * letterScales[index]}px "Times New Roman", Times, serif`;
+    const inkLeft =
+        Number.isFinite(metrics.actualBoundingBoxLeft)
+            ? metrics.actualBoundingBoxLeft
+            : 0;
 
-                return mctx.measureText(
-                    letter
-                );
+    const inkRight =
+        Number.isFinite(metrics.actualBoundingBoxRight)
+            ? metrics.actualBoundingBoxRight
+            : metrics.width;
 
-            }
-        );
-
-    const advances =
-        metrics.map(
-            metric => metric.width
-        );
-
-    const basePositions = [];
-    let baseX = 0;
-
-    letters.forEach(
-        (_, index) => {
-
-            basePositions.push(
-                baseX
-            );
-
-            baseX += advances[index];
-
-            if (
-                index <
-                letters.length - 1
-            ) {
-                baseX += trackingPx;
-            }
-
-        }
-    );
-
-    const firstMetric = metrics[0];
-    const bMetric = metrics[2];
-    const lastMetric = metrics[metrics.length - 1];
-
-    const baseInkLeft =
-        basePositions[0] -
-        (Number.isFinite(firstMetric.actualBoundingBoxLeft)
-            ? firstMetric.actualBoundingBoxLeft
-            : 0);
-
-    const baseInkRight =
-        basePositions[metrics.length - 1] +
-        (Number.isFinite(lastMetric.actualBoundingBoxRight)
-            ? lastMetric.actualBoundingBoxRight
-            : lastMetric.width);
-
-    const baseBCenter =
-        basePositions[2] +
-        (
-            (Number.isFinite(bMetric.actualBoundingBoxRight)
-                ? bMetric.actualBoundingBoxRight
-                : bMetric.width) -
-            (Number.isFinite(bMetric.actualBoundingBoxLeft)
-                ? bMetric.actualBoundingBoxLeft
-                : 0)
-        ) / 2;
-
-    const solvedFirstPairTightenPx =
-        baseInkLeft +
-        baseInkRight -
-        2 * baseBCenter;
-
-    /*
-        The solved value is normally negative. Clamp only as a safety net so
-        a font-metric oddity can never force the A and Y into each other.
-    */
-    const firstPairTightenPx =
-        Math.max(
-            -0.13 * sampleSize,
-            Math.min(
-                -0.02 * sampleSize,
-                solvedFirstPairTightenPx
-            )
-        );
-
-    const FIRST_PAIR_TIGHTEN_EM =
-        firstPairTightenPx /
-        sampleSize;
-
-    const advance =
-        advances.reduce(
-            (sum, width) =>
-                sum + width,
-            0
-        ) +
-        trackingPx *
-        Math.max(
-            0,
-            letters.length - 1
-        ) +
-        firstPairTightenPx;
-
-    measureCanvas.width =
-        Math.ceil(
-            advance +
-            padding * 2
-        );
-
-    measureCanvas.height =
-        Math.ceil(
-            sampleSize * FIRST_A_SCALE +
-            padding * 2
-        );
-
-    const draw =
-        measureCanvas.getContext(
-            "2d",
-            { willReadFrequently: true }
-        );
-
-    draw.textBaseline =
-        "alphabetic";
-    draw.fillStyle =
-        "#fff";
-
-    const originX = padding;
-    const baselineY =
-        padding +
-        sampleSize * FIRST_A_SCALE;
-
-    let x = originX;
-
-    letters.forEach(
-        (letter, index) => {
-
-            draw.font =
-                `400 ${sampleSize * letterScales[index]}px "Times New Roman", Times, serif`;
-
-            draw.fillText(
-                letter,
-                x,
-                baselineY
-            );
-
-            x += advances[index];
-
-            if (
-                index <
-                letters.length - 1
-            ) {
-                x += trackingPx;
-
-                if (
-                    index === 0
-                ) {
-                    x += firstPairTightenPx;
-                }
-            }
-
-        }
-    );
-
-    const data =
-        draw.getImageData(
-            0,
-            0,
-            measureCanvas.width,
-            measureCanvas.height
-        ).data;
-
-    let minX = measureCanvas.width;
-    let maxX = -1;
-    let maxY = -1;
-
-    for (
-        let yy = 0;
-        yy < measureCanvas.height;
-        yy++
-    ) {
-        for (
-            let xx = 0;
-            xx < measureCanvas.width;
-            xx++
-        ) {
-            const alpha =
-                data[(yy * measureCanvas.width + xx) * 4 + 3];
-
-            if (alpha > 8) {
-                minX = Math.min(minX, xx);
-                maxX = Math.max(maxX, xx);
-                maxY = Math.max(maxY, yy);
-            }
-        }
-    }
-
-    if (
-        maxX < minX ||
-        maxY < 0
-    ) {
-        return;
-    }
-
-    const sampleInkLeft =
-        minX - originX;
+    const inkDescent =
+        Number.isFinite(metrics.actualBoundingBoxDescent)
+            ? metrics.actualBoundingBoxDescent
+            : 0;
 
     const sampleInkWidth =
-        maxX - minX + 1;
-
-    const sampleInkBottom =
-        maxY - baselineY;
+        Math.max(1, inkLeft + inkRight);
 
     const targetInkWidth =
-        Math.max(
-            1,
-            targetInkRight - targetInkLeft
-        );
+        Math.max(1, targetInkRight - targetInkLeft);
 
     const fontSize =
-        targetInkWidth *
-        sampleSize /
-        sampleInkWidth;
+        targetInkWidth * sampleSize / sampleInkWidth;
 
     const scale =
-        fontSize /
-        sampleSize;
+        fontSize / sampleSize;
 
     const finalOriginX =
-        targetInkLeft -
-        sampleInkLeft * scale;
+        targetInkLeft + inkLeft * scale;
 
     const finalBaselineY =
         viewportHeight -
         bottomGap -
-        sampleInkBottom * scale;
+        inkDescent * scale;
 
     const dpr =
-        Math.max(
-            1,
-            window.devicePixelRatio || 1
-        );
+        Math.max(1, window.devicePixelRatio || 1);
 
     canvas.width =
-        Math.round(
-            viewportWidth * dpr
-        );
+        Math.round(viewportWidth * dpr);
 
     canvas.height =
-        Math.round(
-            viewportHeight * dpr
-        );
+        Math.round(viewportHeight * dpr);
 
     canvas.style.width =
         `${viewportWidth}px`;
@@ -3025,76 +2730,21 @@ function fitAybakEndCardWord() {
         `${viewportHeight}px`;
 
     const ctx =
-        canvas.getContext(
-            "2d"
-        );
+        canvas.getContext("2d");
 
-    ctx.setTransform(
-        dpr,
-        0,
-        0,
-        dpr,
-        0,
-        0
-    );
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, viewportWidth, viewportHeight);
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = "#fff";
+    ctx.font =
+        `600 ${fontSize}px "acumin-pro-wide", sans-serif`;
 
-    ctx.clearRect(
-        0,
-        0,
-        viewportWidth,
-        viewportHeight
-    );
+    if ("fontKerning" in ctx) {
+        ctx.fontKerning = "auto";
+    }
 
-    ctx.textBaseline =
-        "alphabetic";
-
-    ctx.fillStyle =
-        getComputedStyle(aybakEndCard).color || "#fff";
-
-    const tracking =
-        trackingEm * fontSize;
-
-    let drawX =
-        finalOriginX;
-
-    letters.forEach(
-        (letter, index) => {
-
-            const letterFontSize =
-                fontSize *
-                letterScales[index];
-
-            ctx.font =
-                `400 ${letterFontSize}px "Times New Roman", Times, serif`;
-
-            ctx.fillText(
-                letter,
-                drawX,
-                finalBaselineY
-            );
-
-            drawX +=
-                ctx.measureText(
-                    letter
-                ).width;
-
-            if (
-                index <
-                letters.length - 1
-            ) {
-                drawX += tracking;
-
-                if (
-                    index === 0
-                ) {
-                    drawX +=
-                        FIRST_PAIR_TIGHTEN_EM *
-                        fontSize;
-                }
-            }
-
-        }
-    );
+    /* One draw call preserves Acumin's native pair kerning. */
+    ctx.fillText(word, finalOriginX, finalBaselineY);
 
 }
 
@@ -3695,6 +3345,12 @@ let manualMode =
     the current page session.
 */
 let autoplayPermanentlyDisabled =
+    false;
+
+
+/* A valid ?project=...&image=... link must remain in slide view
+   and must never start project autoplay. */
+let initialImageDeepLinkActive =
     false;
 
 
@@ -12094,6 +11750,9 @@ async function loadProjects() {
             hasValidImageDeepLink
         ) {
 
+            initialImageDeepLinkActive =
+                true;
+
             /*
                 An explicit project + image deep link (for example from
                 the PDF portfolio) must stay on the exact requested image.
@@ -12550,8 +12209,9 @@ let projectAllTouchY = null;
 let projectAllSlideOrigin = null;
 
 function applyPageTheme(isDark) {
-    pageThemeIsDark = Boolean(isDark);
-    body.classList.toggle("theme-dark", pageThemeIsDark);
+    /* The photography page itself is permanently white. */
+    pageThemeIsDark = false;
+    body.classList.remove("theme-dark");
 
     requestAnimationFrame(() => {
         if (typeof fitAybakEndCardWord === "function") {
@@ -12849,6 +12509,10 @@ projectCounter.addEventListener("click", async event => {
    Up / down = physical two-state page / AYBAK navigation everywhere.
    ----------------------------------------------------- */
 document.addEventListener("keydown", async event => {
+    /* This capture handler can stop propagation below, so interaction must
+       disable project autoplay before any Arrow-key navigation runs. */
+    stopProjectAutoplayFromInteraction();
+
     if (event.key === "ArrowDown" && !aybakEndCardActive) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -12920,12 +12584,12 @@ function stopProjectAutoplayFromInteraction() {
 function scheduleProjectAutoplay() {
     clearTimeout(projectAutoplayTimer);
 
-    if (!projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
+    if (initialImageDeepLinkActive || !projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
         return;
     }
 
     projectAutoplayTimer = setTimeout(async () => {
-        if (!projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
+        if (initialImageDeepLinkActive || !projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
             return;
         }
 
@@ -13011,6 +12675,12 @@ syncMetadataAfterRender = function() {
     const tryOpen = async () => {
         if (!projects.length || !spread.firstChild) {
             requestAnimationFrame(tryOpen);
+            return;
+        }
+
+        if (initialImageDeepLinkActive) {
+            /* PDF / shared image links always open directly in slide view. */
+            document.documentElement.classList.remove("desktop-viewall-boot");
             return;
         }
 
