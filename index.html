@@ -7477,85 +7477,59 @@ function prepareProjectAllGrid() {
 
 
 /* =====================================================
+   VIEW ALL TWO-LINE CONTROL
+   VIEW ALL + project photo count behave as one control.
+   ===================================================== */
+
+function isSlideViewAllControlElement(node) {
+    return node === viewAllButton || node === projectCounter;
+}
+
+async function animateSlideViewAllControl(toUpper) {
+    const countText = getProjectPhotoCountText(currentProject().images.length);
+    await Promise.all([
+        animateCase(viewAllButton, "view all", toUpper),
+        animateCase(projectCounter, countText, toUpper)
+    ]);
+    viewAllButton.dataset.rawText = viewAllButton.textContent;
+    projectCounter.dataset.rawText = projectCounter.textContent;
+}
+
+/* =====================================================
    VIEW ALL HOVER
    ===================================================== */
 
 viewAllButton.addEventListener(
     "mouseenter",
-    async () => {
+    async event => {
+        if (!window.matchMedia("(hover: hover)").matches || projectViewAnimating) return;
+        viewButtonHovered = true;
 
-        if (
-            !window.matchMedia(
-                "(hover: hover)"
-            ).matches ||
-            projectViewAnimating
-        ) {
-
+        if (projectAllMode) {
+            await animateCase(viewAllButton, "previous project", true);
+            viewAllButton.dataset.rawText = viewAllButton.textContent;
             return;
-
         }
 
-
-        viewButtonHovered =
-            true;
-
-
-        const base =
-            projectAllMode
-                ? "previous project"
-                : "view all";
-
-
-        await animateCase(
-            viewAllButton,
-            base,
-            true
-        );
-
-
-        viewAllButton.dataset.rawText =
-            viewAllButton.textContent;
-
+        if (isSlideViewAllControlElement(event.relatedTarget)) return;
+        await animateSlideViewAllControl(true);
     }
 );
 
-
 viewAllButton.addEventListener(
     "mouseleave",
-    async () => {
+    async event => {
+        if (!window.matchMedia("(hover: hover)").matches || projectViewAnimating) return;
+        viewButtonHovered = false;
 
-        if (
-            !window.matchMedia(
-                "(hover: hover)"
-            ).matches ||
-            projectViewAnimating
-        ) {
-
+        if (projectAllMode) {
+            await animateCase(viewAllButton, "previous project", false);
+            viewAllButton.dataset.rawText = viewAllButton.textContent;
             return;
-
         }
 
-
-        viewButtonHovered =
-            false;
-
-
-        const base =
-            projectAllMode
-                ? "previous project"
-                : "view all";
-
-
-        await animateCase(
-            viewAllButton,
-            base,
-            false
-        );
-
-
-        viewAllButton.dataset.rawText =
-            viewAllButton.textContent;
-
+        if (isSlideViewAllControlElement(event.relatedTarget)) return;
+        await animateSlideViewAllControl(false);
     }
 );
 
@@ -8073,6 +8047,8 @@ viewAllButton.addEventListener(
 
         else {
 
+            stopAutoSlideshow();
+            await animateSlideViewAllControl(true);
             await enterProjectAll();
 
         }
@@ -9268,7 +9244,7 @@ function selectIndexProject(
 
 
     const nextCountText =
-        getProjectPhotoCountText(
+        getPhotoCountText(
             photoCount
         );
 
@@ -10328,81 +10304,42 @@ indexPreviewImage.addEventListener(
 
 /* =====================================================
    INDEX VIEW ALL INTERACTION
+   VIEW ALL + short photo count behave as one two-line control.
    ===================================================== */
 
-indexViewAllCase =
-    createCaseController(
-        indexProjectViewAll,
-        "view all"
-    );
+indexViewAllCase = createCaseController(indexProjectViewAll, "view all");
 
+function getSelectedIndexPhotoCountText() {
+    if (!selectedIndexProject || !selectedIndexProject.project) return "";
+    return getPhotoCountText(selectedIndexProject.project.images.length);
+}
 
-indexProjectViewAll.addEventListener(
-    "mouseenter",
-    () => {
+async function animateIndexViewAllControl(toUpper) {
+    if (!selectedIndexProject) return;
+    await Promise.all([
+        animateCase(indexProjectViewAll, "view all", toUpper),
+        animateCase(indexProjectCount, getSelectedIndexPhotoCountText(), toUpper)
+    ]);
+    indexProjectViewAll.dataset.rawText = indexProjectViewAll.textContent;
+    indexProjectCount.dataset.rawText = indexProjectCount.textContent;
+}
 
-        if (
-            !window.matchMedia(
-                "(hover: hover)"
-            ).matches ||
-            !selectedIndexProject
-        ) {
+indexProjectAction.addEventListener("mouseenter", async () => {
+    if (!window.matchMedia("(hover: hover)").matches || !selectedIndexProject) return;
+    await animateIndexViewAllControl(true);
+});
 
-            return;
+indexProjectAction.addEventListener("mouseleave", async () => {
+    if (!window.matchMedia("(hover: hover)").matches) return;
+    await animateIndexViewAllControl(false);
+});
 
-        }
-
-
-        indexViewAllCase.upper();
-
-    }
-);
-
-
-indexProjectViewAll.addEventListener(
-    "mouseleave",
-    () => {
-
-        if (
-            !window.matchMedia(
-                "(hover: hover)"
-            ).matches
-        ) {
-
-            return;
-
-        }
-
-
-        indexViewAllCase.lower();
-
-    }
-);
-
-
-indexProjectViewAll.addEventListener(
-    "click",
-    async event => {
-
-        event.stopPropagation();
-
-
-        if (
-            !selectedIndexProject
-        ) {
-
-            return;
-
-        }
-
-
-        await indexViewAllCase.upper();
-
-
-        await openSelectedIndexProjectAll();
-
-    }
-);
+indexProjectAction.addEventListener("click", async event => {
+    event.stopPropagation();
+    if (!selectedIndexProject) return;
+    await animateIndexViewAllControl(true);
+    await openSelectedIndexProjectAll();
+});
 
 
 /* =====================================================
@@ -12444,7 +12381,8 @@ window.addEventListener(
 
 
 </script>
-\n\n<style>
+
+<style>
 /* =====================================================
    PROJECT / INDEX THEME SYSTEM — V20
    ===================================================== */
@@ -12836,36 +12774,28 @@ projectTitle.addEventListener("click", async event => {
 /* -----------------------------------------------------
    VIEW ALL NEXT / PREVIOUS BUTTONS
    ----------------------------------------------------- */
-projectCounter.addEventListener("mouseenter", async () => {
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
-        return;
-    }
+projectCounter.addEventListener("mouseenter", async event => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
     if (projectAllMode) {
         await animateCase(projectCounter, "next project", true);
-    } else {
-        await animateCase(
-            projectCounter,
-            getProjectPhotoCountText(currentProject().images.length),
-            true
-        );
-    }
-});
-
-projectCounter.addEventListener("mouseleave", async () => {
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
         return;
     }
 
+    if (isSlideViewAllControlElement(event.relatedTarget)) return;
+    await animateSlideViewAllControl(true);
+});
+
+projectCounter.addEventListener("mouseleave", async event => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
     if (projectAllMode) {
         await animateCase(projectCounter, "next project", false);
-    } else {
-        await animateCase(
-            projectCounter,
-            getProjectPhotoCountText(currentProject().images.length),
-            false
-        );
+        return;
     }
+
+    if (isSlideViewAllControlElement(event.relatedTarget)) return;
+    await animateSlideViewAllControl(false);
 });
 
 projectCounter.addEventListener("click", async event => {
@@ -12873,9 +12803,7 @@ projectCounter.addEventListener("click", async event => {
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) {
-        return;
-    }
+    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) return;
 
     if (projectAllMode) {
         await animateCase(projectCounter, "next project", true);
@@ -12884,13 +12812,7 @@ projectCounter.addEventListener("click", async event => {
     }
 
     stopAutoSlideshow();
-
-    await animateCase(
-        projectCounter,
-        getProjectPhotoCountText(currentProject().images.length),
-        true
-    );
-
+    await animateSlideViewAllControl(true);
     await enterProjectAll();
 }, true);
 
@@ -13011,6 +12933,15 @@ projectAllGrid.addEventListener(
     true
 );
 </script>
+
+
+<style>
+/* Two-line VIEW ALL controls share one hover/click target. */
+body:not(.project-all-mode):not(.project-all-preparing) #view-all-button,
+body:not(.project-all-mode):not(.project-all-preparing) #project-counter,
+#index-project-action { cursor: pointer; }
+#index-project-count { pointer-events: none; }
+</style>
 
 </body>
 </html>
