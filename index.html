@@ -2364,11 +2364,10 @@ body.phone-landscape #index-project-action {
    V20 — END CARD / LANDSCAPE ACTION FINAL FIXES
    ===================================================== */
 
-/* The upper photography page always stays white.
-   Only the AYBAK end-card layer itself becomes black. */
+/* Fill iOS landscape safe-area gutters as well as the layout viewport. */
 html.aybak-end-card-active,
 body.aybak-end-card-active {
-    background: #fff !important;
+    background: #000 !important;
 }
 
 #aybak-end-card {
@@ -2605,28 +2604,62 @@ function fitAybakEndCardWord() {
             "aybak-end-card-word"
         );
 
-    if (!canvas || !aybakEndCard) {
+    if (
+        !canvas ||
+        !aybakEndCard
+    ) {
         return;
     }
 
     const viewportWidth =
-        Math.max(1, aybakEndCard.clientWidth);
+        Math.max(
+            1,
+            aybakEndCard.clientWidth
+        );
 
     const viewportHeight =
-        Math.max(1, aybakEndCard.clientHeight);
+        Math.max(
+            1,
+            aybakEndCard.clientHeight
+        );
 
     const rootStyles =
-        getComputedStyle(document.documentElement);
+        getComputedStyle(
+            document.documentElement
+        );
 
     const computedSide =
         parseFloat(
-            rootStyles.getPropertyValue("--side")
+            rootStyles.getPropertyValue(
+                "--side"
+            )
         ) || 0;
 
-    /* Match the normal page's outer axes exactly. */
+    const computedTop =
+        parseFloat(
+            rootStyles.getPropertyValue(
+                "--top"
+            )
+        ) || 0;
+
+    /*
+        Horizontal axes:
+        visible A -> Denizalp Aybak left axis
+        visible K -> Photography right axis
+    */
     const infoRect =
         info
             ? info.getBoundingClientRect()
+            : null;
+
+    const sectionAnchor =
+        aybakEndCard.querySelector(
+            ".aybak-end-card-film"
+        );
+
+    const sectionRect =
+        sectionAnchor
+            ? sectionAnchor.getBoundingClientRect()
             : null;
 
     const targetInkLeft =
@@ -2635,18 +2668,15 @@ function fitAybakEndCardWord() {
             : computedSide;
 
     const targetInkRight =
-        viewportWidth - computedSide;
+        sectionRect
+            ? sectionRect.right
+            : viewportWidth - computedSide;
 
     /*
-        The AYBAK bottom edge follows the actual bottom gap of the
-        project brand/date metadata. This keeps mobile correct even if
-        its bottom inset differs from the top inset.
+        Bottom axis follows the actual project metadata bottom gap.
+        This is the important mobile rule: if mobile bottom spacing differs
+        from --top, AYBAK follows the metadata instead of assuming symmetry.
     */
-    const computedTop =
-        parseFloat(
-            rootStyles.getPropertyValue("--top")
-        ) || 0;
-
     const metaRect =
         projectMeta
             ? projectMeta.getBoundingClientRect()
@@ -2656,72 +2686,112 @@ function fitAybakEndCardWord() {
         metaRect &&
         Number.isFinite(metaRect.bottom) &&
         metaRect.bottom > 0
-            ? Math.max(0, window.innerHeight - metaRect.bottom)
+            ? Math.max(
+                0,
+                window.innerHeight - metaRect.bottom
+            )
             : computedTop;
 
     const word = "AYBAK";
     const sampleSize = 1000;
 
     const measureCanvas =
-        document.createElement("canvas");
+        document.createElement(
+            "canvas"
+        );
 
-    const mctx =
-        measureCanvas.getContext("2d");
+    const measureContext =
+        measureCanvas.getContext(
+            "2d"
+        );
 
-    /* Acumin Pro Wide Semibold, with the font's own kerning untouched. */
-    mctx.font =
+    measureContext.font =
         `600 ${sampleSize}px "acumin-pro-wide", sans-serif`;
 
-    if ("fontKerning" in mctx) {
-        mctx.fontKerning = "auto";
+    if (
+        "fontKerning" in measureContext
+    ) {
+        measureContext.fontKerning =
+            "auto";
     }
 
     const metrics =
-        mctx.measureText(word);
+        measureContext.measureText(
+            word
+        );
 
     const inkLeft =
-        Number.isFinite(metrics.actualBoundingBoxLeft)
+        Number.isFinite(
+            metrics.actualBoundingBoxLeft
+        )
             ? metrics.actualBoundingBoxLeft
             : 0;
 
     const inkRight =
-        Number.isFinite(metrics.actualBoundingBoxRight)
+        Number.isFinite(
+            metrics.actualBoundingBoxRight
+        )
             ? metrics.actualBoundingBoxRight
             : metrics.width;
 
     const inkDescent =
-        Number.isFinite(metrics.actualBoundingBoxDescent)
+        Number.isFinite(
+            metrics.actualBoundingBoxDescent
+        )
             ? metrics.actualBoundingBoxDescent
             : 0;
 
     const sampleInkWidth =
-        Math.max(1, inkLeft + inkRight);
+        Math.max(
+            1,
+            inkLeft + inkRight
+        );
 
     const targetInkWidth =
-        Math.max(1, targetInkRight - targetInkLeft);
+        Math.max(
+            1,
+            targetInkRight - targetInkLeft
+        );
 
     const fontSize =
-        targetInkWidth * sampleSize / sampleInkWidth;
+        targetInkWidth *
+        sampleSize /
+        sampleInkWidth;
 
     const scale =
-        fontSize / sampleSize;
+        fontSize /
+        sampleSize;
 
-    const finalOriginX =
-        targetInkLeft + inkLeft * scale;
+    const originX =
+        targetInkLeft +
+        inkLeft * scale;
 
-    const finalBaselineY =
+    const baselineY =
         viewportHeight -
         bottomGap -
         inkDescent * scale;
 
-    const dpr =
-        Math.max(1, window.devicePixelRatio || 1);
+    const pixelRatio =
+        Math.max(
+            1,
+            window.devicePixelRatio || 1
+        );
 
     canvas.width =
-        Math.round(viewportWidth * dpr);
+        Math.max(
+            1,
+            Math.round(
+                viewportWidth * pixelRatio
+            )
+        );
 
     canvas.height =
-        Math.round(viewportHeight * dpr);
+        Math.max(
+            1,
+            Math.round(
+                viewportHeight * pixelRatio
+            )
+        );
 
     canvas.style.width =
         `${viewportWidth}px`;
@@ -2729,76 +2799,51 @@ function fitAybakEndCardWord() {
     canvas.style.height =
         `${viewportHeight}px`;
 
-    const ctx =
-        canvas.getContext("2d");
+    const context =
+        canvas.getContext(
+            "2d"
+        );
 
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, viewportWidth, viewportHeight);
-    ctx.textBaseline = "alphabetic";
-    ctx.fillStyle = "#fff";
-    ctx.font =
+    context.setTransform(
+        pixelRatio,
+        0,
+        0,
+        pixelRatio,
+        0,
+        0
+    );
+
+    context.clearRect(
+        0,
+        0,
+        viewportWidth,
+        viewportHeight
+    );
+
+    context.textBaseline =
+        "alphabetic";
+
+    context.fillStyle =
+        "#fff";
+
+    context.font =
         `600 ${fontSize}px "acumin-pro-wide", sans-serif`;
 
-    if ("fontKerning" in ctx) {
-        ctx.fontKerning = "auto";
+    if (
+        "fontKerning" in context
+    ) {
+        context.fontKerning =
+            "auto";
     }
 
-    /* One draw call preserves Acumin's native pair kerning. */
-    ctx.fillText(word, finalOriginX, finalBaselineY);
-
-}
-
-fitAybakEndCardWord();
-
-window.addEventListener(
-    "resize",
-    fitAybakEndCardWord
-);
-
-window.addEventListener(
-    "orientationchange",
-    fitAybakEndCardWord
-);
-
-if (
-    document.fonts &&
-    document.fonts.ready
-) {
-
-    document.fonts.ready.then(
-        fitAybakEndCardWord
+    /* One draw call preserves Acumin Pro Wide's native kerning. */
+    context.fillText(
+        word,
+        originX,
+        baselineY
     );
 
 }
-
-
-let aybakTouchStartX =
-    null;
-
-
-let aybakTouchStartY =
-    null;
-
-
-let aybakTouchStartedInIndexScroller =
-    false;
-
-
-let aybakWheelAccumulator =
-    0;
-
-
-let aybakWheelResetTimer =
-    null;
-
-
-const AYBAK_WHEEL_THRESHOLD =
-    48;
-
-
-const AYBAK_SWIPE_THRESHOLD =
-    52;
-
 
 function setAybakEndCard(
     active
@@ -3345,12 +3390,6 @@ let manualMode =
     the current page session.
 */
 let autoplayPermanentlyDisabled =
-    false;
-
-
-/* A valid ?project=...&image=... link must remain in slide view
-   and must never start project autoplay. */
-let initialImageDeepLinkActive =
     false;
 
 
@@ -11750,9 +11789,6 @@ async function loadProjects() {
             hasValidImageDeepLink
         ) {
 
-            initialImageDeepLinkActive =
-                true;
-
             /*
                 An explicit project + image deep link (for example from
                 the PDF portfolio) must stay on the exact requested image.
@@ -12209,7 +12245,7 @@ let projectAllTouchY = null;
 let projectAllSlideOrigin = null;
 
 function applyPageTheme(isDark) {
-    /* The photography page itself is permanently white. */
+    /* Photography surface is permanently white; black belongs only to AYBAK. */
     pageThemeIsDark = false;
     body.classList.remove("theme-dark");
 
@@ -12509,8 +12545,6 @@ projectCounter.addEventListener("click", async event => {
    Up / down = physical two-state page / AYBAK navigation everywhere.
    ----------------------------------------------------- */
 document.addEventListener("keydown", async event => {
-    /* This capture handler can stop propagation below, so interaction must
-       disable project autoplay before any Arrow-key navigation runs. */
     stopProjectAutoplayFromInteraction();
 
     if (event.key === "ArrowDown" && !aybakEndCardActive) {
@@ -12584,12 +12618,12 @@ function stopProjectAutoplayFromInteraction() {
 function scheduleProjectAutoplay() {
     clearTimeout(projectAutoplayTimer);
 
-    if (initialImageDeepLinkActive || !projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
+    if (!projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
         return;
     }
 
     projectAutoplayTimer = setTimeout(async () => {
-        if (initialImageDeepLinkActive || !projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
+        if (!projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
             return;
         }
 
@@ -12678,9 +12712,20 @@ syncMetadataAfterRender = function() {
             return;
         }
 
-        if (initialImageDeepLinkActive) {
-            /* PDF / shared image links always open directly in slide view. */
+        const requestedDeepLink = getDeepLinkRequest();
+        const requestedDeepProjectIndex = findProjectIndexById(requestedDeepLink.projectId);
+        const requestedDeepFrameIndex =
+            requestedDeepProjectIndex >= 0 && requestedDeepLink.imageNumber !== null
+                ? getRuntimeFrameIndexFromOriginalNumber(
+                    projects[requestedDeepProjectIndex],
+                    requestedDeepLink.imageNumber
+                )
+                : -1;
+
+        if (requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0) {
             document.documentElement.classList.remove("desktop-viewall-boot");
+            stopProjectAutoplayFromInteraction();
+            stopAutoSlideshow();
             return;
         }
 
@@ -12732,5 +12777,28 @@ body:not(.project-all-mode):not(.project-all-preparing) #project-counter,
 #index-project-count { pointer-events: none; }
 </style>
 
+
+<style>
+/* Photography surface is permanently white. AYBAK end-card remains the only black page. */
+html:not(.aybak-end-card-active),
+body:not(.aybak-end-card-active),
+body:not(.aybak-end-card-active) #project-stage,
+body:not(.aybak-end-card-active) #project-all-view,
+body:not(.aybak-end-card-active) #index-view {
+    background: #fff !important;
+    color: #000 !important;
+}
+body:not(.aybak-end-card-active) #project-title,
+body:not(.aybak-end-card-active) #project-date,
+body:not(.aybak-end-card-active) #project-counter,
+body:not(.aybak-end-card-active) #view-all-button,
+body:not(.aybak-end-card-active) #index-button,
+body:not(.aybak-end-card-active) .index-project-title,
+body:not(.aybak-end-card-active) .index-project-date,
+body:not(.aybak-end-card-active) #index-project-view-all,
+body:not(.aybak-end-card-active) #index-project-count {
+    color: #000 !important;
+}
+</style>
 </body>
 </html>
