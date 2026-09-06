@@ -2591,9 +2591,30 @@ const aybakEndCard =
 let aybakEndCardActive =
     false;
 
+let aybakTouchStartX =
+    null;
+
+let aybakTouchStartY =
+    null;
+
+let aybakTouchStartedInIndexScroller =
+    false;
+
+let aybakWheelAccumulator =
+    0;
+
+let aybakWheelResetTimer =
+    null;
+
+const AYBAK_WHEEL_THRESHOLD =
+    48;
+
+const AYBAK_SWIPE_THRESHOLD =
+    52;
+
 
 /*
-    Fit the actual Times New Roman ink — not the CSS text box —
+    Fit the actual Acumin Pro Wide ink — not the CSS text box —
     slightly wider than the viewport, then center those visible ink bounds.
     This creates the same tiny, symmetrical side crop on every screen size.
 */
