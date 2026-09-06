@@ -2726,53 +2726,135 @@ function fitAybakEndCardWord() {
         );
 
 
-    const sampleSize =
-        1000;
+    const FIRST_A_SCALE =
+        1.14;
 
+    const sampleSize = 1000;
+    const trackingEm = -0.045;
 
-    const trackingEm =
-        -0.045;
+    /*
+        A-Y spacing is solved from the actual glyph bounds so that the B sits
+        exactly on the visual horizontal center of the complete AYBAK word.
+        Only the A-Y pair changes; the first A stays at 114% and the final
+        word is still refitted to the same left / right / bottom page limits.
+    */
 
+    const trackingPx = trackingEm * sampleSize;
 
-    const trackingPx =
-        trackingEm *
-        sampleSize;
-
-
-    const padding =
-        320;
-
+    const padding = 420;
 
     const measureCanvas =
         document.createElement(
             "canvas"
         );
 
-
-    const measureContext =
+    const mctx =
         measureCanvas.getContext(
             "2d"
         );
-
-
-    measureContext.font =
-        `400 ${sampleSize}px "Times New Roman", Times, serif`;
-
 
     const letters =
         Array.from(
             "AYBAK"
         );
 
-
-    const advances =
+    const letterScales =
         letters.map(
-            letter =>
-                measureContext.measureText(
-                    letter
-                ).width
+            (_, index) =>
+                index === 0
+                    ? FIRST_A_SCALE
+                    : 1
         );
 
+    const metrics =
+        letters.map(
+            (letter, index) => {
+
+                mctx.font =
+                    `400 ${sampleSize * letterScales[index]}px "Times New Roman", Times, serif`;
+
+                return mctx.measureText(
+                    letter
+                );
+
+            }
+        );
+
+    const advances =
+        metrics.map(
+            metric => metric.width
+        );
+
+    const basePositions = [];
+    let baseX = 0;
+
+    letters.forEach(
+        (_, index) => {
+
+            basePositions.push(
+                baseX
+            );
+
+            baseX += advances[index];
+
+            if (
+                index <
+                letters.length - 1
+            ) {
+                baseX += trackingPx;
+            }
+
+        }
+    );
+
+    const firstMetric = metrics[0];
+    const bMetric = metrics[2];
+    const lastMetric = metrics[metrics.length - 1];
+
+    const baseInkLeft =
+        basePositions[0] -
+        (Number.isFinite(firstMetric.actualBoundingBoxLeft)
+            ? firstMetric.actualBoundingBoxLeft
+            : 0);
+
+    const baseInkRight =
+        basePositions[metrics.length - 1] +
+        (Number.isFinite(lastMetric.actualBoundingBoxRight)
+            ? lastMetric.actualBoundingBoxRight
+            : lastMetric.width);
+
+    const baseBCenter =
+        basePositions[2] +
+        (
+            (Number.isFinite(bMetric.actualBoundingBoxRight)
+                ? bMetric.actualBoundingBoxRight
+                : bMetric.width) -
+            (Number.isFinite(bMetric.actualBoundingBoxLeft)
+                ? bMetric.actualBoundingBoxLeft
+                : 0)
+        ) / 2;
+
+    const solvedFirstPairTightenPx =
+        baseInkLeft +
+        baseInkRight -
+        2 * baseBCenter;
+
+    /*
+        The solved value is normally negative. Clamp only as a safety net so
+        a font-metric oddity can never force the A and Y into each other.
+    */
+    const firstPairTightenPx =
+        Math.max(
+            -0.13 * sampleSize,
+            Math.min(
+                -0.02 * sampleSize,
+                solvedFirstPairTightenPx
+            )
+        );
+
+    const FIRST_PAIR_TIGHTEN_EM =
+        firstPairTightenPx /
+        sampleSize;
 
     const advance =
         advances.reduce(
@@ -2784,8 +2866,8 @@ function fitAybakEndCardWord() {
         Math.max(
             0,
             letters.length - 1
-        );
-
+        ) +
+        firstPairTightenPx;
 
     measureCanvas.width =
         Math.ceil(
@@ -2793,334 +2875,222 @@ function fitAybakEndCardWord() {
             padding * 2
         );
 
-
     measureCanvas.height =
-        sampleSize +
-        padding * 2;
-
-
-    const measureDrawContext =
-        measureCanvas.getContext(
-            "2d",
-            {
-                willReadFrequently:
-                    true
-            }
+        Math.ceil(
+            sampleSize * FIRST_A_SCALE +
+            padding * 2
         );
 
+    const draw =
+        measureCanvas.getContext(
+            "2d",
+            { willReadFrequently: true }
+        );
 
-    measureDrawContext.font =
-        `400 ${sampleSize}px "Times New Roman", Times, serif`;
-
-
-    measureDrawContext.textBaseline =
+    draw.textBaseline =
         "alphabetic";
-
-
-    measureDrawContext.fillStyle =
+    draw.fillStyle =
         "#fff";
 
-
-    const sampleOriginX =
-        padding;
-
-
-    const sampleBaselineY =
+    const originX = padding;
+    const baselineY =
         padding +
-        sampleSize;
+        sampleSize * FIRST_A_SCALE;
 
-
-    let sampleDrawX =
-        sampleOriginX;
-
+    let x = originX;
 
     letters.forEach(
-        (
-            letter,
-            index
-        ) => {
+        (letter, index) => {
 
-            measureDrawContext.fillText(
+            draw.font =
+                `400 ${sampleSize * letterScales[index]}px "Times New Roman", Times, serif`;
+
+            draw.fillText(
                 letter,
-                sampleDrawX,
-                sampleBaselineY
+                x,
+                baselineY
             );
 
-
-            sampleDrawX +=
-                advances[index];
-
+            x += advances[index];
 
             if (
                 index <
                 letters.length - 1
             ) {
+                x += trackingPx;
 
-                sampleDrawX +=
-                    trackingPx;
-
+                if (
+                    index === 0
+                ) {
+                    x += firstPairTightenPx;
+                }
             }
 
         }
     );
 
-
-    const imageData =
-        measureDrawContext.getImageData(
+    const data =
+        draw.getImageData(
             0,
             0,
             measureCanvas.width,
             measureCanvas.height
-        );
+        ).data;
 
-
-    const data =
-        imageData.data;
-
-
-    let minX =
-        measureCanvas.width;
-
-
-    let maxX =
-        -1;
-
-
-    let minY =
-        measureCanvas.height;
-
-
-    let maxY =
-        -1;
-
+    let minX = measureCanvas.width;
+    let maxX = -1;
+    let maxY = -1;
 
     for (
-        let y = 0;
-        y < measureCanvas.height;
-        y++
+        let yy = 0;
+        yy < measureCanvas.height;
+        yy++
     ) {
-
         for (
-            let x = 0;
-            x < measureCanvas.width;
-            x++
+            let xx = 0;
+            xx < measureCanvas.width;
+            xx++
         ) {
-
             const alpha =
-                data[
-                    (
-                        y *
-                        measureCanvas.width +
-                        x
-                    ) *
-                    4 +
-                    3
-                ];
+                data[(yy * measureCanvas.width + xx) * 4 + 3];
 
-
-            if (
-                alpha > 8
-            ) {
-
-                minX =
-                    Math.min(
-                        minX,
-                        x
-                    );
-
-
-                maxX =
-                    Math.max(
-                        maxX,
-                        x
-                    );
-
-
-                minY =
-                    Math.min(
-                        minY,
-                        y
-                    );
-
-
-                maxY =
-                    Math.max(
-                        maxY,
-                        y
-                    );
-
+            if (alpha > 8) {
+                minX = Math.min(minX, xx);
+                maxX = Math.max(maxX, xx);
+                maxY = Math.max(maxY, yy);
             }
-
         }
-
     }
-
 
     if (
         maxX < minX ||
-        maxY < minY
+        maxY < 0
     ) {
-
         return;
-
     }
 
-
     const sampleInkLeft =
-        minX -
-        sampleOriginX;
-
+        minX - originX;
 
     const sampleInkWidth =
-        maxX -
-        minX +
-        1;
-
+        maxX - minX + 1;
 
     const sampleInkBottom =
-        maxY -
-        sampleBaselineY;
-
+        maxY - baselineY;
 
     const targetInkWidth =
         Math.max(
             1,
-            targetInkRight -
-            targetInkLeft
+            targetInkRight - targetInkLeft
         );
-
 
     const fontSize =
         targetInkWidth *
         sampleSize /
         sampleInkWidth;
 
-
     const scale =
         fontSize /
         sampleSize;
 
-
-    const originX =
+    const finalOriginX =
         targetInkLeft -
-        sampleInkLeft *
-        scale;
+        sampleInkLeft * scale;
 
-
-    const baselineY =
+    const finalBaselineY =
         viewportHeight -
         bottomGap -
-        sampleInkBottom *
-        scale;
+        sampleInkBottom * scale;
 
-
-    const pixelRatio =
+    const dpr =
         Math.max(
             1,
             window.devicePixelRatio || 1
         );
 
-
     canvas.width =
-        Math.max(
-            1,
-            Math.round(
-                viewportWidth *
-                pixelRatio
-            )
+        Math.round(
+            viewportWidtviewportHeight * dpr
         );
-
 
     canvas.height =
-        Math.max(
-            1,
-            Math.round(
-                viewportHeight *
-                pixelRatio
-            )
+        Math.round(
+            viewportHeight * dpr
         );
-
 
     canvas.style.width =
         `${viewportWidth}px`;
 
-
     canvas.style.height =
         `${viewportHeight}px`;
 
-
-    const context =
+    const ctx =
         canvas.getContext(
             "2d"
         );
 
-
-    context.setTransform(
-        pixelRatio,
+    ctx.setTransform(
+        dpr,
         0,
         0,
-        pixelRatio,
+        dpr,
         0,
         0
     );
 
-
-    context.clearRect(
+    ctx.clearRect(
         0,
         0,
         viewportWidth,
         viewportHeight
     );
 
-
-    context.font =
-        `400 ${fontSize}px "Times New Roman", Times, serif`;
-
-
-    context.textBaseline =
+    ctx.textBaseline =
         "alphabetic";
 
-
-    context.fillStyle =
+    ctx.fillStyle =
         getComputedStyle(aybakEndCard).color || "#fff";
 
-
-    const finalTracking =
-        trackingEm *
-        fontSize;
-
+    const tracking =
+        trackingEm * fontSize;
 
     let drawX =
-        originX;
-
+        finalOriginX;
 
     letters.forEach(
-        (
-            letter,
-            index
-        ) => {
+        (letter, index) => {
 
-            context.fillText(
+            const letterFontSize =
+                fontSize *
+                letterScales[index];
+
+            ctx.font =
+                `400 ${letterFontSize}px "Times New Roman", Times, serif`;
+
+            ctx.fillText(
                 letter,
                 drawX,
-                baselineY
+                finalBaselineY
             );
 
-
             drawX +=
-                context.measureText(
+                ctx.measureText(
                     letter
                 ).width;
-
 
             if (
                 index <
                 letters.length - 1
             ) {
+                drawX += tracking;
 
-                drawX +=
-                    finalTracking;
-
+                if (
+                    index === 0
+                ) {
+                    drawX +=
+                        FIRST_PAIR_TIGHTEN_EM *
+                        fontSize;
+                }
             }
 
         }
