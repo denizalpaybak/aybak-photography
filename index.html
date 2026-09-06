@@ -2424,7 +2424,7 @@ body.phone-landscape #index-project-count {
 
             <span id="project-title"></span>
 
-            <span id="project-counter"></span>
+            <button id="project-counter" type="button" aria-label="Next project"></button>
 
             <span id="project-date"></span>
 
@@ -3059,7 +3059,7 @@ function fitAybakEndCardWord() {
 
 
     context.fillStyle =
-        "#fff";
+        getComputedStyle(aybakEndCard).color || "#fff";
 
 
     const finalTracking =
@@ -12402,6 +12402,495 @@ window.addEventListener(
 );
 
 
+</script>
+\n\n<style>
+/* =====================================================
+   PROJECT / INDEX THEME SYSTEM — V20
+   ===================================================== */
+body,
+#project-stage,
+#project-all-view,
+#index-view {
+    transition: background-color 260ms ease, color 260ms ease;
+}
+
+body.theme-dark,
+body.theme-dark #project-stage,
+body.theme-dark #project-all-view,
+body.theme-dark #index-view {
+    background: #000 !important;
+    color: #fff !important;
+}
+
+body:not(.theme-dark),
+body:not(.theme-dark) #project-stage,
+body:not(.theme-dark) #project-all-view,
+body:not(.theme-dark) #index-view {
+    background: #fff !important;
+    color: #000 !important;
+}
+
+body.theme-dark .section-switch,
+body.theme-dark #index-button,
+body.theme-dark .index-project-title,
+body.theme-dark .index-project-date,
+body.theme-dark #index-project-view-all,
+body.theme-dark .project-card,
+body.theme-dark #project-counter,
+body.theme-dark #view-all-button {
+    color: #fff !important;
+}
+
+body:not(.theme-dark) .section-switch,
+body:not(.theme-dark) #index-button,
+body:not(.theme-dark) .index-project-title,
+body:not(.theme-dark) .index-project-date,
+body:not(.theme-dark) #index-project-view-all,
+body:not(.theme-dark) .project-card,
+body:not(.theme-dark) #project-counter,
+body:not(.theme-dark) #view-all-button {
+    color: #000 !important;
+}
+
+#project-title,
+#project-date {
+    pointer-events: auto !important;
+    cursor: pointer;
+}
+
+#project-counter {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+    padding: 0 0 0 28px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    line-height: inherit;
+    white-space: nowrap;
+}
+
+body:not(.project-all-mode):not(.project-all-preparing) #project-counter {
+    cursor: default;
+    pointer-events: none;
+}
+
+body.project-all-mode #project-counter,
+body.project-all-preparing #project-counter {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* VIEW ALL: NEXT sits above PREVIOUS at the bottom-right. */
+body.project-all-mode #project-counter,
+body.project-all-preparing #project-counter {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+}
+
+body.project-all-mode #view-all-button,
+body.project-all-preparing #view-all-button {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+}
+
+/* AYBAK is always the inverse of the current page. */
+body.theme-dark #aybak-end-card {
+    color: #000 !important;
+}
+body.theme-dark.aybak-end-card-active #aybak-end-card {
+    background: rgba(255,255,255,1) !important;
+}
+body.theme-dark #aybak-end-card .aybak-end-card-copy a,
+body.theme-dark #aybak-end-card .section-switch {
+    color: #000 !important;
+}
+
+body:not(.theme-dark) #aybak-end-card {
+    color: #fff !important;
+}
+body:not(.theme-dark).aybak-end-card-active #aybak-end-card {
+    background: rgba(0,0,0,1) !important;
+}
+body:not(.theme-dark) #aybak-end-card .aybak-end-card-copy a,
+body:not(.theme-dark) #aybak-end-card .section-switch {
+    color: #fff !important;
+}
+</style>
+
+<script>
+/* =====================================================
+   PROJECT BEHAVIOUR / THEME OVERRIDES — V20
+   ===================================================== */
+
+let pageThemeIsDark = false;
+let projectAllSwitching = false;
+let projectTitleHovering = false;
+let projectAllTouchX = null;
+let projectAllTouchY = null;
+let projectAllSlideOrigin = null;
+
+function applyPageTheme(isDark) {
+    pageThemeIsDark = Boolean(isDark);
+    body.classList.toggle("theme-dark", pageThemeIsDark);
+
+    requestAnimationFrame(() => {
+        if (typeof fitAybakEndCardWord === "function") {
+            fitAybakEndCardWord();
+        }
+    });
+}
+
+function invertPageTheme() {
+    applyPageTheme(!pageThemeIsDark);
+}
+
+/* First project is always white. */
+applyPageTheme(false);
+
+/* -----------------------------------------------------
+   NORMAL SLIDE = EXACTLY ONE RANDOM FRAME PER PROJECT
+   ----------------------------------------------------- */
+buildNormalProjectSequence = function(
+    targetProjectIndex,
+    { includeFrame = null } = {}
+) {
+    const normalized = normalizeProjectIndex(targetProjectIndex);
+    const project = projects[normalized];
+    const total = project.images.length;
+
+    let selectedFrame;
+
+    if (
+        Number.isInteger(includeFrame) &&
+        includeFrame >= 0 &&
+        includeFrame < total
+    ) {
+        selectedFrame = includeFrame;
+    } else {
+        selectedFrame = Math.floor(Math.random() * total);
+    }
+
+    normalSequenceProjectIndex = normalized;
+    normalSequenceFrames = [selectedFrame];
+    normalSequencePosition = 0;
+
+    return normalSequenceFrames;
+};
+
+/* Theme flips only when the PROJECT changes, never when its frame changes. */
+const showFrameV19 = showFrame;
+showFrame = async function(targetProjectIndex, targetFrameIndex, urlMode = "push") {
+    const normalized = normalizeProjectIndex(targetProjectIndex);
+    const projectWillChange = normalized !== projectIndex;
+    const ok = await showFrameV19(targetProjectIndex, targetFrameIndex, urlMode);
+
+    if (ok && projectWillChange) {
+        invertPageTheme();
+    }
+
+    return ok;
+};
+
+/* -----------------------------------------------------
+   INDEX IS ALWAYS THE INVERSE OF THE PAGE IT CAME FROM
+   ----------------------------------------------------- */
+const enterIndexV19 = enterIndex;
+enterIndex = async function(options = {}) {
+    if (!indexMode) {
+        invertPageTheme();
+    }
+    return enterIndexV19(options);
+};
+
+const returnFromIndexV19 = returnFromIndex;
+returnFromIndex = async function() {
+    if (indexMode) {
+        invertPageTheme();
+    }
+    return returnFromIndexV19();
+};
+
+const openSelectedIndexProjectAllV19 = openSelectedIndexProjectAll;
+openSelectedIndexProjectAll = async function() {
+    if (indexMode && selectedIndexProject) {
+        invertPageTheme();
+    }
+    return openSelectedIndexProjectAllV19();
+};
+
+const returnProjectAllToIndexV19 = returnProjectAllToIndex;
+returnProjectAllToIndex = async function() {
+    if (projectAllMode && projectAllOpenedFromIndex) {
+        invertPageTheme();
+    }
+    return returnProjectAllToIndexV19();
+};
+
+/* -----------------------------------------------------
+   VIEW ALL COPY: NEXT / PREVIOUS
+   ----------------------------------------------------- */
+function setProjectAllNavigationCopy() {
+    if (!projectAllMode && !body.classList.contains("project-all-preparing")) {
+        return;
+    }
+
+    renderBaseTypography(projectCounter, "next");
+    projectCounter.dataset.rawText = projectCounter.textContent;
+    projectCounter.setAttribute("aria-label", "Next project");
+
+    renderBaseTypography(viewAllButton, "previous");
+    viewAllButton.dataset.rawText = viewAllButton.textContent;
+    viewAllButton.setAttribute("aria-label", "Previous project");
+}
+
+const enterProjectAllV19 = enterProjectAll;
+enterProjectAll = async function() {
+    if (!projectAllMode && !indexMode && !projectAllOpenedFromIndex) {
+        projectAllSlideOrigin = {
+            projectIndex,
+            frameIndex,
+            themeIsDark: pageThemeIsDark
+        };
+    }
+
+    const result = await enterProjectAllV19();
+    setProjectAllNavigationCopy();
+    return result;
+};
+
+/* Original INDEX -> VIEW ALL flow writes ALL()/CLOSE at the end. Fix it immediately after. */
+const openSelectedIndexProjectAllV20Base = openSelectedIndexProjectAll;
+openSelectedIndexProjectAll = async function() {
+    const result = await openSelectedIndexProjectAllV20Base();
+    setProjectAllNavigationCopy();
+    return result;
+};
+
+async function switchProjectAll(direction) {
+    if (!projectAllMode || projectAllSwitching || projectViewAnimating) {
+        return;
+    }
+
+    projectAllSwitching = true;
+    stopAutoSlideshow();
+
+    const targetIndex = normalizeProjectIndex(projectIndex + direction);
+    const targetProject = projects[targetIndex];
+
+    projectIndex = targetIndex;
+    frameIndex = 0;
+    renderedProjectIndex = targetIndex;
+
+    leaveFocusedProjectMode();
+    syncProjectUrl("push");
+    invertPageTheme();
+
+    projectAllGrid.innerHTML = "";
+    buildProjectAllGrid();
+    syncProjectAllBounds(true);
+    layoutProjectAllGrid(true);
+
+    await Promise.all([
+        animateCase(projectTitle, targetProject.title, true),
+        animateCase(projectDate, targetProject.date || "", true)
+    ]);
+
+    setProjectAllNavigationCopy();
+    preloadAhead();
+    projectAllSwitching = false;
+}
+
+/* -----------------------------------------------------
+   CLIENT NAME = VIEW TOGGLE
+   Desktop hover only animates. Click performs the change.
+   Mobile tap animates first, then changes view.
+   ----------------------------------------------------- */
+async function animateProjectClientState(toAlternateState) {
+    const project = currentProject();
+    await Promise.all([
+        animateCase(projectTitle, project.title, toAlternateState),
+        animateCase(projectDate, project.date || "", toAlternateState)
+    ]);
+}
+
+projectTitle.addEventListener("mouseenter", async () => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || projectViewAnimating) {
+        return;
+    }
+    projectTitleHovering = true;
+    await animateProjectClientState(!projectAllMode);
+});
+
+projectTitle.addEventListener("mouseleave", async () => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || projectViewAnimating) {
+        return;
+    }
+    projectTitleHovering = false;
+    await animateProjectClientState(projectAllMode);
+});
+
+projectTitle.addEventListener("click", async event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) {
+        return;
+    }
+
+    if (projectAllMode) {
+        await animateProjectClientState(false);
+
+        if (projectAllOpenedFromIndex) {
+            await returnProjectAllToIndex();
+        } else {
+            const origin = projectAllSlideOrigin;
+            await exitProjectAll();
+
+            if (origin) {
+                await showFrameV19(
+                    origin.projectIndex,
+                    origin.frameIndex,
+                    "replace"
+                );
+                applyPageTheme(origin.themeIsDark);
+                projectAllSlideOrigin = null;
+            }
+        }
+    } else {
+        stopAutoSlideshow();
+        await animateProjectClientState(true);
+        await enterProjectAll();
+    }
+}, true);
+
+/* -----------------------------------------------------
+   VIEW ALL NEXT / PREVIOUS BUTTONS
+   ----------------------------------------------------- */
+projectCounter.addEventListener("mouseenter", async () => {
+    if (projectAllMode && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        await animateCase(projectCounter, "next", true);
+    }
+});
+projectCounter.addEventListener("mouseleave", async () => {
+    if (projectAllMode && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+        await animateCase(projectCounter, "next", false);
+    }
+});
+
+projectCounter.addEventListener("click", async event => {
+    if (!projectAllMode) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    await animateCase(projectCounter, "next", true);
+    await switchProjectAll(1);
+}, true);
+
+/* Capture the existing VIEW ALL button only while inside VIEW ALL. */
+viewAllButton.addEventListener("click", async event => {
+    if (!projectAllMode) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    await animateCase(viewAllButton, "previous", true);
+    await switchProjectAll(-1);
+}, true);
+
+viewAllButton.addEventListener("mouseenter", async event => {
+    if (!projectAllMode || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    event.stopImmediatePropagation();
+    await animateCase(viewAllButton, "previous", true);
+}, true);
+
+viewAllButton.addEventListener("mouseleave", async event => {
+    if (!projectAllMode || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    event.stopImmediatePropagation();
+    await animateCase(viewAllButton, "previous", false);
+}, true);
+
+/* -----------------------------------------------------
+   KEYBOARD
+   Left / right = project navigation in VIEW ALL.
+   Up / down = physical two-state page / AYBAK navigation everywhere.
+   ----------------------------------------------------- */
+document.addEventListener("keydown", async event => {
+    if (event.key === "ArrowDown" && !aybakEndCardActive) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        setAybakEndCard(true);
+        return;
+    }
+
+    if (event.key === "ArrowUp" && aybakEndCardActive) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        setAybakEndCard(false);
+        return;
+    }
+
+    if (projectAllMode && !aybakEndCardActive) {
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            await switchProjectAll(1);
+        } else if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            await switchProjectAll(-1);
+        }
+    }
+}, true);
+
+/* -----------------------------------------------------
+   MOBILE VIEW ALL SWIPE = PROJECT NAVIGATION
+   ----------------------------------------------------- */
+document.addEventListener("touchstart", event => {
+    if (!projectAllMode || aybakEndCardActive || !event.changedTouches.length) return;
+    projectAllTouchX = event.changedTouches[0].clientX;
+    projectAllTouchY = event.changedTouches[0].clientY;
+}, { passive: true, capture: true });
+
+document.addEventListener("touchend", async event => {
+    if (!projectAllMode || aybakEndCardActive || projectAllTouchX === null || projectAllTouchY === null || !event.changedTouches.length) {
+        return;
+    }
+
+    const x = event.changedTouches[0].clientX;
+    const y = event.changedTouches[0].clientY;
+    const dx = x - projectAllTouchX;
+    const dy = y - projectAllTouchY;
+
+    projectAllTouchX = null;
+    projectAllTouchY = null;
+
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) >= 45) {
+        suppressClickUntil = Date.now() + 500;
+        await switchProjectAll(dx < 0 ? 1 : -1);
+    }
+}, { passive: true, capture: true });
+
+/* -----------------------------------------------------
+   DESKTOP STARTS IN VIEW ALL; PHONE STILL STARTS IN SLIDE.
+   Wait for the existing async loader, then enter without changing
+   the first project's white theme.
+   ----------------------------------------------------- */
+(function openDesktopInViewAllWhenReady() {
+    const tryOpen = async () => {
+        if (!projects.length || !spread.firstChild) {
+            requestAnimationFrame(tryOpen);
+            return;
+        }
+
+        if (!isPhoneLayout() && !indexMode && !projectAllMode) {
+            await enterProjectAll();
+            setProjectAllNavigationCopy();
+        }
+    };
+
+    requestAnimationFrame(tryOpen);
+})();
 </script>
 
 </body>
