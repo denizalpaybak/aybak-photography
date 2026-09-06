@@ -136,7 +136,8 @@ body {
 
 /* Desktop opens in View All. Keep the temporary slide completely hidden
    until the View All grid has finished becoming the active view. */
-html.desktop-viewall-boot #project-stage {
+html.desktop-viewall-boot #project-stage,
+html.desktop-viewall-boot #project-all-view {
     visibility: hidden !important;
 }
 
@@ -3521,7 +3522,7 @@ const PROJECTS_JSON =
    ===================================================== */
 
 const SLIDE_DURATION =
-    3000;
+    5000;
 
 
 const TEXT_MORPH_DURATION =
@@ -4695,6 +4696,15 @@ function getProjectPhotoCountText(
         getPhotoCountText(total) +
         " in this project"
     );
+
+}
+
+
+function getViewVerbText(total) {
+
+    return total === 1
+        ? "view"
+        : "view all";
 
 }
 
@@ -7486,9 +7496,11 @@ function isSlideViewAllControlElement(node) {
 }
 
 async function animateSlideViewAllControl(toUpper) {
-    const countText = getProjectPhotoCountText(currentProject().images.length);
+    const total = currentProject().images.length;
+    const countText = getProjectPhotoCountText(total);
+    const verbText = getViewVerbText(total);
     await Promise.all([
-        animateCase(viewAllButton, "view all", toUpper),
+        animateCase(viewAllButton, verbText, toUpper),
         animateCase(projectCounter, countText, toUpper)
     ]);
     viewAllButton.dataset.rawText = viewAllButton.textContent;
@@ -7728,6 +7740,10 @@ async function leaveProjectAll(
         projectCounter.textContent;
 
 
+    const slideViewVerb =
+        getViewVerbText(project.images.length);
+
+
     const targetButton =
         (
             window.matchMedia(
@@ -7735,8 +7751,8 @@ async function leaveProjectAll(
             ).matches &&
             viewButtonHovered
         )
-            ? "VIEW ALL"
-            : "view all";
+            ? slideViewVerb.toUpperCase()
+            : slideViewVerb;
 
 
     await Promise.all(
@@ -9243,6 +9259,42 @@ function selectIndexProject(
         project.images.length;
 
 
+    const nextViewText =
+        getViewVerbText(
+            photoCount
+        );
+
+
+    if (
+        previousSelection &&
+        previousSelection !== rowState &&
+        indexProjectViewAll.textContent
+    ) {
+
+        morphSequential(
+            indexProjectViewAll,
+            nextViewText,
+            STATE_MORPH_DURATION
+        ).catch(
+            () => {}
+        );
+
+    }
+
+    else {
+
+        renderBaseTypography(
+            indexProjectViewAll,
+            nextViewText
+        );
+
+
+        indexProjectViewAll.dataset.rawText =
+            nextViewText;
+
+    }
+
+
     const nextCountText =
         getPhotoCountText(
             photoCount
@@ -10316,8 +10368,9 @@ function getSelectedIndexPhotoCountText() {
 
 async function animateIndexViewAllControl(toUpper) {
     if (!selectedIndexProject) return;
+    const total = selectedIndexProject.project.images.length;
     await Promise.all([
-        animateCase(indexProjectViewAll, "view all", toUpper),
+        animateCase(indexProjectViewAll, getViewVerbText(total), toUpper),
         animateCase(indexProjectCount, getSelectedIndexPhotoCountText(), toUpper)
     ]);
     indexProjectViewAll.dataset.rawText = indexProjectViewAll.textContent;
@@ -12882,6 +12935,79 @@ document.addEventListener("touchend", async event => {
 }, { passive: true, capture: true });
 
 /* -----------------------------------------------------
+   INITIAL VIEW ALL STABILISATION + PROJECT AUTOPLAY
+   ----------------------------------------------------- */
+const PROJECT_AUTOPLAY_DURATION = 5000;
+let projectAutoplayTimer = null;
+let projectAutoplayEnabled = true;
+
+function stopProjectAutoplayFromInteraction() {
+    if (!projectAutoplayEnabled) return;
+    projectAutoplayEnabled = false;
+    clearTimeout(projectAutoplayTimer);
+}
+
+function scheduleProjectAutoplay() {
+    clearTimeout(projectAutoplayTimer);
+
+    if (!projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
+        return;
+    }
+
+    projectAutoplayTimer = setTimeout(async () => {
+        if (!projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
+            return;
+        }
+
+        await switchProjectAll(1);
+        scheduleProjectAutoplay();
+    }, PROJECT_AUTOPLAY_DURATION);
+}
+
+["pointerdown", "wheel", "keydown", "touchstart"].forEach(type => {
+    document.addEventListener(type, stopProjectAutoplayFromInteraction, {
+        capture: true,
+        passive: type === "wheel" || type === "touchstart"
+    });
+});
+
+async function waitForProjectAllImageDimensions() {
+    const images = Array.from(projectAllGrid.querySelectorAll("img"));
+
+    await Promise.all(images.map(img => {
+        if (img.naturalWidth && img.naturalHeight) {
+            return Promise.resolve();
+        }
+
+        return new Promise(resolve => {
+            const done = () => resolve();
+            img.addEventListener("load", done, { once: true });
+            img.addEventListener("error", done, { once: true });
+        });
+    }));
+
+    layoutProjectAllGrid(true);
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+
+function syncSinglePhotoViewCopy() {
+    if (projectAllMode || body.classList.contains("project-all-preparing") || !projects.length) return;
+    const total = currentProject().images.length;
+    renderBaseTypography(viewAllButton, getViewVerbText(total));
+    renderBaseTypography(projectCounter, getProjectPhotoCountText(total));
+    viewAllButton.dataset.rawText = viewAllButton.textContent;
+    projectCounter.dataset.rawText = projectCounter.textContent;
+}
+
+const syncMetadataAfterRenderV24 = syncMetadataAfterRender;
+syncMetadataAfterRender = function() {
+    const result = syncMetadataAfterRenderV24.apply(this, arguments);
+    syncSinglePhotoViewCopy();
+    return result;
+};
+
+/* -----------------------------------------------------
    DESKTOP STARTS IN VIEW ALL; PHONE STILL STARTS IN SLIDE.
    Wait for the existing async loader, then enter without changing
    the first project's white theme.
@@ -12896,7 +13022,9 @@ document.addEventListener("touchend", async event => {
         if (!isPhoneLayout() && !indexMode && !projectAllMode) {
             await enterProjectAll();
             setProjectAllNavigationCopy();
+            await waitForProjectAllImageDimensions();
             document.documentElement.classList.remove("desktop-viewall-boot");
+            scheduleProjectAutoplay();
         } else if (isPhoneLayout()) {
             document.documentElement.classList.remove("desktop-viewall-boot");
         }
@@ -12907,22 +13035,18 @@ document.addEventListener("touchend", async event => {
 
 
 
-/* Fail-safe for desktop boot: once View All becomes active by any route,
-   release the hidden slide boot state. */
-const desktopBootObserver = new MutationObserver(() => {
-    if (body.classList.contains("project-all-mode") || isPhoneLayout()) {
-        document.documentElement.classList.remove("desktop-viewall-boot");
-        desktopBootObserver.disconnect();
-    }
-});
-desktopBootObserver.observe(body, { attributes: true, attributeFilter: ["class"] });
+/* Desktop stays hidden until thumbnail dimensions have been measured and the
+   first grid layout is final. Phone layouts may release the boot guard immediately. */
+if (isPhoneLayout()) {
+    document.documentElement.classList.remove("desktop-viewall-boot");
+}
 
 /* Re-score VIEW ALL as soon as thumbnail aspect ratios are available. */
 projectAllGrid.addEventListener(
     "load",
     event => {
         if (
-            projectAllMode &&
+            (projectAllMode || body.classList.contains("project-all-preparing")) &&
             event.target instanceof HTMLImageElement
         ) {
             requestAnimationFrame(() => {
