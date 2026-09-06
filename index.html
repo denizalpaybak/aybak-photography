@@ -12937,7 +12937,7 @@ document.addEventListener("touchend", async event => {
 /* -----------------------------------------------------
    INITIAL VIEW ALL STABILISATION + PROJECT AUTOPLAY
    ----------------------------------------------------- */
-const PROJECT_AUTOPLAY_DURATION = 5000;
+const PROJECT_AUTOPLAY_DURATION = 4000;
 let projectAutoplayTimer = null;
 let projectAutoplayEnabled = true;
 
@@ -12970,6 +12970,31 @@ function scheduleProjectAutoplay() {
         passive: type === "wheel" || type === "touchstart"
     });
 });
+
+/* Hover/focus on actual interface controls also counts as interaction.
+   Merely moving the pointer across empty page space does not. */
+const AUTOPLAY_INTERACTIVE_SELECTOR = [
+    "a",
+    "button",
+    ".project-all-thumb",
+    ".index-project-title",
+    ".index-project-date",
+    "#index-preview-image",
+    "#project-title",
+    "#project-date"
+].join(",");
+
+document.addEventListener("pointerover", event => {
+    if (event.target.closest?.(AUTOPLAY_INTERACTIVE_SELECTOR)) {
+        stopProjectAutoplayFromInteraction();
+    }
+}, { capture: true, passive: true });
+
+document.addEventListener("focusin", event => {
+    if (event.target.closest?.(AUTOPLAY_INTERACTIVE_SELECTOR)) {
+        stopProjectAutoplayFromInteraction();
+    }
+}, true);
 
 async function waitForProjectAllImageDimensions() {
     const images = Array.from(projectAllGrid.querySelectorAll("img"));
