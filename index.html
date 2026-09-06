@@ -9,6 +9,22 @@
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
 >
 
+<script>
+/* Hide the normal single-frame slide during desktop boot.
+   Desktop opens directly into View All, so the user never sees a
+   full-size frame flash before the grid is ready. */
+(function () {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const phonePortrait = w <= 600 && h >= w;
+    const phoneLandscape = h <= 600 && w > h && w <= 1000;
+
+    if (!phonePortrait && !phoneLandscape) {
+        document.documentElement.classList.add("desktop-viewall-boot");
+    }
+})();
+</script>
+
 <title>Denizalp Aybak — Photography</title>
 <style>
 
@@ -116,6 +132,12 @@ button {
 
 body {
     cursor: default;
+}
+
+/* Desktop opens in View All. Keep the temporary slide completely hidden
+   until the View All grid has finished becoming the active view. */
+html.desktop-viewall-boot #project-stage {
+    visibility: hidden !important;
 }
 
 /* Explicit pointer states only for genuinely interactive elements. */
@@ -7480,7 +7502,7 @@ viewAllButton.addEventListener(
 
         const base =
             projectAllMode
-                ? "close"
+                ? "previous project"
                 : "view all";
 
 
@@ -7520,7 +7542,7 @@ viewAllButton.addEventListener(
 
         const base =
             projectAllMode
-                ? "close"
+                ? "previous project"
                 : "view all";
 
 
@@ -12872,17 +12894,9 @@ projectCounter.addEventListener("click", async event => {
     await enterProjectAll();
 }, true);
 
-viewAllButton.addEventListener("mouseenter", async event => {
-    if (!projectAllMode || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    event.stopImmediatePropagation();
-    await animateCase(viewAllButton, "previous project", true);
-}, true);
-
-viewAllButton.addEventListener("mouseleave", async event => {
-    if (!projectAllMode || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    event.stopImmediatePropagation();
-    await animateCase(viewAllButton, "previous project", false);
-}, true);
+/* PREVIOUS PROJECT hover is handled by the original View All button
+   listeners above. Keeping a single animation owner avoids competing
+   morphs and makes the control reliably clickable. */
 
 /* -----------------------------------------------------
    KEYBOARD
@@ -12960,12 +12974,26 @@ document.addEventListener("touchend", async event => {
         if (!isPhoneLayout() && !indexMode && !projectAllMode) {
             await enterProjectAll();
             setProjectAllNavigationCopy();
+            document.documentElement.classList.remove("desktop-viewall-boot");
+        } else if (isPhoneLayout()) {
+            document.documentElement.classList.remove("desktop-viewall-boot");
         }
     };
 
     requestAnimationFrame(tryOpen);
 })();
 
+
+
+/* Fail-safe for desktop boot: once View All becomes active by any route,
+   release the hidden slide boot state. */
+const desktopBootObserver = new MutationObserver(() => {
+    if (body.classList.contains("project-all-mode") || isPhoneLayout()) {
+        document.documentElement.classList.remove("desktop-viewall-boot");
+        desktopBootObserver.disconnect();
+    }
+});
+desktopBootObserver.observe(body, { attributes: true, attributeFilter: ["class"] });
 
 /* Re-score VIEW ALL as soon as thumbnail aspect ratios are available. */
 projectAllGrid.addEventListener(
