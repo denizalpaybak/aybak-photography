@@ -2641,13 +2641,13 @@ body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismis
     -webkit-mask-image: linear-gradient(
         to bottom,
         #000 0,
-        #000 calc(100% - 28px),
+        #000 calc(100% - 48px),
         transparent 100%
     );
     mask-image: linear-gradient(
         to bottom,
         #000 0,
-        #000 calc(100% - 28px),
+        #000 calc(100% - 48px),
         transparent 100%
     );
     -webkit-mask-repeat: no-repeat;
@@ -2768,8 +2768,6 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
         <div id="index-grid"></div>
 
     </div>
-
-    <div id="index-scroll-hint" aria-hidden="true"><span class="index-scroll-hint-text">scroll the list</span><span class="native-down-arrow index-scroll-hint-arrow" aria-hidden="true">↓</span></div>
 
     <div
         id="index-preview"
@@ -10458,94 +10456,34 @@ window.addEventListener(
 
 
 
-let indexScrollHintHostRow = null;
+/* =====================================================
+   MOBILE INDEX CONTINUATION CUE
+
+   No textual hint and no row clipping. The list remains a completely native
+   scroll surface from the first touch. CSS supplies the bottom fade while
+   more projects remain; the existing scroll listener dismisses it at the end.
+   ===================================================== */
 
 function clearIndexScrollHintHost() {
-    indexProjectRows.forEach(
-        state => {
-            state.row.classList.remove(
-                "index-scroll-hint-clipped"
-            );
-        }
-    );
+    /* intentionally empty: never mutate rows during a touch gesture */
 }
 
 function placeIndexScrollHintInLastVisibleSlot() {
-    clearIndexScrollHintHost();
-
-    if (
-        !indexMode ||
-        !isPhoneLayout() ||
-        !body.classList.contains("index-needs-scroll") ||
-        !indexProjectRows.length ||
-        indexScroller.scrollTop > 1
-    ) {
-        return;
-    }
-
-    /*
-       Initial mobile composition only:
-       show every project that fits completely in the real list viewport.
-       If the next row would be even partially cut, hide that whole row and
-       every row after it with visibility only, so layout/scroll geometry
-       stays unchanged. As soon as native scrolling actually begins these
-       rows are revealed without changing document flow.
-    */
-    const scrollerRect = indexScroller.getBoundingClientRect();
-    let clippingStarted = false;
-
-    indexProjectRows.forEach(state => {
-        if (clippingStarted) {
-            state.row.classList.add("index-scroll-hint-clipped");
-            return;
-        }
-
-        const rowRect = state.row.getBoundingClientRect();
-        const titleRect = state.titleButton
-            ? state.titleButton.getBoundingClientRect()
-            : rowRect;
-        const dateRect = state.dateButton
-            ? state.dateButton.getBoundingClientRect()
-            : rowRect;
-
-        const visualBottom = Math.max(
-            rowRect.bottom,
-            titleRect.bottom,
-            dateRect.bottom
-        );
-
-        if (visualBottom > scrollerRect.bottom - 0.5) {
-            clippingStarted = true;
-            state.row.classList.add("index-scroll-hint-clipped");
-        }
-    });
+    /* intentionally empty: continuation is represented only by the fade */
 }
 
 function resetIndexScrollHint() {
-    clearIndexScrollHintHost();
-
-    body.classList.remove(
-        "index-scroll-hint-dismissed"
-    );
+    body.classList.remove("index-scroll-hint-dismissed");
 }
 
 function dismissIndexScrollHint() {
     if (
         !indexMode ||
-        !body.classList.contains(
-            "index-needs-scroll"
-        )
+        !body.classList.contains("index-needs-scroll")
     ) {
         return;
     }
-
-    body.classList.add(
-        "index-scroll-hint-dismissed"
-    );
-
-    /* Visibility only: keep every row and the scroller itself in exactly the
-       same geometry so this same touch gesture immediately becomes scrolling. */
-    clearIndexScrollHintHost();
+    body.classList.add("index-scroll-hint-dismissed");
 }
 
 /* =====================================================
