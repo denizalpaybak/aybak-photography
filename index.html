@@ -1255,7 +1255,7 @@ body.phone-landscape #project-meta {
     z-index: 520;
     display: none;
     align-items: center;
-    gap: 0.28em;
+    gap: 0.30em;
     width: auto;
     max-width: none;
     margin: 0;
@@ -1275,6 +1275,11 @@ body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismis
 
 .index-scroll-hint-host {
     position: relative !important;
+}
+
+.index-scroll-hint-clipped {
+    visibility: hidden !important;
+    pointer-events: none !important;
 }
 
 /* =====================================================
@@ -1425,17 +1430,23 @@ body.aybak-end-card-active .aybak-end-card-copy {
 .site-arrow {
     display: inline-block;
     flex: 0 0 auto;
-    width: 1em;
-    height: 1em;
+
+    /* One compact typographic cell: deliberately smaller than 1em so
+       the arrow reads like Helvetica punctuation, not a separate icon. */
+    width: 0.72em;
+    height: 0.72em;
+
     overflow: visible;
     color: currentColor;
     pointer-events: none;
+    vertical-align: -0.035em;
 }
 
 .site-arrow path {
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.05;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
     stroke-linecap: square;
     stroke-linejoin: miter;
 }
@@ -1449,7 +1460,7 @@ body.aybak-end-card-active .aybak-end-card-copy {
 #aybak-end-card .aybak-end-card-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.28em;
+    gap: 0.30em;
 }
 
 
@@ -2577,7 +2588,7 @@ body.phone-landscape #index-project-count {
     </div>
 
     <div id="index-scroll-hint" aria-hidden="true">scroll the list for more projects <svg class="site-arrow site-arrow--down" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-<path d="M6 1.75V10.25M2.75 7L6 10.25L9.25 7"></path>
+<path d="M6 2.5V9.25M3.5 6.75L6 9.25L8.5 6.75"></path>
 </svg></div>
 
     <div
@@ -2649,7 +2660,7 @@ body.phone-landscape #index-project-count {
             href="https://film.denizalpaybak.com/"
         >
             <span id="section-switch-text">film</span><svg class="site-arrow site-arrow--external" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-<path d="M1.75 10.25L10.25 1.75M4.25 1.75H10.25V7.75"></path>
+<path d="M2.5 9.5L9.5 2.5M5.25 2.5H9.5V6.75"></path>
 </svg>
         </a>
     </div>
@@ -10267,35 +10278,15 @@ window.addEventListener(
 
 
 let indexScrollHintHostRow = null;
-let indexScrollHintReservedBottom = null;
 
 function clearIndexScrollHintHost() {
-    if (indexScrollHintHostRow) {
-        indexScrollHintHostRow.classList.remove(
-            "index-scroll-hint-host"
-        );
-        indexScrollHintHostRow = null;
-    }
-
-    if (
-        indexScrollHint &&
-        indexView &&
-        indexScrollHint.parentElement !== indexView
-    ) {
-        indexView.appendChild(
-            indexScrollHint
-        );
-    }
-
-    if (
-        indexScroller &&
-        indexScrollHintReservedBottom !== null
-    ) {
-        indexScroller.style.removeProperty(
-            "bottom"
-        );
-        indexScrollHintReservedBottom = null;
-    }
+    indexProjectRows.forEach(
+        state => {
+            state.row.classList.remove(
+                "index-scroll-hint-clipped"
+            );
+        }
+    );
 }
 
 function placeIndexScrollHintInLastVisibleSlot() {
@@ -10316,30 +10307,22 @@ function placeIndexScrollHintInLastVisibleSlot() {
         return;
     }
 
-    if (
-        indexView &&
-        indexScrollHint.parentElement !== indexView
-    ) {
-        indexView.appendChild(
-            indexScrollHint
-        );
-    }
-
     /*
-       Vertical rhythm:
+       Initial mobile composition:
        - hint bottom gap = INDEX top gap
-       - hint's gap from the project list = INDEX -> first-project gap
-       The list viewport is shortened to that boundary, so project text
-       can never sit underneath the hint during case animation.
+       - hint top gap from the final COMPLETE project = INDEX -> first-project gap
+       - no project is allowed to appear partially
+       - hidden projects keep their layout boxes, so dismissing the hint during the
+         very first touchmove does not resize the scroller or steal that gesture
     */
     const indexButtonRect =
         indexButton.getBoundingClientRect();
 
-    const firstRowRect =
-        indexProjectRows[0].row.getBoundingClientRect();
-
     const hintRect =
         indexScrollHint.getBoundingClientRect();
+
+    const firstRowRect =
+        indexProjectRows[0].row.getBoundingClientRect();
 
     const topReferenceGap =
         Math.max(
@@ -10347,19 +10330,104 @@ function placeIndexScrollHintInLastVisibleSlot() {
             firstRowRect.top - indexButtonRect.bottom
         );
 
-    const reservedBottom =
-        Math.max(
-            0,
-            window.innerHeight - hintRect.top + topReferenceGap
+    const cutoff =
+        hintRect.top - topReferenceGap;
+
+    const rootComputed =
+        getComputedStyle(
+            document.documentElement
         );
 
-    indexScrollHintReservedBottom =
-        reservedBottom;
+    const fontSize =
+        parseFloat(
+            rootComputed.getPropertyValue(
+                "--font-size"
+            )
+        ) || 13;
 
-    indexScroller.style.setProperty(
-        "bottom",
-        `${reservedBottom}px`,
-        "important"
+    const lineHeightMultiplier =
+        parseFloat(
+            rootComputed.getPropertyValue(
+                "--line-height"
+            )
+        ) || 1.15;
+
+    const minimumGap =
+        fontSize * lineHeightMultiplier;
+
+    const rowHeights =
+        indexProjectRows.map(
+            state =>
+                state.row.getBoundingClientRect().height
+        );
+
+    const availableForRows =
+        Math.max(
+            0,
+            cutoff - firstRowRect.top
+        );
+
+    let visibleCount = 0;
+    let fittedGap = minimumGap;
+
+    /* Use the greatest number of whole projects that can fit while keeping
+       at least the normal one-line project-to-project gap. */
+    for (
+        let count = indexProjectRows.length;
+        count >= 1;
+        count -= 1
+    ) {
+        const occupied =
+            rowHeights
+                .slice(0, count)
+                .reduce(
+                    (sum, value) => sum + value,
+                    0
+                );
+
+        if (count === 1) {
+            if (occupied <= availableForRows + 0.5) {
+                visibleCount = 1;
+                fittedGap = minimumGap;
+            }
+            break;
+        }
+
+        const candidateGap =
+            (
+                availableForRows - occupied
+            ) /
+            (count - 1);
+
+        if (candidateGap >= minimumGap) {
+            visibleCount = count;
+            fittedGap = candidateGap;
+            break;
+        }
+    }
+
+    if (!visibleCount) {
+        visibleCount = 1;
+        fittedGap = minimumGap;
+    }
+
+    indexGrid.style.setProperty(
+        "--index-portrait-gap",
+        `${fittedGap}px`
+    );
+
+    /* Force the new gap to settle before deciding visibility. This read does
+       not alter scroll geometry; it only observes the already-laid-out rows. */
+    indexGrid.getBoundingClientRect();
+
+    indexProjectRows.forEach(
+        (state, index) => {
+            if (index >= visibleCount) {
+                state.row.classList.add(
+                    "index-scroll-hint-clipped"
+                );
+            }
+        }
     );
 }
 
@@ -10385,6 +10453,8 @@ function dismissIndexScrollHint() {
         "index-scroll-hint-dismissed"
     );
 
+    /* Visibility only: keep every row and the scroller itself in exactly the
+       same geometry so this same touch gesture immediately becomes scrolling. */
     clearIndexScrollHintHost();
 }
 
