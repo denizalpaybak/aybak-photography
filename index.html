@@ -1241,17 +1241,23 @@ body.phone-landscape #project-meta {
    MOBILE INDEX SCROLL HINT
    ===================================================== */
 
-/* The hint temporarily occupies the last visible project slot. */
+/*
+   The hint belongs to the viewport, not to the narrow text scroller.
+   That keeps the full sentence visible even while the right side of
+   the index is reserved for project preview media.
+*/
 #index-scroll-hint {
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 2;
+    position: fixed;
+    left: var(--side);
+    right: var(--side);
+    top: auto;
+    bottom: var(--top);
+    z-index: 520;
     display: none;
     align-items: center;
-    gap: 0.34em;
-    width: max-content;
-    max-width: 100%;
+    gap: 0.28em;
+    width: auto;
+    max-width: none;
     margin: 0;
     padding: 0;
     font-size: var(--font-size);
@@ -1262,22 +1268,14 @@ body.phone-landscape #project-meta {
     white-space: nowrap;
 }
 
-body.phone-portrait.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) .index-scroll-hint-host > #index-scroll-hint,
-body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) .index-scroll-hint-host > #index-scroll-hint {
+body.phone-portrait.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) #index-scroll-hint,
+body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) #index-scroll-hint {
     display: inline-flex;
 }
 
 .index-scroll-hint-host {
     position: relative !important;
 }
-
-body.phone-portrait.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) .index-scroll-hint-host > .index-project-title,
-body.phone-portrait.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) .index-scroll-hint-host > .index-project-date,
-body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) .index-scroll-hint-host > .index-project-title,
-body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) .index-scroll-hint-host > .index-project-date {
-    visibility: hidden !important;
-}
-
 
 /* =====================================================
    AYBAK END CARD
@@ -1427,8 +1425,8 @@ body.aybak-end-card-active .aybak-end-card-copy {
 .site-arrow {
     display: inline-block;
     flex: 0 0 auto;
-    width: 0.74em;
-    height: 0.74em;
+    width: 1em;
+    height: 1em;
     overflow: visible;
     color: currentColor;
     pointer-events: none;
@@ -1437,25 +1435,21 @@ body.aybak-end-card-active .aybak-end-card-copy {
 .site-arrow path {
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.15;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    vector-effect: non-scaling-stroke;
+    stroke-width: 1.05;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
 }
 
-.site-arrow--down {
-    transform: translateY(-0.01em);
-}
-
+.site-arrow--down,
 .site-arrow--external {
-    transform: translateY(-0.015em);
+    transform: none;
 }
 
 #aybak-end-card .section-switch,
 #aybak-end-card .aybak-end-card-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.34em;
+    gap: 0.28em;
 }
 
 
@@ -2583,7 +2577,7 @@ body.phone-landscape #index-project-count {
     </div>
 
     <div id="index-scroll-hint" aria-hidden="true">scroll the list for more projects <svg class="site-arrow site-arrow--down" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-<path d="M6 1.5V10.5M2.75 7.25L6 10.5L9.25 7.25"></path>
+<path d="M6 1.75V10.25M2.75 7L6 10.25L9.25 7"></path>
 </svg></div>
 
     <div
@@ -2655,7 +2649,7 @@ body.phone-landscape #index-project-count {
             href="https://film.denizalpaybak.com/"
         >
             <span id="section-switch-text">film</span><svg class="site-arrow site-arrow--external" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-<path d="M3 9L9 3M4 3H9V8"></path>
+<path d="M1.75 10.25L10.25 1.75M4.25 1.75H10.25V7.75"></path>
 </svg>
         </a>
     </div>
@@ -10273,6 +10267,7 @@ window.addEventListener(
 
 
 let indexScrollHintHostRow = null;
+let indexScrollHintReservedBottom = null;
 
 function clearIndexScrollHintHost() {
     if (indexScrollHintHostRow) {
@@ -10280,6 +10275,26 @@ function clearIndexScrollHintHost() {
             "index-scroll-hint-host"
         );
         indexScrollHintHostRow = null;
+    }
+
+    if (
+        indexScrollHint &&
+        indexView &&
+        indexScrollHint.parentElement !== indexView
+    ) {
+        indexView.appendChild(
+            indexScrollHint
+        );
+    }
+
+    if (
+        indexScroller &&
+        indexScrollHintReservedBottom !== null
+    ) {
+        indexScroller.style.removeProperty(
+            "bottom"
+        );
+        indexScrollHintReservedBottom = null;
     }
 }
 
@@ -10301,64 +10316,50 @@ function placeIndexScrollHintInLastVisibleSlot() {
         return;
     }
 
-    const scrollerRect =
-        indexScroller.getBoundingClientRect();
-
-    const topLimit =
-        scrollerRect.top + 1;
-
-    const bottomLimit =
-        scrollerRect.bottom - 1;
-
-    let host =
-        null;
-
-    for (
-        const state
-        of indexProjectRows
-    ) {
-        const rect =
-            state.row.getBoundingClientRect();
-
-        if (
-            rect.top <
-            topLimit
-        ) {
-            continue;
-        }
-
-        if (
-            rect.top <
-            bottomLimit
-        ) {
-            host =
-                state.row;
-        }
-
-        if (
-            rect.bottom >
-            bottomLimit
-        ) {
-            break;
-        }
-    }
-
     if (
-        !host
+        indexView &&
+        indexScrollHint.parentElement !== indexView
     ) {
-        host =
-            indexProjectRows[0].row;
+        indexView.appendChild(
+            indexScrollHint
+        );
     }
 
-    indexScrollHintHostRow =
-        host;
+    /*
+       Vertical rhythm:
+       - hint bottom gap = INDEX top gap
+       - hint's gap from the project list = INDEX -> first-project gap
+       The list viewport is shortened to that boundary, so project text
+       can never sit underneath the hint during case animation.
+    */
+    const indexButtonRect =
+        indexButton.getBoundingClientRect();
 
-    host.classList.add(
-        "index-scroll-hint-host"
-    );
+    const firstRowRect =
+        indexProjectRows[0].row.getBoundingClientRect();
 
-    host.appendChild(
-        indexScrollHint
+    const hintRect =
+        indexScrollHint.getBoundingClientRect();
+
+    const topReferenceGap =
+        Math.max(
+            0,
+            firstRowRect.top - indexButtonRect.bottom
+        );
+
+    const reservedBottom =
+        Math.max(
+            0,
+            window.innerHeight - hintRect.top + topReferenceGap
+        );
+
+    indexScrollHintReservedBottom =
+        reservedBottom;
+
+    indexScroller.style.setProperty(
+        "bottom",
+        `${reservedBottom}px`,
+        "important"
     );
 }
 
