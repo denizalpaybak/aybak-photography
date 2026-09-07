@@ -2601,6 +2601,67 @@ body.phone-landscape #index-scroller {
 
 </style>
 
+
+<style id="final-monochrome-and-index-fade">
+/* AYBAK is one consistent monochrome surface across all three sites. */
+html.aybak-end-card-active,
+body.aybak-end-card-active,
+html.aybak-end-card-active.aybak-end-card-light,
+body.aybak-end-card-active.aybak-end-card-light {
+    background: #000 !important;
+}
+body.aybak-end-card-active #aybak-end-card,
+body.aybak-end-card-active.aybak-end-card-light #aybak-end-card,
+body.aybak-end-card-active #aybak-end-card::before,
+body.aybak-end-card-active.aybak-end-card-light #aybak-end-card::before {
+    background: #000 !important;
+    color: #fff !important;
+}
+body.aybak-end-card-active .aybak-end-card-copy,
+body.aybak-end-card-active .aybak-end-card-copy a,
+body.aybak-end-card-active .section-switch,
+body.aybak-end-card-active .aybak-end-card-link,
+body.aybak-end-card-active.aybak-end-card-light .aybak-end-card-copy,
+body.aybak-end-card-active.aybak-end-card-light .aybak-end-card-copy a,
+body.aybak-end-card-active.aybak-end-card-light .section-switch,
+body.aybak-end-card-active.aybak-end-card-light .aybak-end-card-link {
+    color: #fff !important;
+}
+
+/* Remove the textual scroll instruction completely. */
+#index-scroll-hint {
+    display: none !important;
+}
+
+/* Minimal continuation cue: fade only the bottom edge of the mobile list.
+   The mask does not participate in hit-testing or layout, so native scrolling
+   keeps the entire first gesture. It disappears only at the true list end. */
+body.phone-portrait.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) #index-scroller,
+body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) #index-scroller {
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        #000 0,
+        #000 calc(100% - 28px),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        #000 0,
+        #000 calc(100% - 28px),
+        transparent 100%
+    );
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
+body.phone-portrait.index-mode.index-scroll-hint-dismissed #index-scroller,
+body.phone-landscape.index-mode.index-scroll-hint-dismissed #index-scroller,
+body.phone-portrait.index-mode:not(.index-needs-scroll) #index-scroller,
+body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+</style>
 </head>
 
 <body>
@@ -3055,7 +3116,7 @@ function fitAybakEndCardWord() {
         "alphabetic";
 
     context.fillStyle =
-        "#000";
+        "#fff";
 
     context.font =
         `600 ${fontSize}px "acumin-pro-wide", sans-serif`;
