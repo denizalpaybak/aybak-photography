@@ -2641,13 +2641,13 @@ body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismis
     -webkit-mask-image: linear-gradient(
         to bottom,
         #000 0,
-        #000 calc(100% - 48px),
+        #000 calc(100% - 72px),
         transparent 100%
     );
     mask-image: linear-gradient(
         to bottom,
         #000 0,
-        #000 calc(100% - 48px),
+        #000 calc(100% - 72px),
         transparent 100%
     );
     -webkit-mask-repeat: no-repeat;
@@ -2837,7 +2837,7 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
             id="section-switch"
             href="https://film.denizalpaybak.com/"
         >
-            <span id="section-switch-text">film</span>
+            <span id="section-switch-text">film.denizalpaybak.com</span>
         </a>
     </div>
 
@@ -10840,6 +10840,14 @@ indexScroller.addEventListener(
         ) {
             dismissIndexScrollHint();
         }
+        else if (
+            indexMode &&
+            body.classList.contains("index-needs-scroll")
+        ) {
+            /* The continuation cue comes back as soon as there are projects
+               below again. Reaching the end is not a permanent dismissal. */
+            body.classList.remove("index-scroll-hint-dismissed");
+        }
 
         if (
             indexMode
@@ -11545,7 +11553,7 @@ const sectionSwitchText =
 
 
 const switchWord =
-    "film";
+    "film.denizalpaybak.com";
 
 
 let switchState =
