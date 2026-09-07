@@ -11552,8 +11552,13 @@ const sectionSwitchText =
     );
 
 
-const switchWord =
-    "film.denizalpaybak.com";
+function getSwitchWord() {
+    return isPhoneLayout()
+        ? "film."
+        : "film.denizalpaybak.com";
+}
+
+let switchWord = getSwitchWord();
 
 
 let switchState =
@@ -11562,6 +11567,18 @@ let switchState =
 
 let switchFrame =
     null;
+
+function syncSwitchWordForLayout() {
+    const nextWord = getSwitchWord();
+    if (nextWord === switchWord) return;
+    switchWord = nextWord;
+    sectionSwitchText.textContent = switchWord;
+    switchState = 0;
+}
+
+window.addEventListener("resize", syncSwitchWordForLayout, { passive: true });
+window.addEventListener("orientationchange", syncSwitchWordForLayout, { passive: true });
+requestAnimationFrame(syncSwitchWordForLayout);
 
 
 function renderSwitch(
@@ -13276,32 +13293,6 @@ body:not(.aybak-end-card-active) .index-project-date,
 body:not(.aybak-end-card-active) #index-project-view-all,
 body:not(.aybak-end-card-active) #index-project-count {
     color: #000 !important;
-}
-
-/* =====================================================
-   MOBILE AYBAK COPY — LEFT-ALIGNED STACK
-   Desktop placement remains unchanged.
-   ===================================================== */
-body.phone-portrait #aybak-end-card .aybak-end-card-contact,
-body.phone-landscape #aybak-end-card .aybak-end-card-contact {
-    left: var(--side) !important;
-    right: auto !important;
-    text-align: left !important;
-    align-items: flex-start !important;
-}
-
-body.phone-portrait #aybak-end-card .aybak-end-card-contact a:nth-child(2),
-body.phone-landscape #aybak-end-card .aybak-end-card-contact a:nth-child(2) {
-    margin-top: 1em;
-}
-
-body.phone-portrait #aybak-end-card .aybak-end-card-film,
-body.phone-landscape #aybak-end-card .aybak-end-card-film {
-    left: var(--side) !important;
-    right: auto !important;
-    top: calc(var(--top) + 5em) !important;
-    text-align: left !important;
-    white-space: nowrap;
 }
 </style>
 </body>
