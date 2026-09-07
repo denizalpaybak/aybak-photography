@@ -11553,7 +11553,7 @@ const sectionSwitchText =
 
 
 function getSwitchWord() {
-    return isPhoneLayout()
+    return isPhoneLayout() && window.innerHeight >= window.innerWidth
         ? "film."
         : "film.denizalpaybak.com";
 }
