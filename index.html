@@ -2478,6 +2478,127 @@ body.phone-landscape #index-project-count {
     text-align: right !important;
 }
 
+
+
+/* =====================================================
+   FINAL SECTION COLOUR + MOBILE INDEX HINT SYSTEM
+   ===================================================== */
+
+/* Main portfolio surface remains white with black typography. */
+html:not(.aybak-end-card-active),
+body:not(.aybak-end-card-active),
+body:not(.aybak-end-card-active) #index-view {
+    background: #fff !important;
+    color: #000 !important;
+}
+
+/* Photography AYBAK end-card colour. All typography stays black. */
+html.aybak-end-card-active,
+body.aybak-end-card-active,
+html.aybak-end-card-active.aybak-end-card-light,
+body.aybak-end-card-active.aybak-end-card-light {
+    background: #6e0008 !important;
+}
+
+body.aybak-end-card-active #aybak-end-card,
+body.aybak-end-card-active.aybak-end-card-light #aybak-end-card,
+body.aybak-end-card-active #aybak-end-card::before,
+body.aybak-end-card-active.aybak-end-card-light #aybak-end-card::before {
+    background: #6e0008 !important;
+    color: #000 !important;
+}
+
+body.aybak-end-card-active .aybak-end-card-copy,
+body.aybak-end-card-active .aybak-end-card-copy a,
+body.aybak-end-card-active .section-switch,
+body.aybak-end-card-active .aybak-end-card-link,
+body.aybak-end-card-active.aybak-end-card-light .aybak-end-card-copy,
+body.aybak-end-card-active.aybak-end-card-light .aybak-end-card-copy a,
+body.aybak-end-card-active.aybak-end-card-light .section-switch,
+body.aybak-end-card-active.aybak-end-card-light .aybak-end-card-link {
+    color: #000 !important;
+}
+
+/* Section switch is intentionally purely typographic: no external-link icon. */
+#aybak-end-card .section-switch,
+#aybak-end-card .aybak-end-card-link {
+    gap: 0 !important;
+}
+
+/* Helvetica/Arial down arrow: typography, not an icon system. */
+.native-down-arrow {
+    display: inline-block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1em;
+    font-weight: 400;
+    line-height: 1;
+    color: currentColor;
+    vertical-align: middle;
+    transform: translateY(-0.035em);
+}
+
+/*
+   The hint lives in the physical gutter between project copy and preview.
+   Only the words are vertical; the arrow remains a true downward arrow.
+   It is outside the scroller and has no hit area, so the very first finger
+   gesture belongs entirely to native list scrolling.
+*/
+#index-scroll-hint {
+    position: fixed !important;
+    left: auto !important;
+    right: calc(var(--side) + min(42vw, 320px) + 2px) !important;
+    top: 50% !important;
+    bottom: auto !important;
+    z-index: 520 !important;
+    width: 14px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.38em;
+    transform: translateY(-50%) !important;
+    font-size: var(--font-size);
+    line-height: 1;
+    color: #000;
+    white-space: nowrap;
+    pointer-events: none !important;
+    touch-action: none !important;
+}
+
+body.phone-landscape #index-scroll-hint {
+    right: calc(var(--side) + min(34vw, 300px) + 3px) !important;
+}
+
+body.phone-portrait.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) #index-scroll-hint,
+body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) #index-scroll-hint {
+    display: flex !important;
+}
+
+.index-scroll-hint-text {
+    display: block;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+}
+
+.index-scroll-hint-arrow {
+    display: block;
+    margin: 0;
+    transform: translateY(-0.02em) !important;
+}
+
+/* Native touch scrolling must remain entirely under Safari's control. */
+body.phone-portrait #index-scroller,
+body.phone-landscape #index-scroller {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    overscroll-behavior-y: contain;
+}
+
 </style>
 
 </head>
@@ -2587,9 +2708,7 @@ body.phone-landscape #index-project-count {
 
     </div>
 
-    <div id="index-scroll-hint" aria-hidden="true">scroll the list for more projects <svg class="site-arrow site-arrow--down" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-<path d="M7 2.2V10.6M3.9 7.6L7 10.7L10.1 7.6"></path>
-</svg></div>
+    <div id="index-scroll-hint" aria-hidden="true"><span class="index-scroll-hint-text">scroll the list</span><span class="native-down-arrow index-scroll-hint-arrow" aria-hidden="true">↓</span></div>
 
     <div
         id="index-preview"
@@ -2659,9 +2778,7 @@ body.phone-landscape #index-project-count {
             id="section-switch"
             href="https://film.denizalpaybak.com/"
         >
-            <span id="section-switch-text">film</span><svg class="site-arrow site-arrow--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-<path d="M3.1 10.9L10.9 3.1M6.1 3.1H10.9V7.9"></path>
-</svg>
+            <span id="section-switch-text">film</span>
         </a>
     </div>
 
@@ -2938,7 +3055,7 @@ function fitAybakEndCardWord() {
         "alphabetic";
 
     context.fillStyle =
-        "#fff";
+        "#000";
 
     context.font =
         `600 ${fontSize}px "acumin-pro-wide", sans-serif`;
@@ -10298,136 +10415,30 @@ function placeIndexScrollHintInLastVisibleSlot() {
     if (
         !indexMode ||
         !isPhoneLayout() ||
-        !body.classList.contains(
-            "index-needs-scroll"
-        ) ||
-        body.classList.contains(
-            "index-scroll-hint-dismissed"
-        ) ||
-        !indexScrollHint ||
-        !indexProjectRows.length
+        !body.classList.contains("index-needs-scroll") ||
+        !indexProjectRows.length ||
+        indexScroller.scrollTop > 1
     ) {
         return;
     }
 
     /*
-       Initial mobile composition:
-       - hint bottom gap = INDEX top gap
-       - hint top gap from the final COMPLETE project = INDEX -> first-project gap
-       - no project is allowed to appear partially
-       - hidden projects keep their layout boxes, so dismissing the hint during the
-         very first touchmove does not resize the scroller or steal that gesture
+       Initial mobile composition only:
+       show every project that fits completely in the real list viewport.
+       If the next row would be even partially cut, hide that whole row and
+       every row after it with visibility only, so layout/scroll geometry
+       stays unchanged. As soon as native scrolling actually begins these
+       rows are revealed without changing document flow.
     */
-    const indexButtonRect =
-        indexButton.getBoundingClientRect();
+    const scrollerRect = indexScroller.getBoundingClientRect();
+    let clippingStarted = false;
 
-    const hintRect =
-        indexScrollHint.getBoundingClientRect();
-
-    const firstRowRect =
-        indexProjectRows[0].row.getBoundingClientRect();
-
-    const topReferenceGap =
-        Math.max(
-            0,
-            firstRowRect.top - indexButtonRect.bottom
-        );
-
-    const cutoff =
-        hintRect.top - topReferenceGap;
-
-    const rootComputed =
-        getComputedStyle(
-            document.documentElement
-        );
-
-    const fontSize =
-        parseFloat(
-            rootComputed.getPropertyValue(
-                "--font-size"
-            )
-        ) || 13;
-
-    const lineHeightMultiplier =
-        parseFloat(
-            rootComputed.getPropertyValue(
-                "--line-height"
-            )
-        ) || 1.15;
-
-    const minimumGap =
-        fontSize * lineHeightMultiplier;
-
-    const rowHeights =
-        indexProjectRows.map(
-            state =>
-                state.row.getBoundingClientRect().height
-        );
-
-    const availableForRows =
-        Math.max(
-            0,
-            cutoff - firstRowRect.top
-        );
-
-    let visibleCount = 0;
-    let fittedGap = minimumGap;
-
-    /* Use the greatest number of whole projects that can fit while keeping
-       at least the normal one-line project-to-project gap. */
-    for (
-        let count = indexProjectRows.length;
-        count >= 1;
-        count -= 1
-    ) {
-        const occupied =
-            rowHeights
-                .slice(0, count)
-                .reduce(
-                    (sum, value) => sum + value,
-                    0
-                );
-
-        if (count === 1) {
-            if (occupied <= availableForRows + 0.5) {
-                visibleCount = 1;
-                fittedGap = minimumGap;
-            }
-            break;
+    indexProjectRows.forEach(state => {
+        if (clippingStarted) {
+            state.row.classList.add("index-scroll-hint-clipped");
+            return;
         }
 
-        const candidateGap =
-            (
-                availableForRows - occupied
-            ) /
-            (count - 1);
-
-        if (candidateGap >= minimumGap) {
-            visibleCount = count;
-            fittedGap = candidateGap;
-            break;
-        }
-    }
-
-    if (!visibleCount) {
-        visibleCount = 1;
-        fittedGap = minimumGap;
-    }
-
-    indexGrid.style.setProperty(
-        "--index-portrait-gap",
-        `${fittedGap}px`
-    );
-
-    /* Let the final gap settle, then use the actual rendered row bottoms.
-       This second pass is the hard guarantee: title + date must both fit completely.
-       If even one pixel of a row would enter the reserved hint zone, that whole project
-       stays hidden until the list genuinely scrolls. */
-    indexGrid.getBoundingClientRect();
-
-    let fullyVisibleCount = 0;
-
-    for (const state of indexProjectRows) {
         const rowRect = state.row.getBoundingClientRect();
         const titleRect = state.titleButton
             ? state.titleButton.getBoundingClientRect()
@@ -10442,31 +10453,11 @@ function placeIndexScrollHintInLastVisibleSlot() {
             dateRect.bottom
         );
 
-        if (visualBottom <= cutoff - 0.5) {
-            fullyVisibleCount += 1;
+        if (visualBottom > scrollerRect.bottom - 0.5) {
+            clippingStarted = true;
+            state.row.classList.add("index-scroll-hint-clipped");
         }
-        else {
-            break;
-        }
-    }
-
-    visibleCount = Math.max(
-        0,
-        Math.min(
-            visibleCount,
-            fullyVisibleCount
-        )
-    );
-
-    indexProjectRows.forEach(
-        (state, index) => {
-            if (index >= visibleCount) {
-                state.row.classList.add(
-                    "index-scroll-hint-clipped"
-                );
-            }
-        }
-    );
+    });
 }
 
 function resetIndexScrollHint() {
@@ -10706,12 +10697,6 @@ indexScroller.addEventListener(
 
         }
 
-
-        /* The hidden rows already occupy their full layout height. Reveal them
-           before movement starts so Safari does not have to mutate the list
-           during the first scroll gesture. The hint itself stays visible. */
-        clearIndexScrollHintHost();
-
         indexTouchStartY =
             event.changedTouches[0].clientY;
 
@@ -10734,45 +10719,19 @@ indexScroller.addEventListener(
 indexScroller.addEventListener(
     "touchmove",
     event => {
-
         if (
             !indexMode ||
             aybakEndCardActive ||
-            indexTouchLastY === null ||
             !event.changedTouches.length
         ) {
             return;
         }
 
-        const currentY =
-            event.changedTouches[0].clientY;
-
-        const delta =
-            indexTouchLastY - currentY;
-
-        indexTouchLastY =
-            currentY;
-
-        if (
-            Math.abs(delta) < 0.25
-        ) {
-            return;
-        }
-
-        if (
-            indexCanScrollVertically() &&
-            (
-                delta < 0 ||
-                !indexIsAtBottom()
-            )
-        ) {
-            event.preventDefault();
-            indexScroller.scrollTop += delta;
-        }
-
+        /* Native overflow scrolling owns the gesture. Never preventDefault here. */
+        indexTouchLastY = event.changedTouches[0].clientY;
     },
     {
-        passive: false
+        passive: true
     }
 );
 
@@ -10866,8 +10825,16 @@ indexScroller.addEventListener(
     "scroll",
     () => {
 
-        /* The hint remains useful while there are still projects below.
-           Dismiss it only when the list has actually reached the end. */
+        /* The hint remains visible while projects are still below.
+           Once native scrolling has actually begun, reveal the rows that were
+           hidden only to keep the initial composition free of partial entries. */
+        if (
+            indexMode &&
+            indexScroller.scrollTop > 1
+        ) {
+            clearIndexScrollHintHost();
+        }
+
         if (
             indexMode &&
             indexIsAtBottom()
