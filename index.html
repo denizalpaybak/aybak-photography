@@ -1423,30 +1423,37 @@ body.aybak-end-card-active .aybak-end-card-copy {
     color: #fff;
 }
 
+/* Arrow-bearing labels use the same optical gap everywhere. */
+#index-scroll-hint,
+#aybak-end-card .section-switch,
+#aybak-end-card .aybak-end-card-link {
+    gap: 0.30em;
+}
+
 /* =====================================================
    CONSISTENT SITE ARROWS
    ===================================================== */
 
+/*
+   A single Helvetica-scaled arrow family.
+   The icon cell is intentionally closer to lowercase x-height than cap-height,
+   and the stroke scales with the adjacent type instead of staying device-pixel fixed.
+*/
 .site-arrow {
     display: inline-block;
     flex: 0 0 auto;
-
-    /* One compact typographic cell: deliberately smaller than 1em so
-       the arrow reads like Helvetica punctuation, not a separate icon. */
-    width: 0.72em;
-    height: 0.72em;
-
+    width: 0.68em;
+    height: 0.68em;
     overflow: visible;
     color: currentColor;
     pointer-events: none;
-    vertical-align: -0.035em;
+    vertical-align: -0.015em;
 }
 
 .site-arrow path {
     fill: none;
     stroke: currentColor;
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
+    stroke-width: 1.15;
     stroke-linecap: square;
     stroke-linejoin: miter;
 }
@@ -1455,14 +1462,6 @@ body.aybak-end-card-active .aybak-end-card-copy {
 .site-arrow--external {
     transform: none;
 }
-
-#aybak-end-card .section-switch,
-#aybak-end-card .aybak-end-card-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.30em;
-}
-
 
 
 @media (prefers-reduced-motion: reduce) {
@@ -2587,8 +2586,8 @@ body.phone-landscape #index-project-count {
 
     </div>
 
-    <div id="index-scroll-hint" aria-hidden="true">scroll the list for more projects <svg class="site-arrow site-arrow--down" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-<path d="M6 2.5V9.25M3.5 6.75L6 9.25L8.5 6.75"></path>
+    <div id="index-scroll-hint" aria-hidden="true">scroll the list for more projects <svg class="site-arrow site-arrow--down" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+<path d="M8 2.5V12.5M4.75 9.25L8 12.5L11.25 9.25"></path>
 </svg></div>
 
     <div
@@ -2659,8 +2658,8 @@ body.phone-landscape #index-project-count {
             id="section-switch"
             href="https://film.denizalpaybak.com/"
         >
-            <span id="section-switch-text">film</span><svg class="site-arrow site-arrow--external" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-<path d="M2.5 9.5L9.5 2.5M5.25 2.5H9.5V6.75"></path>
+            <span id="section-switch-text">film</span><svg class="site-arrow site-arrow--external" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+<path d="M3.5 12.5L12.5 3.5M7.25 3.5H12.5V8.75"></path>
 </svg>
         </a>
     </div>
@@ -8988,7 +8987,7 @@ function selectIndexProject(
     const previousSelection =
         selectedIndexProject;
 
-    dismissIndexScrollHint();
+    
 
     selectedIndexProject =
         rowState;
@@ -10416,9 +10415,32 @@ function placeIndexScrollHintInLastVisibleSlot() {
         `${fittedGap}px`
     );
 
-    /* Force the new gap to settle before deciding visibility. This read does
-       not alter scroll geometry; it only observes the already-laid-out rows. */
+    /* Let the final gap settle, then use the actual rendered row bottoms.
+       This second pass is the hard guarantee: title + date must both fit completely.
+       If even one pixel of a row would enter the reserved hint zone, that whole project
+       stays hidden until the list genuinely scrolls. */
     indexGrid.getBoundingClientRect();
+
+    let fullyVisibleCount = 0;
+
+    for (const state of indexProjectRows) {
+        const rowRect = state.row.getBoundingClientRect();
+
+        if (rowRect.bottom <= cutoff + 0.5) {
+            fullyVisibleCount += 1;
+        }
+        else {
+            break;
+        }
+    }
+
+    visibleCount = Math.max(
+        0,
+        Math.min(
+            visibleCount,
+            fullyVisibleCount
+        )
+    );
 
     indexProjectRows.forEach(
         (state, index) => {
@@ -10652,15 +10674,6 @@ indexScroller.addEventListener(
    INDEX TOUCH BOUNDARY
    ===================================================== */
 
-indexScroller.addEventListener(
-    "touchmove",
-    () => {
-        dismissIndexScrollHint();
-    },
-    {
-        passive: true
-    }
-);
 
 
 indexScroller.addEventListener(
@@ -10778,6 +10791,8 @@ indexScroller.addEventListener(
     "scroll",
     () => {
 
+        /* Dismiss only once the list has physically moved. This preserves the very
+           first touch gesture on iOS and keeps the hint during simple project taps. */
         dismissIndexScrollHint();
 
         if (
