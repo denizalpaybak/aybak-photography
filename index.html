@@ -1285,32 +1285,27 @@ body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismis
 /* =====================================================
    AYBAK END CARD
 
-   The black layer fades in like the room lights quietly going out.
-   Copy and wordmark appear only once the blackout is almost complete.
+   Same identity system as the main landing page:
+   centered two-line logo, same site typography, same letter-by-letter
+   case morph. Contact / section information remains untouched.
    ===================================================== */
 
 #aybak-end-card {
     position: fixed;
     inset: 0;
-
     z-index: 10000;
-
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-
     box-sizing: border-box;
-
     background: rgba(0, 0, 0, 0);
     color: #fff;
-
     visibility: hidden;
     pointer-events: none;
-
     user-select: none;
     -webkit-user-select: none;
-
-    touch-action: none;
-
+    touch-action: pan-y;
     transition:
         background-color 460ms cubic-bezier(.22, .61, .36, 1),
         visibility 0s linear 460ms;
@@ -1319,69 +1314,63 @@ body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismis
 body.aybak-end-card-active #aybak-end-card {
     visibility: visible;
     pointer-events: auto;
-
     background: rgba(0, 0, 0, 1);
-
     transition:
         background-color 460ms cubic-bezier(.22, .61, .36, 1),
         visibility 0s linear 0s;
 }
 
-#aybak-end-card-word {
-    position: absolute;
-    inset: 0;
-
-    display: block;
-
-    width: 100%;
-    height: 100%;
-
+#aybak-end-card-logo {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    height: auto;
     margin: 0;
     padding: 0;
-
-    opacity: 0;
-
-    pointer-events: none;
-
-    transition:
-        opacity 170ms ease 0ms;
+    border: 0;
+    outline: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    color: #fff;
+    font-family: inherit;
+    font-size: var(--font-size);
+    font-weight: 400;
+    line-height: var(--line-height);
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
-body.aybak-end-card-active #aybak-end-card-word {
-    opacity: 1;
-
-    transition-delay: 255ms;
+#aybak-end-card-name,
+#aybak-end-card-aybak {
+    display: block;
+    height: calc(var(--font-size) * var(--line-height));
+    white-space: nowrap;
 }
 
 .aybak-end-card-copy {
     position: absolute;
     z-index: 2;
-
     top: var(--top);
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     font-size: var(--font-size);
     line-height: var(--line-height);
-
     opacity: 0;
-
-    transition:
-        opacity 170ms ease 0ms;
+    transition: opacity 170ms ease 0ms;
 }
 
 body.aybak-end-card-active .aybak-end-card-copy {
     opacity: 1;
-
     transition-delay: 255ms;
 }
 
 .aybak-end-card-contact {
     left: var(--side);
-
     display: flex;
     flex-direction: column;
 }
@@ -1399,35 +1388,37 @@ body.aybak-end-card-active .aybak-end-card-copy {
     text-decoration: underline;
 }
 
-/* FILM is a section switch, not a text link: never underline it in any state. */
-.aybak-end-card-film a,
-.aybak-end-card-film a:hover,
-.aybak-end-card-film a:focus,
-.aybak-end-card-film a:active,
 #aybak-end-card .section-switch,
 #aybak-end-card .section-switch:hover,
 #aybak-end-card .section-switch:focus,
-#aybak-end-card .section-switch:active {
+#aybak-end-card .section-switch:active,
+#aybak-end-card .aybak-end-card-link,
+#aybak-end-card .aybak-end-card-link:hover,
+#aybak-end-card .aybak-end-card-link:focus,
+#aybak-end-card .aybak-end-card-link:active {
     text-decoration: none !important;
     outline: 0;
 }
 
 #aybak-end-card .section-switch {
     position: static;
-
     top: auto;
     right: auto;
-
     z-index: auto;
-
     color: #fff;
 }
 
-/* Arrow-bearing labels use the same optical gap everywhere. */
-#index-scroll-hint,
-#aybak-end-card .section-switch,
-#aybak-end-card .aybak-end-card-link {
-    gap: 0.30em;
+#aybak-end-card-logo:focus,
+#aybak-end-card-logo:active {
+    outline: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #aybak-end-card,
+    .aybak-end-card-copy {
+        transition-duration: 0ms !important;
+        transition-delay: 0ms !important;
+    }
 }
 
 /* =====================================================
@@ -1468,7 +1459,6 @@ body.aybak-end-card-active .aybak-end-card-copy {
 @media (prefers-reduced-motion: reduce) {
 
     #aybak-end-card,
-    #aybak-end-card-word,
     .aybak-end-card-copy {
         transition-duration: 0ms !important;
         transition-delay: 0ms !important;
@@ -2492,20 +2482,20 @@ body:not(.aybak-end-card-active) #index-view {
     color: #000 !important;
 }
 
-/* Photography AYBAK end-card colour. All typography stays black. */
+/* Photography AYBAK end-card uses the same monochrome black surface. */
 html.aybak-end-card-active,
 body.aybak-end-card-active,
 html.aybak-end-card-active.aybak-end-card-light,
 body.aybak-end-card-active.aybak-end-card-light {
-    background: #6e0008 !important;
+    background: #000 !important;
 }
 
 body.aybak-end-card-active #aybak-end-card,
 body.aybak-end-card-active.aybak-end-card-light #aybak-end-card,
 body.aybak-end-card-active #aybak-end-card::before,
 body.aybak-end-card-active.aybak-end-card-light #aybak-end-card::before {
-    background: #6e0008 !important;
-    color: #000 !important;
+    background: #000 !important;
+    color: #fff !important;
 }
 
 body.aybak-end-card-active .aybak-end-card-copy,
@@ -2841,7 +2831,14 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
         </a>
     </div>
 
-    <canvas id="aybak-end-card-word" aria-label="AYBAK"></canvas>
+    <button
+        id="aybak-end-card-logo"
+        type="button"
+        aria-label="Denizalp Aybak"
+    >
+        <span id="aybak-end-card-name">Denizalp</span>
+        <span id="aybak-end-card-aybak">aybak</span>
+    </button>
 
 </section>
 
@@ -2887,580 +2884,224 @@ const AYBAK_SWIPE_THRESHOLD =
     slightly wider than the viewport, then center those visible ink bounds.
     This creates the same tiny, symmetrical side crop on every screen size.
 */
-function fitAybakEndCardWord() {
+/* =====================================================
+   AYBAK END CARD — LOGO SYSTEM
+   ===================================================== */
 
-    const canvas =
-        document.getElementById(
-            "aybak-end-card-word"
-        );
+const aybakEndCardLogo = document.getElementById("aybak-end-card-logo");
+const aybakEndCardName = document.getElementById("aybak-end-card-name");
+const aybakEndCardAybak = document.getElementById("aybak-end-card-aybak");
 
-    if (
-        !canvas ||
-        !aybakEndCard
-    ) {
-        return;
-    }
+const aybakLogoLowercase = ["a", "y", "b", "a", "k"];
+const aybakLogoUppercase = ["A", "Y", "B", "A", "K"];
 
-    const viewportWidth =
-        Math.max(
-            1,
-            aybakEndCard.clientWidth
-        );
+let aybakLogoState = 0;
+let aybakLogoTarget = 0;
+let aybakLogoTimer = null;
+let aybakLogoReturnTimer = null;
 
-    const viewportHeight =
-        Math.max(
-            1,
-            aybakEndCard.clientHeight
-        );
-
-    const rootStyles =
-        getComputedStyle(
-            document.documentElement
-        );
-
-    const computedSide =
-        parseFloat(
-            rootStyles.getPropertyValue(
-                "--side"
-            )
-        ) || 0;
-
-    const computedTop =
-        parseFloat(
-            rootStyles.getPropertyValue(
-                "--top"
-            )
-        ) || 0;
-
-    /*
-        Horizontal axes:
-        visible A -> Denizalp Aybak left axis
-        visible K -> Photography right axis
-    */
-    const infoRect =
-        info
-            ? info.getBoundingClientRect()
-            : null;
-
-    const sectionAnchor =
-        aybakEndCard.querySelector(
-            ".aybak-end-card-film"
-        );
-
-    const sectionRect =
-        sectionAnchor
-            ? sectionAnchor.getBoundingClientRect()
-            : null;
-
-    const targetInkLeft =
-        infoRect
-            ? infoRect.left
-            : computedSide;
-
-    const targetInkRight =
-        sectionRect
-            ? sectionRect.right
-            : viewportWidth - computedSide;
-
-    /*
-        Bottom axis follows the actual project metadata bottom gap.
-        This is the important mobile rule: if mobile bottom spacing differs
-        from --top, AYBAK follows the metadata instead of assuming symmetry.
-    */
-    const metaRect =
-        projectMeta
-            ? projectMeta.getBoundingClientRect()
-            : null;
-
-    const bottomGap =
-        metaRect &&
-        Number.isFinite(metaRect.bottom) &&
-        metaRect.bottom > 0
-            ? Math.max(
-                0,
-                window.innerHeight - metaRect.bottom
-            )
-            : computedTop;
-
-    const word = "AYBAK";
-    const sampleSize = 1000;
-
-    const measureCanvas =
-        document.createElement(
-            "canvas"
-        );
-
-    const measureContext =
-        measureCanvas.getContext(
-            "2d"
-        );
-
-    measureContext.font =
-        `600 ${sampleSize}px "acumin-pro-wide", sans-serif`;
-
-    if (
-        "fontKerning" in measureContext
-    ) {
-        measureContext.fontKerning =
-            "auto";
-    }
-
-    const metrics =
-        measureContext.measureText(
-            word
-        );
-
-    const inkLeft =
-        Number.isFinite(
-            metrics.actualBoundingBoxLeft
-        )
-            ? metrics.actualBoundingBoxLeft
-            : 0;
-
-    const inkRight =
-        Number.isFinite(
-            metrics.actualBoundingBoxRight
-        )
-            ? metrics.actualBoundingBoxRight
-            : metrics.width;
-
-    const inkDescent =
-        Number.isFinite(
-            metrics.actualBoundingBoxDescent
-        )
-            ? metrics.actualBoundingBoxDescent
-            : 0;
-
-    const sampleInkWidth =
-        Math.max(
-            1,
-            inkLeft + inkRight
-        );
-
-    const targetInkWidth =
-        Math.max(
-            1,
-            targetInkRight - targetInkLeft
-        );
-
-    const fontSize =
-        targetInkWidth *
-        sampleSize /
-        sampleInkWidth;
-
-    const scale =
-        fontSize /
-        sampleSize;
-
-    const originX =
-        targetInkLeft +
-        inkLeft * scale;
-
-    const baselineY =
-        viewportHeight -
-        bottomGap -
-        inkDescent * scale;
-
-    const pixelRatio =
-        Math.max(
-            1,
-            window.devicePixelRatio || 1
-        );
-
-    canvas.width =
-        Math.max(
-            1,
-            Math.round(
-                viewportWidth * pixelRatio
-            )
-        );
-
-    canvas.height =
-        Math.max(
-            1,
-            Math.round(
-                viewportHeight * pixelRatio
-            )
-        );
-
-    canvas.style.width =
-        `${viewportWidth}px`;
-
-    canvas.style.height =
-        `${viewportHeight}px`;
-
-    const context =
-        canvas.getContext(
-            "2d"
-        );
-
-    context.setTransform(
-        pixelRatio,
-        0,
-        0,
-        pixelRatio,
-        0,
-        0
-    );
-
-    context.clearRect(
-        0,
-        0,
-        viewportWidth,
-        viewportHeight
-    );
-
-    context.textBaseline =
-        "alphabetic";
-
-    context.fillStyle =
-        "#fff";
-
-    context.font =
-        `600 ${fontSize}px "acumin-pro-wide", sans-serif`;
-
-    if (
-        "fontKerning" in context
-    ) {
-        context.fontKerning =
-            "auto";
-    }
-
-    /* One draw call preserves Acumin Pro Wide's native kerning. */
-    context.fillText(
-        word,
-        originX,
-        baselineY
-    );
-
+function setAybakLogoState(state) {
+    aybakLogoState = Math.max(0, Math.min(5, state));
+    aybakEndCardName.textContent = aybakLogoState === 0 ? "Denizalp" : "denizalp";
+    aybakEndCardAybak.textContent = aybakLogoLowercase.map((letter, index) =>
+        index < aybakLogoState ? aybakLogoUppercase[index] : letter
+    ).join("");
 }
 
-function setAybakEndCard(
-    active
-) {
+function animateAybakLogoTo(target, callback = null) {
+    aybakLogoTarget = target;
+    if (aybakLogoTimer !== null) {
+        clearTimeout(aybakLogoTimer);
+        aybakLogoTimer = null;
+    }
 
-    aybakEndCardActive =
-        Boolean(
-            active
+    function step() {
+        if (aybakLogoState === aybakLogoTarget) {
+            aybakLogoTimer = null;
+            if (typeof callback === "function") callback();
+            return;
+        }
+
+        setAybakLogoState(
+            aybakLogoState < aybakLogoTarget
+                ? aybakLogoState + 1
+                : aybakLogoState - 1
         );
 
+        aybakLogoTimer = setTimeout(step, LOGO_STEP_DURATION);
+    }
 
-    body.classList.toggle(
-        "aybak-end-card-active",
-        aybakEndCardActive
-    );
+    step();
+}
 
+function setAybakEndCard(active) {
+    aybakEndCardActive = Boolean(active);
 
-    document.documentElement.classList.toggle(
-        "aybak-end-card-active",
-        aybakEndCardActive
-    );
-
+    body.classList.toggle("aybak-end-card-active", aybakEndCardActive);
+    document.documentElement.classList.toggle("aybak-end-card-active", aybakEndCardActive);
 
     aybakEndCard.setAttribute(
         "aria-hidden",
-        aybakEndCardActive
-            ? "false"
-            : "true"
+        aybakEndCardActive ? "false" : "true"
     );
 
-
-    if (
-        aybakEndCardActive
-    ) {
-
-        stopAutoSlideshow();
-
-        /* Refit after the card becomes visible. This is especially important
-           on mobile Safari, where the layout viewport can settle only after
-           the swipe has completed. */
-        requestAnimationFrame(
-            fitAybakEndCardWord
-        );
-
+    if (aybakLogoReturnTimer !== null) {
+        clearTimeout(aybakLogoReturnTimer);
+        aybakLogoReturnTimer = null;
     }
 
+    if (aybakEndCardActive) {
+        stopAutoSlideshow();
+        animateAybakLogoTo(0);
+    } else {
+        animateAybakLogoTo(0);
+    }
 
-    aybakWheelAccumulator =
-        0;
-
+    aybakWheelAccumulator = 0;
 }
 
-
-window.addEventListener(
-    "wheel",
-    event => {
-
-        if (
-            Math.abs(
-                event.deltaY
-            ) <=
-            Math.abs(
-                event.deltaX
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            !aybakEndCardActive &&
-            (
-                interfaceAnimating ||
-                navigationAnimating ||
-                projectViewAnimating
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-            INDEX owns wheel gestures only when they begin inside its actual
-            scrolling list. Everywhere else on the page, the same downward
-            gesture opens AYBAK immediately.
-        */
-        if (
-            !aybakEndCardActive &&
-            indexMode &&
-            indexScroller.contains(
-                event.target
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        event.preventDefault();
-
-
-        clearTimeout(
-            aybakWheelResetTimer
-        );
-
-
-        aybakWheelAccumulator +=
-            event.deltaY;
-
-
-        aybakWheelResetTimer =
-            setTimeout(
-                () => {
-
-                    aybakWheelAccumulator =
-                        0;
-
-                },
-                140
-            );
-
-
-        if (
-            !aybakEndCardActive &&
-            aybakWheelAccumulator >=
-                AYBAK_WHEEL_THRESHOLD
-        ) {
-
-            setAybakEndCard(
-                true
-            );
-
-            return;
-
-        }
-
-
-        if (
-            aybakEndCardActive &&
-            aybakWheelAccumulator <=
-                -AYBAK_WHEEL_THRESHOLD
-        ) {
-
-            setAybakEndCard(
-                false
-            );
-
-        }
-
-    },
-    {
-        passive: false
+/* Desktop hover: same letter-by-letter morph as the main landing logo. */
+aybakEndCardLogo.addEventListener("mouseenter", () => {
+    if (!canHover()) return;
+    if (aybakLogoReturnTimer !== null) {
+        clearTimeout(aybakLogoReturnTimer);
+        aybakLogoReturnTimer = null;
     }
-);
+    animateAybakLogoTo(5);
+});
 
+aybakEndCardLogo.addEventListener("mouseleave", () => {
+    if (!canHover()) return;
+    animateAybakLogoTo(0);
+});
 
-window.addEventListener(
-    "touchstart",
-    event => {
+/* Desktop click: restore quiet state first, then return to the white page. */
+aybakEndCardLogo.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
 
-        if (
-            !event.changedTouches.length
-        ) {
-
-            return;
-
-        }
-
-
-        const touch =
-            event.changedTouches[0];
-
-
-        aybakTouchStartX =
-            touch.clientX;
-
-
-        aybakTouchStartY =
-            touch.clientY;
-
-
-        aybakTouchStartedInIndexScroller =
-            Boolean(
-                indexMode &&
-                indexScroller.contains(
-                    event.target
-                )
-            );
-
-    },
-    {
-        passive: true
+    if (!canHover()) {
+        if (aybakLogoReturnTimer !== null) clearTimeout(aybakLogoReturnTimer);
+        animateAybakLogoTo(5, () => {
+            aybakLogoReturnTimer = setTimeout(() => {
+                animateAybakLogoTo(0);
+                aybakLogoReturnTimer = null;
+            }, MOBILE_NAV_HOLD);
+        });
+        return;
     }
-);
 
-
-window.addEventListener(
-    "touchend",
-    event => {
-
-        if (
-            aybakTouchStartX === null ||
-            aybakTouchStartY === null ||
-            !event.changedTouches.length
-        ) {
-
-            return;
-
-        }
-
-
-        const touch =
-            event.changedTouches[0];
-
-
-        const deltaX =
-            touch.clientX -
-            aybakTouchStartX;
-
-
-        const deltaY =
-            touch.clientY -
-            aybakTouchStartY;
-
-
-        aybakTouchStartX =
-            null;
-
-
-        aybakTouchStartY =
-            null;
-
-
-        if (
-            Math.abs(
-                deltaY
-            ) <=
-            Math.abs(
-                deltaX
-            ) ||
-            Math.abs(
-                deltaY
-            ) <
-            AYBAK_SWIPE_THRESHOLD
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            !aybakEndCardActive &&
-            (
-                interfaceAnimating ||
-                navigationAnimating ||
-                projectViewAnimating ||
-                (
-                    indexMode &&
-                    aybakTouchStartedInIndexScroller
-                )
-            )
-        ) {
-
-            aybakTouchStartedInIndexScroller =
-                false;
-
-            return;
-
-        }
-
-
-        aybakTouchStartedInIndexScroller =
-            false;
-
-
-        suppressClickUntil =
-            Date.now() +
-            500;
-
-
-        if (
-            !aybakEndCardActive &&
-            deltaY < 0
-        ) {
-
-            setAybakEndCard(
-                true
-            );
-
-            return;
-
-        }
-
-
-        if (
-            aybakEndCardActive &&
-            deltaY > 0
-        ) {
-
-            setAybakEndCard(
-                false
-            );
-
-        }
-
-    },
-    {
-        passive: true
+    if (aybakLogoReturnTimer !== null) {
+        clearTimeout(aybakLogoReturnTimer);
+        aybakLogoReturnTimer = null;
     }
-);
 
+    animateAybakLogoTo(0, () => setAybakEndCard(false));
+});
 
-aybakEndCard.addEventListener(
-    "click",
-    event => {
+window.addEventListener("wheel", event => {
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
 
-        event.stopPropagation();
+    if (
+        !aybakEndCardActive &&
+        (interfaceAnimating || navigationAnimating || projectViewAnimating)
+    ) return;
 
+    if (
+        !aybakEndCardActive &&
+        indexMode &&
+        indexScroller.contains(event.target)
+    ) return;
+
+    event.preventDefault();
+    clearTimeout(aybakWheelResetTimer);
+    aybakWheelAccumulator += event.deltaY;
+
+    aybakWheelResetTimer = setTimeout(() => {
+        aybakWheelAccumulator = 0;
+    }, 140);
+
+    if (!aybakEndCardActive && aybakWheelAccumulator >= AYBAK_WHEEL_THRESHOLD) {
+        setAybakEndCard(true);
+        return;
     }
-);
 
+    if (aybakEndCardActive && aybakWheelAccumulator <= -AYBAK_WHEEL_THRESHOLD) {
+        setAybakEndCard(false);
+    }
+}, { passive: false });
+
+/* Mobile swipe: explicitly handle the active end-card so Safari cannot lock it. */
+function recordAybakTouchStart(event) {
+    if (!event.changedTouches.length) return;
+    const touch = event.changedTouches[0];
+    aybakTouchStartX = touch.clientX;
+    aybakTouchStartY = touch.clientY;
+    aybakTouchStartedInIndexScroller = Boolean(
+        indexMode && indexScroller.contains(event.target)
+    );
+}
+
+function handleAybakTouchEnd(event) {
+    if (
+        aybakTouchStartX === null ||
+        aybakTouchStartY === null ||
+        !event.changedTouches.length
+    ) return;
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - aybakTouchStartX;
+    const deltaY = touch.clientY - aybakTouchStartY;
+
+    aybakTouchStartX = null;
+    aybakTouchStartY = null;
+
+    if (
+        Math.abs(deltaY) <= Math.abs(deltaX) ||
+        Math.abs(deltaY) < AYBAK_SWIPE_THRESHOLD
+    ) {
+        aybakTouchStartedInIndexScroller = false;
+        return;
+    }
+
+    if (
+        !aybakEndCardActive &&
+        (
+            interfaceAnimating ||
+            navigationAnimating ||
+            projectViewAnimating ||
+            (indexMode && aybakTouchStartedInIndexScroller)
+        )
+    ) {
+        aybakTouchStartedInIndexScroller = false;
+        return;
+    }
+
+    aybakTouchStartedInIndexScroller = false;
+    suppressClickUntil = Date.now() + 500;
+
+    /* Swipe up: white -> black. */
+    if (!aybakEndCardActive && deltaY < 0) {
+        setAybakEndCard(true);
+        return;
+    }
+
+    /* Swipe down: black -> white, with a simple fade only. */
+    if (aybakEndCardActive && deltaY > 0) {
+        setAybakEndCard(false);
+    }
+}
+
+window.addEventListener("touchstart", recordAybakTouchStart, { passive: true });
+window.addEventListener("touchend", handleAybakTouchEnd, { passive: true });
+aybakEndCard.addEventListener("touchstart", recordAybakTouchStart, { passive: true });
+aybakEndCard.addEventListener("touchend", handleAybakTouchEnd, { passive: true });
+
+aybakEndCard.addEventListener("click", event => {
+    event.stopPropagation();
+});
+
+setAybakLogoState(0);
 
 
 /* =====================================================
@@ -5044,12 +4685,6 @@ function updateResponsiveMode() {
         landscape
     );
 
-
-    /* Body responsive variables (--side / --top) changed; redraw the
-       canvas against the new actual contact + FILM axes immediately. */
-    requestAnimationFrame(
-        fitAybakEndCardWord
-    );
 
 
     if (
@@ -12662,11 +12297,6 @@ function applyPageTheme(isDark) {
     pageThemeIsDark = false;
     body.classList.remove("theme-dark");
 
-    requestAnimationFrame(() => {
-        if (typeof fitAybakEndCardWord === "function") {
-            fitAybakEndCardWord();
-        }
-    });
 }
 
 function invertPageTheme() {
