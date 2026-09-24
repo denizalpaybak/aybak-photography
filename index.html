@@ -1299,25 +1299,33 @@ body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismis
     justify-content: center;
     overflow: hidden;
     box-sizing: border-box;
-    background: rgba(0, 0, 0, 0);
+    background: #000;
     color: #fff;
     visibility: hidden;
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: pan-y;
-    transition:
-        background-color 460ms cubic-bezier(.22, .61, .36, 1),
-        visibility 0s linear 460ms;
+    touch-action: none;
+    opacity: 0;
+    transition: opacity 420ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 420ms;
 }
 
 body.aybak-end-card-active #aybak-end-card {
     visibility: visible;
     pointer-events: auto;
-    background: rgba(0, 0, 0, 1);
-    transition:
-        background-color 460ms cubic-bezier(.22, .61, .36, 1),
-        visibility 0s linear 0s;
+    opacity: 1;
+    transition: opacity 420ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s;
+}
+
+body.aybak-end-card-leaving, html.aybak-end-card-leaving {
+    background: #fff !important;
+}
+
+body.aybak-end-card-leaving #aybak-end-card {
+    visibility: visible;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 420ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 420ms;
 }
 
 #aybak-end-card-logo {
@@ -2899,6 +2907,11 @@ let aybakLogoState = 0;
 let aybakLogoTarget = 0;
 let aybakLogoTimer = null;
 let aybakLogoReturnTimer = null;
+let aybakEndCardLeaving = false;
+
+function canHover() {
+    return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
 
 function setAybakLogoState(state) {
     aybakLogoState = Math.max(0, Math.min(5, state));
@@ -2922,82 +2935,100 @@ function animateAybakLogoTo(target, callback = null) {
             return;
         }
 
-        setAybakLogoState(
-            aybakLogoState < aybakLogoTarget
-                ? aybakLogoState + 1
-                : aybakLogoState - 1
-        );
-
+        aybakLogoState += aybakLogoState < aybakLogoTarget ? 1 : -1;
+        setAybakLogoState(aybakLogoState);
         aybakLogoTimer = setTimeout(step, LOGO_STEP_DURATION);
     }
 
     step();
 }
 
-function setAybakEndCard(active) {
-    aybakEndCardActive = Boolean(active);
-
-    body.classList.toggle("aybak-end-card-active", aybakEndCardActive);
-    document.documentElement.classList.toggle("aybak-end-card-active", aybakEndCardActive);
-
-    aybakEndCard.setAttribute(
-        "aria-hidden",
-        aybakEndCardActive ? "false" : "true"
-    );
-
+function clearAybakLogoReturnTimer() {
     if (aybakLogoReturnTimer !== null) {
         clearTimeout(aybakLogoReturnTimer);
         aybakLogoReturnTimer = null;
     }
+}
 
-    if (aybakEndCardActive) {
-        stopAutoSlideshow();
+function returnAybakLogoAfterMobileHold() {
+    clearAybakLogoReturnTimer();
+    aybakLogoReturnTimer = setTimeout(() => {
         animateAybakLogoTo(0);
-    } else {
-        animateAybakLogoTo(0);
+        aybakLogoReturnTimer = null;
+    }, MOBILE_NAV_HOLD);
+}
+
+function setAybakEndCard(active) {
+    const next = Boolean(active);
+    if (next === aybakEndCardActive) return;
+
+    if (next) {
+        aybakEndCardLeaving = false;
+        document.body.classList.remove("aybak-end-card-leaving");
+        document.documentElement.classList.remove("aybak-end-card-leaving");
+        clearAybakLogoReturnTimer();
+        aybakEndCardActive = true;
+        document.body.classList.add("aybak-end-card-active");
+        document.documentElement.classList.add("aybak-end-card-active");
+        aybakEndCard.setAttribute("aria-hidden", "false");
+        setAybakLogoState(aybakLogoState);
+        aybakWheelAccumulator = 0;
+        return;
     }
 
+    aybakEndCardActive = false;
+    document.body.classList.remove("aybak-end-card-active");
+    document.documentElement.classList.remove("aybak-end-card-active");
+    aybakEndCard.setAttribute("aria-hidden", "true");
+    clearAybakLogoReturnTimer();
     aybakWheelAccumulator = 0;
 }
 
-/* Desktop hover: same letter-by-letter morph as the main landing logo. */
+function leaveAybakEndCard() {
+    if (aybakEndCardLeaving) return;
+    aybakEndCardLeaving = true;
+    clearAybakLogoReturnTimer();
+
+    animateAybakLogoTo(0, () => {
+        document.body.classList.add("aybak-end-card-leaving");
+        document.documentElement.classList.add("aybak-end-card-leaving");
+
+        window.setTimeout(() => {
+            setAybakEndCard(false);
+            document.body.classList.remove("aybak-end-card-leaving");
+            document.documentElement.classList.remove("aybak-end-card-leaving");
+            aybakEndCardLeaving = false;
+        }, 420);
+    });
+}
+
 aybakEndCardLogo.addEventListener("mouseenter", () => {
-    if (!canHover()) return;
-    if (aybakLogoReturnTimer !== null) {
-        clearTimeout(aybakLogoReturnTimer);
-        aybakLogoReturnTimer = null;
-    }
+    if (!canHover() || aybakEndCardLeaving) return;
+    clearAybakLogoReturnTimer();
     animateAybakLogoTo(5);
 });
 
 aybakEndCardLogo.addEventListener("mouseleave", () => {
-    if (!canHover()) return;
+    if (!canHover() || aybakEndCardLeaving) return;
     animateAybakLogoTo(0);
 });
 
-/* Desktop click: restore quiet state first, then return to the white page. */
 aybakEndCardLogo.addEventListener("click", event => {
     event.preventDefault();
     event.stopPropagation();
 
     if (!canHover()) {
-        if (aybakLogoReturnTimer !== null) clearTimeout(aybakLogoReturnTimer);
-        animateAybakLogoTo(5, () => {
-            aybakLogoReturnTimer = setTimeout(() => {
-                animateAybakLogoTo(0);
-                aybakLogoReturnTimer = null;
-            }, MOBILE_NAV_HOLD);
-        });
+        if (aybakEndCardLeaving) return;
+        clearAybakLogoReturnTimer();
+        animateAybakLogoTo(5, returnAybakLogoAfterMobileHold);
         return;
     }
 
-    if (aybakLogoReturnTimer !== null) {
-        clearTimeout(aybakLogoReturnTimer);
-        aybakLogoReturnTimer = null;
-    }
-
-    animateAybakLogoTo(0, () => setAybakEndCard(false));
+    leaveAybakEndCard();
 });
+
+setAybakLogoState(0);
+
 
 window.addEventListener("wheel", event => {
     if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
@@ -3027,7 +3058,7 @@ window.addEventListener("wheel", event => {
     }
 
     if (aybakEndCardActive && aybakWheelAccumulator <= -AYBAK_WHEEL_THRESHOLD) {
-        setAybakEndCard(false);
+        leaveAybakEndCard();
     }
 }, { passive: false });
 
@@ -3088,7 +3119,7 @@ function handleAybakTouchEnd(event) {
 
     /* Swipe down: black -> white, with a simple fade only. */
     if (aybakEndCardActive && deltaY > 0) {
-        setAybakEndCard(false);
+        leaveAybakEndCard();
     }
 }
 
@@ -3100,8 +3131,6 @@ aybakEndCard.addEventListener("touchend", handleAybakTouchEnd, { passive: true }
 aybakEndCard.addEventListener("click", event => {
     event.stopPropagation();
 });
-
-setAybakLogoState(0);
 
 
 /* =====================================================
