@@ -1328,6 +1328,17 @@ body.aybak-end-card-leaving #aybak-end-card {
     transition: opacity 420ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 420ms;
 }
 
+/*
+   LEAVE SEQUENCE — MATCH LANDING
+   The logo/copy disappears first. The black surface remains alone for a
+   short beat, then the surface itself fades to white.
+*/
+body.aybak-end-card-content-leaving #aybak-end-card-logo,
+body.aybak-end-card-content-leaving .aybak-end-card-copy {
+    opacity: 0 !important;
+    transition: opacity 100ms linear;
+}
+
 #aybak-end-card-logo {
     position: relative;
     z-index: 3;
@@ -2966,6 +2977,8 @@ function setAybakEndCard(active) {
         aybakEndCardLeaving = false;
         document.body.classList.remove("aybak-end-card-leaving");
         document.documentElement.classList.remove("aybak-end-card-leaving");
+        document.body.classList.remove("aybak-end-card-content-leaving");
+        document.documentElement.classList.remove("aybak-end-card-content-leaving");
         clearAybakLogoReturnTimer();
         aybakEndCardActive = true;
         document.body.classList.add("aybak-end-card-active");
@@ -2984,21 +2997,34 @@ function setAybakEndCard(active) {
     aybakWheelAccumulator = 0;
 }
 
+const AYBAK_END_CARD_CONTENT_GAP = 100;
+const AYBAK_END_CARD_FADE_DURATION = 420;
+
 function leaveAybakEndCard() {
     if (aybakEndCardLeaving) return;
     aybakEndCardLeaving = true;
     clearAybakLogoReturnTimer();
 
+    /* 1. Return the logo to its default state first. */
     animateAybakLogoTo(0, () => {
-        document.body.classList.add("aybak-end-card-leaving");
-        document.documentElement.classList.add("aybak-end-card-leaving");
+        /* 2. Remove the writing completely while the black surface stays. */
+        document.body.classList.add("aybak-end-card-content-leaving");
+        document.documentElement.classList.add("aybak-end-card-content-leaving");
 
+        /* 3. Only after that short beat does black begin fading to white. */
         window.setTimeout(() => {
-            setAybakEndCard(false);
-            document.body.classList.remove("aybak-end-card-leaving");
-            document.documentElement.classList.remove("aybak-end-card-leaving");
-            aybakEndCardLeaving = false;
-        }, 420);
+            document.body.classList.add("aybak-end-card-leaving");
+            document.documentElement.classList.add("aybak-end-card-leaving");
+
+            window.setTimeout(() => {
+                setAybakEndCard(false);
+                document.body.classList.remove("aybak-end-card-leaving");
+                document.documentElement.classList.remove("aybak-end-card-leaving");
+                document.body.classList.remove("aybak-end-card-content-leaving");
+                document.documentElement.classList.remove("aybak-end-card-content-leaving");
+                aybakEndCardLeaving = false;
+            }, AYBAK_END_CARD_FADE_DURATION);
+        }, AYBAK_END_CARD_CONTENT_GAP);
     });
 }
 
