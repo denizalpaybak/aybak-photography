@@ -1307,14 +1307,14 @@ body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismis
     -webkit-user-select: none;
     touch-action: none;
     opacity: 0;
-    transition: opacity 420ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 420ms;
+    transition: opacity 300ms linear, visibility 0s linear 300ms;
 }
 
 body.aybak-end-card-active #aybak-end-card {
     visibility: visible;
     pointer-events: auto;
     opacity: 1;
-    transition: opacity 420ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 0s;
+    transition: opacity 300ms linear, visibility 0s linear 0s;
 }
 
 body.aybak-end-card-leaving, html.aybak-end-card-leaving {
@@ -1325,7 +1325,7 @@ body.aybak-end-card-leaving #aybak-end-card {
     visibility: visible;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 420ms cubic-bezier(.22,.61,.36,1), visibility 0s linear 420ms;
+    transition: opacity 300ms linear, visibility 0s linear 300ms;
 }
 
 #aybak-end-card-logo {
@@ -1385,6 +1385,10 @@ body.aybak-end-card-active .aybak-end-card-copy {
 
 .aybak-end-card-film {
     right: var(--side);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
 }
 
 .aybak-end-card-copy a {
@@ -2478,6 +2482,36 @@ body.phone-landscape #index-project-count {
 
 
 
+
+/* =====================================================
+   PHONE LANDSCAPE — FULL BLACK END-CARD SURFACE
+   ===================================================== */
+
+@media (max-width: 1000px) and (orientation: landscape) {
+    html.aybak-end-card-active,
+    body.aybak-end-card-active {
+        width: 100%;
+        min-width: 100%;
+        height: 100%;
+        min-height: 100%;
+        overflow: hidden !important;
+        background: #000 !important;
+    }
+
+    body.aybak-end-card-active #aybak-end-card {
+        left: 0 !important;
+        right: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        min-width: 100vw !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+}
+
 /* =====================================================
    FINAL SECTION COLOUR + MOBILE INDEX HINT SYSTEM
    ===================================================== */
@@ -2831,7 +2865,15 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
 
     <div class="aybak-end-card-copy aybak-end-card-film">
         <a
-            class="section-switch"
+            class="section-switch section-switch-landing"
+            id="section-switch-landing"
+            href="https://denizalpaybak.com/"
+        >
+            <span id="section-switch-landing-text">denizalpaybak.com</span>
+        </a>
+
+        <a
+            class="section-switch section-switch-film"
             id="section-switch"
             href="https://film.denizalpaybak.com/"
         >
@@ -2984,25 +3026,23 @@ function setAybakEndCard(active) {
     aybakWheelAccumulator = 0;
 }
 
-const AYBAK_END_CARD_FADE_DURATION = 420;
+const AYBAK_END_CARD_FADE_DURATION = 300;
 
 function leaveAybakEndCard() {
     if (aybakEndCardLeaving) return;
     aybakEndCardLeaving = true;
     clearAybakLogoReturnTimer();
 
-    /* EXACT SAME LEAVE SEQUENCE AS THE LANDING PAGE. */
-    animateAybakLogoTo(0, () => {
-        document.body.classList.add("aybak-end-card-leaving");
-        document.documentElement.classList.add("aybak-end-card-leaving");
+    document.body.classList.add("aybak-end-card-leaving");
+    document.documentElement.classList.add("aybak-end-card-leaving");
+    animateAybakLogoTo(0);
 
-        window.setTimeout(() => {
-            setAybakEndCard(false);
-            document.body.classList.remove("aybak-end-card-leaving");
-            document.documentElement.classList.remove("aybak-end-card-leaving");
-            aybakEndCardLeaving = false;
-        }, AYBAK_END_CARD_FADE_DURATION);
-    });
+    window.setTimeout(() => {
+        setAybakEndCard(false);
+        document.body.classList.remove("aybak-end-card-leaving");
+        document.documentElement.classList.remove("aybak-end-card-leaving");
+        aybakEndCardLeaving = false;
+    }, AYBAK_END_CARD_FADE_DURATION);
 }
 
 aybakEndCardLogo.addEventListener("mouseenter", () => {
@@ -3020,14 +3060,21 @@ aybakEndCardLogo.addEventListener("click", event => {
     event.preventDefault();
     event.stopPropagation();
 
-    if (!canHover()) {
-        if (aybakEndCardLeaving) return;
-        clearAybakLogoReturnTimer();
-        animateAybakLogoTo(5, returnAybakLogoAfterMobileHold);
+    if (aybakEndCardLeaving) return;
+    clearAybakLogoReturnTimer();
+
+    if (canHover()) {
+        /* Desktop: uppercase hover state -> normal state -> white page. */
+        animateAybakLogoTo(0, () => {
+            leaveAybakEndCard();
+        });
         return;
     }
 
-    leaveAybakEndCard();
+    /* Mobile: normal state -> full uppercase state -> white page. */
+    animateAybakLogoTo(5, () => {
+        leaveAybakEndCard();
+    });
 });
 
 setAybakLogoState(0);
@@ -11213,6 +11260,71 @@ logo.addEventListener(
    FILM
    ===================================================== */
 
+const sectionSwitchLandingText =
+    document.getElementById(
+        "section-switch-landing-text"
+    );
+
+let sectionSwitchLandingState = 0;
+let sectionSwitchLandingFrame = null;
+
+function renderLandingSwitch() {
+    sectionSwitchLandingText.textContent =
+        renderWordCase(
+            "denizalpaybak.com",
+            sectionSwitchLandingState
+        );
+}
+
+function morphLandingSwitchTo(target) {
+    if (sectionSwitchLandingFrame !== null) {
+        cancelAnimationFrame(sectionSwitchLandingFrame);
+    }
+
+    const startState = sectionSwitchLandingState;
+    if (startState === target) {
+        renderLandingSwitch();
+        return Promise.resolve();
+    }
+
+    const start = performance.now();
+    return new Promise(resolve => {
+        function frame(now) {
+            const progress = Math.min(1, (now - start) / WORD_TRANSITION_DURATION);
+            const raw = startState + (target - startState) * progress;
+            sectionSwitchLandingState =
+                target >= startState
+                    ? Math.floor(raw + 0.0001)
+                    : Math.ceil(raw - 0.0001);
+            renderLandingSwitch();
+
+            if (progress < 1) {
+                sectionSwitchLandingFrame = requestAnimationFrame(frame);
+                return;
+            }
+
+            sectionSwitchLandingState = target;
+            sectionSwitchLandingFrame = null;
+            renderLandingSwitch();
+            resolve();
+        }
+
+        sectionSwitchLandingFrame = requestAnimationFrame(frame);
+    });
+}
+
+renderLandingSwitch();
+
+sectionSwitchLandingText.parentElement.addEventListener("mouseenter", () => {
+    if (!canHover()) return;
+    morphLandingSwitchTo("denizalpaybak.com".length);
+});
+
+sectionSwitchLandingText.parentElement.addEventListener("mouseleave", () => {
+    if (!canHover()) return;
+    morphLandingSwitchTo(0);
+});
+
 const sectionSwitchText =
     document.getElementById(
         "section-switch-text"
@@ -11221,7 +11333,7 @@ const sectionSwitchText =
 
 function getSwitchWord() {
     return isPhoneLayout() && window.innerHeight >= window.innerWidth
-        ? "film."
+        ? "biography."
         : "film.denizalpaybak.com";
 }
 
