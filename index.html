@@ -3071,9 +3071,11 @@ aybakEndCardLogo.addEventListener("click", event => {
         return;
     }
 
-    /* Mobile: normal state -> full uppercase state -> white page. */
+    /* Mobile: normal state -> full uppercase state -> brief hold -> white page. */
     animateAybakLogoTo(5, () => {
-        leaveAybakEndCard();
+        window.setTimeout(() => {
+            leaveAybakEndCard();
+        }, 140);
     });
 });
 
@@ -11268,10 +11270,18 @@ const sectionSwitchLandingText =
 let sectionSwitchLandingState = 0;
 let sectionSwitchLandingFrame = null;
 
+function getLandingSwitchWord() {
+    return isPhoneLayout() && window.innerHeight >= window.innerWidth
+        ? "biography."
+        : "denizalpaybak.com";
+}
+
+let landingSwitchWord = getLandingSwitchWord();
+
 function renderLandingSwitch() {
     sectionSwitchLandingText.textContent =
         renderWordCase(
-            "denizalpaybak.com",
+            landingSwitchWord,
             sectionSwitchLandingState
         );
 }
@@ -11313,16 +11323,36 @@ function morphLandingSwitchTo(target) {
     });
 }
 
+function syncLandingSwitchWordForLayout() {
+    const nextWord = getLandingSwitchWord();
+    if (nextWord === landingSwitchWord) return;
+    landingSwitchWord = nextWord;
+    sectionSwitchLandingState = 0;
+    renderLandingSwitch();
+}
+
+window.addEventListener("resize", syncLandingSwitchWordForLayout, { passive: true });
+window.addEventListener("orientationchange", syncLandingSwitchWordForLayout, { passive: true });
+requestAnimationFrame(syncLandingSwitchWordForLayout);
 renderLandingSwitch();
 
 sectionSwitchLandingText.parentElement.addEventListener("mouseenter", () => {
     if (!canHover()) return;
-    morphLandingSwitchTo("denizalpaybak.com".length);
+    morphLandingSwitchTo(landingSwitchWord.length);
 });
 
 sectionSwitchLandingText.parentElement.addEventListener("mouseleave", () => {
     if (!canHover()) return;
     morphLandingSwitchTo(0);
+});
+
+sectionSwitchLandingText.parentElement.addEventListener("click", async event => {
+    if (!isPhoneLayout()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    await morphLandingSwitchTo(landingSwitchWord.length);
+    await new Promise(resolve => setTimeout(resolve, MOBILE_NAV_HOLD));
+    window.location.href = sectionSwitchLandingText.parentElement.href;
 });
 
 const sectionSwitchText =
@@ -11333,7 +11363,7 @@ const sectionSwitchText =
 
 function getSwitchWord() {
     return isPhoneLayout() && window.innerHeight >= window.innerWidth
-        ? "biography."
+        ? "film."
         : "film.denizalpaybak.com";
 }
 
@@ -12398,6 +12428,37 @@ body.project-all-mode #view-all-button,
 body.project-all-preparing #view-all-button {
     grid-column: 2 !important;
     grid-row: 2 !important;
+}
+
+
+/* Mobile AYBAK end-card is a true viewport surface. Prevent the underlying
+   photography document from creating horizontal drift or white side slivers. */
+@media (max-width: 1000px) {
+    html.aybak-end-card-active,
+    body.aybak-end-card-active,
+    html.aybak-end-card-leaving,
+    body.aybak-end-card-leaving {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    #aybak-end-card {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        min-width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        max-height: 100dvh !important;
+        margin: 0 !important;
+        transform: none !important;
+        overflow: hidden !important;
+    }
 }
 
 /* AYBAK is always the inverse of the current page. */
