@@ -4122,6 +4122,13 @@ function getDeepLinkRequest() {
         );
 
 
+    const viewAll =
+        params.get(
+            "view"
+        ) ===
+        "all";
+
+
     let imageNumber =
         null;
 
@@ -4155,7 +4162,8 @@ function getDeepLinkRequest() {
 
     return {
         projectId,
-        imageNumber
+        imageNumber,
+        viewAll
     };
 
 }
@@ -4333,7 +4341,6 @@ function syncProjectUrl(
         project.id
     );
 
-
     url.searchParams.set(
         "image",
         String(
@@ -4341,12 +4348,16 @@ function syncProjectUrl(
         )
     );
 
+    url.searchParams.delete(
+        "view"
+    );
+
 
     const state = {
         projectId:
             project.id,
-
-        imageNumber
+        imageNumber,
+        viewAll: false
     };
 
 
@@ -4376,79 +4387,77 @@ function syncProjectUrl(
 }
 
 
-function getCounterText(
-    index,
-    total
+function syncProjectAllUrl(
+    mode = "replace"
 ) {
 
-    return (
-        String(
-            index + 1
-        ).padStart(
-            2,
-            "0"
-        ) +
-        " / " +
-        String(
-            total
-        ).padStart(
-            2,
-            "0"
-        )
+    const project =
+        currentProject();
+
+
+    if (
+        !project ||
+        !project.id
+    ) {
+
+        return;
+
+    }
+
+
+    const url =
+        new URL(
+            window.location.href
+        );
+
+
+    url.searchParams.set(
+        "project",
+        project.id
     );
 
-}
-
-
-function getPhotoCountText(
-    total
-) {
-
-    return (
-        String(total) +
-        " " +
-        (
-            total === 1
-                ? "photo"
-                : "photos"
-        )
+    url.searchParams.delete(
+        "image"
     );
 
-}
-
-
-function getProjectPhotoCountText(
-    total
-) {
-
-    return (
-        getPhotoCountText(total) +
-        " in this project"
+    url.searchParams.set(
+        "view",
+        "all"
     );
 
-}
+
+    const state = {
+        projectId:
+            project.id,
+        viewAll: true
+    };
 
 
-function getViewVerbText(total) {
+    if (
+        mode ===
+        "push"
+    ) {
 
-    return total === 1
-        ? "view"
-        : "view all";
+        window.history.pushState(
+            state,
+            "",
+            url
+        );
 
-}
+    }
 
+    else if (
+        mode !==
+        "none"
+    ) {
 
-function getAllCounterText(
-    total
-) {
+        window.history.replaceState(
+            state,
+            "",
+            url
+        );
 
-    return (
-        "all (" +
-        getPhotoCountText(
-            total
-        ) +
-        ")"
-    );
+    }
 
 }
 
@@ -7273,7 +7282,9 @@ viewAllButton.addEventListener(
    ENTER VIEW ALL
    ===================================================== */
 
-async function enterProjectAll() {
+async function enterProjectAll(
+    { urlMode = "push" } = {}
+) {
 
     if (
         projectAllMode ||
@@ -7322,6 +7333,18 @@ async function enterProjectAll() {
 
     projectAllMode =
         true;
+
+
+    if (
+        urlMode !==
+        "none"
+    ) {
+
+        syncProjectAllUrl(
+            urlMode
+        );
+
+    }
 
 
     const targetButton =
@@ -7450,6 +7473,18 @@ async function leaveProjectAll(
 
         renderImage(
             loadedImage
+        );
+
+    }
+
+
+    if (
+        selectedIndex ===
+        null
+    ) {
+
+        syncProjectUrl(
+            "push"
         );
 
     }
@@ -11732,8 +11767,7 @@ window.addEventListener(
 
         if (
             requestedProjectIndex >= 0 &&
-            deepLink.imageNumber !==
-                null
+            deepLink.imageNumber !== null
         ) {
 
             const resolved =
@@ -11755,13 +11789,19 @@ window.addEventListener(
         }
 
 
+        const wantsViewAll =
+            requestedProjectIndex >= 0 &&
+            deepLink.viewAll;
+
+
         if (
             targetProjectIndex ===
                 projectIndex &&
             targetFrameIndex ===
                 frameIndex &&
-            !indexMode &&
-            !projectAllMode
+            wantsViewAll ===
+                projectAllMode &&
+            !indexMode
         ) {
 
             return;
@@ -11773,13 +11813,10 @@ window.addEventListener(
             slideTimer
         );
 
-
         leaveFocusedProjectMode();
-
 
         indexMode =
             false;
-
 
         projectAllMode =
             false;
@@ -11791,20 +11828,35 @@ window.addEventListener(
             "project-all-preparing"
         );
 
-
         indexView.classList.remove(
             "visible"
         );
-
 
         projectAllGrid.innerHTML =
             "";
 
 
-        /*
-            "replace" avoids creating a new history entry while
-            the browser itself is restoring an existing one.
-        */
+        if (
+            wantsViewAll
+        ) {
+
+            await showFrame(
+                targetProjectIndex,
+                targetFrameIndex,
+                "replace"
+            );
+
+            manualMode =
+                true;
+
+            await enterProjectAll(
+                { urlMode: "none" }
+            );
+
+            return;
+
+        }
+
 
         await showFrame(
             targetProjectIndex,
@@ -11812,10 +11864,8 @@ window.addEventListener(
             "replace"
         );
 
-
         manualMode =
             true;
-
 
         clearTimeout(
             slideTimer
@@ -11823,7 +11873,6 @@ window.addEventListener(
 
     }
 );
-
 
 /* =====================================================
    LOAD
@@ -11907,6 +11956,11 @@ async function loadProjects() {
             currentProject();
 
 
+        const hasViewAllDeepLink =
+            requestedProjectIndex >= 0 &&
+            deepLink.viewAll;
+
+
         let requestedRuntimeFrameIndex =
             -1;
 
@@ -11964,10 +12018,27 @@ async function loadProjects() {
             );
 
 
+            cleanUrl.searchParams.delete(
+                "view"
+            );
+
+
             window.history.replaceState(
                 {},
                 "",
                 cleanUrl
+            );
+
+        }
+
+
+        else if (
+            requestedProjectIndex >= 0 &&
+            hasViewAllDeepLink
+        ) {
+
+            syncProjectAllUrl(
+                "replace"
             );
 
         }
@@ -12210,13 +12281,29 @@ async function loadProjects() {
 
 
         if (
-            hasValidImageDeepLink
+            hasViewAllDeepLink
         ) {
 
             clearTimeout(
                 slideTimer
             );
 
+            manualMode =
+                true;
+
+            await enterProjectAll(
+                { urlMode: "replace" }
+            );
+
+        }
+
+        else if (
+            hasValidImageDeepLink
+        ) {
+
+            clearTimeout(
+                slideTimer
+            );
 
             manualMode =
                 true;
@@ -12606,7 +12693,7 @@ function setProjectAllNavigationCopy() {
 }
 
 const enterProjectAllV19 = enterProjectAll;
-enterProjectAll = async function() {
+enterProjectAll = async function(options = {}) {
     if (!projectAllMode && !indexMode && !projectAllOpenedFromIndex) {
         projectAllSlideOrigin = {
             projectIndex,
@@ -12615,7 +12702,7 @@ enterProjectAll = async function() {
         };
     }
 
-    const result = await enterProjectAllV19();
+    const result = await enterProjectAllV19(options);
     setProjectAllNavigationCopy();
     return result;
 };
@@ -12644,7 +12731,7 @@ async function switchProjectAll(direction) {
     renderedProjectIndex = targetIndex;
 
     leaveFocusedProjectMode();
-    syncProjectUrl("push");
+    syncProjectAllUrl("push");
     invertPageTheme();
 
     projectAllGrid.innerHTML = "";
