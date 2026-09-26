@@ -9,7 +9,21 @@
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
 >
 
+<script>
+/* Hide the normal single-frame slide during desktop boot.
+   Desktop opens directly into View All, so the user never sees a
+   full-size frame flash before the grid is ready. */
+(function () {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const phonePortrait = w <= 600 && h >= w;
+    const phoneLandscape = h <= 600 && w > h && w <= 1000;
 
+    if (!phonePortrait && !phoneLandscape) {
+        document.documentElement.classList.add("desktop-viewall-boot");
+    }
+})();
+</script>
 
 <title>Denizalp Aybak — Photography</title>
 <link rel="stylesheet" href="https://use.typekit.net/rmn7qgm.css">
@@ -121,7 +135,12 @@ body {
     cursor: default;
 }
 
-/* Desktop and mobile both open directly in the single-photo slide view. */
+/* Desktop opens in View All. Keep the temporary slide completely hidden
+   until the View All grid has finished becoming the active view. */
+html.desktop-viewall-boot #project-stage,
+html.desktop-viewall-boot #project-all-view {
+    visibility: hidden !important;
+}
 
 /* Explicit pointer states only for genuinely interactive elements. */
 a,
@@ -1345,6 +1364,7 @@ body.aybak-end-card-leaving #aybak-end-card {
 .aybak-end-card-copy {
     position: absolute;
     z-index: 2;
+    top: var(--top);
     font-family: Arial, Helvetica, sans-serif;
     font-size: var(--font-size);
     line-height: var(--line-height);
@@ -1357,32 +1377,18 @@ body.aybak-end-card-active .aybak-end-card-copy {
     transition-delay: 0ms;
 }
 
-.aybak-end-card-photography {
-    top: var(--top);
+.aybak-end-card-contact {
     left: var(--side);
+    display: flex;
+    flex-direction: column;
 }
 
 .aybak-end-card-film {
-    top: var(--top);
     right: var(--side);
-    text-align: right;
-}
-
-.aybak-end-card-bottom-left {
-    left: var(--side);
-    bottom: calc(var(--top) + env(safe-area-inset-bottom));
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.aybak-end-card-bottom-right {
-    right: var(--side);
-    bottom: calc(var(--top) + env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    text-align: right;
+    gap: 0;
 }
 
 .aybak-end-card-copy a {
@@ -1390,11 +1396,8 @@ body.aybak-end-card-active .aybak-end-card-copy {
     text-decoration: none;
 }
 
-.aybak-end-card-copy a:hover,
-.aybak-end-card-copy a:focus,
-.aybak-end-card-copy a:active {
-    text-decoration: none;
-    outline: 0;
+.aybak-end-card-copy a:hover {
+    text-decoration: underline;
 }
 
 #aybak-end-card .section-switch,
@@ -2869,46 +2872,11 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
     aria-hidden="true"
 >
 
-    <div class="aybak-end-card-copy aybak-end-card-photography">
-        <a
-            class="section-switch section-switch-landing"
-            id="section-switch-landing"
-            href="https://denizalpaybak.com/"
-        >
-            <span id="section-switch-landing-text">PHOTOGRAPHY.denizalpaybak.com</span>
-        </a>
-    </div>
-
-    <div class="aybak-end-card-copy aybak-end-card-film">
-        <a
-            class="section-switch section-switch-film"
-            id="section-switch"
-            href="https://film.denizalpaybak.com/"
-        >
-            <span id="section-switch-text">film.denizalpaybak.com</span>
-        </a>
-    </div>
-
-    <div class="aybak-end-card-copy aybak-end-card-bottom-left">
-        <a
-            href="https://models.com/people/denizalp-aybak"
-            target="_blank"
-            rel="noopener"
-        >
-            models.com
-        </a>
-
-        <a
-            href="denizalp-aybak-portfolio.pdf"
-            download
-        >
-            portfolio.pdf
-        </a>
-    </div>
-
-    <div class="aybak-end-card-copy aybak-end-card-bottom-right">
+    <div class="aybak-end-card-copy aybak-end-card-contact">
         <a
             href="mailto:d@denizalpaybak.com"
+            target="_blank"
+            rel="noopener"
         >
             d@denizalpaybak.com
         </a>
@@ -2919,6 +2887,32 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
             rel="noopener"
         >
             instagram @denizalpaybak
+        </a>
+
+        <a
+            href="https://models.com/people/denizalp-aybak"
+            target="_blank"
+            rel="noopener"
+        >
+            models.com
+        </a>
+    </div>
+
+    <div class="aybak-end-card-copy aybak-end-card-film">
+        <a
+            class="section-switch section-switch-landing"
+            id="section-switch-landing"
+            href="https://denizalpaybak.com/"
+        >
+            <span id="section-switch-landing-text">denizalpaybak.com</span>
+        </a>
+
+        <a
+            class="section-switch section-switch-film"
+            id="section-switch"
+            href="https://film.denizalpaybak.com/"
+        >
+            <span id="section-switch-text">film.denizalpaybak.com</span>
         </a>
     </div>
 
@@ -4122,13 +4116,6 @@ function getDeepLinkRequest() {
         );
 
 
-    const viewAll =
-        params.get(
-            "view"
-        ) ===
-        "all";
-
-
     let imageNumber =
         null;
 
@@ -4162,8 +4149,7 @@ function getDeepLinkRequest() {
 
     return {
         projectId,
-        imageNumber,
-        viewAll
+        imageNumber
     };
 
 }
@@ -4341,6 +4327,7 @@ function syncProjectUrl(
         project.id
     );
 
+
     url.searchParams.set(
         "image",
         String(
@@ -4348,16 +4335,12 @@ function syncProjectUrl(
         )
     );
 
-    url.searchParams.delete(
-        "view"
-    );
-
 
     const state = {
         projectId:
             project.id,
-        imageNumber,
-        viewAll: false
+
+        imageNumber
     };
 
 
@@ -4387,77 +4370,79 @@ function syncProjectUrl(
 }
 
 
-function syncProjectAllUrl(
-    mode = "replace"
+function getCounterText(
+    index,
+    total
 ) {
 
-    const project =
-        currentProject();
-
-
-    if (
-        !project ||
-        !project.id
-    ) {
-
-        return;
-
-    }
-
-
-    const url =
-        new URL(
-            window.location.href
-        );
-
-
-    url.searchParams.set(
-        "project",
-        project.id
+    return (
+        String(
+            index + 1
+        ).padStart(
+            2,
+            "0"
+        ) +
+        " / " +
+        String(
+            total
+        ).padStart(
+            2,
+            "0"
+        )
     );
 
-    url.searchParams.delete(
-        "image"
+}
+
+
+function getPhotoCountText(
+    total
+) {
+
+    return (
+        String(total) +
+        " " +
+        (
+            total === 1
+                ? "photo"
+                : "photos"
+        )
     );
 
-    url.searchParams.set(
-        "view",
-        "all"
+}
+
+
+function getProjectPhotoCountText(
+    total
+) {
+
+    return (
+        getPhotoCountText(total) +
+        " in this project"
     );
 
-
-    const state = {
-        projectId:
-            project.id,
-        viewAll: true
-    };
+}
 
 
-    if (
-        mode ===
-        "push"
-    ) {
+function getViewVerbText(total) {
 
-        window.history.pushState(
-            state,
-            "",
-            url
-        );
+    return total === 1
+        ? "view"
+        : "view all";
 
-    }
+}
 
-    else if (
-        mode !==
-        "none"
-    ) {
 
-        window.history.replaceState(
-            state,
-            "",
-            url
-        );
+function getAllCounterText(
+    total
+) {
 
-    }
+    return (
+        "all (" +
+        getPhotoCountText(
+            total
+        ) +
+        ")"
+    );
 
 }
 
@@ -7282,9 +7267,7 @@ viewAllButton.addEventListener(
    ENTER VIEW ALL
    ===================================================== */
 
-async function enterProjectAll(
-    { urlMode = "push" } = {}
-) {
+async function enterProjectAll() {
 
     if (
         projectAllMode ||
@@ -7333,18 +7316,6 @@ async function enterProjectAll(
 
     projectAllMode =
         true;
-
-
-    if (
-        urlMode !==
-        "none"
-    ) {
-
-        syncProjectAllUrl(
-            urlMode
-        );
-
-    }
 
 
     const targetButton =
@@ -7473,18 +7444,6 @@ async function leaveProjectAll(
 
         renderImage(
             loadedImage
-        );
-
-    }
-
-
-    if (
-        selectedIndex ===
-        null
-    ) {
-
-        syncProjectUrl(
-            "push"
         );
 
     }
@@ -11339,48 +11298,92 @@ const sectionSwitchLandingText =
         "section-switch-landing-text"
     );
 
+let sectionSwitchLandingState = 0;
+let sectionSwitchLandingFrame = null;
+
 function getLandingSwitchWord() {
-    return isPhoneLayout()
-        ? "PHOTOGRAPHY."
-        : "PHOTOGRAPHY.denizalpaybak.com";
+    return isPhoneLayout() && window.innerHeight >= window.innerWidth
+        ? "biography."
+        : "denizalpaybak.com";
 }
 
 let landingSwitchWord = getLandingSwitchWord();
 
-function syncLandingSwitchWordForLayout() {
-    const nextWord = getLandingSwitchWord();
-
-    if (nextWord === landingSwitchWord) return;
-
-    landingSwitchWord = nextWord;
-    sectionSwitchLandingText.textContent = landingSwitchWord;
+function renderLandingSwitch() {
+    sectionSwitchLandingText.textContent =
+        renderWordCase(
+            landingSwitchWord,
+            sectionSwitchLandingState
+        );
 }
 
-window.addEventListener(
-    "resize",
-    syncLandingSwitchWordForLayout,
-    { passive: true }
-);
-
-window.addEventListener(
-    "orientationchange",
-    syncLandingSwitchWordForLayout,
-    { passive: true }
-);
-
-sectionSwitchLandingText.textContent = landingSwitchWord;
-
-sectionSwitchLandingText.parentElement.addEventListener(
-    "click",
-    event => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        /* Same action as ArrowUp: leave the black end-card only. */
-        setAybakEndCard(false);
+function morphLandingSwitchTo(target) {
+    if (sectionSwitchLandingFrame !== null) {
+        cancelAnimationFrame(sectionSwitchLandingFrame);
     }
-);
 
+    const startState = sectionSwitchLandingState;
+    if (startState === target) {
+        renderLandingSwitch();
+        return Promise.resolve();
+    }
+
+    const start = performance.now();
+    return new Promise(resolve => {
+        function frame(now) {
+            const progress = Math.min(1, (now - start) / WORD_TRANSITION_DURATION);
+            const raw = startState + (target - startState) * progress;
+            sectionSwitchLandingState =
+                target >= startState
+                    ? Math.floor(raw + 0.0001)
+                    : Math.ceil(raw - 0.0001);
+            renderLandingSwitch();
+
+            if (progress < 1) {
+                sectionSwitchLandingFrame = requestAnimationFrame(frame);
+                return;
+            }
+
+            sectionSwitchLandingState = target;
+            sectionSwitchLandingFrame = null;
+            renderLandingSwitch();
+            resolve();
+        }
+
+        sectionSwitchLandingFrame = requestAnimationFrame(frame);
+    });
+}
+
+function syncLandingSwitchWordForLayout() {
+    const nextWord = getLandingSwitchWord();
+    if (nextWord === landingSwitchWord) return;
+    landingSwitchWord = nextWord;
+    sectionSwitchLandingState = 0;
+    renderLandingSwitch();
+}
+
+window.addEventListener("resize", syncLandingSwitchWordForLayout, { passive: true });
+window.addEventListener("orientationchange", syncLandingSwitchWordForLayout, { passive: true });
+requestAnimationFrame(syncLandingSwitchWordForLayout);
+renderLandingSwitch();
+
+sectionSwitchLandingText.parentElement.addEventListener("mouseenter", () => {
+    if (!canHover()) return;
+    morphLandingSwitchTo(landingSwitchWord.length);
+});
+
+sectionSwitchLandingText.parentElement.addEventListener("mouseleave", () => {
+    if (!canHover()) return;
+    morphLandingSwitchTo(0);
+});
+
+sectionSwitchLandingText.parentElement.addEventListener("click", async event => {
+    event.preventDefault();
+    event.stopPropagation();
+    await morphLandingSwitchTo(landingSwitchWord.length);
+    await new Promise(resolve => setTimeout(resolve, canHover() ? 100 : MOBILE_NAV_HOLD));
+    window.location.href = sectionSwitchLandingText.parentElement.href;
+});
 
 const sectionSwitchText =
     document.getElementById(
@@ -11389,7 +11392,7 @@ const sectionSwitchText =
 
 
 function getSwitchWord() {
-    return isPhoneLayout()
+    return isPhoneLayout() && window.innerHeight >= window.innerWidth
         ? "film."
         : "film.denizalpaybak.com";
 }
@@ -11564,7 +11567,7 @@ sectionSwitch.addEventListener(
         ) {
 
             morphSwitchTo(
-                5
+                switchWord.length
             );
 
         }
@@ -11607,12 +11610,6 @@ sectionSwitch.addEventListener(
         event.preventDefault();
         event.stopPropagation();
 
-        if (canHover()) {
-            window.location.href =
-                sectionSwitch.href;
-            return;
-        }
-
         await morphSwitchTo(
             switchWord.length
         );
@@ -11621,7 +11618,7 @@ sectionSwitch.addEventListener(
             resolve =>
                 setTimeout(
                     resolve,
-                    MOBILE_NAV_HOLD
+                    canHover() ? 100 : MOBILE_NAV_HOLD
                 )
         );
 
@@ -11767,7 +11764,8 @@ window.addEventListener(
 
         if (
             requestedProjectIndex >= 0 &&
-            deepLink.imageNumber !== null
+            deepLink.imageNumber !==
+                null
         ) {
 
             const resolved =
@@ -11789,19 +11787,13 @@ window.addEventListener(
         }
 
 
-        const wantsViewAll =
-            requestedProjectIndex >= 0 &&
-            deepLink.viewAll;
-
-
         if (
             targetProjectIndex ===
                 projectIndex &&
             targetFrameIndex ===
                 frameIndex &&
-            wantsViewAll ===
-                projectAllMode &&
-            !indexMode
+            !indexMode &&
+            !projectAllMode
         ) {
 
             return;
@@ -11813,10 +11805,13 @@ window.addEventListener(
             slideTimer
         );
 
+
         leaveFocusedProjectMode();
+
 
         indexMode =
             false;
+
 
         projectAllMode =
             false;
@@ -11828,35 +11823,20 @@ window.addEventListener(
             "project-all-preparing"
         );
 
+
         indexView.classList.remove(
             "visible"
         );
+
 
         projectAllGrid.innerHTML =
             "";
 
 
-        if (
-            wantsViewAll
-        ) {
-
-            await showFrame(
-                targetProjectIndex,
-                targetFrameIndex,
-                "replace"
-            );
-
-            manualMode =
-                true;
-
-            await enterProjectAll(
-                { urlMode: "none" }
-            );
-
-            return;
-
-        }
-
+        /*
+            "replace" avoids creating a new history entry while
+            the browser itself is restoring an existing one.
+        */
 
         await showFrame(
             targetProjectIndex,
@@ -11864,8 +11844,10 @@ window.addEventListener(
             "replace"
         );
 
+
         manualMode =
             true;
+
 
         clearTimeout(
             slideTimer
@@ -11873,6 +11855,7 @@ window.addEventListener(
 
     }
 );
+
 
 /* =====================================================
    LOAD
@@ -11956,11 +11939,6 @@ async function loadProjects() {
             currentProject();
 
 
-        const hasViewAllDeepLink =
-            requestedProjectIndex >= 0 &&
-            deepLink.viewAll;
-
-
         let requestedRuntimeFrameIndex =
             -1;
 
@@ -12018,27 +11996,10 @@ async function loadProjects() {
             );
 
 
-            cleanUrl.searchParams.delete(
-                "view"
-            );
-
-
             window.history.replaceState(
                 {},
                 "",
                 cleanUrl
-            );
-
-        }
-
-
-        else if (
-            requestedProjectIndex >= 0 &&
-            hasViewAllDeepLink
-        ) {
-
-            syncProjectAllUrl(
-                "replace"
             );
 
         }
@@ -12281,29 +12242,13 @@ async function loadProjects() {
 
 
         if (
-            hasViewAllDeepLink
-        ) {
-
-            clearTimeout(
-                slideTimer
-            );
-
-            manualMode =
-                true;
-
-            await enterProjectAll(
-                { urlMode: "replace" }
-            );
-
-        }
-
-        else if (
             hasValidImageDeepLink
         ) {
 
             clearTimeout(
                 slideTimer
             );
+
 
             manualMode =
                 true;
@@ -12693,7 +12638,7 @@ function setProjectAllNavigationCopy() {
 }
 
 const enterProjectAllV19 = enterProjectAll;
-enterProjectAll = async function(options = {}) {
+enterProjectAll = async function() {
     if (!projectAllMode && !indexMode && !projectAllOpenedFromIndex) {
         projectAllSlideOrigin = {
             projectIndex,
@@ -12702,7 +12647,7 @@ enterProjectAll = async function(options = {}) {
         };
     }
 
-    const result = await enterProjectAllV19(options);
+    const result = await enterProjectAllV19();
     setProjectAllNavigationCopy();
     return result;
 };
@@ -12731,7 +12676,7 @@ async function switchProjectAll(direction) {
     renderedProjectIndex = targetIndex;
 
     leaveFocusedProjectMode();
-    syncProjectAllUrl("push");
+    syncProjectUrl("push");
     invertPageTheme();
 
     projectAllGrid.innerHTML = "";
@@ -13105,10 +13050,55 @@ syncMetadataAfterRender = function() {
 };
 
 /* -----------------------------------------------------
-   INITIAL VIEW
-   Desktop and mobile both start in the single-photo slide view.
-   loadProjects() starts the normal slideshow automatically.
+   DESKTOP STARTS IN VIEW ALL; PHONE STILL STARTS IN SLIDE.
+   Wait for the existing async loader, then enter without changing
+   the first project's white theme.
    ----------------------------------------------------- */
+(function openDesktopInViewAllWhenReady() {
+    const tryOpen = async () => {
+        if (!projects.length || !spread.firstChild) {
+            requestAnimationFrame(tryOpen);
+            return;
+        }
+
+        const requestedDeepLink = getDeepLinkRequest();
+        const requestedDeepProjectIndex = findProjectIndexById(requestedDeepLink.projectId);
+        const requestedDeepFrameIndex =
+            requestedDeepProjectIndex >= 0 && requestedDeepLink.imageNumber !== null
+                ? getRuntimeFrameIndexFromOriginalNumber(
+                    projects[requestedDeepProjectIndex],
+                    requestedDeepLink.imageNumber
+                )
+                : -1;
+
+        if (requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0) {
+            document.documentElement.classList.remove("desktop-viewall-boot");
+            stopProjectAutoplayFromInteraction();
+            stopAutoSlideshow();
+            return;
+        }
+
+        if (!isPhoneLayout() && !indexMode && !projectAllMode) {
+            await enterProjectAll();
+            setProjectAllNavigationCopy();
+            await waitForProjectAllImageDimensions();
+            document.documentElement.classList.remove("desktop-viewall-boot");
+            scheduleProjectAutoplay();
+        } else if (isPhoneLayout()) {
+            document.documentElement.classList.remove("desktop-viewall-boot");
+        }
+    };
+
+    requestAnimationFrame(tryOpen);
+})();
+
+
+
+/* Desktop stays hidden until thumbnail dimensions have been measured and the
+   first grid layout is final. Phone layouts may release the boot guard immediately. */
+if (isPhoneLayout()) {
+    document.documentElement.classList.remove("desktop-viewall-boot");
+}
 
 /* Re-score VIEW ALL as soon as thumbnail aspect ratios are available. */
 projectAllGrid.addEventListener(
@@ -13197,88 +13187,5 @@ body:not(.aybak-end-card-active) #index-project-count {
     }
 }
 </style>
-
-<style id="final-aybak-end-card-links">
-/* =====================================================
-   FINAL AYBAK END CARD LINK SYSTEM
-   ===================================================== */
-
-#aybak-end-card .aybak-end-card-photography,
-#aybak-end-card .aybak-end-card-film,
-#aybak-end-card .aybak-end-card-bottom-left,
-#aybak-end-card .aybak-end-card-bottom-right {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: var(--font-size);
-    line-height: var(--line-height);
-}
-
-#aybak-end-card .aybak-end-card-photography {
-    top: var(--top) !important;
-    left: var(--side) !important;
-    right: auto !important;
-    bottom: auto !important;
-}
-
-#aybak-end-card .aybak-end-card-film {
-    top: var(--top) !important;
-    right: var(--side) !important;
-    left: auto !important;
-    bottom: auto !important;
-}
-
-#aybak-end-card .aybak-end-card-bottom-left {
-    left: var(--side) !important;
-    right: auto !important;
-    top: auto !important;
-    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
-}
-
-#aybak-end-card .aybak-end-card-bottom-right {
-    right: var(--side) !important;
-    left: auto !important;
-    top: auto !important;
-    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
-}
-
-#aybak-end-card .aybak-end-card-copy a,
-#aybak-end-card .aybak-end-card-copy a:hover,
-#aybak-end-card .aybak-end-card-copy a:focus,
-#aybak-end-card .aybak-end-card-copy a:active {
-    text-decoration: none !important;
-    outline: 0 !important;
-}
-
-/* Only the four lower utility links underline on hover/focus. */
-#aybak-end-card .aybak-end-card-bottom-left a:hover,
-#aybak-end-card .aybak-end-card-bottom-left a:focus,
-#aybak-end-card .aybak-end-card-bottom-right a:hover,
-#aybak-end-card .aybak-end-card-bottom-right a:focus {
-    text-decoration: underline !important;
-    text-underline-offset: 0.12em;
-}
-
-@media (max-width: 1000px) {
-    #aybak-end-card .aybak-end-card-photography {
-        top: var(--top) !important;
-        left: var(--side) !important;
-    }
-
-    #aybak-end-card .aybak-end-card-film {
-        top: var(--top) !important;
-        right: var(--side) !important;
-    }
-
-    #aybak-end-card .aybak-end-card-bottom-left {
-        left: var(--side) !important;
-        bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
-    }
-
-    #aybak-end-card .aybak-end-card-bottom-right {
-        right: var(--side) !important;
-        bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
-    }
-}
-</style>
-
 </body>
 </html>
