@@ -4147,9 +4147,20 @@ function getDeepLinkRequest() {
     }
 
 
+    const rawView =
+        params.get(
+            "view"
+        );
+
+    const viewAll =
+        String(
+            rawView || ""
+        ).toLowerCase() === "all";
+
     return {
         projectId,
-        imageNumber
+        imageNumber,
+        viewAll
     };
 
 }
@@ -12006,12 +12017,16 @@ async function loadProjects() {
 
 
         else if (
-            requestedProjectIndex >= 0
+            requestedProjectIndex >= 0 &&
+            !deepLink.viewAll
         ) {
 
             /*
                 Normalize project-only / invalid-image deep links
                 to the exact stable original image number.
+
+                A VIEW ALL deep link deliberately keeps its own
+                `view=all` URL state.
             */
 
             syncProjectUrl(
@@ -12023,7 +12038,8 @@ async function loadProjects() {
 
         const hasValidImageDeepLink =
             requestedProjectIndex >= 0 &&
-            requestedRuntimeFrameIndex >= 0;
+            requestedRuntimeFrameIndex >= 0 &&
+            !deepLink.viewAll;
 
 
         if (
@@ -13051,45 +13067,175 @@ syncMetadataAfterRender = function() {
 
 /* -----------------------------------------------------
    DESKTOP STARTS IN VIEW ALL; PHONE STILL STARTS IN SLIDE.
-   Wait for the existing async loader, then enter without changing
-   the first project's white theme.
+   A direct `?project=ID&view=all` deep link opens that
+   project's existing View All state on every device.
    ----------------------------------------------------- */
-(function openDesktopInViewAllWhenReady() {
-    const tryOpen = async () => {
-        if (!projects.length || !spread.firstChild) {
-            requestAnimationFrame(tryOpen);
-            return;
-        }
+(function openInitialProjectViewWhenReady() {
 
-        const requestedDeepLink = getDeepLinkRequest();
-        const requestedDeepProjectIndex = findProjectIndexById(requestedDeepLink.projectId);
-        const requestedDeepFrameIndex =
-            requestedDeepProjectIndex >= 0 && requestedDeepLink.imageNumber !== null
-                ? getRuntimeFrameIndexFromOriginalNumber(
-                    projects[requestedDeepProjectIndex],
-                    requestedDeepLink.imageNumber
-                )
-                : -1;
+    const tryOpen =
+        async () => {
 
-        if (requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0) {
-            document.documentElement.classList.remove("desktop-viewall-boot");
-            stopProjectAutoplayFromInteraction();
-            stopAutoSlideshow();
-            return;
-        }
+            if (
+                !projects.length ||
+                !spread.firstChild
+            ) {
 
-        if (!isPhoneLayout() && !indexMode && !projectAllMode) {
-            await enterProjectAll();
-            setProjectAllNavigationCopy();
-            await waitForProjectAllImageDimensions();
-            document.documentElement.classList.remove("desktop-viewall-boot");
-            scheduleProjectAutoplay();
-        } else if (isPhoneLayout()) {
-            document.documentElement.classList.remove("desktop-viewall-boot");
-        }
-    };
+                requestAnimationFrame(
+                    tryOpen
+                );
 
-    requestAnimationFrame(tryOpen);
+                return;
+
+            }
+
+
+            const requestedDeepLink =
+                getDeepLinkRequest();
+
+
+            const requestedDeepProjectIndex =
+                findProjectIndexById(
+                    requestedDeepLink.projectId
+                );
+
+
+            const requestedDeepFrameIndex =
+                requestedDeepProjectIndex >= 0 &&
+                requestedDeepLink.imageNumber !== null
+                    ? getRuntimeFrameIndexFromOriginalNumber(
+                        projects[
+                            requestedDeepProjectIndex
+                        ],
+                        requestedDeepLink.imageNumber
+                    )
+                    : -1;
+
+
+            const requestedViewAll =
+                requestedDeepProjectIndex >= 0 &&
+                requestedDeepLink.viewAll;
+
+
+            /*
+                Exact image deep links keep the existing slide behaviour.
+            */
+            if (
+                requestedDeepProjectIndex >= 0 &&
+                requestedDeepFrameIndex >= 0 &&
+                !requestedViewAll
+            ) {
+
+                document.documentElement.classList.remove(
+                    "desktop-viewall-boot"
+                );
+
+
+                stopProjectAutoplayFromInteraction();
+                stopAutoSlideshow();
+
+
+                return;
+
+            }
+
+
+            /*
+                Explicit View All deep links use the existing
+                enterProjectAll() implementation unchanged.
+            */
+            if (
+                requestedViewAll
+            ) {
+
+                if (
+                    !projectAllMode &&
+                    !indexMode
+                ) {
+
+                    stopProjectAutoplayFromInteraction();
+                    stopAutoSlideshow();
+
+
+                    await enterProjectAll();
+
+
+                    setProjectAllNavigationCopy();
+
+
+                    await waitForProjectAllImageDimensions();
+
+                }
+
+
+                document.documentElement.classList.remove(
+                    "desktop-viewall-boot"
+                );
+
+
+                /*
+                    Keep the existing passive project advance behaviour
+                    on desktop only. Phones simply open the selected
+                    project in View All.
+                */
+                if (
+                    !isPhoneLayout()
+                ) {
+
+                    scheduleProjectAutoplay();
+
+                }
+
+
+                return;
+
+            }
+
+
+            /*
+                Existing behaviour for normal desktop entry:
+                open the first/current project directly in View All.
+            */
+            if (
+                !isPhoneLayout() &&
+                !indexMode &&
+                !projectAllMode
+            ) {
+
+                await enterProjectAll();
+
+
+                setProjectAllNavigationCopy();
+
+
+                await waitForProjectAllImageDimensions();
+
+
+                document.documentElement.classList.remove(
+                    "desktop-viewall-boot"
+                );
+
+
+                scheduleProjectAutoplay();
+
+            }
+
+            else if (
+                isPhoneLayout()
+            ) {
+
+                document.documentElement.classList.remove(
+                    "desktop-viewall-boot"
+                );
+
+            }
+
+        };
+
+
+    requestAnimationFrame(
+        tryOpen
+    );
+
 })();
 
 
