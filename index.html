@@ -9,21 +9,7 @@
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
 >
 
-<script>
-/* Hide the normal single-frame slide during desktop boot.
-   Desktop opens directly into View All, so the user never sees a
-   full-size frame flash before the grid is ready. */
-(function () {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    const phonePortrait = w <= 600 && h >= w;
-    const phoneLandscape = h <= 600 && w > h && w <= 1000;
 
-    if (!phonePortrait && !phoneLandscape) {
-        document.documentElement.classList.add("desktop-viewall-boot");
-    }
-})();
-</script>
 
 <title>Denizalp Aybak — Photography</title>
 <link rel="stylesheet" href="https://use.typekit.net/rmn7qgm.css">
@@ -135,12 +121,7 @@ body {
     cursor: default;
 }
 
-/* Desktop opens in View All. Keep the temporary slide completely hidden
-   until the View All grid has finished becoming the active view. */
-html.desktop-viewall-boot #project-stage,
-html.desktop-viewall-boot #project-all-view {
-    visibility: hidden !important;
-}
+/* Desktop and mobile both open directly in the single-photo slide view. */
 
 /* Explicit pointer states only for genuinely interactive elements. */
 a,
@@ -13037,55 +13018,10 @@ syncMetadataAfterRender = function() {
 };
 
 /* -----------------------------------------------------
-   DESKTOP STARTS IN VIEW ALL; PHONE STILL STARTS IN SLIDE.
-   Wait for the existing async loader, then enter without changing
-   the first project's white theme.
+   INITIAL VIEW
+   Desktop and mobile both start in the single-photo slide view.
+   loadProjects() starts the normal slideshow automatically.
    ----------------------------------------------------- */
-(function openDesktopInViewAllWhenReady() {
-    const tryOpen = async () => {
-        if (!projects.length || !spread.firstChild) {
-            requestAnimationFrame(tryOpen);
-            return;
-        }
-
-        const requestedDeepLink = getDeepLinkRequest();
-        const requestedDeepProjectIndex = findProjectIndexById(requestedDeepLink.projectId);
-        const requestedDeepFrameIndex =
-            requestedDeepProjectIndex >= 0 && requestedDeepLink.imageNumber !== null
-                ? getRuntimeFrameIndexFromOriginalNumber(
-                    projects[requestedDeepProjectIndex],
-                    requestedDeepLink.imageNumber
-                )
-                : -1;
-
-        if (requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0) {
-            document.documentElement.classList.remove("desktop-viewall-boot");
-            stopProjectAutoplayFromInteraction();
-            stopAutoSlideshow();
-            return;
-        }
-
-        if (!isPhoneLayout() && !indexMode && !projectAllMode) {
-            await enterProjectAll();
-            setProjectAllNavigationCopy();
-            await waitForProjectAllImageDimensions();
-            document.documentElement.classList.remove("desktop-viewall-boot");
-            scheduleProjectAutoplay();
-        } else if (isPhoneLayout()) {
-            document.documentElement.classList.remove("desktop-viewall-boot");
-        }
-    };
-
-    requestAnimationFrame(tryOpen);
-})();
-
-
-
-/* Desktop stays hidden until thumbnail dimensions have been measured and the
-   first grid layout is final. Phone layouts may release the boot guard immediately. */
-if (isPhoneLayout()) {
-    document.documentElement.classList.remove("desktop-viewall-boot");
-}
 
 /* Re-score VIEW ALL as soon as thumbnail aspect ratios are available. */
 projectAllGrid.addEventListener(
