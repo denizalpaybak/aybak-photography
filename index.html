@@ -11360,8 +11360,8 @@ sectionSwitchLandingText.parentElement.addEventListener(
         event.preventDefault();
         event.stopPropagation();
 
-        window.location.href =
-            sectionSwitchLandingText.parentElement.href;
+        /* Same action as ArrowUp: leave the black end-card only. */
+        setAybakEndCard(false);
     }
 );
 
@@ -13223,6 +13223,15 @@ body:not(.aybak-end-card-active) #index-project-count {
 #aybak-end-card .aybak-end-card-copy a:active {
     text-decoration: none !important;
     outline: 0 !important;
+}
+
+/* Only the four lower utility links underline on hover/focus. */
+#aybak-end-card .aybak-end-card-bottom-left a:hover,
+#aybak-end-card .aybak-end-card-bottom-left a:focus,
+#aybak-end-card .aybak-end-card-bottom-right a:hover,
+#aybak-end-card .aybak-end-card-bottom-right a:focus {
+    text-decoration: underline !important;
+    text-underline-offset: 0.12em;
 }
 
 @media (max-width: 1000px) {
