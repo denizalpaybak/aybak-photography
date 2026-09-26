@@ -1,4 +1,4 @@
-
+[
   {
     "title": "Vogue Türkiye",
     "date": "March 2026",
@@ -16,9 +16,7 @@
       "vogue_260213_1922.jpg",
       "vogue_260213_05312.jpg"
     ],
-    "id": "vogue-260213",
-    "field": "PHOTOGRAPHY",
-    "use": "EDITORIAL"
+    "id": "vogue-260213"
   },
   {
     "title": "Harper's Bazaar Türkiye",
@@ -38,20 +36,16 @@
       "harpersbazaar_260625_0357.jpg",
       "harpersbazaar_260625_0506.jpg"
     ],
-    "id": "harpersbazaar-260625",
-    "field": "PHOTOGRAPHY",
-    "use": "EDITORIAL"
+    "id": "harpersbazaar-260625"
   },
   {
     "title": "L'Officiel Türkiye",
-    "date": "February 2025",
+    "date": "February 2025 Digital Cover",
     "sortDate": "2025-02",
     "images": [
       "lofficiel_250130_cover.jpg"
     ],
-    "id": "lofficiel-250130-cover",
-    "field": "PHOTOGRAPHY",
-    "use": "MAGAZINE COVER"
+    "id": "lofficiel-250130-cover"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -63,9 +57,7 @@
       "lofficiel_250130_layout_4.jpg",
       "lofficiel_250130_layout_5.jpg"
     ],
-    "id": "lofficiel-250130",
-    "field": "PHOTOGRAPHY",
-    "use": "EDITORIAL"
+    "id": "lofficiel-250130"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -74,9 +66,7 @@
     "images": [
       "lofficiel_241106_cover.jpg"
     ],
-    "id": "lofficiel-241106-cover",
-    "field": "PHOTOGRAPHY",
-    "use": "EDITORIAL"
+    "id": "lofficiel-241106-cover"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -87,9 +77,7 @@
       "lofficiel_241106_0376.jpg",
       "lofficiel_241106_0928.jpg"
     ],
-    "id": "lofficiel-241106",
-    "field": "PHOTOGRAPHY",
-    "use": "EDITORIAL"
+    "id": "lofficiel-241106"
   },
   {
     "title": "Bee Goddess",
@@ -99,9 +87,7 @@
       "beegoddess_full_1.jpg",
       "beegoddess_full_2.jpg"
     ],
-    "id": "beegoddess-fw24",
-    "field": "PHOTOGRAPHY",
-    "use": "STILL LIFE"
+    "id": "beegoddess-fw24"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -111,9 +97,7 @@
       "lofficiel_260116_0984.jpg",
       "lofficiel_260116_1608.jpg"
     ],
-    "id": "lofficiel-260116",
-    "field": "PHOTOGRAPHY",
-    "use": "EDITORIAL"
+    "id": "lofficiel-260116"
   },
   {
     "title": "MANC",
@@ -122,9 +106,7 @@
     "images": [
       "manc_231124_01.jpg"
     ],
-    "id": "manc-231124",
-    "field": "PHOTOGRAPHY",
-    "use": "ADVERTISING"
+    "id": "manc-231124"
   },
   {
     "title": "Mudo Home",
@@ -134,9 +116,7 @@
       "mudo_home_1.jpg",
       "mudo_home_5.jpg"
     ],
-    "id": "mudo-home-fw24",
-    "field": "PHOTOGRAPHY",
-    "use": "STILL LIFE"
+    "id": "mudo-home-fw24"
   },
   {
     "title": "L'Officiel Türkiye",
@@ -147,9 +127,7 @@
       "lofficiel_251213_1900_ig.jpg"
     ],
     "coverOverride": "lofficiel_251213_1647_retouched_3.jpg",
-    "id": "lofficiel-251213-cover",
-    "field": "PHOTOGRAPHY",
-    "use": "EDITORIAL"
+    "id": "lofficiel-251213-cover"
   },
   {
     "title": "Vakko",
@@ -160,9 +138,7 @@
       "vakko_3.jpg",
       "vakko_5.jpg"
     ],
-    "id": "vakko-fw24",
-    "field": "PHOTOGRAPHY",
-    "use": "STILL LIFE"
+    "id": "vakko-fw24"
   },
   {
     "title": "Q-P Magazine",
@@ -171,9 +147,7 @@
     "images": [
       "qp_250421_01.jpg"
     ],
-    "id": "qp-250421",
-    "field": "PHOTOGRAPHY",
-    "use": "EDITORIAL"
+    "id": "qp-250421"
   },
   {
     "title": "ELLE Türkiye",
@@ -186,14 +160,12 @@
       "elle_250919_04.jpg",
       "elle_250919_05.jpg"
     ],
-    "id": "elle-250919",
-    "field": "PHOTOGRAPHY",
-    "use": "STILL LIFE"
+    "id": "elle-250919"
   },
   {
     "title": "Work-in-Progress",
     "date": "Personal",
-    "sortDate": "2025-01",
+    "sortDate": "",
     "images": [
       "denizalp_aybak_01.jpg",
       "denizalp_aybak_02.jpg",
@@ -205,8 +177,6 @@
       "denizalp_aybak_08.jpg",
       "denizalp_aybak_09.jpg"
     ],
-    "id": "work-in-progress",
-    "field": "PHOTOGRAPHY",
-    "use": "PERSONAL"
+    "id": "work-in-progress"
   }
 ]
