@@ -1364,7 +1364,6 @@ body.aybak-end-card-leaving #aybak-end-card {
 .aybak-end-card-copy {
     position: absolute;
     z-index: 2;
-    top: var(--top);
     font-family: Arial, Helvetica, sans-serif;
     font-size: var(--font-size);
     line-height: var(--line-height);
@@ -1377,18 +1376,32 @@ body.aybak-end-card-active .aybak-end-card-copy {
     transition-delay: 0ms;
 }
 
-.aybak-end-card-contact {
+.aybak-end-card-photography {
+    top: var(--top);
     left: var(--side);
-    display: flex;
-    flex-direction: column;
 }
 
 .aybak-end-card-film {
+    top: var(--top);
     right: var(--side);
+    text-align: right;
+}
+
+.aybak-end-card-bottom-left {
+    left: var(--side);
+    bottom: calc(var(--top) + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.aybak-end-card-bottom-right {
+    right: var(--side);
+    bottom: calc(var(--top) + env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0;
+    text-align: right;
 }
 
 .aybak-end-card-copy a {
@@ -1396,8 +1409,11 @@ body.aybak-end-card-active .aybak-end-card-copy {
     text-decoration: none;
 }
 
-.aybak-end-card-copy a:hover {
-    text-decoration: underline;
+.aybak-end-card-copy a:hover,
+.aybak-end-card-copy a:focus,
+.aybak-end-card-copy a:active {
+    text-decoration: none;
+    outline: 0;
 }
 
 #aybak-end-card .section-switch,
@@ -2872,11 +2888,46 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
     aria-hidden="true"
 >
 
-    <div class="aybak-end-card-copy aybak-end-card-contact">
+    <div class="aybak-end-card-copy aybak-end-card-photography">
         <a
-            href="mailto:d@denizalpaybak.com"
+            class="section-switch section-switch-landing"
+            id="section-switch-landing"
+            href="https://denizalpaybak.com/"
+        >
+            <span id="section-switch-landing-text">PHOTOGRAPHY.denizalpaybak.com</span>
+        </a>
+    </div>
+
+    <div class="aybak-end-card-copy aybak-end-card-film">
+        <a
+            class="section-switch section-switch-film"
+            id="section-switch"
+            href="https://film.denizalpaybak.com/"
+        >
+            <span id="section-switch-text">film.denizalpaybak.com</span>
+        </a>
+    </div>
+
+    <div class="aybak-end-card-copy aybak-end-card-bottom-left">
+        <a
+            href="https://models.com/people/denizalp-aybak"
             target="_blank"
             rel="noopener"
+        >
+            models.com
+        </a>
+
+        <a
+            href="denizalp-aybak-portfolio.pdf"
+            download
+        >
+            portfolio.pdf
+        </a>
+    </div>
+
+    <div class="aybak-end-card-copy aybak-end-card-bottom-right">
+        <a
+            href="mailto:d@denizalpaybak.com"
         >
             d@denizalpaybak.com
         </a>
@@ -2887,32 +2938,6 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
             rel="noopener"
         >
             instagram @denizalpaybak
-        </a>
-
-        <a
-            href="https://models.com/people/denizalp-aybak"
-            target="_blank"
-            rel="noopener"
-        >
-            models.com
-        </a>
-    </div>
-
-    <div class="aybak-end-card-copy aybak-end-card-film">
-        <a
-            class="section-switch section-switch-landing"
-            id="section-switch-landing"
-            href="https://denizalpaybak.com/"
-        >
-            <span id="section-switch-landing-text">denizalpaybak.com</span>
-        </a>
-
-        <a
-            class="section-switch section-switch-film"
-            id="section-switch"
-            href="https://film.denizalpaybak.com/"
-        >
-            <span id="section-switch-text">film.denizalpaybak.com</span>
         </a>
     </div>
 
@@ -11298,92 +11323,48 @@ const sectionSwitchLandingText =
         "section-switch-landing-text"
     );
 
-let sectionSwitchLandingState = 0;
-let sectionSwitchLandingFrame = null;
-
 function getLandingSwitchWord() {
-    return isPhoneLayout() && window.innerHeight >= window.innerWidth
-        ? "biography."
-        : "denizalpaybak.com";
+    return isPhoneLayout()
+        ? "PHOTOGRAPHY."
+        : "PHOTOGRAPHY.denizalpaybak.com";
 }
 
 let landingSwitchWord = getLandingSwitchWord();
 
-function renderLandingSwitch() {
-    sectionSwitchLandingText.textContent =
-        renderWordCase(
-            landingSwitchWord,
-            sectionSwitchLandingState
-        );
-}
-
-function morphLandingSwitchTo(target) {
-    if (sectionSwitchLandingFrame !== null) {
-        cancelAnimationFrame(sectionSwitchLandingFrame);
-    }
-
-    const startState = sectionSwitchLandingState;
-    if (startState === target) {
-        renderLandingSwitch();
-        return Promise.resolve();
-    }
-
-    const start = performance.now();
-    return new Promise(resolve => {
-        function frame(now) {
-            const progress = Math.min(1, (now - start) / WORD_TRANSITION_DURATION);
-            const raw = startState + (target - startState) * progress;
-            sectionSwitchLandingState =
-                target >= startState
-                    ? Math.floor(raw + 0.0001)
-                    : Math.ceil(raw - 0.0001);
-            renderLandingSwitch();
-
-            if (progress < 1) {
-                sectionSwitchLandingFrame = requestAnimationFrame(frame);
-                return;
-            }
-
-            sectionSwitchLandingState = target;
-            sectionSwitchLandingFrame = null;
-            renderLandingSwitch();
-            resolve();
-        }
-
-        sectionSwitchLandingFrame = requestAnimationFrame(frame);
-    });
-}
-
 function syncLandingSwitchWordForLayout() {
     const nextWord = getLandingSwitchWord();
+
     if (nextWord === landingSwitchWord) return;
+
     landingSwitchWord = nextWord;
-    sectionSwitchLandingState = 0;
-    renderLandingSwitch();
+    sectionSwitchLandingText.textContent = landingSwitchWord;
 }
 
-window.addEventListener("resize", syncLandingSwitchWordForLayout, { passive: true });
-window.addEventListener("orientationchange", syncLandingSwitchWordForLayout, { passive: true });
-requestAnimationFrame(syncLandingSwitchWordForLayout);
-renderLandingSwitch();
+window.addEventListener(
+    "resize",
+    syncLandingSwitchWordForLayout,
+    { passive: true }
+);
 
-sectionSwitchLandingText.parentElement.addEventListener("mouseenter", () => {
-    if (!canHover()) return;
-    morphLandingSwitchTo(landingSwitchWord.length);
-});
+window.addEventListener(
+    "orientationchange",
+    syncLandingSwitchWordForLayout,
+    { passive: true }
+);
 
-sectionSwitchLandingText.parentElement.addEventListener("mouseleave", () => {
-    if (!canHover()) return;
-    morphLandingSwitchTo(0);
-});
+sectionSwitchLandingText.textContent = landingSwitchWord;
 
-sectionSwitchLandingText.parentElement.addEventListener("click", async event => {
-    event.preventDefault();
-    event.stopPropagation();
-    await morphLandingSwitchTo(landingSwitchWord.length);
-    await new Promise(resolve => setTimeout(resolve, canHover() ? 100 : MOBILE_NAV_HOLD));
-    window.location.href = sectionSwitchLandingText.parentElement.href;
-});
+sectionSwitchLandingText.parentElement.addEventListener(
+    "click",
+    event => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        window.location.href =
+            sectionSwitchLandingText.parentElement.href;
+    }
+);
+
 
 const sectionSwitchText =
     document.getElementById(
@@ -11392,7 +11373,7 @@ const sectionSwitchText =
 
 
 function getSwitchWord() {
-    return isPhoneLayout() && window.innerHeight >= window.innerWidth
+    return isPhoneLayout()
         ? "film."
         : "film.denizalpaybak.com";
 }
@@ -11567,7 +11548,7 @@ sectionSwitch.addEventListener(
         ) {
 
             morphSwitchTo(
-                switchWord.length
+                5
             );
 
         }
@@ -11610,6 +11591,12 @@ sectionSwitch.addEventListener(
         event.preventDefault();
         event.stopPropagation();
 
+        if (canHover()) {
+            window.location.href =
+                sectionSwitch.href;
+            return;
+        }
+
         await morphSwitchTo(
             switchWord.length
         );
@@ -11618,7 +11605,7 @@ sectionSwitch.addEventListener(
             resolve =>
                 setTimeout(
                     resolve,
-                    canHover() ? 100 : MOBILE_NAV_HOLD
+                    MOBILE_NAV_HOLD
                 )
         );
 
@@ -13187,5 +13174,79 @@ body:not(.aybak-end-card-active) #index-project-count {
     }
 }
 </style>
+
+<style id="final-aybak-end-card-links">
+/* =====================================================
+   FINAL AYBAK END CARD LINK SYSTEM
+   ===================================================== */
+
+#aybak-end-card .aybak-end-card-photography,
+#aybak-end-card .aybak-end-card-film,
+#aybak-end-card .aybak-end-card-bottom-left,
+#aybak-end-card .aybak-end-card-bottom-right {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+}
+
+#aybak-end-card .aybak-end-card-photography {
+    top: var(--top) !important;
+    left: var(--side) !important;
+    right: auto !important;
+    bottom: auto !important;
+}
+
+#aybak-end-card .aybak-end-card-film {
+    top: var(--top) !important;
+    right: var(--side) !important;
+    left: auto !important;
+    bottom: auto !important;
+}
+
+#aybak-end-card .aybak-end-card-bottom-left {
+    left: var(--side) !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+}
+
+#aybak-end-card .aybak-end-card-bottom-right {
+    right: var(--side) !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+}
+
+#aybak-end-card .aybak-end-card-copy a,
+#aybak-end-card .aybak-end-card-copy a:hover,
+#aybak-end-card .aybak-end-card-copy a:focus,
+#aybak-end-card .aybak-end-card-copy a:active {
+    text-decoration: none !important;
+    outline: 0 !important;
+}
+
+@media (max-width: 1000px) {
+    #aybak-end-card .aybak-end-card-photography {
+        top: var(--top) !important;
+        left: var(--side) !important;
+    }
+
+    #aybak-end-card .aybak-end-card-film {
+        top: var(--top) !important;
+        right: var(--side) !important;
+    }
+
+    #aybak-end-card .aybak-end-card-bottom-left {
+        left: var(--side) !important;
+        bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+    }
+
+    #aybak-end-card .aybak-end-card-bottom-right {
+        right: var(--side) !important;
+        bottom: calc(var(--top) + env(safe-area-inset-bottom)) !important;
+    }
+}
+</style>
+
 </body>
 </html>
