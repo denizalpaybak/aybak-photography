@@ -9248,7 +9248,7 @@ function buildIndex() {
 const indexCase = createCaseController(indexButton, "index");
 const infoCase = createCaseController(infoButton, "info");
 
-/* Sadece fareli (gerçek hover destekleyen) cihazlarda animasyon çalışsın ki mobil iOS çift tık (double-tap) bug'ına düşmesin */
+/* Mobilde çift tıklama (double-tap) hatasını önlemek için animasyon sadece gerçek farelerde çalışır */
 function isHoverDevice() { return window.matchMedia("(hover: hover) and (pointer: fine)").matches; }
 
 indexButton.addEventListener("mouseenter", () => { if (isHoverDevice()) indexCase.upper(); });
@@ -9257,7 +9257,7 @@ indexButton.addEventListener("mouseleave", () => { if (isHoverDevice()) indexCas
 infoButton.addEventListener("mouseenter", () => { if (isHoverDevice()) infoCase.upper(); });
 infoButton.addEventListener("mouseleave", () => { if (isHoverDevice()) infoCase.lower(); });
 
-/* Butonlara tıklandığında engellemelere takılmadan anında yönlendirsin */
+/* Butonlara tıklandığında anında (beklemeden) yönlendirir */
 function routeLink(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -9266,6 +9266,181 @@ function routeLink(event) {
 
 indexButton.addEventListener("click", routeLink);
 infoButton.addEventListener("click", routeLink);
+
+
+/* =====================================================
+   LOAD PROJECTS (KAYBEDİLEN ANA FOTOĞRAF MOTORU GERİ GELDİ)
+   ===================================================== */
+
+async function loadProjects() {
+    try {
+        const response = await fetch(PROJECTS_JSON, { cache: "no-store" });
+        if (!response.ok) { throw new Error("projects.json could not be loaded."); }
+        const data = await response.json();
+
+        projects = data.filter(project => project && Array.isArray(project.images) && project.images.length > 0).map(prepareProject);
+        if (projects.length === 0) { return; }
+
+        updateResponsiveMode();
+
+        const deepLink = getDeepLinkRequest();
+        const requestedProjectIndex = findProjectIndexById(deepLink.projectId);
+        projectIndex = requestedProjectIndex >= 0 ? requestedProjectIndex : 0;
+        const requestedProject = currentProject();
+        let requestedRuntimeFrameIndex = -1;
+
+        if (requestedProjectIndex >= 0 && deepLink.imageNumber !== null) {
+            requestedRuntimeFrameIndex = getRuntimeFrameIndexFromOriginalNumber(requestedProject, deepLink.imageNumber);
+        }
+
+        frameIndex = requestedRuntimeFrameIndex >= 0 ? requestedRuntimeFrameIndex : 0;
+
+        if (deepLink.projectId && requestedProjectIndex < 0) {
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete("project");
+            cleanUrl.searchParams.delete("image");
+            window.history.replaceState({}, "", cleanUrl);
+        } else if (requestedProjectIndex >= 0 && !deepLink.viewAll) {
+            syncProjectUrl("replace");
+        }
+
+        const hasValidImageDeepLink = requestedProjectIndex >= 0 && requestedRuntimeFrameIndex >= 0 && !deepLink.viewAll;
+
+        if (hasValidImageDeepLink) {
+            frameIndex = requestedRuntimeFrameIndex;
+            enterFocusedProjectMode(projectIndex);
+            autoplayPermanentlyDisabled = true;
+            manualMode = true;
+            clearTimeout(slideTimer);
+        } else {
+            buildNormalProjectSequence(projectIndex);
+            normalSequencePosition = 0;
+            frameIndex = normalSequenceFrames[0];
+        }
+
+        const firstImage = await preloadImage(currentProject().images[frameIndex]);
+        renderedProjectIndex = projectIndex;
+
+        /* 
+           FLASH BUG ÇÖZÜMÜ:
+           Doğrudan View All ile açılıyorsa arka planda 
+           büyük slayt görselini ekrana patlatmayı engelliyoruz.
+        */
+        const bootDirectlyToViewAll = deepLink.viewAll || !hasValidImageDeepLink;
+        if (!bootDirectlyToViewAll) {
+            renderImage(firstImage);
+        }
+
+        markFrameSeen(projectIndex, frameIndex);
+
+        const title = currentProject().title.toLowerCase();
+        const date = (currentProject().date || "").toLowerCase();
+        renderBaseTypography(projectTitle, title);
+        projectTitle.dataset.rawText = title;
+        renderBaseTypography(projectDate, date);
+        projectDate.dataset.rawText = date;
+        renderBaseTypography(projectCounter, getProjectPhotoCountText(currentProject().images.length));
+        projectCounter.dataset.rawText = projectCounter.textContent;
+        viewAllButton.textContent = "view all";
+        viewAllButton.dataset.rawText = "view all";
+
+        preloadAhead();
+
+        const warmInitialIndexCovers = () => {
+            projects.slice(0, isPhoneLayout() ? 2 : 3).forEach(project => {
+                preloadImage(project.cover).catch(() => {});
+            });
+        };
+
+        if ("requestIdleCallback" in window) {
+            requestIdleCallback(warmInitialIndexCovers, { timeout: 1500 });
+        } else {
+            setTimeout(warmInitialIndexCovers, 500);
+        }
+
+        if (isPhoneLandscape()) {
+            requestAnimationFrame(updateLandscapeGeometry);
+        }
+
+        syncMetadataAfterRender();
+
+        if (hasValidImageDeepLink) {
+            clearTimeout(slideTimer);
+            manualMode = true;
+        } else {
+            startAutoSlideshow();
+        }
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+/* =====================================================
+   START (MOBİL VE DESKTOP ORTAK VIEW ALL AÇILIŞI)
+   ===================================================== */
+
+(function openInitialProjectViewWhenReady() {
+    const tryOpen = async () => {
+        if (!projects.length || (!spread.firstChild && getDeepLinkRequest().imageNumber !== null)) {
+            requestAnimationFrame(tryOpen);
+            return;
+        }
+
+        const requestedDeepLink = getDeepLinkRequest();
+        const requestedDeepProjectIndex = findProjectIndexById(requestedDeepLink.projectId);
+        const requestedDeepFrameIndex = requestedDeepProjectIndex >= 0 && requestedDeepLink.imageNumber !== null
+            ? getRuntimeFrameIndexFromOriginalNumber(projects[requestedDeepProjectIndex], requestedDeepLink.imageNumber)
+            : -1;
+
+        const requestedViewAll = requestedDeepLink.viewAll ||
+            !(requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0);
+
+        if (requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0 && !requestedDeepLink.viewAll) {
+            document.documentElement.classList.remove("desktop-viewall-boot");
+            stopProjectAutoplayFromInteraction();
+            stopAutoSlideshow();
+            return;
+        }
+
+        if (requestedViewAll) {
+            if (!projectAllMode && !indexMode) {
+                stopProjectAutoplayFromInteraction();
+                stopAutoSlideshow();
+                await enterProjectAll();
+                setProjectAllNavigationCopy();
+                await waitForProjectAllImageDimensions();
+            }
+            document.documentElement.classList.remove("desktop-viewall-boot");
+            scheduleProjectAutoplay();
+            return;
+        }
+
+        if (!indexMode && !projectAllMode) {
+            await enterProjectAll();
+            setProjectAllNavigationCopy();
+            await waitForProjectAllImageDimensions();
+            document.documentElement.classList.remove("desktop-viewall-boot");
+            scheduleProjectAutoplay();
+        } else {
+            document.documentElement.classList.remove("desktop-viewall-boot");
+        }
+    };
+
+    requestAnimationFrame(tryOpen);
+})();
+
+projectAllGrid.addEventListener("load", event => {
+    if ((projectAllMode || body.classList.contains("project-all-preparing")) && event.target instanceof HTMLImageElement) {
+        requestAnimationFrame(() => {
+            layoutProjectAllGrid(true);
+        });
+    }
+}, true);
+
+setLogoState(0);
+loadProjects();
 
 </script>
 
