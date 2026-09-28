@@ -10,9 +10,18 @@
 >
 
 <script>
-/* Tüm cihazlar doğrudan View All görünümüyle açılacak şekilde ayarlandı. */
+/* Hide the normal single-frame slide during desktop boot.
+   Desktop opens directly into View All, so the user never sees a
+   full-size frame flash before the grid is ready. */
 (function () {
-    document.documentElement.classList.add("desktop-viewall-boot");
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const phonePortrait = w <= 600 && h >= w;
+    const phoneLandscape = h <= 600 && w > h && w <= 1000;
+
+    if (!phonePortrait && !phoneLandscape) {
+        document.documentElement.classList.add("desktop-viewall-boot");
+    }
 })();
 </script>
 
@@ -149,51 +158,53 @@ button,
 
 
 /* =====================================================
-   INFO & LOGO (ORTALANMIŞ VE LİNKSİZ)
+   INFO
    ===================================================== */
 
 .info {
     position: fixed;
+
     top: var(--top);
-    left: 50%;
-    transform: translateX(-50%);
+    left: var(--side);
+
     z-index: 500;
+
     font-size: var(--font-size);
     line-height: var(--line-height);
-    text-align: center;
-    pointer-events: none;
-    transition: opacity 300ms ease, visibility 300ms ease;
 }
+
+
+/* =====================================================
+   LOGO
+   ===================================================== */
 
 .logo {
     position: relative;
-    display: inline-block;
+
+    display: block;
+
     width: 190px;
     height: 52px;
+
     color: inherit;
     text-decoration: none;
-    background: transparent;
-    border: 0;
-    outline: 0;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    pointer-events: auto;
 }
 
 .logo-name {
     position: absolute;
+
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+
     white-space: nowrap;
 }
 
 .logo-aybak {
     position: absolute;
+
     top: 17px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+
     white-space: nowrap;
 }
 
@@ -546,49 +557,44 @@ body.project-all-mode #project-all-view {
 
 
 /* =====================================================
-   INDEX & INFO BUTTONS (SOL VE SAĞ ÜST LİNKLER)
+   INDEX BUTTON
    ===================================================== */
 
-#index-button,
-#info-button {
+#index-button {
     position: fixed;
+
     top: var(--top);
-    z-index: 10001;
+    right: var(--side);
+
+    z-index: 600;
+
+    transform: none;
+
     appearance: none;
     -webkit-appearance: none;
+
     margin: 0;
     padding: 0;
+
     border: 0;
     outline: 0;
+
     background: transparent;
     color: #000;
+
     font-size: var(--font-size);
     line-height: var(--line-height);
+
     white-space: nowrap;
+
     cursor: pointer;
-    text-decoration: none !important;
+
     -webkit-tap-highlight-color: transparent;
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-#index-button {
-    left: var(--side);
-}
-
-#info-button {
-    right: var(--side);
-}
-
-#index-button:hover,
-#info-button:hover {
-    text-decoration: none !important;
 }
 
 
 /* =====================================================
-   INDEX VIEW (ESKİ YAPISI KORUNUYOR)
+   INDEX VIEW
    ===================================================== */
 
 #index-view {
@@ -861,6 +867,8 @@ body.phone-portrait .logo-aybak,
 body.phone-landscape .logo-aybak {
     top: 15px;
 }
+
+
 /* =====================================================
    PHONE PORTRAIT
    ===================================================== */
@@ -1276,6 +1284,10 @@ body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismis
 
 /* =====================================================
    AYBAK END CARD
+
+   Same identity system as the main landing page:
+   centered two-line logo, same site typography, same letter-by-letter
+   case morph. Contact / section information remains untouched.
    ===================================================== */
 
 #aybak-end-card {
@@ -1365,23 +1377,18 @@ body.aybak-end-card-active .aybak-end-card-copy {
     transition-delay: 0ms;
 }
 
-.aybak-end-card-left {
+.aybak-end-card-contact {
     left: var(--side);
-    bottom: var(--index-bottom) !important;
-    top: auto !important;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
 }
 
-.aybak-end-card-right {
+.aybak-end-card-film {
     right: var(--side);
-    bottom: var(--index-bottom) !important;
-    top: auto !important;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    text-align: right;
+    gap: 0;
 }
 
 .aybak-end-card-copy a {
@@ -2452,6 +2459,13 @@ body.aybak-end-card-active {
     background: #000 !important;
 }
 
+#aybak-end-card {
+    left: calc(-1 * env(safe-area-inset-left)) !important;
+    right: calc(-1 * env(safe-area-inset-right)) !important;
+    top: calc(-1 * env(safe-area-inset-top)) !important;
+    bottom: calc(-1 * env(safe-area-inset-bottom)) !important;
+}
+
 /* In phone landscape, action copy uses the exact right edge of preview/image. */
 body.phone-landscape #index-project-action {
     width: 100% !important;
@@ -2715,69 +2729,41 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
     }
 </style>
 
-<!-- =====================================================
-   AYBAK OVERRIDES (SADECE ISTENILENLER)
-   ===================================================== -->
-<style id="aybak-overrides">
-.info {
-    position: fixed; top: var(--top); left: 50%; transform: translateX(-50%);
-    z-index: 10005; font-size: var(--font-size); line-height: var(--line-height); text-align: center; pointer-events: none;
-    transition: opacity 300ms ease, visibility 300ms ease;
-}
-.logo { pointer-events: auto; background: transparent; border: 0; outline: 0; padding: 0; margin: 0; cursor: pointer; }
-.logo-name, .logo-aybak { width: 100%; text-align: center; justify-content: center; }
-
-#index-button, #info-button {
-    position: fixed; top: var(--top); z-index: 10005;
-    appearance: none; -webkit-appearance: none; margin: 0; padding: 0; border: 0; background: transparent;
-    color: #000; font-size: var(--font-size); line-height: var(--line-height); 
-    text-decoration: none !important; pointer-events: auto;
-    display: block !important; opacity: 1 !important; visibility: visible !important;
-}
-#index-button { left: var(--side) !important; right: auto !important; transform: none; }
-#info-button { right: var(--side) !important; left: auto !important; }
-
-#index-button:hover, #info-button:hover { text-decoration: none !important; }
-
-body.aybak-end-card-active .info {
-    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
-}
-body.aybak-end-card-active #index-button,
-body.aybak-end-card-active #info-button,
-body.theme-dark #index-button,
-body.theme-dark #info-button,
-body.theme-dark .logo {
-    color: #fff !important;
-}
-
-#aybak-end-card .aybak-end-card-left {
-    position: absolute; top: auto !important; bottom: var(--index-bottom) !important; left: var(--side) !important; right: auto;
-    display: flex; flex-direction: column; align-items: flex-start; z-index: 2;
-}
-#aybak-end-card .aybak-end-card-right {
-    position: absolute; top: auto !important; bottom: var(--index-bottom) !important; right: var(--side) !important; left: auto;
-    display: flex; flex-direction: column; align-items: flex-end; text-align: right; z-index: 2;
-}
-</style>
-
 </head>
 
 <body>
 
-<!-- ===================================================
-     OVERRIDE HTML
-     =================================================== -->
-<a id="index-button" href="https://denizalpaybak.com/">index</a>
-<a id="info-button" href="https://denizalpaybak.com/?view=info">info</a>
 
-<div class="info" id="info">
-    <button class="logo" type="button" aria-label="Denizalp Aybak">
-        <span class="logo-name" id="logo-name">Denizalp</span>
+<!-- ===================================================
+     INFO
+     =================================================== -->
+
+<div
+    class="info"
+    id="info"
+>
+
+    <a
+        class="logo"
+        href="https://denizalpaybak.com/"
+    >
+
+        <span
+            class="logo-name"
+            id="logo-name"
+        >
+            Denizalp
+        </span>
+
         <span class="logo-aybak">
             <span id="letter-a">a</span><span id="letter-y">y</span><span id="letter-b">b</span><span id="letter-a2">a</span><span id="letter-k">k</span>
         </span>
-    </button>
+
+    </a>
+
+
 </div>
+
 
 <!-- ===================================================
      PROJECT
@@ -2831,6 +2817,14 @@ body.theme-dark .logo {
      INDEX
      =================================================== -->
 
+<button
+    id="index-button"
+    type="button"
+>
+    index
+</button>
+
+
 <div id="index-view">
 
     <div
@@ -2873,22 +2867,66 @@ body.theme-dark .logo {
      AYBAK END CARD
      =================================================== -->
 
-<section id="aybak-end-card" aria-hidden="true">
-    <div class="aybak-end-card-copy aybak-end-card-left">
-        <a href="https://models.com/people/denizalp-aybak" target="_blank" rel="noopener">models.com</a>
-        <a href="./denizalp-aybak-portfolio.pdf" download="denizalp-aybak-portfolio.pdf">portfolio.pdf</a>
+<section
+    id="aybak-end-card"
+    aria-hidden="true"
+>
+
+    <div class="aybak-end-card-copy aybak-end-card-contact">
+        <a
+            href="mailto:d@denizalpaybak.com"
+            target="_blank"
+            rel="noopener"
+        >
+            d@denizalpaybak.com
+        </a>
+
+        <a
+            href="https://www.instagram.com/denizalpaybak/"
+            target="_blank"
+            rel="noopener"
+        >
+            instagram @denizalpaybak
+        </a>
+
+        <a
+            href="https://models.com/people/denizalp-aybak"
+            target="_blank"
+            rel="noopener"
+        >
+            models.com
+        </a>
     </div>
 
-    <div class="aybak-end-card-copy aybak-end-card-right">
-        <a href="mailto:d@denizalpaybak.com" target="_blank" rel="noopener">d@denizalpaybak.com</a>
-        <a href="https://www.instagram.com/denizalpaybak/" target="_blank" rel="noopener">instagram @denizalpaybak</a>
+    <div class="aybak-end-card-copy aybak-end-card-film">
+        <a
+            class="section-switch section-switch-landing"
+            id="section-switch-landing"
+            href="https://denizalpaybak.com/"
+        >
+            <span id="section-switch-landing-text">denizalpaybak.com</span>
+        </a>
+
+        <a
+            class="section-switch section-switch-film"
+            id="section-switch"
+            href="https://film.denizalpaybak.com/"
+        >
+            <span id="section-switch-text">film.denizalpaybak.com</span>
+        </a>
     </div>
 
-    <button id="aybak-end-card-logo" type="button" aria-label="Denizalp Aybak">
+    <button
+        id="aybak-end-card-logo"
+        type="button"
+        aria-label="Denizalp Aybak"
+    >
         <span id="aybak-end-card-name">Denizalp</span>
         <span id="aybak-end-card-aybak">aybak</span>
     </button>
+
 </section>
+
 <script>
 
 /* =====================================================
@@ -2926,6 +2964,11 @@ const AYBAK_SWIPE_THRESHOLD =
     52;
 
 
+/*
+    Fit the actual Acumin Pro Wide ink — not the CSS text box —
+    slightly wider than the viewport, then center those visible ink bounds.
+    This creates the same tiny, symmetrical side crop on every screen size.
+*/
 /* =====================================================
    AYBAK END CARD — LOGO SYSTEM
    ===================================================== */
@@ -3316,10 +3359,6 @@ const indexButton =
         "index-button"
     );
 
-const infoButton =
-    document.getElementById(
-        "info-button"
-    );
 
 const indexView =
     document.getElementById(
@@ -4732,6 +4771,8 @@ function updateLandscapeGeometry() {
     );
 
 }
+
+
 /* =====================================================
    RESPONSIVE MODE
    ===================================================== */
@@ -7231,11 +7272,13 @@ viewAllButton.addEventListener(
         await animateSlideViewAllControl(false);
     }
 );
+
+
 /* =====================================================
    ENTER VIEW ALL
    ===================================================== */
 
-let enterProjectAll = async function() {
+async function enterProjectAll() {
 
     if (
         projectAllMode ||
@@ -7260,6 +7303,10 @@ let enterProjectAll = async function() {
         null;
 
 
+    /*
+        VIEW ALL is an explicit interaction.
+        From this point on the initial autoplay may never resume.
+    */
     stopAutoSlideshow();
 
 
@@ -7339,8 +7386,12 @@ let enterProjectAll = async function() {
     projectViewAnimating =
         false;
 
-};
+}
 
+
+/* =====================================================
+   LEAVE VIEW ALL
+   ===================================================== */
 
 async function leaveProjectAll(
     {
@@ -7493,6 +7544,11 @@ async function leaveProjectAll(
     preloadAhead();
 
 
+    /*
+        Returning from VIEW ALL is always manual.
+        Selecting a frame, closing VIEW ALL, or moving from VIEW ALL
+        to INDEX must never restart the initial autoplay.
+    */
     manualMode =
         true;
 
@@ -7508,7 +7564,19 @@ async function leaveProjectAll(
 }
 
 
+/* =====================================================
+   CLOSE VIEW ALL
+   ===================================================== */
+
 async function exitProjectAll() {
+
+    projectAllOpenedFromIndex =
+        false;
+
+
+    indexSelectionBeforeProjectAll =
+        null;
+
 
     await leaveProjectAll(
         {
@@ -7519,9 +7587,21 @@ async function exitProjectAll() {
 }
 
 
+/* =====================================================
+   THUMB -> FRAME
+   ===================================================== */
+
 async function exitProjectAllToFrame(
     selectedIndex
 ) {
+
+    projectAllOpenedFromIndex =
+        false;
+
+
+    indexSelectionBeforeProjectAll =
+        null;
+
 
     await leaveProjectAll(
         {
@@ -7529,6 +7609,153 @@ async function exitProjectAllToFrame(
             resume: true
         }
     );
+
+}
+
+
+async function returnProjectAllToIndex() {
+
+    if (
+        !projectAllMode ||
+        projectViewAnimating ||
+        !projectAllOpenedFromIndex
+    ) {
+
+        return;
+
+    }
+
+
+    projectViewAnimating =
+        true;
+
+
+    projectAllOpenedFromIndex =
+        false;
+
+
+    projectAllMode =
+        false;
+
+
+    body.classList.remove(
+        "project-all-mode"
+    );
+
+
+    body.classList.remove(
+        "project-all-preparing"
+    );
+
+
+    projectAllGrid.innerHTML =
+        "";
+
+
+    const project =
+        currentProject();
+
+
+    renderBaseTypography(
+        projectTitle,
+        project.title.toLowerCase()
+    );
+
+
+    projectTitle.dataset.rawText =
+        project.title.toLowerCase();
+
+
+    renderBaseTypography(
+        projectDate,
+        (
+            project.date ||
+            ""
+        ).toLowerCase()
+    );
+
+
+    projectDate.dataset.rawText =
+        (
+            project.date ||
+            ""
+        ).toLowerCase();
+
+
+    const countText =
+        getProjectPhotoCountText(
+            project.images.length
+        );
+
+
+    renderBaseTypography(
+        projectCounter,
+        countText
+    );
+
+
+    projectCounter.dataset.rawText =
+        countText;
+
+
+    renderBaseTypography(
+        viewAllButton,
+        "view all"
+    );
+
+
+    viewAllButton.dataset.rawText =
+        "view all";
+
+
+    selectedIndexProject =
+        indexSelectionBeforeProjectAll;
+
+
+    indexMode =
+        true;
+
+
+    body.classList.add(
+        "index-mode"
+    );
+
+
+    indexView.classList.add(
+        "visible"
+    );
+
+
+    layoutTypographicIndex();
+
+
+    if (
+        selectedIndexProject
+    ) {
+
+        selectIndexProject(
+            selectedIndexProject
+        );
+
+    }
+
+
+    morphIndexTo(
+        indexWord.length
+    );
+
+
+    manualMode =
+        true;
+
+
+    clearTimeout(
+        slideTimer
+    );
+
+
+    projectViewAnimating =
+        false;
 
 }
 
@@ -7557,6 +7784,7 @@ viewAllButton.addEventListener(
             projectAllMode
         ) {
 
+            /* In VIEW ALL this control is PREVIOUS PROJECT. */
             await switchProjectAll(-1);
 
         }
@@ -7574,166 +7802,1741 @@ viewAllButton.addEventListener(
 
 
 /* =====================================================
-   GEOMETRY CHANGE
+   INDEX SORT
    ===================================================== */
 
-function handleGeometryChange() {
+function getChronologicalProjects() {
 
-    updateResponsiveMode();
+    return projects
+        .map(
+            (
+                project,
+                originalIndex
+            ) => ({
+                project,
+                originalIndex
+            })
+        )
+        .sort(
+            (
+                a,
+                b
+            ) => {
+
+                const dateA =
+                    a.project.sortDate ||
+                    "";
 
 
-    if (
-        isPhoneLandscape()
-    ) {
-
-        requestAnimationFrame(
-            updateLandscapeGeometry
-        );
-
-    }
+                const dateB =
+                    b.project.sortDate ||
+                    "";
 
 
-    syncMetadataAfterRender();
+                if (
+                    dateA > dateB
+                ) {
+
+                    return -1;
+
+                }
 
 
-    if (
-        projectAllMode
-    ) {
+                if (
+                    dateA < dateB
+                ) {
 
-        requestAnimationFrame(
-            () => {
+                    return 1;
 
-                requestAnimationFrame(
-                    layoutProjectAllGrid
+                }
+
+
+                return (
+                    a.originalIndex -
+                    b.originalIndex
                 );
 
             }
-        );
-
-    }
-
-}
-
-
-window.addEventListener(
-    "resize",
-    handleGeometryChange
-);
-
-
-window.addEventListener(
-    "orientationchange",
-    () => {
-
-        setTimeout(
-            handleGeometryChange,
-            100
-        );
-
-
-        setTimeout(
-            handleGeometryChange,
-            350
-        );
-
-
-        setTimeout(
-            handleGeometryChange,
-            700
-        );
-
-    }
-);
-
-
-if (
-    window.visualViewport
-) {
-
-    window
-        .visualViewport
-        .addEventListener(
-            "resize",
-            handleGeometryChange
         );
 
 }
 
 
 /* =====================================================
-   BROWSER BACK / FORWARD
+   INDEX CARD CASE CONTROLLER
    ===================================================== */
 
-window.addEventListener(
-    "popstate",
-    async () => {
+function createCaseController(
+    element,
+    baseText
+) {
+
+    const base =
+        String(
+            baseText
+        ).toLowerCase();
+
+
+    const positions =
+        getMorphPositions(
+            base
+        );
+
+
+    const total =
+        positions.length;
+
+
+    let state =
+        0;
+
+
+    let frameId =
+        null;
+
+
+    function render() {
+
+        const activePositions =
+            new Set(
+                positions.slice(
+                    0,
+                    state
+                )
+            );
+
+
+        renderInteractiveTypography(
+            element,
+            renderCaseFromActivePositions(
+                base,
+                activePositions
+            ),
+            activePositions
+        );
+
+    }
+
+
+    function animateTo(
+        target
+    ) {
 
         if (
-            !projects.length
+            frameId !== null
         ) {
+
+            cancelAnimationFrame(
+                frameId
+            );
+
+        }
+
+
+        const startState =
+            state;
+
+
+        if (
+            startState === target
+        ) {
+
+            render();
+
 
             return;
 
         }
 
 
-        const deepLink =
-            getDeepLinkRequest();
+        const start =
+            performance.now();
 
 
-        const requestedProjectIndex =
-            findProjectIndexById(
-                deepLink.projectId
-            );
-
-
-        const targetProjectIndex =
-            requestedProjectIndex >= 0
-                ? requestedProjectIndex
-                : 0;
-
-
-        const targetProject =
-            projects[
-                targetProjectIndex
-            ];
-
-
-        let targetFrameIndex =
-            0;
-
-
-        if (
-            requestedProjectIndex >= 0 &&
-            deepLink.imageNumber !==
-                null
+        function frame(
+            now
         ) {
 
-            const resolved =
-                getRuntimeFrameIndexFromOriginalNumber(
-                    targetProject,
-                    deepLink.imageNumber
+            const progress =
+                Math.min(
+                    1,
+                    (
+                        now -
+                        start
+                    ) /
+                    CASE_DURATION
                 );
 
 
+            state =
+                Math.round(
+                    startState +
+                    (
+                        target -
+                        startState
+                    ) *
+                    progress
+                );
+
+
+            render();
+
+
             if (
-                resolved >= 0
+                progress < 1
             ) {
 
-                targetFrameIndex =
-                    resolved;
+                frameId =
+                    requestAnimationFrame(
+                        frame
+                    );
+
+            }
+
+            else {
+
+                state =
+                    target;
+
+
+                render();
+
+
+                frameId =
+                    null;
 
             }
 
         }
 
 
+        frameId =
+            requestAnimationFrame(
+                frame
+            );
+
+    }
+
+
+    render();
+
+
+    return {
+
+        upper() {
+
+            animateTo(
+                total
+            );
+
+        },
+
+        lower() {
+
+            animateTo(
+                0
+            );
+
+        }
+
+    };
+
+}
+
+
+/* =====================================================
+   INDEX GEOMETRY
+   ===================================================== */
+
+/*
+    Same visual logic as the film index:
+
+    - every project owns the same invisible media stage height
+    - portrait images can use almost all of that height
+    - landscape images are width-limited instead of becoming tiny
+    - the actual image is vertically centered inside the common stage
+    - title/date always begin after the common stage
+*/
+
+function clampNumber(
+    value,
+    min,
+    max
+) {
+
+    return Math.min(
+        max,
+        Math.max(
+            min,
+            value
+        )
+    );
+
+}
+
+
+function getPhotoIndexGeometry() {
+
+    if (
+        isPhonePortrait()
+    ) {
+
+        return {
+
+            mediaHeight:
+                clampNumber(
+                    window.innerHeight * 0.31,
+                    230,
+                    285
+                ),
+
+            maxLandscapeWidth:
+                window.innerWidth * 0.50
+
+        };
+
+    }
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        /*
+            IMPORTANT:
+            Landscape already has a dedicated safe-area calculation
+            in updateLandscapeGeometry().
+
+            That function computes the exact image height that fits:
+                info/contact block
+                +
+                thumbnail
+                +
+                two caption lines
+                +
+                INDEX button
+
+            The previous index rewrite ignored that calculated value
+            and introduced a second viewport-based height. On some
+            landscape phones that second value was taller than the
+            actual available space, so the whole card was vertically
+            clipped by the index viewport. It looked like the JPEG
+            itself was cropped, and the date disappeared below the
+            viewport.
+
+            Use the ONE authoritative landscape height here.
+        */
+
+        const computed =
+            getComputedStyle(
+                document.documentElement
+            );
+
+
+        const safeMediaHeight =
+            parseFloat(
+                computed.getPropertyValue(
+                    "--landscape-index-image-height"
+                )
+            ) || 136;
+
+
+        const safeCardWidth =
+            parseFloat(
+                computed.getPropertyValue(
+                    "--landscape-index-card-width"
+                )
+            ) || 205;
+
+
+        return {
+
+            mediaHeight:
+                safeMediaHeight,
+
+            /*
+                Keep landscape images broad enough to have the same
+                visual weight as the film index, but NEVER wider than
+                the safe card produced by updateLandscapeGeometry().
+            */
+
+            maxLandscapeWidth:
+                Math.min(
+                    safeCardWidth,
+                    Math.max(
+                        138,
+                        safeMediaHeight * 1.05
+                    )
+                ),
+
+            cardWidth:
+                safeCardWidth
+
+        };
+
+    }
+
+
+    return {
+
+        mediaHeight:
+            clampNumber(
+                window.innerHeight * 0.395,
+                320,
+                430
+            ),
+
+        maxLandscapeWidth:
+            Math.min(
+                window.innerWidth * 0.33,
+                540
+            )
+
+    };
+
+}
+
+
+function getPhotoIndexItemMetrics(
+    ratio
+) {
+
+    const geometry =
+        getPhotoIndexGeometry();
+
+
+    let displayHeight =
+        geometry.mediaHeight;
+
+
+    let displayWidth =
+        displayHeight *
+        ratio;
+
+
+    if (
+        displayWidth >
+        geometry.maxLandscapeWidth
+    ) {
+
+        displayWidth =
+            geometry.maxLandscapeWidth;
+
+
+        displayHeight =
+            displayWidth /
+            ratio;
+
+    }
+
+
+    return {
+
+        mediaHeight:
+            geometry.mediaHeight,
+
+        displayWidth,
+
+        displayHeight
+
+    };
+
+}
+
+
+function syncPhotoIndexCardSize(
+    img,
+    button,
+    wrap
+) {
+
+    if (
+        !img.naturalWidth ||
+        !img.naturalHeight
+    ) {
+
+        return;
+
+    }
+
+
+    const ratio =
+        img.naturalWidth /
+        img.naturalHeight;
+
+
+    const metrics =
+        getPhotoIndexItemMetrics(
+            ratio
+        );
+
+
+    const width =
+        Math.max(
+            1,
+            Math.round(
+                metrics.displayWidth
+            )
+        );
+
+
+    const height =
+        Math.max(
+            1,
+            Math.round(
+                metrics.displayHeight
+            )
+        );
+
+
+    const mediaHeight =
+        Math.max(
+            height,
+            Math.round(
+                metrics.mediaHeight
+            )
+        );
+
+
+    const geometry =
+        getPhotoIndexGeometry();
+
+
+    const cardWidth =
+        isPhoneLandscape()
+            ? Math.max(
+                width,
+                geometry.cardWidth ||
+                    width
+            )
+            : width;
+
+
+    button.style.width =
+        `${cardWidth}px`;
+
+    button.style.flex =
+        `0 0 ${cardWidth}px`;
+
+    button.style.minWidth =
+        `${cardWidth}px`;
+
+    button.style.maxWidth =
+        `${cardWidth}px`;
+
+
+    wrap.style.width =
+        `${cardWidth}px`;
+
+    wrap.style.height =
+        `${mediaHeight}px`;
+
+    wrap.style.flexBasis =
+        `${mediaHeight}px`;
+
+
+    /*
+        IMPORTANT:
+        Never force both pixel width AND pixel height on index images.
+
+        Some portrait files can carry orientation / rendering metadata
+        that makes an explicit width+height pair look visually cropped
+        on mobile landscape.
+
+        The wrapper already defines the exact available media area.
+        Let the browser preserve the image's intrinsic aspect ratio and
+        fit the whole frame inside that area.
+    */
+
+    img.style.width =
+        "auto";
+
+    img.style.height =
+        "auto";
+
+    img.style.maxWidth =
+        "100%";
+
+    img.style.maxHeight =
+        "100%";
+
+    img.style.objectFit =
+        "contain";
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        const previewOffset =
+            Math.max(
+                0,
+                (
+                    cardWidth -
+                    width
+                ) / 2
+            );
+
+
+        button.style.setProperty(
+            "--landscape-preview-offset",
+            button ===
+                indexGrid.firstElementChild
+                    ? "0px"
+                    : `${previewOffset}px`
+        );
+
+    }
+
+    else {
+
+        button.style.removeProperty(
+            "--landscape-preview-offset"
+        );
+
+    }
+
+}
+
+
+function resizePhotoIndexCards() {
+
+    document
+        .querySelectorAll(
+            ".project-card"
+        )
+        .forEach(
+            card => {
+
+                const img =
+                    card.querySelector(
+                        ".card-image-wrap img"
+                    );
+
+
+                const wrap =
+                    card.querySelector(
+                        ".card-image-wrap"
+                    );
+
+
+                if (
+                    img &&
+                    wrap &&
+                    img.naturalWidth &&
+                    img.naturalHeight
+                ) {
+
+                    syncPhotoIndexCardSize(
+                        img,
+                        card,
+                        wrap
+                    );
+
+                }
+
+            }
+        );
+
+}
+
+
+/* =====================================================
+   BUILD TYPOGRAPHIC INDEX
+   ===================================================== */
+
+function resetIndexSelection() {
+
+    selectedIndexProject =
+        null;
+
+
+    indexProjectRows.forEach(
+        rowState => {
+
+            rowState.titleCase.lower();
+            rowState.dateCase.lower();
+
+        }
+    );
+
+
+    indexPreview.classList.remove(
+        "visible"
+    );
+
+
+    indexPreview.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    indexProjectAction.classList.remove(
+        "visible"
+    );
+
+
+    indexProjectAction.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    indexPreviewImage.removeAttribute(
+        "src"
+    );
+
+
+    indexProjectCount.textContent =
+        "";
+
+
+    indexProjectCount.dataset.rawText =
+        "";
+
+
+    if (
+        indexViewAllCase
+    ) {
+
+        indexViewAllCase.lower();
+
+    }
+
+}
+
+
+function layoutTypographicIndex() {
+
+    if (
+        !indexGrid ||
+        !indexScroller
+    ) {
+
+        return;
+
+    }
+
+
+    const total =
+        indexProjectRows.length;
+
+
+    if (
+        total === 0
+    ) {
+
+        return;
+
+    }
+
+
+    const computed =
+        getComputedStyle(
+            document.documentElement
+        );
+
+
+    const fontSize =
+        parseFloat(
+            computed.getPropertyValue(
+                "--font-size"
+            )
+        ) || 13;
+
+
+    const lineHeightMultiplier =
+        parseFloat(
+            computed.getPropertyValue(
+                "--line-height"
+            )
+        ) || 1.15;
+
+
+    const lineHeight =
+        fontSize *
+        lineHeightMultiplier;
+
+
+    const gridComputed =
+        getComputedStyle(
+            indexGrid
+        );
+
+
+    const edgeGap =
+        parseFloat(
+            gridComputed.getPropertyValue(
+                "--index-list-edge-gap"
+            )
+        ) || lineHeight;
+
+
+    const minimumGap =
+        lineHeight;
+
+
+    body.classList.remove(
+        "index-needs-scroll"
+    );
+
+
+    indexProjectRows.forEach(
+        state => {
+
+            state.row.style.removeProperty(
+                "grid-column"
+            );
+
+
+            state.row.style.removeProperty(
+                "grid-row"
+            );
+
+        }
+    );
+
+
+    /* =================================================
+       PHONES — PORTRAIT + LANDSCAPE
+       Always one text column: client/project on top,
+       date directly below. Rows breathe as much as the
+       viewport allows; once the gap would fall below one
+       text line, the list becomes vertically scrollable.
+       ================================================= */
+
+    if (
+        isPhoneLayout()
+    ) {
+
+        indexGrid.style.removeProperty(
+            "--index-row-count"
+        );
+
+
+        indexGrid.style.removeProperty(
+            "--index-column-count"
+        );
+
+
+        const availableHeight =
+            Math.max(
+                1,
+                indexScroller.clientHeight -
+                edgeGap * 2
+            );
+
+
+        const rowHeights =
+            indexProjectRows.map(
+                state =>
+                    Math.max(
+                        state.row.scrollHeight,
+                        lineHeight * 2
+                    )
+            );
+
+
+        const occupiedHeight =
+            rowHeights.reduce(
+                (
+                    sum,
+                    value
+                ) =>
+                    sum + value,
+                0
+            );
+
+
+        const gapCount =
+            Math.max(
+                0,
+                total - 1
+            );
+
+
+        const idealGap =
+            gapCount
+                ? (
+                    availableHeight -
+                    occupiedHeight
+                ) /
+                gapCount
+                : 0;
+
+
+        const needsScroll =
+            gapCount > 0 &&
+            idealGap <
+            minimumGap;
+
+
+        const rowGap =
+            gapCount
+                ? (
+                    needsScroll
+                        ? minimumGap
+                        : Math.max(
+                            minimumGap,
+                            idealGap
+                        )
+                )
+                : 0;
+
+
+        indexGrid.style.setProperty(
+            "--index-portrait-gap",
+            `${rowGap}px`
+        );
+
+
+        body.classList.toggle(
+            "index-needs-scroll",
+            needsScroll
+        );
+
+        requestAnimationFrame(
+            placeIndexScrollHintInLastVisibleSlot
+        );
+
+        return;
+
+    }
+
+
+    /* =================================================
+       DESKTOP + MOBILE LANDSCAPE
+       Text occupies the left field, preview the right.
+       Use as many columns as comfortably fit that field,
+       never fewer than two when two are possible.
+       If the resulting rows cannot keep a one-line gap,
+       the text field scrolls vertically.
+       ================================================= */
+
+    const usableWidth =
+        Math.max(
+            1,
+            indexScroller.clientWidth
+        );
+
+
+    const widestProjectText =
+        Math.max(
+            1,
+            ...indexProjectRows.map(
+                state =>
+                    Math.max(
+                        state.titleButton.scrollWidth,
+                        state.dateButton.scrollWidth
+                    )
+            )
+        );
+
+
+    const columnGap =
+        Math.max(
+            22,
+            Math.min(
+                72,
+                usableWidth * 0.06
+            )
+        );
+
+
+    const preferredColumnWidth =
+        widestProjectText +
+        Math.max(
+            18,
+            fontSize * 1.25
+        );
+
+
+    const maxColumnsByWidth =
+        Math.max(
+            1,
+            Math.floor(
+                (
+                    usableWidth +
+                    columnGap
+                ) /
+                (
+                    preferredColumnWidth +
+                    columnGap
+                )
+            )
+        );
+
+
+    const minimumColumns =
+        total > 1 &&
+        maxColumnsByWidth >= 2
+            ? 2
+            : 1;
+
+
+    const columnCount =
+        Math.max(
+            minimumColumns,
+            Math.min(
+                total,
+                maxColumnsByWidth
+            )
+        );
+
+
+    const rowCount =
+        Math.ceil(
+            total /
+            columnCount
+        );
+
+
+    const itemHeight =
+        lineHeight * 2;
+
+
+    const availableHeight =
+        Math.max(
+            1,
+            indexScroller.clientHeight -
+            edgeGap * 2
+        );
+
+
+    const occupiedHeight =
+        rowCount *
+        itemHeight;
+
+
+    const gapCount =
+        Math.max(
+            0,
+            rowCount - 1
+        );
+
+
+    const idealGap =
+        gapCount
+            ? (
+                availableHeight -
+                occupiedHeight
+            ) /
+            gapCount
+            : 0;
+
+
+    const needsScroll =
+        gapCount > 0 &&
+        idealGap <
+        minimumGap;
+
+
+    const rowGap =
+        gapCount
+            ? (
+                needsScroll
+                    ? minimumGap
+                    : Math.max(
+                        minimumGap,
+                        idealGap
+                    )
+            )
+            : 0;
+
+
+    indexGrid.style.setProperty(
+        "--index-row-count",
+        String(rowCount)
+    );
+
+
+    indexGrid.style.setProperty(
+        "--index-column-count",
+        String(columnCount)
+    );
+
+
+    indexGrid.style.setProperty(
+        "--index-column-gap",
+        `${columnGap}px`
+    );
+
+
+    indexGrid.style.setProperty(
+        "--index-row-gap",
+        `${rowGap}px`
+    );
+
+
+    body.classList.toggle(
+        "index-needs-scroll",
+        needsScroll
+    );
+
+
+    indexProjectRows.forEach(
+        (
+            state,
+            itemIndex
+        ) => {
+
+            const columnIndex =
+                Math.floor(
+                    itemIndex /
+                    rowCount
+                );
+
+
+            const localRow =
+                itemIndex %
+                rowCount;
+
+
+            state.row.style.gridColumn =
+                String(
+                    columnIndex + 1
+                );
+
+
+            state.row.style.gridRow =
+                String(
+                    localRow + 1
+                );
+
+        }
+    );
+
+}
+
+function selectIndexProject(
+    rowState
+) {
+
+    if (
+        !rowState
+    ) {
+
+        return;
+
+    }
+
+
+    const previousSelection =
+        selectedIndexProject;
+
+    
+
+    selectedIndexProject =
+        rowState;
+
+
+    indexProjectRows.forEach(
+        state => {
+
+            if (
+                state === rowState
+            ) {
+
+                state.titleCase.upper();
+                state.dateCase.upper();
+
+            }
+
+            else {
+
+                state.titleCase.lower();
+                state.dateCase.lower();
+
+            }
+
+        }
+    );
+
+
+    const project =
+        rowState.project;
+
+
+    const previewUrl =
+        getPhotoThumbnailUrl(
+            project.cover ||
+            project.images[0]
+        );
+
+
+    if (
+        indexPreviewImage.src !==
+        previewUrl
+    ) {
+
+        indexPreviewImage.src =
+            previewUrl;
+
+    }
+
+
+    indexPreview.classList.add(
+        "visible"
+    );
+
+
+    indexPreview.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    const photoCount =
+        project.images.length;
+
+
+    const nextViewText =
+        getViewVerbText(
+            photoCount
+        );
+
+
+    if (
+        previousSelection &&
+        previousSelection !== rowState &&
+        indexProjectViewAll.textContent
+    ) {
+
+        morphSequential(
+            indexProjectViewAll,
+            nextViewText,
+            STATE_MORPH_DURATION
+        ).catch(
+            () => {}
+        );
+
+    }
+
+    else {
+
+        renderBaseTypography(
+            indexProjectViewAll,
+            nextViewText
+        );
+
+
+        indexProjectViewAll.dataset.rawText =
+            nextViewText;
+
+    }
+
+
+    const nextCountText =
+        getPhotoCountText(
+            photoCount
+        );
+
+
+    if (
+        previousSelection &&
+        previousSelection !== rowState &&
+        indexProjectCount.textContent
+    ) {
+
+        morphSequential(
+            indexProjectCount,
+            nextCountText,
+            STATE_MORPH_DURATION
+        ).catch(
+            () => {}
+        );
+
+    }
+
+    else {
+
+        renderBaseTypography(
+            indexProjectCount,
+            nextCountText
+        );
+
+
+        indexProjectCount.dataset.rawText =
+            nextCountText;
+
+    }
+
+
+    indexProjectAction.classList.add(
+        "visible"
+    );
+
+
+    indexProjectAction.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    if (
+        indexViewAllCase
+    ) {
+
+        indexViewAllCase.lower();
+
+    }
+
+}
+
+
+function buildIndex() {
+
+    indexGrid.innerHTML =
+        "";
+
+
+    indexProjectRows =
+        [];
+
+
+    resetIndexSelection();
+
+
+    getChronologicalProjects()
+        .forEach(
+            item => {
+
+                const project =
+                    item.project;
+
+
+                const originalIndex =
+                    item.originalIndex;
+
+
+                const row =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                row.className =
+                    "index-project-row";
+
+
+                const titleButton =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                titleButton.type =
+                    "button";
+
+
+                titleButton.className =
+                    "index-project-title";
+
+
+                const titleBase =
+                    project.title.toLowerCase();
+
+
+                renderBaseTypography(
+                    titleButton,
+                    titleBase
+                );
+
+
+                const dateButton =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                dateButton.type =
+                    "button";
+
+
+                dateButton.className =
+                    "index-project-date";
+
+
+                const dateBase =
+                    (
+                        project.date ||
+                        ""
+                    ).toLowerCase();
+
+
+                renderBaseTypography(
+                    dateButton,
+                    dateBase
+                );
+
+
+                const rowState =
+                    {
+                        row,
+                        project,
+                        originalIndex,
+                        titleButton,
+                        dateButton,
+                        titleCase:
+                            createCaseController(
+                                titleButton,
+                                titleBase
+                            ),
+                        dateCase:
+                            createCaseController(
+                                dateButton,
+                                dateBase
+                            )
+                    };
+
+
+                indexProjectRows.push(
+                    rowState
+                );
+
+
+                [
+                    titleButton,
+                    dateButton
+                ].forEach(
+                    button => {
+
+                        button.addEventListener(
+                            "mouseenter",
+                            () => {
+
+                                if (
+                                    !window.matchMedia(
+                                        "(hover: hover)"
+                                    ).matches
+                                ) {
+
+                                    return;
+
+                                }
+
+
+                                selectIndexProject(
+                                    rowState
+                                );
+
+                            }
+                        );
+
+
+                        button.addEventListener(
+                            "focus",
+                            () => {
+
+                                if (
+                                    !window.matchMedia(
+                                        "(hover: hover)"
+                                    ).matches
+                                ) {
+
+                                    return;
+
+                                }
+
+
+                                selectIndexProject(
+                                    rowState
+                                );
+
+                            }
+                        );
+
+
+                        button.addEventListener(
+                            "click",
+                            async event => {
+
+                                event.stopPropagation();
+
+
+                                /*
+                                   Mouse/trackpad: one click always opens.
+                                   Touch: first tap selects/previews, second
+                                   tap on the same project opens View All.
+                                */
+                                /*
+                                   Only phone portrait keeps the deliberate
+                                   two-tap pattern. Desktop and landscape
+                                   open View All on the first click/tap.
+                                */
+                                const mobileTwoTap =
+                                    isPhoneLayout();
+
+
+                                if (
+                                    !mobileTwoTap
+                                ) {
+
+                                    selectIndexProject(
+                                        rowState
+                                    );
+
+
+                                    /* Let selection state settle before the
+                                       View All transition guard is checked. */
+                                    await new Promise(
+                                        resolve =>
+                                            requestAnimationFrame(
+                                                resolve
+                                            )
+                                    );
+
+
+                                    await openSelectedIndexProjectAll();
+
+                                }
+
+                                else if (
+                                    selectedIndexProject ===
+                                    rowState
+                                ) {
+
+                                    await openSelectedIndexProjectAll();
+
+                                }
+
+                                else {
+
+                                    selectIndexProject(
+                                        rowState
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                row.append(
+                    titleButton,
+                    dateButton
+                );
+
+
+                indexGrid.appendChild(
+                    row
+                );
+
+            }
+        );
+
+
+    requestAnimationFrame(
+        layoutTypographicIndex
+    );
+
+}
+
+
+/* =====================================================
+   WORD CASE
+   ===================================================== */
+
+function renderWordCase(
+    word,
+    upperCount
+) {
+
+    let result =
+        "";
+
+
+    for (
+        let i = 0;
+        i < word.length;
+        i++
+    ) {
+
+        result +=
+            i < upperCount
+                ? word[i].toUpperCase()
+                : word[i].toLowerCase();
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+   INDEX WORD
+   ===================================================== */
+
+const indexWord =
+    "index";
+
+
+let indexWordState =
+    0;
+
+
+let indexWordFrame =
+    null;
+
+
+function renderIndexWord(
+    state
+) {
+
+    indexWordState =
+        state;
+
+
+    renderInteractiveTypography(
+        indexButton,
+        renderWordCase(
+            indexWord,
+            state
+        ),
+        new Set(
+            getLetterPositions(
+                indexWord
+            ).slice(
+                0,
+                state
+            )
+        )
+    );
+
+}
+
+
+/* =====================================================
+   INDEX MORPH
+   ===================================================== */
+
+function morphIndexTo(
+    target
+) {
+
+    if (
+        indexWordFrame !== null
+    ) {
+
+        cancelAnimationFrame(
+            indexWordFrame
+        );
+
+    }
+
+
+    const startState =
+        indexWordState;
+
+
+    if (
+        startState === target
+    ) {
+
+        renderIndexWord(
+            target
+        );
+
+
+        return Promise.resolve();
+
+    }
+
+
+    const start =
+        performance.now();
+
+
+    return new Promise(
+        resolve => {
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        INDEX_TRANSITION_DURATION
+                    );
+
+
+                const state =
+                    Math.round(
+                        startState +
+                        (
+                            target -
+                            startState
+                        ) *
+                        progress
+                    );
+
+
+                renderIndexWord(
+                    state
+                );
+
+
+                if (
+                    progress < 1
+                ) {
+
+                    indexWordFrame =
+                        requestAnimationFrame(
+                            frame
+                        );
+
+                }
+
+                else {
+
+                    renderIndexWord(
+                        target
+                    );
+
+
+                    indexWordFrame =
+                        null;
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            indexWordFrame =
+                requestAnimationFrame(
+                    frame
+                );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   INDEX HOVER
+   ===================================================== */
+
+indexButton.addEventListener(
+    "mouseenter",
+    () => {
+
         if (
-            targetProjectIndex ===
-                projectIndex &&
-            targetFrameIndex ===
-                frameIndex &&
-            !projectAllMode
+            isPhoneLayout()
         ) {
 
             return;
@@ -7741,32 +9544,440 @@ window.addEventListener(
         }
 
 
-        clearTimeout(
-            slideTimer
+        morphIndexTo(
+            indexMode
+                ? 0
+                : indexWord.length
+        );
+
+    }
+);
+
+
+indexButton.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            isPhoneLayout()
+        ) {
+
+            return;
+
+        }
+
+
+        morphIndexTo(
+            indexMode
+                ? indexWord.length
+                : 0
+        );
+
+    }
+);
+
+
+/* =====================================================
+   INDEX POSITION
+   ===================================================== */
+
+function saveIndexPosition() {
+
+    savedIndexScrollTop =
+        0;
+
+}
+
+
+function restoreIndexPosition() {
+
+    requestAnimationFrame(
+        () => {
+
+            indexScroller.scrollTop =
+                0;
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ENTER INDEX
+   ===================================================== */
+
+async function enterIndex(
+    {
+        preserveSelection = false
+    } = {}
+) {
+
+    if (
+        indexMode ||
+        interfaceAnimating
+    ) {
+
+        return;
+
+    }
+
+
+    interfaceAnimating =
+        true;
+
+
+    /*
+        INDEX is an explicit interaction.
+        From this point on the initial autoplay may never resume.
+    */
+    stopAutoSlideshow();
+
+
+    updateIndexContentTop();
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        updateLandscapeGeometry();
+
+    }
+
+
+    indexMode =
+        true;
+
+    resetIndexScrollHint();
+
+
+    body.classList.add(
+        "index-mode"
+    );
+
+
+    indexView.classList.add(
+        "visible"
+    );
+
+
+    restoreIndexPosition();
+
+
+    layoutTypographicIndex();
+
+
+    if (
+        !preserveSelection
+    ) {
+
+        resetIndexSelection();
+
+    }
+
+    else if (
+        selectedIndexProject
+    ) {
+
+        selectIndexProject(
+            selectedIndexProject
+        );
+
+    }
+
+
+    /* The INDEX word morph is cosmetic; unlock the list immediately. */
+    morphIndexTo(
+        indexWord.length
+    );
+
+
+    indexScroller.focus(
+        {
+            preventScroll: true
+        }
+    );
+
+
+    interfaceAnimating =
+        false;
+
+}
+
+
+/* =====================================================
+   VIEW ALL -> INDEX
+   ===================================================== */
+
+async function enterIndexFromProjectAll() {
+
+    if (
+        projectViewAnimating ||
+        interfaceAnimating
+    ) {
+
+        return;
+
+    }
+
+
+    await leaveProjectAll(
+        {
+            resume: false
+        }
+    );
+
+
+    await enterIndex();
+
+}
+
+
+/* =====================================================
+   RETURN FROM INDEX
+   ===================================================== */
+
+async function returnFromIndex() {
+
+    if (
+        !indexMode ||
+        interfaceAnimating
+    ) {
+
+        return;
+
+    }
+
+
+    interfaceAnimating =
+        true;
+
+
+    saveIndexPosition();
+
+
+    resetIndexSelection();
+
+
+    await morphIndexTo(
+        0
+    );
+
+
+    indexView.classList.remove(
+        "visible"
+    );
+
+
+    indexMode =
+        false;
+
+
+    body.classList.remove(
+        "index-mode"
+    );
+
+
+    updateResponsiveMode();
+
+
+    syncMetadataAfterRender();
+
+
+    /*
+        Leaving INDEX always returns to a manual slideshow.
+    */
+    manualMode =
+        true;
+
+
+    clearTimeout(
+        slideTimer
+    );
+
+
+    interfaceAnimating =
+        false;
+
+}
+
+
+/* =====================================================
+   INDEX -> PROJECT VIEW ALL
+   ===================================================== */
+
+async function openSelectedIndexProjectAll() {
+
+    if (
+        !indexMode ||
+        !selectedIndexProject ||
+        interfaceAnimating ||
+        projectViewAnimating
+    ) {
+
+        return;
+
+    }
+
+
+    interfaceAnimating =
+        true;
+
+
+    stopAutoSlideshow();
+    saveIndexPosition();
+
+
+    projectAllOpenedFromIndex =
+        true;
+
+
+    indexSelectionBeforeProjectAll =
+        selectedIndexProject;
+
+
+    const targetProjectIndex =
+        selectedIndexProject.originalIndex;
+
+
+    const targetProject =
+        projects[
+            normalizeProjectIndex(
+                targetProjectIndex
+            )
+        ];
+
+
+    try {
+
+        /*
+            Load and prepare the selected project while INDEX is still
+            covering the page. This prevents a slideshow frame from
+            flashing between INDEX and VIEW ALL.
+        */
+        const loadedImage =
+            await preloadImage(
+                targetProject.images[0]
+            );
+
+
+        projectIndex =
+            normalizeProjectIndex(
+                targetProjectIndex
+            );
+
+
+        frameIndex =
+            0;
+
+
+        enterFocusedProjectMode(
+            projectIndex
         );
 
 
-        leaveFocusedProjectMode();
+        markFrameSeen(
+            projectIndex,
+            0
+        );
 
 
-        projectAllMode =
+        syncProjectUrl(
+            "push"
+        );
+
+
+        renderImage(
+            loadedImage
+        );
+
+
+        syncMetadataAfterRender();
+
+
+        await updateMetadata(
+            projectIndex,
+            0
+        );
+
+
+        prepareProjectAllGrid();
+
+
+        viewAllButton.dataset.rawText =
+            viewAllButton.textContent;
+
+
+        projectCounter.dataset.rawText =
+            projectCounter.textContent;
+
+
+        await morphIndexTo(
+            0
+        );
+
+
+        indexView.classList.remove(
+            "visible"
+        );
+
+
+        indexMode =
             false;
 
 
         body.classList.remove(
-            "project-all-mode",
+            "index-mode"
+        );
+
+
+        projectAllMode =
+            true;
+
+
+        body.classList.remove(
             "project-all-preparing"
         );
 
 
-        projectAllGrid.innerHTML =
-            "";
+        body.classList.add(
+            "project-all-mode"
+        );
 
 
-        await showFrame(
-            targetProjectIndex,
-            targetFrameIndex,
-            "replace"
+        const project =
+            currentProject();
+
+
+        await Promise.all(
+            [
+                animateCase(
+                    projectTitle,
+                    project.title,
+                    true
+                ),
+
+                animateCase(
+                    projectDate,
+                    project.date || "",
+                    true
+                ),
+
+                morphSequential(
+                    projectCounter,
+                    getAllCounterText(
+                        project.images.length
+                    ),
+                    STATE_MORPH_DURATION
+                ),
+
+                morphSequential(
+                    viewAllButton,
+                    "close",
+                    STATE_MORPH_DURATION
+                )
+            ]
         );
 
 
@@ -7778,12 +9989,642 @@ window.addEventListener(
             slideTimer
         );
 
+
+        preloadAhead();
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            error
+        );
+
+    }
+
+
+    interfaceAnimating =
+        false;
+
+}
+
+
+/* =====================================================
+   INDEX PREVIEW CLICK
+   ===================================================== */
+
+indexPreviewImage.addEventListener(
+    "load",
+    () => {
+
+        if (
+            !indexProjectAction
+        ) {
+
+            return;
+
+        }
+
+
+        const phoneLayout =
+            body.classList.contains(
+                "phone-portrait"
+            ) ||
+            body.classList.contains(
+                "phone-landscape"
+            );
+
+
+        if (
+            phoneLayout
+        ) {
+
+            requestAnimationFrame(
+                () => {
+
+                    const rect =
+                        indexPreviewImage.getBoundingClientRect();
+
+
+                    indexProjectAction.style.width =
+                        `${rect.width}px`;
+
+                }
+            );
+
+        }
+
+        else {
+
+            indexProjectAction.style.removeProperty(
+                "width"
+            );
+
+        }
+
+    }
+);
+
+
+indexPreviewImage.addEventListener(
+    "click",
+    async event => {
+
+        event.stopPropagation();
+
+
+        if (
+            !selectedIndexProject
+        ) {
+
+            return;
+
+        }
+
+
+        await openSelectedIndexProjectAll();
+
     }
 );
 
 
 /* =====================================================
-   CLICK BACKGROUND = SLIDE NAVIGATION
+   INDEX VIEW ALL INTERACTION
+   VIEW ALL + short photo count behave as one two-line control.
+   ===================================================== */
+
+indexViewAllCase = createCaseController(indexProjectViewAll, "view all");
+
+function getSelectedIndexPhotoCountText() {
+    if (!selectedIndexProject || !selectedIndexProject.project) return "";
+    return getPhotoCountText(selectedIndexProject.project.images.length);
+}
+
+async function animateIndexViewAllControl(toUpper) {
+    if (!selectedIndexProject) return;
+    const total = selectedIndexProject.project.images.length;
+    await Promise.all([
+        animateCase(indexProjectViewAll, getViewVerbText(total), toUpper),
+        animateCase(indexProjectCount, getSelectedIndexPhotoCountText(), toUpper)
+    ]);
+    indexProjectViewAll.dataset.rawText = indexProjectViewAll.textContent;
+    indexProjectCount.dataset.rawText = indexProjectCount.textContent;
+}
+
+indexProjectAction.addEventListener("mouseenter", async () => {
+    if (!window.matchMedia("(hover: hover)").matches || !selectedIndexProject) return;
+    await animateIndexViewAllControl(true);
+});
+
+indexProjectAction.addEventListener("mouseleave", async () => {
+    if (!window.matchMedia("(hover: hover)").matches) return;
+    await animateIndexViewAllControl(false);
+});
+
+indexProjectAction.addEventListener("click", async event => {
+    event.stopPropagation();
+    if (!selectedIndexProject) return;
+    await animateIndexViewAllControl(true);
+    await openSelectedIndexProjectAll();
+});
+
+
+/* =====================================================
+   INDEX CLICK
+   ===================================================== */
+
+indexButton.addEventListener(
+    "click",
+    async event => {
+
+        event.stopPropagation();
+
+
+        if (
+            interfaceAnimating ||
+            projectViewAnimating
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            projectAllMode
+        ) {
+
+            if (
+                projectAllOpenedFromIndex
+            ) {
+
+                await returnProjectAllToIndex();
+
+            }
+
+            else {
+
+                await enterIndexFromProjectAll();
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (
+            indexMode
+        ) {
+
+            await returnFromIndex();
+
+        }
+
+        else {
+
+            await enterIndex();
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        if (
+            indexMode
+        ) {
+
+            requestAnimationFrame(
+                layoutTypographicIndex
+            );
+
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+
+/* =====================================================
+   MOBILE INDEX CONTINUATION CUE
+
+   No textual hint and no row clipping. The list remains a completely native
+   scroll surface from the first touch. CSS supplies the bottom fade while
+   more projects remain; the existing scroll listener dismisses it at the end.
+   ===================================================== */
+
+function clearIndexScrollHintHost() {
+    /* intentionally empty: never mutate rows during a touch gesture */
+}
+
+function placeIndexScrollHintInLastVisibleSlot() {
+    /* intentionally empty: continuation is represented only by the fade */
+}
+
+function resetIndexScrollHint() {
+    body.classList.remove("index-scroll-hint-dismissed");
+}
+
+function dismissIndexScrollHint() {
+    if (
+        !indexMode ||
+        !body.classList.contains("index-needs-scroll")
+    ) {
+        return;
+    }
+    body.classList.add("index-scroll-hint-dismissed");
+}
+
+/* =====================================================
+   INDEX SCROLL / AYBAK BOUNDARY
+
+   A scrollable index consumes the current gesture first.
+   AYBAK can open only from a NEW downward gesture that
+   STARTS while the list is already at its bottom boundary.
+   This prevents trackpad momentum from accidentally opening
+   the black page as the list reaches its end.
+   ===================================================== */
+
+const INDEX_BOUNDARY_WHEEL_THRESHOLD =
+    48;
+
+
+const INDEX_NEW_GESTURE_GAP =
+    190;
+
+
+function indexCanScrollVertically() {
+
+    return (
+        indexScroller.scrollHeight -
+        indexScroller.clientHeight
+    ) > 2;
+
+}
+
+
+function indexIsAtBottom() {
+
+    return (
+        indexScroller.scrollTop +
+        indexScroller.clientHeight
+    ) >=
+    (
+        indexScroller.scrollHeight -
+        2
+    );
+
+}
+
+
+indexScroller.addEventListener(
+    "wheel",
+    event => {
+
+        if (
+            !indexMode ||
+            aybakEndCardActive
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            Math.abs(
+                event.deltaY
+            ) <=
+            Math.abs(
+                event.deltaX
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        event.preventDefault();
+
+        clearIndexScrollHintHost();
+
+        const now =
+            performance.now();
+
+
+        const newGesture =
+            (
+                now -
+                indexLastWheelTime
+            ) >
+            INDEX_NEW_GESTURE_GAP;
+
+
+        indexLastWheelTime =
+            now;
+
+
+        const canScroll =
+            indexCanScrollVertically();
+
+
+        const atBottomBefore =
+            indexIsAtBottom();
+
+
+        if (
+            canScroll &&
+            (
+                event.deltaY < 0 ||
+                !atBottomBefore
+            )
+        ) {
+
+            indexScroller.scrollTop +=
+                event.deltaY;
+
+
+            indexBoundaryWheelAccumulator =
+                0;
+
+
+            return;
+
+        }
+
+
+        if (
+            event.deltaY <= 0
+        ) {
+
+            indexBoundaryWheelAccumulator =
+                0;
+
+
+            return;
+
+        }
+
+
+        /*
+            If the list has content to scroll, boundary activation
+            is allowed only when this wheel sequence is a fresh gesture.
+            If the list already fits, the normal first downward gesture
+            can open AYBAK immediately, matching slideshow behaviour.
+        */
+        if (
+            canScroll &&
+            !newGesture
+        ) {
+
+            return;
+
+        }
+
+
+        clearTimeout(
+            indexBoundaryWheelResetTimer
+        );
+
+
+        indexBoundaryWheelAccumulator +=
+            event.deltaY;
+
+
+        indexBoundaryWheelResetTimer =
+            setTimeout(
+                () => {
+
+                    indexBoundaryWheelAccumulator =
+                        0;
+
+                },
+                150
+            );
+
+
+        if (
+            indexBoundaryWheelAccumulator >=
+            INDEX_BOUNDARY_WHEEL_THRESHOLD
+        ) {
+
+            indexBoundaryWheelAccumulator =
+                0;
+
+
+            setAybakEndCard(
+                true
+            );
+
+        }
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/* =====================================================
+   INDEX TOUCH BOUNDARY
+   ===================================================== */
+
+
+
+indexScroller.addEventListener(
+    "touchstart",
+    event => {
+
+        if (
+            !indexMode ||
+            !event.changedTouches.length
+        ) {
+
+            return;
+
+        }
+
+        indexTouchStartY =
+            event.changedTouches[0].clientY;
+
+        indexTouchLastY =
+            indexTouchStartY;
+
+
+
+        indexTouchStartedAtBottom =
+            !indexCanScrollVertically() ||
+            indexIsAtBottom();
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+indexScroller.addEventListener(
+    "touchmove",
+    event => {
+        if (
+            !indexMode ||
+            aybakEndCardActive ||
+            !event.changedTouches.length
+        ) {
+            return;
+        }
+
+        /* Native overflow scrolling owns the gesture. Never preventDefault here. */
+        indexTouchLastY = event.changedTouches[0].clientY;
+    },
+    {
+        passive: true
+    }
+);
+
+
+indexScroller.addEventListener(
+    "touchend",
+    event => {
+
+        if (
+            !indexMode ||
+            indexTouchStartY === null ||
+            !event.changedTouches.length
+        ) {
+
+            return;
+
+        }
+
+
+        const endY =
+            event.changedTouches[0].clientY;
+
+
+        const deltaY =
+            endY -
+            indexTouchStartY;
+
+
+        indexTouchStartY =
+            null;
+
+        indexTouchLastY =
+            null;
+
+
+        if (
+            indexTouchStartedAtBottom &&
+            deltaY < -52
+        ) {
+
+            suppressClickUntil =
+                Date.now() +
+                500;
+
+
+            setAybakEndCard(
+                true
+            );
+
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =====================================================
+   INDEX KEYBOARD
+   ===================================================== */
+
+indexScroller.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "ArrowDown" ||
+            event.key === "PageDown" ||
+            event.key === "End"
+        ) {
+
+            event.preventDefault();
+
+
+            setAybakEndCard(
+                true
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   INDEX SCROLL SAVE
+   ===================================================== */
+
+indexScroller.addEventListener(
+    "scroll",
+    () => {
+
+        /* The hint remains visible while projects are still below.
+           Once native scrolling has actually begun, reveal the rows that were
+           hidden only to keep the initial composition free of partial entries. */
+        if (
+            indexMode &&
+            indexScroller.scrollTop > 1
+        ) {
+            clearIndexScrollHintHost();
+        }
+
+        if (
+            indexMode &&
+            indexIsAtBottom()
+        ) {
+            dismissIndexScrollHint();
+        }
+        else if (
+            indexMode &&
+            body.classList.contains("index-needs-scroll")
+        ) {
+            /* The continuation cue comes back as soon as there are projects
+               below again. Reaching the end is not a permanent dismissal. */
+            body.classList.remove("index-scroll-hint-dismissed");
+        }
+
+        if (
+            indexMode
+        ) {
+
+            savedIndexScrollTop =
+                indexScroller.scrollTop;
+
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =====================================================
+   SLIDESHOW CLICK
    ===================================================== */
 
 body.addEventListener(
@@ -7802,6 +10643,7 @@ body.addEventListener(
 
         if (
             aybakEndCardActive ||
+            indexMode ||
             projectAllMode ||
             interfaceAnimating ||
             navigationAnimating ||
@@ -7815,7 +10657,7 @@ body.addEventListener(
 
         if (
             event.target.closest(
-                ".info, #index-button, #info-button, #view-all-button, #project-title, #project-date, #project-counter"
+                ".info, .section-switch, #index-button, #view-all-button"
             )
         ) {
 
@@ -7883,6 +10725,28 @@ document.addEventListener(
                 setAybakEndCard(
                     false
                 );
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (
+            indexMode
+        ) {
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                event.preventDefault();
+
+
+                await returnFromIndex();
 
             }
 
@@ -8003,6 +10867,7 @@ document.addEventListener(
     event => {
 
         if (
+            indexMode ||
             projectAllMode
         ) {
 
@@ -8036,6 +10901,7 @@ document.addEventListener(
     async event => {
 
         if (
+            indexMode ||
             projectAllMode ||
             interfaceAnimating ||
             navigationAnimating ||
@@ -8128,7 +10994,7 @@ document.addEventListener(
 
 
 /* =====================================================
-   LOGO (LİNKSİZ, ANİMASYONLU)
+   LOGO
    ===================================================== */
 
 const logo =
@@ -8383,11 +11249,23 @@ logo.addEventListener(
 );
 
 
+/* =====================================================
+   MOBILE LOGO TAP
+
+   Mobile only:
+   Denizalp / aybak
+        ->
+   denizalp / AYBAK
+        -> short hold
+        -> landing page
+
+   No automatic logo animation.
+   Desktop hover/click behaviour stays unchanged.
+   ===================================================== */
+
 logo.addEventListener(
     "click",
     async event => {
-
-        event.preventDefault();
 
         if (
             !isPhoneLayout()
@@ -8396,6 +11274,9 @@ logo.addEventListener(
             return;
 
         }
+
+
+        event.preventDefault();
 
 
         await animateLogoTo(
@@ -8411,8 +11292,576 @@ logo.addEventListener(
                 )
         );
 
-        await animateLogoTo(
-            0
+
+        window.location.href =
+            logo.href;
+
+    }
+);
+
+
+/* =====================================================
+   FILM
+   ===================================================== */
+
+const sectionSwitchLandingText =
+    document.getElementById(
+        "section-switch-landing-text"
+    );
+
+let sectionSwitchLandingState = 0;
+let sectionSwitchLandingFrame = null;
+
+function getLandingSwitchWord() {
+    return isPhoneLayout() && window.innerHeight >= window.innerWidth
+        ? "biography."
+        : "denizalpaybak.com";
+}
+
+let landingSwitchWord = getLandingSwitchWord();
+
+function renderLandingSwitch() {
+    sectionSwitchLandingText.textContent =
+        renderWordCase(
+            landingSwitchWord,
+            sectionSwitchLandingState
+        );
+}
+
+function morphLandingSwitchTo(target) {
+    if (sectionSwitchLandingFrame !== null) {
+        cancelAnimationFrame(sectionSwitchLandingFrame);
+    }
+
+    const startState = sectionSwitchLandingState;
+    if (startState === target) {
+        renderLandingSwitch();
+        return Promise.resolve();
+    }
+
+    const start = performance.now();
+    return new Promise(resolve => {
+        function frame(now) {
+            const progress = Math.min(1, (now - start) / WORD_TRANSITION_DURATION);
+            const raw = startState + (target - startState) * progress;
+            sectionSwitchLandingState =
+                target >= startState
+                    ? Math.floor(raw + 0.0001)
+                    : Math.ceil(raw - 0.0001);
+            renderLandingSwitch();
+
+            if (progress < 1) {
+                sectionSwitchLandingFrame = requestAnimationFrame(frame);
+                return;
+            }
+
+            sectionSwitchLandingState = target;
+            sectionSwitchLandingFrame = null;
+            renderLandingSwitch();
+            resolve();
+        }
+
+        sectionSwitchLandingFrame = requestAnimationFrame(frame);
+    });
+}
+
+function syncLandingSwitchWordForLayout() {
+    const nextWord = getLandingSwitchWord();
+    if (nextWord === landingSwitchWord) return;
+    landingSwitchWord = nextWord;
+    sectionSwitchLandingState = 0;
+    renderLandingSwitch();
+}
+
+window.addEventListener("resize", syncLandingSwitchWordForLayout, { passive: true });
+window.addEventListener("orientationchange", syncLandingSwitchWordForLayout, { passive: true });
+requestAnimationFrame(syncLandingSwitchWordForLayout);
+renderLandingSwitch();
+
+sectionSwitchLandingText.parentElement.addEventListener("mouseenter", () => {
+    if (!canHover()) return;
+    morphLandingSwitchTo(landingSwitchWord.length);
+});
+
+sectionSwitchLandingText.parentElement.addEventListener("mouseleave", () => {
+    if (!canHover()) return;
+    morphLandingSwitchTo(0);
+});
+
+sectionSwitchLandingText.parentElement.addEventListener("click", async event => {
+    event.preventDefault();
+    event.stopPropagation();
+    await morphLandingSwitchTo(landingSwitchWord.length);
+    await new Promise(resolve => setTimeout(resolve, canHover() ? 100 : MOBILE_NAV_HOLD));
+    window.location.href = sectionSwitchLandingText.parentElement.href;
+});
+
+const sectionSwitchText =
+    document.getElementById(
+        "section-switch-text"
+    );
+
+
+function getSwitchWord() {
+    return isPhoneLayout() && window.innerHeight >= window.innerWidth
+        ? "film."
+        : "film.denizalpaybak.com";
+}
+
+let switchWord = getSwitchWord();
+
+
+let switchState =
+    0;
+
+
+let switchFrame =
+    null;
+
+function syncSwitchWordForLayout() {
+    const nextWord = getSwitchWord();
+    if (nextWord === switchWord) return;
+    switchWord = nextWord;
+    sectionSwitchText.textContent = switchWord;
+    switchState = 0;
+}
+
+window.addEventListener("resize", syncSwitchWordForLayout, { passive: true });
+window.addEventListener("orientationchange", syncSwitchWordForLayout, { passive: true });
+requestAnimationFrame(syncSwitchWordForLayout);
+
+
+function renderSwitch(
+    state
+) {
+
+    switchState =
+        state;
+
+
+    renderInteractiveTypography(
+        sectionSwitchText,
+        renderWordCase(
+            switchWord,
+            state
+        ),
+        new Set(
+            getLetterPositions(
+                switchWord
+            ).slice(
+                0,
+                state
+            )
+        )
+    );
+
+}
+
+
+function morphSwitchTo(
+    target
+) {
+
+    if (
+        switchFrame !== null
+    ) {
+
+        cancelAnimationFrame(
+            switchFrame
+        );
+
+    }
+
+
+    const startState =
+        switchState;
+
+
+    if (
+        startState === target
+    ) {
+
+        renderSwitch(
+            target
+        );
+
+
+        return Promise.resolve();
+
+    }
+
+
+    const start =
+        performance.now();
+
+
+    return new Promise(
+        resolve => {
+
+            function frame(
+                now
+            ) {
+
+                const progress =
+                    Math.min(
+                        1,
+                        (
+                            now -
+                            start
+                        ) /
+                        WORD_TRANSITION_DURATION
+                    );
+
+
+                const state =
+                    Math.round(
+                        startState +
+                        (
+                            target -
+                            startState
+                        ) *
+                        progress
+                    );
+
+
+                renderSwitch(
+                    state
+                );
+
+
+                if (
+                    progress < 1
+                ) {
+
+                    switchFrame =
+                        requestAnimationFrame(
+                            frame
+                        );
+
+                }
+
+                else {
+
+                    renderSwitch(
+                        target
+                    );
+
+
+                    switchFrame =
+                        null;
+
+
+                    resolve();
+
+                }
+
+            }
+
+
+            switchFrame =
+                requestAnimationFrame(
+                    frame
+                );
+
+        }
+    );
+
+}
+
+
+sectionSwitch.addEventListener(
+    "mouseenter",
+    () => {
+
+        if (
+            !isPhoneLayout()
+        ) {
+
+            morphSwitchTo(
+                switchWord.length
+            );
+
+        }
+
+    }
+);
+
+
+sectionSwitch.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            !isPhoneLayout()
+        ) {
+
+            morphSwitchTo(
+                0
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   MOBILE FILM TAP
+
+   Mobile only:
+   film -> FILM -> short hold -> film site
+
+   Desktop remains normal hover + immediate link.
+   ===================================================== */
+
+sectionSwitch.addEventListener(
+    "click",
+    async event => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        await morphSwitchTo(
+            switchWord.length
+        );
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    canHover() ? 100 : MOBILE_NAV_HOLD
+                )
+        );
+
+        window.location.href =
+            sectionSwitch.href;
+
+    }
+);
+
+
+/* =====================================================
+   GEOMETRY CHANGE
+   ===================================================== */
+
+function handleGeometryChange() {
+
+    updateResponsiveMode();
+
+
+    updateIndexContentTop();
+
+
+    if (
+        isPhoneLandscape()
+    ) {
+
+        requestAnimationFrame(
+            updateLandscapeGeometry
+        );
+
+    }
+
+
+    syncMetadataAfterRender();
+
+
+    if (
+        projectAllMode
+    ) {
+
+        requestAnimationFrame(
+            () => {
+
+                requestAnimationFrame(
+                    layoutProjectAllGrid
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+window.addEventListener(
+    "resize",
+    handleGeometryChange
+);
+
+
+window.addEventListener(
+    "orientationchange",
+    () => {
+
+        setTimeout(
+            handleGeometryChange,
+            100
+        );
+
+
+        setTimeout(
+            handleGeometryChange,
+            350
+        );
+
+
+        setTimeout(
+            handleGeometryChange,
+            700
+        );
+
+    }
+);
+
+
+if (
+    window.visualViewport
+) {
+
+    window
+        .visualViewport
+        .addEventListener(
+            "resize",
+            handleGeometryChange
+        );
+
+}
+
+
+/* =====================================================
+   BROWSER BACK / FORWARD
+   ===================================================== */
+
+window.addEventListener(
+    "popstate",
+    async () => {
+
+        if (
+            !projects.length
+        ) {
+
+            return;
+
+        }
+
+
+        const deepLink =
+            getDeepLinkRequest();
+
+
+        const requestedProjectIndex =
+            findProjectIndexById(
+                deepLink.projectId
+            );
+
+
+        const targetProjectIndex =
+            requestedProjectIndex >= 0
+                ? requestedProjectIndex
+                : 0;
+
+
+        const targetProject =
+            projects[
+                targetProjectIndex
+            ];
+
+
+        let targetFrameIndex =
+            0;
+
+
+        if (
+            requestedProjectIndex >= 0 &&
+            deepLink.imageNumber !==
+                null
+        ) {
+
+            const resolved =
+                getRuntimeFrameIndexFromOriginalNumber(
+                    targetProject,
+                    deepLink.imageNumber
+                );
+
+
+            if (
+                resolved >= 0
+            ) {
+
+                targetFrameIndex =
+                    resolved;
+
+            }
+
+        }
+
+
+        if (
+            targetProjectIndex ===
+                projectIndex &&
+            targetFrameIndex ===
+                frameIndex &&
+            !indexMode &&
+            !projectAllMode
+        ) {
+
+            return;
+
+        }
+
+
+        clearTimeout(
+            slideTimer
+        );
+
+
+        leaveFocusedProjectMode();
+
+
+        indexMode =
+            false;
+
+
+        projectAllMode =
+            false;
+
+
+        body.classList.remove(
+            "index-mode",
+            "project-all-mode",
+            "project-all-preparing"
+        );
+
+
+        indexView.classList.remove(
+            "visible"
+        );
+
+
+        projectAllGrid.innerHTML =
+            "";
+
+
+        /*
+            "replace" avoids creating a new history entry while
+            the browser itself is restoring an existing one.
+        */
+
+        await showFrame(
+            targetProjectIndex,
+            targetFrameIndex,
+            "replace"
+        );
+
+
+        manualMode =
+            true;
+
+
+        clearTimeout(
+            slideTimer
         );
 
     }
@@ -8420,339 +11869,7 @@ logo.addEventListener(
 
 
 /* =====================================================
-   VIEW ALL CONTROLS & SWITCHES
-   ===================================================== */
-
-let projectAllSwitching = false;
-let projectTitleHovering = false;
-let projectAllTouchX = null;
-let projectAllTouchY = null;
-let projectAllSlideOrigin = null;
-
-function setProjectAllNavigationCopy() {
-    if (!projectAllMode && !body.classList.contains("project-all-preparing")) {
-        return;
-    }
-
-    renderBaseTypography(projectCounter, "next project");
-    projectCounter.dataset.rawText = projectCounter.textContent;
-    projectCounter.setAttribute("aria-label", "Next project");
-
-    renderBaseTypography(viewAllButton, "previous project");
-    viewAllButton.dataset.rawText = viewAllButton.textContent;
-    viewAllButton.setAttribute("aria-label", "Previous project");
-}
-
-const enterProjectAllV19 = enterProjectAll;
-enterProjectAll = async function() {
-    if (!projectAllMode) {
-        projectAllSlideOrigin = {
-            projectIndex,
-            frameIndex
-        };
-    }
-
-    const result = await enterProjectAllV19();
-    setProjectAllNavigationCopy();
-    return result;
-};
-
-async function switchProjectAll(direction) {
-    if (!projectAllMode || projectAllSwitching || projectViewAnimating) {
-        return;
-    }
-
-    projectAllSwitching = true;
-    stopAutoSlideshow();
-
-    const targetIndex = normalizeProjectIndex(projectIndex + direction);
-    const targetProject = projects[targetIndex];
-
-    projectIndex = targetIndex;
-    frameIndex = 0;
-    renderedProjectIndex = targetIndex;
-
-    leaveFocusedProjectMode();
-    syncProjectUrl("push");
-
-    projectAllGrid.innerHTML = "";
-    buildProjectAllGrid();
-    syncProjectAllBounds(true);
-    layoutProjectAllGrid(true);
-
-    await Promise.all([
-        morphSequential(
-            projectTitle,
-            targetProject.title.toUpperCase(),
-            TEXT_MORPH_DURATION
-        ),
-        morphSequential(
-            projectDate,
-            (targetProject.date || "").toUpperCase(),
-            TEXT_MORPH_DURATION
-        )
-    ]);
-
-    setProjectAllNavigationCopy();
-    preloadAhead();
-    projectAllSwitching = false;
-}
-
-async function animateProjectClientState(toAlternateState) {
-    const project = currentProject();
-    await Promise.all([
-        animateCase(projectTitle, project.title, toAlternateState),
-        animateCase(projectDate, project.date || "", toAlternateState)
-    ]);
-}
-
-projectTitle.addEventListener("mouseenter", async () => {
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || projectViewAnimating) {
-        return;
-    }
-    projectTitleHovering = true;
-    await animateProjectClientState(!projectAllMode);
-});
-
-projectTitle.addEventListener("mouseleave", async () => {
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || projectViewAnimating) {
-        return;
-    }
-    projectTitleHovering = false;
-    await animateProjectClientState(projectAllMode);
-});
-
-projectTitle.addEventListener("click", async event => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) {
-        return;
-    }
-
-    if (projectAllMode) {
-        await animateProjectClientState(false);
-        const origin = projectAllSlideOrigin;
-        await exitProjectAll();
-
-        if (origin) {
-            await showFrame(
-                origin.projectIndex,
-                origin.frameIndex,
-                "replace"
-            );
-            projectAllSlideOrigin = null;
-        }
-    } else {
-        stopAutoSlideshow();
-        await animateProjectClientState(true);
-        await enterProjectAll();
-    }
-}, true);
-
-projectCounter.addEventListener("mouseenter", async event => {
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-
-    if (projectAllMode) {
-        await animateCase(projectCounter, "next project", true);
-        return;
-    }
-
-    if (isSlideViewAllControlElement(event.relatedTarget)) return;
-    await animateSlideViewAllControl(true);
-});
-
-projectCounter.addEventListener("mouseleave", async event => {
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-
-    if (projectAllMode) {
-        await animateCase(projectCounter, "next project", false);
-        return;
-    }
-
-    if (isSlideViewAllControlElement(event.relatedTarget)) return;
-    await animateSlideViewAllControl(false);
-});
-
-projectCounter.addEventListener("click", async event => {
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-
-    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) return;
-
-    if (projectAllMode) {
-        await animateCase(projectCounter, "next project", true);
-        await switchProjectAll(1);
-        return;
-    }
-
-    stopAutoSlideshow();
-    await animateSlideViewAllControl(true);
-    await enterProjectAll();
-}, true);
-
-document.addEventListener("keydown", async event => {
-    stopProjectAutoplayFromInteraction();
-
-    if (projectAllMode && !aybakEndCardActive) {
-        if (event.key === "ArrowRight") {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            await switchProjectAll(1);
-        } else if (event.key === "ArrowLeft") {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            await switchProjectAll(-1);
-        }
-    }
-}, true);
-
-document.addEventListener("touchstart", event => {
-    if (!projectAllMode || aybakEndCardActive || !event.changedTouches.length) return;
-    projectAllTouchX = event.changedTouches[0].clientX;
-    projectAllTouchY = event.changedTouches[0].clientY;
-}, { passive: true, capture: true });
-
-document.addEventListener("touchend", async event => {
-    if (!projectAllMode || aybakEndCardActive || projectAllTouchX === null || projectAllTouchY === null || !event.changedTouches.length) {
-        return;
-    }
-
-    const x = event.changedTouches[0].clientX;
-    const y = event.changedTouches[0].clientY;
-    const dx = x - projectAllTouchX;
-    const dy = y - projectAllTouchY;
-
-    projectAllTouchX = null;
-    projectAllTouchY = null;
-
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) >= 45) {
-        suppressClickUntil = Date.now() + 500;
-        await switchProjectAll(dx < 0 ? 1 : -1);
-    }
-}, { passive: true, capture: true });
-
-
-/* =====================================================
-   AUTOPLAY STABILISATION
-   ===================================================== */
-const PROJECT_AUTOPLAY_DURATION = 4000;
-let projectAutoplayTimer = null;
-let projectAutoplayEnabled = true;
-
-function stopProjectAutoplayFromInteraction() {
-    if (!projectAutoplayEnabled) return;
-    projectAutoplayEnabled = false;
-    clearTimeout(projectAutoplayTimer);
-}
-
-function scheduleProjectAutoplay() {
-    clearTimeout(projectAutoplayTimer);
-
-    if (!projectAutoplayEnabled || !projectAllMode || aybakEndCardActive) {
-        return;
-    }
-
-    projectAutoplayTimer = setTimeout(async () => {
-        if (!projectAutoplayEnabled || !projectAllMode || aybakEndCardActive) {
-            return;
-        }
-
-        await switchProjectAll(1);
-        scheduleProjectAutoplay();
-    }, PROJECT_AUTOPLAY_DURATION);
-}
-
-["pointerdown", "wheel", "keydown", "touchstart"].forEach(type => {
-    document.addEventListener(type, stopProjectAutoplayFromInteraction, {
-        capture: true,
-        passive: type === "wheel" || type === "touchstart"
-    });
-});
-
-const AUTOPLAY_INTERACTIVE_SELECTOR = [
-    "a",
-    "button",
-    ".project-all-thumb",
-    "#project-title",
-    "#project-date"
-].join(",");
-
-document.addEventListener("pointerover", event => {
-    if (event.target.closest?.(AUTOPLAY_INTERACTIVE_SELECTOR)) {
-        stopProjectAutoplayFromInteraction();
-    }
-}, { capture: true, passive: true });
-
-document.addEventListener("focusin", event => {
-    if (event.target.closest?.(AUTOPLAY_INTERACTIVE_SELECTOR)) {
-        stopProjectAutoplayFromInteraction();
-    }
-}, true);
-
-async function waitForProjectAllImageDimensions() {
-    const images = Array.from(projectAllGrid.querySelectorAll("img"));
-
-    await Promise.all(images.map(img => {
-        if (img.naturalWidth && img.naturalHeight) {
-            return Promise.resolve();
-        }
-
-        return new Promise(resolve => {
-            const done = () => resolve();
-            img.addEventListener("load", done, { once: true });
-            img.addEventListener("error", done, { once: true });
-        });
-    }));
-
-    layoutProjectAllGrid(true);
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-}
-
-function syncSinglePhotoViewCopy() {
-    if (projectAllMode || body.classList.contains("project-all-preparing") || !projects.length) return;
-    const total = currentProject().images.length;
-    renderBaseTypography(viewAllButton, getViewVerbText(total));
-    renderBaseTypography(projectCounter, getProjectPhotoCountText(total));
-    viewAllButton.dataset.rawText = viewAllButton.textContent;
-    projectCounter.dataset.rawText = projectCounter.textContent;
-}
-
-const syncMetadataAfterRenderV24 = syncMetadataAfterRender;
-syncMetadataAfterRender = function() {
-    const result = syncMetadataAfterRenderV24.apply(this, arguments);
-    syncSinglePhotoViewCopy();
-    return result;
-};
-
-
-/* =====================================================
-   INDEX & INFO HOVER VE TEK TIK YÖNLENDİRME (YENİ)
-   ===================================================== */
-const indexCase = createCaseController(indexButton, "index");
-const infoCase = createCaseController(infoButton, "info");
-
-function isHoverDevice() { return window.matchMedia("(hover: hover) and (pointer: fine)").matches; }
-
-indexButton.addEventListener("mouseenter", () => { if (isHoverDevice()) indexCase.upper(); });
-indexButton.addEventListener("mouseleave", () => { if (isHoverDevice()) indexCase.lower(); });
-
-infoButton.addEventListener("mouseenter", () => { if (isHoverDevice()) infoCase.upper(); });
-infoButton.addEventListener("mouseleave", () => { if (isHoverDevice()) infoCase.lower(); });
-
-function routeLink(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    window.location.href = event.currentTarget.href;
-}
-
-indexButton.addEventListener("click", routeLink);
-infoButton.addEventListener("click", routeLink);
-
-
-/* =====================================================
-   LOAD PROJECTS
+   LOAD
    ===================================================== */
 
 async function loadProjects() {
@@ -8810,6 +11927,9 @@ async function loadProjects() {
         updateResponsiveMode();
 
 
+        buildIndex();
+
+
         const deepLink =
             getDeepLinkRequest();
 
@@ -8848,6 +11968,17 @@ async function loadProjects() {
 
         }
 
+
+        /*
+            Project-only links keep the random opening-image
+            behaviour.
+
+            Valid project + image links open that exact original
+            projects.json image.
+
+            Invalid image numbers safely fall back to the current
+            project's runtime first image.
+        */
 
         frameIndex =
             requestedRuntimeFrameIndex >= 0
@@ -8890,6 +12021,14 @@ async function loadProjects() {
             !deepLink.viewAll
         ) {
 
+            /*
+                Normalize project-only / invalid-image deep links
+                to the exact stable original image number.
+
+                A VIEW ALL deep link deliberately keeps its own
+                `view=all` URL state.
+            */
+
             syncProjectUrl(
                 "replace"
             );
@@ -8906,6 +12045,17 @@ async function loadProjects() {
         if (
             hasValidImageDeepLink
         ) {
+
+            /*
+                An explicit project + image deep link (for example from
+                the PDF portfolio) must stay on the exact requested image.
+
+                Treat it like an INDEX / VIEW ALL project selection:
+                show the complete selected project manually first, then
+                return to the normal max-3 project rotation.
+
+                Autoplay is permanently disabled for this page session.
+            */
 
             frameIndex =
                 requestedRuntimeFrameIndex;
@@ -8931,6 +12081,11 @@ async function loadProjects() {
         }
 
         else {
+
+            /*
+                Ordinary site entry keeps the existing max-3 autoplay
+                behaviour and ascending frame order within each pass.
+            */
 
             buildNormalProjectSequence(
                 projectIndex
@@ -8959,10 +12114,9 @@ async function loadProjects() {
             projectIndex;
 
 
-        const bootDirectlyToViewAll = deepLink.viewAll || !hasValidImageDeepLink;
-        if (!bootDirectlyToViewAll) {
-            renderImage(firstImage);
-        }
+        renderImage(
+            firstImage
+        );
 
 
         markFrameSeen(
@@ -9025,6 +12179,15 @@ async function loadProjects() {
             "view all";
 
 
+        /*
+            Do not preload every project cover at startup.
+
+            That used to make the first page load much more
+            expensive on mobile. The index now lazy-loads its
+            covers, while only the next project is warmed by
+            preloadAhead().
+        */
+
         preloadAhead();
 
 
@@ -9075,6 +12238,9 @@ async function loadProjects() {
             );
 
         }
+
+
+        updateIndexContentTop();
 
 
         if (
@@ -9129,6 +12295,781 @@ async function loadProjects() {
    START
    ===================================================== */
 
+setLogoState(
+    0
+);
+
+
+renderSwitch(
+    0
+);
+
+
+renderIndexWord(
+    0
+);
+
+
+loadProjects();
+
+
+/* =====================================================
+   INDEX RESPONSIVE RESYNC
+   ===================================================== */
+
+let photoIndexResizeFrame =
+    null;
+
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        if (
+            photoIndexResizeFrame
+        ) {
+
+            cancelAnimationFrame(
+                photoIndexResizeFrame
+            );
+
+        }
+
+
+        photoIndexResizeFrame =
+            requestAnimationFrame(
+                () => {
+
+                    resizePhotoIndexCards();
+
+                    photoIndexResizeFrame =
+                        null;
+
+                }
+            );
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+</script>
+
+<style>
+/* =====================================================
+   PROJECT / INDEX THEME SYSTEM — V20
+   ===================================================== */
+body,
+#project-stage,
+#project-all-view,
+#index-view {
+    transition:
+        background-color 220ms cubic-bezier(.22, .61, .36, 1),
+        color 220ms cubic-bezier(.22, .61, .36, 1);
+    will-change: background-color, color;
+}
+
+.section-switch,
+#index-button,
+.index-project-title,
+.index-project-date,
+#index-project-view-all,
+.project-card,
+#project-title,
+#project-date,
+#project-counter,
+#view-all-button {
+    transition: color 220ms cubic-bezier(.22, .61, .36, 1);
+}
+
+body.theme-dark,
+body.theme-dark #project-stage,
+body.theme-dark #project-all-view,
+body.theme-dark #index-view {
+    background: #000 !important;
+    color: #fff !important;
+}
+
+body:not(.theme-dark),
+body:not(.theme-dark) #project-stage,
+body:not(.theme-dark) #project-all-view,
+body:not(.theme-dark) #index-view {
+    background: #fff !important;
+    color: #000 !important;
+}
+
+body.theme-dark .section-switch,
+body.theme-dark #index-button,
+body.theme-dark .index-project-title,
+body.theme-dark .index-project-date,
+body.theme-dark #index-project-view-all,
+body.theme-dark .project-card,
+body.theme-dark #project-counter,
+body.theme-dark #view-all-button {
+    color: #fff !important;
+}
+
+body:not(.theme-dark) .section-switch,
+body:not(.theme-dark) #index-button,
+body:not(.theme-dark) .index-project-title,
+body:not(.theme-dark) .index-project-date,
+body:not(.theme-dark) #index-project-view-all,
+body:not(.theme-dark) .project-card,
+body:not(.theme-dark) #project-counter,
+body:not(.theme-dark) #view-all-button {
+    color: #000 !important;
+}
+
+#project-title,
+#project-date {
+    pointer-events: auto !important;
+    cursor: pointer;
+}
+
+#project-counter {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+    padding: 0 0 0 28px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: inherit;
+    line-height: inherit;
+    white-space: nowrap;
+}
+
+body:not(.project-all-mode):not(.project-all-preparing) #project-counter {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+body.project-all-mode #project-counter,
+body.project-all-preparing #project-counter {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* VIEW ALL: NEXT sits above PREVIOUS at the bottom-right. */
+body.project-all-mode #project-counter,
+body.project-all-preparing #project-counter {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+}
+
+body.project-all-mode #view-all-button,
+body.project-all-preparing #view-all-button {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+}
+
+
+/* Mobile AYBAK end-card is a true viewport surface. Prevent the underlying
+   photography document from creating horizontal drift or white side slivers. */
+@media (max-width: 1000px) {
+    html.aybak-end-card-active,
+    body.aybak-end-card-active,
+    html.aybak-end-card-leaving,
+    body.aybak-end-card-leaving {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    #aybak-end-card {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        min-width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        max-height: 100dvh !important;
+        margin: 0 !important;
+        transform: none !important;
+        overflow: hidden !important;
+    }
+}
+
+/* AYBAK is always the inverse of the current page. */
+body.theme-dark #aybak-end-card {
+    color: #000 !important;
+}
+body.theme-dark.aybak-end-card-active #aybak-end-card {
+    background: rgba(255,255,255,1) !important;
+}
+body.theme-dark #aybak-end-card .aybak-end-card-copy a,
+body.theme-dark #aybak-end-card .section-switch {
+    color: #000 !important;
+}
+
+body:not(.theme-dark) #aybak-end-card {
+    color: #fff !important;
+}
+body:not(.theme-dark).aybak-end-card-active #aybak-end-card {
+    background: rgba(0,0,0,1) !important;
+}
+body:not(.theme-dark) #aybak-end-card .aybak-end-card-copy a,
+body:not(.theme-dark) #aybak-end-card .section-switch {
+    color: #fff !important;
+}
+</style>
+
+<script>
+/* =====================================================
+   PROJECT BEHAVIOUR / THEME OVERRIDES — V20
+   ===================================================== */
+
+let pageThemeIsDark = false;
+let projectAllSwitching = false;
+let projectTitleHovering = false;
+let projectAllTouchX = null;
+let projectAllTouchY = null;
+let projectAllSlideOrigin = null;
+
+function applyPageTheme(isDark) {
+    /* Photography surface is permanently white; black belongs only to AYBAK. */
+    pageThemeIsDark = false;
+    body.classList.remove("theme-dark");
+
+}
+
+function invertPageTheme() {
+    applyPageTheme(!pageThemeIsDark);
+}
+
+/* First project is always white. */
+applyPageTheme(false);
+
+/* -----------------------------------------------------
+   NORMAL SLIDE = EXACTLY ONE RANDOM FRAME PER PROJECT
+   ----------------------------------------------------- */
+buildNormalProjectSequence = function(
+    targetProjectIndex,
+    { includeFrame = null } = {}
+) {
+    const normalized = normalizeProjectIndex(targetProjectIndex);
+    const project = projects[normalized];
+    const total = project.images.length;
+
+    let selectedFrame;
+
+    if (
+        Number.isInteger(includeFrame) &&
+        includeFrame >= 0 &&
+        includeFrame < total
+    ) {
+        selectedFrame = includeFrame;
+    } else {
+        selectedFrame = Math.floor(Math.random() * total);
+    }
+
+    normalSequenceProjectIndex = normalized;
+    normalSequenceFrames = [selectedFrame];
+    normalSequencePosition = 0;
+
+    return normalSequenceFrames;
+};
+
+/* Theme flips only when the PROJECT changes, never when its frame changes. */
+const showFrameV19 = showFrame;
+showFrame = async function(targetProjectIndex, targetFrameIndex, urlMode = "push") {
+    const normalized = normalizeProjectIndex(targetProjectIndex);
+    const projectWillChange = normalized !== projectIndex;
+
+    /*
+        Start the black/white transition at the same instant as the
+        navigation gesture. Do not wait for the next full-resolution
+        image to finish loading/decoding.
+    */
+    if (projectWillChange) {
+        invertPageTheme();
+    }
+
+    const ok = await showFrameV19(targetProjectIndex, targetFrameIndex, urlMode);
+
+    /* If navigation fails, restore the previous theme. */
+    if (!ok && projectWillChange) {
+        invertPageTheme();
+    }
+
+    return ok;
+};
+
+/* -----------------------------------------------------
+   INDEX IS ALWAYS THE INVERSE OF THE PAGE IT CAME FROM
+   ----------------------------------------------------- */
+const enterIndexV19 = enterIndex;
+enterIndex = async function(options = {}) {
+    if (!indexMode) {
+        invertPageTheme();
+    }
+    return enterIndexV19(options);
+};
+
+const returnFromIndexV19 = returnFromIndex;
+returnFromIndex = async function() {
+    if (indexMode) {
+        invertPageTheme();
+    }
+    return returnFromIndexV19();
+};
+
+const openSelectedIndexProjectAllV19 = openSelectedIndexProjectAll;
+openSelectedIndexProjectAll = async function() {
+    if (indexMode && selectedIndexProject) {
+        invertPageTheme();
+    }
+    return openSelectedIndexProjectAllV19();
+};
+
+const returnProjectAllToIndexV19 = returnProjectAllToIndex;
+returnProjectAllToIndex = async function() {
+    if (projectAllMode && projectAllOpenedFromIndex) {
+        invertPageTheme();
+    }
+    return returnProjectAllToIndexV19();
+};
+
+/* -----------------------------------------------------
+   VIEW ALL COPY: NEXT / PREVIOUS
+   ----------------------------------------------------- */
+function setProjectAllNavigationCopy() {
+    if (!projectAllMode && !body.classList.contains("project-all-preparing")) {
+        return;
+    }
+
+    renderBaseTypography(projectCounter, "next project");
+    projectCounter.dataset.rawText = projectCounter.textContent;
+    projectCounter.setAttribute("aria-label", "Next project");
+
+    renderBaseTypography(viewAllButton, "previous project");
+    viewAllButton.dataset.rawText = viewAllButton.textContent;
+    viewAllButton.setAttribute("aria-label", "Previous project");
+}
+
+const enterProjectAllV19 = enterProjectAll;
+enterProjectAll = async function() {
+    if (!projectAllMode && !indexMode && !projectAllOpenedFromIndex) {
+        projectAllSlideOrigin = {
+            projectIndex,
+            frameIndex,
+            themeIsDark: pageThemeIsDark
+        };
+    }
+
+    const result = await enterProjectAllV19();
+    setProjectAllNavigationCopy();
+    return result;
+};
+
+/* Original INDEX -> VIEW ALL flow writes ALL()/CLOSE at the end. Fix it immediately after. */
+const openSelectedIndexProjectAllV20Base = openSelectedIndexProjectAll;
+openSelectedIndexProjectAll = async function() {
+    const result = await openSelectedIndexProjectAllV20Base();
+    setProjectAllNavigationCopy();
+    return result;
+};
+
+async function switchProjectAll(direction) {
+    if (!projectAllMode || projectAllSwitching || projectViewAnimating) {
+        return;
+    }
+
+    projectAllSwitching = true;
+    stopAutoSlideshow();
+
+    const targetIndex = normalizeProjectIndex(projectIndex + direction);
+    const targetProject = projects[targetIndex];
+
+    projectIndex = targetIndex;
+    frameIndex = 0;
+    renderedProjectIndex = targetIndex;
+
+    leaveFocusedProjectMode();
+    syncProjectUrl("push");
+    invertPageTheme();
+
+    projectAllGrid.innerHTML = "";
+    buildProjectAllGrid();
+    syncProjectAllBounds(true);
+    layoutProjectAllGrid(true);
+
+    await Promise.all([
+        morphSequential(
+            projectTitle,
+            targetProject.title.toUpperCase(),
+            TEXT_MORPH_DURATION
+        ),
+        morphSequential(
+            projectDate,
+            (targetProject.date || "").toUpperCase(),
+            TEXT_MORPH_DURATION
+        )
+    ]);
+
+    setProjectAllNavigationCopy();
+    preloadAhead();
+    projectAllSwitching = false;
+}
+
+/* -----------------------------------------------------
+   CLIENT NAME = VIEW TOGGLE
+   Desktop hover only animates. Click performs the change.
+   Mobile tap animates first, then changes view.
+   ----------------------------------------------------- */
+async function animateProjectClientState(toAlternateState) {
+    const project = currentProject();
+    await Promise.all([
+        animateCase(projectTitle, project.title, toAlternateState),
+        animateCase(projectDate, project.date || "", toAlternateState)
+    ]);
+}
+
+projectTitle.addEventListener("mouseenter", async () => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || projectViewAnimating) {
+        return;
+    }
+    projectTitleHovering = true;
+    await animateProjectClientState(!projectAllMode);
+});
+
+projectTitle.addEventListener("mouseleave", async () => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || projectViewAnimating) {
+        return;
+    }
+    projectTitleHovering = false;
+    await animateProjectClientState(projectAllMode);
+});
+
+projectTitle.addEventListener("click", async event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) {
+        return;
+    }
+
+    if (projectAllMode) {
+        await animateProjectClientState(false);
+
+        if (projectAllOpenedFromIndex) {
+            await returnProjectAllToIndex();
+        } else {
+            const origin = projectAllSlideOrigin;
+            await exitProjectAll();
+
+            if (origin) {
+                await showFrameV19(
+                    origin.projectIndex,
+                    origin.frameIndex,
+                    "replace"
+                );
+                applyPageTheme(origin.themeIsDark);
+                projectAllSlideOrigin = null;
+            }
+        }
+    } else {
+        stopAutoSlideshow();
+        await animateProjectClientState(true);
+        await enterProjectAll();
+    }
+}, true);
+
+/* -----------------------------------------------------
+   VIEW ALL NEXT / PREVIOUS BUTTONS
+   ----------------------------------------------------- */
+projectCounter.addEventListener("mouseenter", async event => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+    if (projectAllMode) {
+        await animateCase(projectCounter, "next project", true);
+        return;
+    }
+
+    if (isSlideViewAllControlElement(event.relatedTarget)) return;
+    await animateSlideViewAllControl(true);
+});
+
+projectCounter.addEventListener("mouseleave", async event => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+    if (projectAllMode) {
+        await animateCase(projectCounter, "next project", false);
+        return;
+    }
+
+    if (isSlideViewAllControlElement(event.relatedTarget)) return;
+    await animateSlideViewAllControl(false);
+});
+
+projectCounter.addEventListener("click", async event => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) return;
+
+    if (projectAllMode) {
+        await animateCase(projectCounter, "next project", true);
+        await switchProjectAll(1);
+        return;
+    }
+
+    stopAutoSlideshow();
+    await animateSlideViewAllControl(true);
+    await enterProjectAll();
+}, true);
+
+/* PREVIOUS PROJECT hover is handled by the original View All button
+   listeners above. Keeping a single animation owner avoids competing
+   morphs and makes the control reliably clickable. */
+
+/* Arrow-key and swipe project navigation use the same case-morph gesture. */
+async function activateProjectAllDirection(direction) {
+    if (!projectAllMode || projectAllSwitching || projectViewAnimating) {
+        return;
+    }
+
+    const element = direction >= 0 ? projectCounter : viewAllButton;
+    const text = direction >= 0 ? "next project" : "previous project";
+
+    await animateCase(element, text, true);
+
+    await new Promise(resolve =>
+        setTimeout(resolve, MOBILE_NAV_HOLD)
+    );
+
+    await switchProjectAll(direction >= 0 ? 1 : -1);
+}
+
+/* -----------------------------------------------------
+   KEYBOARD
+   Left / right = project navigation in VIEW ALL.
+   Up / down = physical two-state page / AYBAK navigation everywhere.
+   ----------------------------------------------------- */
+document.addEventListener("keydown", async event => {
+    stopProjectAutoplayFromInteraction();
+
+    if (event.key === "ArrowDown" && !aybakEndCardActive) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        setAybakEndCard(true);
+        return;
+    }
+
+    if (event.key === "ArrowUp" && aybakEndCardActive) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        setAybakEndCard(false);
+        return;
+    }
+
+    if (projectAllMode && !aybakEndCardActive) {
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            await switchProjectAll(1);
+        } else if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            await switchProjectAll(-1);
+        }
+    }
+}, true);
+
+/* -----------------------------------------------------
+   MOBILE AYBAK PAGE SWIPE — RELIABLE CAPTURE FALLBACK
+
+   Keep the existing gesture system intact, but capture the physical
+   up/down page gesture before project/view listeners can consume it.
+   INDEX keeps its own boundary-aware swipe logic.
+   ----------------------------------------------------- */
+let mobileAybakTouchStartX = null;
+let mobileAybakTouchStartY = null;
+
+document.addEventListener("touchstart", event => {
+    if (!event.changedTouches.length) return;
+
+    const touch = event.changedTouches[0];
+    mobileAybakTouchStartX = touch.clientX;
+    mobileAybakTouchStartY = touch.clientY;
+}, { passive: true, capture: true });
+
+document.addEventListener("touchend", event => {
+    if (
+        mobileAybakTouchStartX === null ||
+        mobileAybakTouchStartY === null ||
+        !event.changedTouches.length
+    ) {
+        return;
+    }
+
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - mobileAybakTouchStartX;
+    const dy = touch.clientY - mobileAybakTouchStartY;
+
+    mobileAybakTouchStartX = null;
+    mobileAybakTouchStartY = null;
+
+    if (
+        Math.abs(dy) <= Math.abs(dx) ||
+        Math.abs(dy) < AYBAK_SWIPE_THRESHOLD
+    ) {
+        return;
+    }
+
+    /* INDEX already has boundary-aware touch handling. */
+    if (indexMode && !aybakEndCardActive) return;
+
+    if (!aybakEndCardActive && dy < 0) {
+        suppressClickUntil = Date.now() + 500;
+        setAybakEndCard(true);
+        return;
+    }
+
+    if (aybakEndCardActive && dy > 0) {
+        suppressClickUntil = Date.now() + 500;
+        setAybakEndCard(false);
+    }
+}, { passive: true, capture: true });
+
+/* -----------------------------------------------------
+   MOBILE VIEW ALL SWIPE = PROJECT NAVIGATION
+   ----------------------------------------------------- */
+document.addEventListener("touchstart", event => {
+    if (!projectAllMode || aybakEndCardActive || !event.changedTouches.length) return;
+    projectAllTouchX = event.changedTouches[0].clientX;
+    projectAllTouchY = event.changedTouches[0].clientY;
+}, { passive: true, capture: true });
+
+document.addEventListener("touchend", async event => {
+    if (!projectAllMode || aybakEndCardActive || projectAllTouchX === null || projectAllTouchY === null || !event.changedTouches.length) {
+        return;
+    }
+
+    const x = event.changedTouches[0].clientX;
+    const y = event.changedTouches[0].clientY;
+    const dx = x - projectAllTouchX;
+    const dy = y - projectAllTouchY;
+
+    projectAllTouchX = null;
+    projectAllTouchY = null;
+
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) >= 45) {
+        suppressClickUntil = Date.now() + 500;
+        await switchProjectAll(dx < 0 ? 1 : -1);
+    }
+}, { passive: true, capture: true });
+
+/* -----------------------------------------------------
+   INITIAL VIEW ALL STABILISATION + PROJECT AUTOPLAY
+   ----------------------------------------------------- */
+const PROJECT_AUTOPLAY_DURATION = 4000;
+let projectAutoplayTimer = null;
+let projectAutoplayEnabled = true;
+
+function stopProjectAutoplayFromInteraction() {
+    if (!projectAutoplayEnabled) return;
+    projectAutoplayEnabled = false;
+    clearTimeout(projectAutoplayTimer);
+}
+
+function scheduleProjectAutoplay() {
+    clearTimeout(projectAutoplayTimer);
+
+    if (!projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
+        return;
+    }
+
+    projectAutoplayTimer = setTimeout(async () => {
+        if (!projectAutoplayEnabled || !projectAllMode || indexMode || aybakEndCardActive) {
+            return;
+        }
+
+        await switchProjectAll(1);
+        scheduleProjectAutoplay();
+    }, PROJECT_AUTOPLAY_DURATION);
+}
+
+["pointerdown", "wheel", "keydown", "touchstart"].forEach(type => {
+    document.addEventListener(type, stopProjectAutoplayFromInteraction, {
+        capture: true,
+        passive: type === "wheel" || type === "touchstart"
+    });
+});
+
+/* Hover/focus on actual interface controls also counts as interaction.
+   Merely moving the pointer across empty page space does not. */
+const AUTOPLAY_INTERACTIVE_SELECTOR = [
+    "a",
+    "button",
+    ".project-all-thumb",
+    ".index-project-title",
+    ".index-project-date",
+    "#index-preview-image",
+    "#project-title",
+    "#project-date"
+].join(",");
+
+document.addEventListener("pointerover", event => {
+    if (event.target.closest?.(AUTOPLAY_INTERACTIVE_SELECTOR)) {
+        stopProjectAutoplayFromInteraction();
+    }
+}, { capture: true, passive: true });
+
+document.addEventListener("focusin", event => {
+    if (event.target.closest?.(AUTOPLAY_INTERACTIVE_SELECTOR)) {
+        stopProjectAutoplayFromInteraction();
+    }
+}, true);
+
+async function waitForProjectAllImageDimensions() {
+    const images = Array.from(projectAllGrid.querySelectorAll("img"));
+
+    await Promise.all(images.map(img => {
+        if (img.naturalWidth && img.naturalHeight) {
+            return Promise.resolve();
+        }
+
+        return new Promise(resolve => {
+            const done = () => resolve();
+            img.addEventListener("load", done, { once: true });
+            img.addEventListener("error", done, { once: true });
+        });
+    }));
+
+    layoutProjectAllGrid(true);
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+
+function syncSinglePhotoViewCopy() {
+    if (projectAllMode || body.classList.contains("project-all-preparing") || !projects.length) return;
+    const total = currentProject().images.length;
+    renderBaseTypography(viewAllButton, getViewVerbText(total));
+    renderBaseTypography(projectCounter, getProjectPhotoCountText(total));
+    viewAllButton.dataset.rawText = viewAllButton.textContent;
+    projectCounter.dataset.rawText = projectCounter.textContent;
+}
+
+const syncMetadataAfterRenderV24 = syncMetadataAfterRender;
+syncMetadataAfterRender = function() {
+    const result = syncMetadataAfterRenderV24.apply(this, arguments);
+    syncSinglePhotoViewCopy();
+    return result;
+};
+
+/* -----------------------------------------------------
+   DESKTOP STARTS IN VIEW ALL; PHONE STILL STARTS IN SLIDE.
+   A direct `?project=ID&view=all` deep link opens that
+   project's existing View All state on every device.
+   ----------------------------------------------------- */
 (function openInitialProjectViewWhenReady() {
 
     const tryOpen =
@@ -9136,7 +13077,7 @@ async function loadProjects() {
 
             if (
                 !projects.length ||
-                (!spread.firstChild && getDeepLinkRequest().imageNumber !== null)
+                !spread.firstChild
             ) {
 
                 requestAnimationFrame(
@@ -9171,14 +13112,17 @@ async function loadProjects() {
 
 
             const requestedViewAll =
-                requestedDeepLink.viewAll ||
-                !(requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0);
+                requestedDeepProjectIndex >= 0 &&
+                requestedDeepLink.viewAll;
 
 
+            /*
+                Exact image deep links keep the existing slide behaviour.
+            */
             if (
                 requestedDeepProjectIndex >= 0 &&
                 requestedDeepFrameIndex >= 0 &&
-                !requestedDeepLink.viewAll
+                !requestedViewAll
             ) {
 
                 document.documentElement.classList.remove(
@@ -9195,12 +13139,17 @@ async function loadProjects() {
             }
 
 
+            /*
+                Explicit View All deep links use the existing
+                enterProjectAll() implementation unchanged.
+            */
             if (
                 requestedViewAll
             ) {
 
                 if (
-                    !projectAllMode
+                    !projectAllMode &&
+                    !indexMode
                 ) {
 
                     stopProjectAutoplayFromInteraction();
@@ -9223,7 +13172,18 @@ async function loadProjects() {
                 );
 
 
-                scheduleProjectAutoplay();
+                /*
+                    Keep the existing passive project advance behaviour
+                    on desktop only. Phones simply open the selected
+                    project in View All.
+                */
+                if (
+                    !isPhoneLayout()
+                ) {
+
+                    scheduleProjectAutoplay();
+
+                }
 
 
                 return;
@@ -9231,7 +13191,13 @@ async function loadProjects() {
             }
 
 
+            /*
+                Existing behaviour for normal desktop entry:
+                open the first/current project directly in View All.
+            */
             if (
+                !isPhoneLayout() &&
+                !indexMode &&
                 !projectAllMode
             ) {
 
@@ -9253,7 +13219,9 @@ async function loadProjects() {
 
             }
 
-            else {
+            else if (
+                isPhoneLayout()
+            ) {
 
                 document.documentElement.classList.remove(
                     "desktop-viewall-boot"
@@ -9271,6 +13239,14 @@ async function loadProjects() {
 })();
 
 
+
+/* Desktop stays hidden until thumbnail dimensions have been measured and the
+   first grid layout is final. Phone layouts may release the boot guard immediately. */
+if (isPhoneLayout()) {
+    document.documentElement.classList.remove("desktop-viewall-boot");
+}
+
+/* Re-score VIEW ALL as soon as thumbnail aspect ratios are available. */
 projectAllGrid.addEventListener(
     "load",
     event => {
@@ -9285,21 +13261,77 @@ projectAllGrid.addEventListener(
     },
     true
 );
-
-
-setLogoState(
-    0
-);
-
-
-loadProjects();
-
 </script>
 
+
 <style>
+/* Two-line VIEW ALL controls share one hover/click target. */
 body:not(.project-all-mode):not(.project-all-preparing) #view-all-button,
-body:not(.project-all-mode):not(.project-all-preparing) #project-counter { cursor: pointer; }
+body:not(.project-all-mode):not(.project-all-preparing) #project-counter,
+#index-project-action { cursor: pointer; }
+#index-project-count { pointer-events: none; }
 </style>
 
+
+<style>
+/* Photography surface is permanently white. AYBAK end-card remains the only black page. */
+html:not(.aybak-end-card-active),
+body:not(.aybak-end-card-active),
+body:not(.aybak-end-card-active) #project-stage,
+body:not(.aybak-end-card-active) #project-all-view,
+body:not(.aybak-end-card-active) #index-view {
+    background: #fff !important;
+    color: #000 !important;
+}
+body:not(.aybak-end-card-active) #project-title,
+body:not(.aybak-end-card-active) #project-date,
+body:not(.aybak-end-card-active) #project-counter,
+body:not(.aybak-end-card-active) #view-all-button,
+body:not(.aybak-end-card-active) #index-button,
+body:not(.aybak-end-card-active) .index-project-title,
+body:not(.aybak-end-card-active) .index-project-date,
+body:not(.aybak-end-card-active) #index-project-view-all,
+body:not(.aybak-end-card-active) #index-project-count {
+    color: #000 !important;
+}
+</style>
+
+<style>
+/* Mobile landscape: the AYBAK black surface must cover the viewport edge-to-edge. */
+@media (orientation: landscape) and (max-width: 1000px) {
+    html,
+    body {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        overscroll-behavior: none !important;
+    }
+
+    #aybak-end-card {
+        position: fixed !important;
+        top: -4px !important;
+        right: -4px !important;
+        bottom: -4px !important;
+        left: -4px !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin: 0 !important;
+        transform: none !important;
+        overflow: hidden !important;
+    }
+
+    body.aybak-end-card-active #aybak-end-card,
+    body.aybak-end-card-leaving #aybak-end-card {
+        background: #000 !important;
+    }
+}
+</style>
 </body>
 </html>
