@@ -10,9 +10,7 @@
 >
 
 <script>
-/* Hide the normal single-frame slide during boot on all devices.
-   Every device opens directly into View All, so the user never sees a
-   full-size frame flash before the grid is ready. */
+/* Tüm cihazlar doğrudan View All görünümüyle açılacak şekilde ayarlandı. */
 (function () {
     document.documentElement.classList.add("desktop-viewall-boot");
 })();
@@ -151,37 +149,27 @@ button,
 
 
 /* =====================================================
-   INFO
+   INFO & LOGO (ORTALANMIŞ VE LİNKSİZ)
    ===================================================== */
 
 .info {
     position: fixed;
-
     top: var(--top);
     left: 50%;
     transform: translateX(-50%);
-
-    z-index: 10001;
-
+    z-index: 500;
     font-size: var(--font-size);
     line-height: var(--line-height);
     text-align: center;
     pointer-events: none;
+    transition: opacity 300ms ease, visibility 300ms ease;
 }
-
-
-/* =====================================================
-   LOGO
-   ===================================================== */
 
 .logo {
     position: relative;
-
     display: inline-block;
-
     width: 190px;
     height: 52px;
-
     color: inherit;
     text-decoration: none;
     background: transparent;
@@ -195,21 +183,17 @@ button,
 
 .logo-name {
     position: absolute;
-
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-
     white-space: nowrap;
 }
 
 .logo-aybak {
     position: absolute;
-
     top: 17px;
     left: 50%;
     transform: translateX(-50%);
-
     white-space: nowrap;
 }
 
@@ -562,60 +546,49 @@ body.project-all-mode #project-all-view {
 
 
 /* =====================================================
-   INDEX & INFO BUTTONS
+   INDEX & INFO BUTTONS (SOL VE SAĞ ÜST LİNKLER)
    ===================================================== */
 
 #index-button,
 #info-button {
     position: fixed;
-
     top: var(--top);
-
     z-index: 10001;
-
-    transform: none;
-
     appearance: none;
     -webkit-appearance: none;
-
     margin: 0;
     padding: 0;
-
     border: 0;
     outline: 0;
-
     background: transparent;
     color: #000;
-
     font-size: var(--font-size);
     line-height: var(--line-height);
-
     white-space: nowrap;
-
     cursor: pointer;
-    text-decoration: none;
-
+    text-decoration: none !important;
     -webkit-tap-highlight-color: transparent;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 #index-button {
     left: var(--side);
-    right: auto;
 }
 
 #info-button {
     right: var(--side);
-    left: auto;
 }
 
 #index-button:hover,
 #info-button:hover {
-    text-decoration: underline;
+    text-decoration: none !important;
 }
 
 
 /* =====================================================
-   INDEX VIEW
+   INDEX VIEW (ESKİ YAPISI KORUNUYOR)
    ===================================================== */
 
 #index-view {
@@ -888,8 +861,6 @@ body.phone-portrait .logo-aybak,
 body.phone-landscape .logo-aybak {
     top: 15px;
 }
-
-
 /* =====================================================
    PHONE PORTRAIT
    ===================================================== */
@@ -1091,6 +1062,11 @@ body.phone-landscape .spread-image {
 
 /* =====================================================
    LANDSCAPE INDEX
+
+   Cards are deliberately wider now.
+
+   The image height still obeys the safe vertical
+   area, while width gets extra room for long titles.
    ===================================================== */
 
 body.phone-landscape #index-scroller {
@@ -1110,6 +1086,12 @@ body.phone-landscape #index-scroller {
 }
 
 body.phone-landscape #index-grid {
+
+    /*
+        Smaller gap than before.
+        Bigger cards can therefore coexist without
+        making the rail feel excessively sparse.
+    */
 
     gap: 26px;
 
@@ -1206,6 +1188,8 @@ body.phone-landscape .card-date {
 body.phone-landscape #project-all-grid {
     gap: 4px;
 }
+
+
 /* =====================================================
    SLIDE META — GLOBAL EDGE ALIGNMENT
 
@@ -1381,18 +1365,23 @@ body.aybak-end-card-active .aybak-end-card-copy {
     transition-delay: 0ms;
 }
 
-.aybak-end-card-contact {
+.aybak-end-card-left {
     left: var(--side);
+    bottom: var(--index-bottom) !important;
+    top: auto !important;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
 }
 
-.aybak-end-card-film {
+.aybak-end-card-right {
     right: var(--side);
+    bottom: var(--index-bottom) !important;
+    top: auto !important;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0;
+    text-align: right;
 }
 
 .aybak-end-card-copy a {
@@ -1486,6 +1475,12 @@ body.aybak-end-card-active .aybak-end-card-copy {
 
 /* =====================================================
    TYPOGRAPHIC INDEX — V13
+
+   Desktop / tablet / phone use the same alignment system:
+   - client/title left edge = Denizalp Aybak left edge (--side)
+   - date right edge = INDEX right edge (--side)
+   - preview is viewport-centred
+   - project action sits bottom-centre
    ===================================================== */
 
 #index-view {
@@ -2451,7 +2446,7 @@ body.phone-landscape #index-project-action {
    V20 — END CARD / LANDSCAPE ACTION FINAL FIXES
    ===================================================== */
 
-/* Fit iOS landscape safe-area gutters as well as the layout viewport. */
+/* Fill iOS landscape safe-area gutters as well as the layout viewport. */
 html.aybak-end-card-active,
 body.aybak-end-card-active {
     background: #000 !important;
@@ -2558,6 +2553,59 @@ body.aybak-end-card-active.aybak-end-card-light .aybak-end-card-link {
     color: currentColor;
     vertical-align: middle;
     transform: translateY(-0.035em);
+}
+
+/*
+   The hint lives in the physical gutter between project copy and preview.
+   Only the words are vertical; the arrow remains a true downward arrow.
+   It is outside the scroller and has no hit area, so the very first finger
+   gesture belongs entirely to native list scrolling.
+*/
+#index-scroll-hint {
+    position: fixed !important;
+    left: auto !important;
+    right: calc(var(--side) + min(42vw, 320px) + 2px) !important;
+    top: 50% !important;
+    bottom: auto !important;
+    z-index: 520 !important;
+    width: 14px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.38em;
+    transform: translateY(-50%) !important;
+    font-size: var(--font-size);
+    line-height: 1;
+    color: #000;
+    white-space: nowrap;
+    pointer-events: none !important;
+    touch-action: none !important;
+}
+
+body.phone-landscape #index-scroll-hint {
+    right: calc(var(--side) + min(34vw, 300px) + 3px) !important;
+}
+
+body.phone-portrait.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) #index-scroll-hint,
+body.phone-landscape.index-mode.index-needs-scroll:not(.index-scroll-hint-dismissed) #index-scroll-hint {
+    display: flex !important;
+}
+
+.index-scroll-hint-text {
+    display: block;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+}
+
+.index-scroll-hint-arrow {
+    display: block;
+    margin: 0;
+    transform: translateY(-0.02em) !important;
 }
 
 /* Native touch scrolling must remain entirely under Safari's control. */
@@ -2668,9 +2716,9 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
 </style>
 
 <!-- =====================================================
-   YENİ ÜST BAR VE END CARD TASARIMI (EKLENEN KODLAR)
+   AYBAK OVERRIDES (SADECE ISTENILENLER)
    ===================================================== -->
-<style id="landing-integration-overrides">
+<style id="aybak-overrides">
 .info {
     position: fixed; top: var(--top); left: 50%; transform: translateX(-50%);
     z-index: 10005; font-size: var(--font-size); line-height: var(--line-height); text-align: center; pointer-events: none;
@@ -2689,10 +2737,8 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
 #index-button { left: var(--side) !important; right: auto !important; transform: none; }
 #info-button { right: var(--side) !important; left: auto !important; }
 
-/* HOVER EDİNCE ALTI ÇİZİLİ OLMASIN */
 #index-button:hover, #info-button:hover { text-decoration: none !important; }
 
-/* ENDCARD AÇILDIĞINDA ORTADAKİ LOGOYU GİZLE, LİNKLERİ BEYAZ YAP */
 body.aybak-end-card-active .info {
     opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
 }
@@ -2719,14 +2765,11 @@ body.theme-dark .logo {
 <body>
 
 <!-- ===================================================
-     INDEX VE INFO LINKLERI (YENİ TOPBAR)
+     OVERRIDE HTML
      =================================================== -->
 <a id="index-button" href="https://denizalpaybak.com/">index</a>
 <a id="info-button" href="https://denizalpaybak.com/?view=info">info</a>
 
-<!-- ===================================================
-     INFO & LOGO (ORTALANDI - LİNKSİZ)
-     =================================================== -->
 <div class="info" id="info">
     <button class="logo" type="button" aria-label="Denizalp Aybak">
         <span class="logo-name" id="logo-name">Denizalp</span>
@@ -2735,7 +2778,6 @@ body.theme-dark .logo {
         </span>
     </button>
 </div>
-
 
 <!-- ===================================================
      PROJECT
@@ -2828,7 +2870,7 @@ body.theme-dark .logo {
 
 
 <!-- ===================================================
-     AYBAK END CARD (YENİ HİZALAMALAR)
+     AYBAK END CARD
      =================================================== -->
 
 <section id="aybak-end-card" aria-hidden="true">
@@ -3274,12 +3316,10 @@ const indexButton =
         "index-button"
     );
 
-/* YENİ: Info butonu JS referansı eklendi */
 const infoButton =
     document.getElementById(
         "info-button"
     );
-
 
 const indexView =
     document.getElementById(
@@ -4692,8 +4732,6 @@ function updateLandscapeGeometry() {
     );
 
 }
-
-
 /* =====================================================
    RESPONSIVE MODE
    ===================================================== */
@@ -5647,6 +5685,8 @@ function animateCase(
     );
 
 }
+
+
 /* =====================================================
    IMAGE
    ===================================================== */
@@ -7191,13 +7231,11 @@ viewAllButton.addEventListener(
         await animateSlideViewAllControl(false);
     }
 );
-
-
 /* =====================================================
    ENTER VIEW ALL
    ===================================================== */
 
-async function enterProjectAll() {
+let enterProjectAll = async function() {
 
     if (
         projectAllMode ||
@@ -7222,10 +7260,6 @@ async function enterProjectAll() {
         null;
 
 
-    /*
-        VIEW ALL is an explicit interaction.
-        From this point on the initial autoplay may never resume.
-    */
     stopAutoSlideshow();
 
 
@@ -7305,12 +7339,8 @@ async function enterProjectAll() {
     projectViewAnimating =
         false;
 
-}
+};
 
-
-/* =====================================================
-   LEAVE VIEW ALL
-   ===================================================== */
 
 async function leaveProjectAll(
     {
@@ -7463,11 +7493,6 @@ async function leaveProjectAll(
     preloadAhead();
 
 
-    /*
-        Returning from VIEW ALL is always manual.
-        Selecting a frame, closing VIEW ALL, or moving from VIEW ALL
-        to INDEX must never restart the initial autoplay.
-    */
     manualMode =
         true;
 
@@ -7483,19 +7508,7 @@ async function leaveProjectAll(
 }
 
 
-/* =====================================================
-   CLOSE VIEW ALL
-   ===================================================== */
-
 async function exitProjectAll() {
-
-    projectAllOpenedFromIndex =
-        false;
-
-
-    indexSelectionBeforeProjectAll =
-        null;
-
 
     await leaveProjectAll(
         {
@@ -7506,21 +7519,9 @@ async function exitProjectAll() {
 }
 
 
-/* =====================================================
-   THUMB -> FRAME
-   ===================================================== */
-
 async function exitProjectAllToFrame(
     selectedIndex
 ) {
-
-    projectAllOpenedFromIndex =
-        false;
-
-
-    indexSelectionBeforeProjectAll =
-        null;
-
 
     await leaveProjectAll(
         {
@@ -7528,151 +7529,6 @@ async function exitProjectAllToFrame(
             resume: true
         }
     );
-
-}
-
-
-async function returnProjectAllToIndex() {
-
-    if (
-        !projectAllMode ||
-        projectViewAnimating ||
-        !projectAllOpenedFromIndex
-    ) {
-
-        return;
-
-    }
-
-
-    projectViewAnimating =
-        true;
-
-
-    projectAllOpenedFromIndex =
-        false;
-
-
-    projectAllMode =
-        false;
-
-
-    body.classList.remove(
-        "project-all-mode"
-    );
-
-
-    body.classList.remove(
-        "project-all-preparing"
-    );
-
-
-    projectAllGrid.innerHTML =
-        "";
-
-
-    const project =
-        currentProject();
-
-
-    renderBaseTypography(
-        projectTitle,
-        project.title.toLowerCase()
-    );
-
-
-    projectTitle.dataset.rawText =
-        project.title.toLowerCase();
-
-
-    renderBaseTypography(
-        projectDate,
-        (
-            project.date ||
-            ""
-        ).toLowerCase()
-    );
-
-
-    projectDate.dataset.rawText =
-        (
-            project.date ||
-            ""
-        ).toLowerCase();
-
-
-    const countText =
-        getProjectPhotoCountText(
-            project.images.length
-        );
-
-
-    renderBaseTypography(
-        projectCounter,
-        countText
-    );
-
-
-    projectCounter.dataset.rawText =
-        countText;
-
-
-    renderBaseTypography(
-        viewAllButton,
-        "view all"
-    );
-
-
-    viewAllButton.dataset.rawText =
-        "view all";
-
-
-    selectedIndexProject =
-        indexSelectionBeforeProjectAll;
-
-
-    indexMode =
-        true;
-
-
-    body.classList.add(
-        "index-mode"
-    );
-
-
-    indexView.classList.add(
-        "visible"
-    );
-
-
-    layoutTypographicIndex();
-
-
-    if (
-        selectedIndexProject
-    ) {
-
-        selectIndexProject(
-            selectedIndexProject
-        );
-
-    }
-
-
-    /* MorphIndexTo kaldırıldı, çünkü index artık link */
-
-
-    manualMode =
-        true;
-
-
-    clearTimeout(
-        slideTimer
-    );
-
-
-    projectViewAnimating =
-        false;
 
 }
 
@@ -7701,7 +7557,6 @@ viewAllButton.addEventListener(
             projectAllMode
         ) {
 
-            /* In VIEW ALL this control is PREVIOUS PROJECT. */
             await switchProjectAll(-1);
 
         }
@@ -7719,146 +7574,261 @@ viewAllButton.addEventListener(
 
 
 /* =====================================================
-   INDEX SORT
+   GEOMETRY CHANGE
    ===================================================== */
 
-function getChronologicalProjects() {
+function handleGeometryChange() {
 
-    return projects
-        .map(
-            (
-                project,
-                originalIndex
-            ) => ({
-                project,
-                originalIndex
-            })
-        )
-        .sort(
-            (
-                a,
-                b
-            ) => {
-
-                const dateA =
-                    a.project.sortDate ||
-                    "";
+    updateResponsiveMode();
 
 
-                const dateB =
-                    b.project.sortDate ||
-                    "";
+    if (
+        isPhoneLandscape()
+    ) {
+
+        requestAnimationFrame(
+            updateLandscapeGeometry
+        );
+
+    }
 
 
-                if (
-                    dateA > dateB
-                ) {
-
-                    return -1;
-
-                }
+    syncMetadataAfterRender();
 
 
-                if (
-                    dateA < dateB
-                ) {
+    if (
+        projectAllMode
+    ) {
 
-                    return 1;
+        requestAnimationFrame(
+            () => {
 
-                }
-
-
-                return (
-                    a.originalIndex -
-                    b.originalIndex
+                requestAnimationFrame(
+                    layoutProjectAllGrid
                 );
 
             }
+        );
+
+    }
+
+}
+
+
+window.addEventListener(
+    "resize",
+    handleGeometryChange
+);
+
+
+window.addEventListener(
+    "orientationchange",
+    () => {
+
+        setTimeout(
+            handleGeometryChange,
+            100
+        );
+
+
+        setTimeout(
+            handleGeometryChange,
+            350
+        );
+
+
+        setTimeout(
+            handleGeometryChange,
+            700
+        );
+
+    }
+);
+
+
+if (
+    window.visualViewport
+) {
+
+    window
+        .visualViewport
+        .addEventListener(
+            "resize",
+            handleGeometryChange
         );
 
 }
 
 
 /* =====================================================
-   INDEX CARD CASE CONTROLLER
+   BROWSER BACK / FORWARD
    ===================================================== */
 
-function createCaseController(
-    element,
-    baseText
-) {
-
-    const base =
-        String(
-            baseText
-        ).toLowerCase();
-
-
-    const positions =
-        getMorphPositions(
-            base
-        );
-
-
-    const total =
-        positions.length;
-
-
-    let state =
-        0;
-
-
-    let frameId =
-        null;
-
-
-    function render() {
-
-        const activePositions =
-            new Set(
-                positions.slice(
-                    0,
-                    state
-                )
-            );
-
-
-        renderInteractiveTypography(
-            element,
-            renderCaseFromActivePositions(
-                base,
-                activePositions
-            ),
-            activePositions
-        );
-
-    }
-
-
-    function animateTo(
-        target
-    ) {
+window.addEventListener(
+    "popstate",
+    async () => {
 
         if (
-            frameId !== null
+            !projects.length
         ) {
 
-            cancelAnimationFrame(
-                frameId
-            );
+            return;
 
         }
 
 
-        const startState =
-            state;
+        const deepLink =
+            getDeepLinkRequest();
+
+
+        const requestedProjectIndex =
+            findProjectIndexById(
+                deepLink.projectId
+            );
+
+
+        const targetProjectIndex =
+            requestedProjectIndex >= 0
+                ? requestedProjectIndex
+                : 0;
+
+
+        const targetProject =
+            projects[
+                targetProjectIndex
+            ];
+
+
+        let targetFrameIndex =
+            0;
 
 
         if (
-            startState === target
+            requestedProjectIndex >= 0 &&
+            deepLink.imageNumber !==
+                null
         ) {
 
-            render();
+            const resolved =
+                getRuntimeFrameIndexFromOriginalNumber(
+                    targetProject,
+                    deepLink.imageNumber
+                );
+
+
+            if (
+                resolved >= 0
+            ) {
+
+                targetFrameIndex =
+                    resolved;
+
+            }
+
+        }
+
+
+        if (
+            targetProjectIndex ===
+                projectIndex &&
+            targetFrameIndex ===
+                frameIndex &&
+            !projectAllMode
+        ) {
+
+            return;
+
+        }
+
+
+        clearTimeout(
+            slideTimer
+        );
+
+
+        leaveFocusedProjectMode();
+
+
+        projectAllMode =
+            false;
+
+
+        body.classList.remove(
+            "project-all-mode",
+            "project-all-preparing"
+        );
+
+
+        projectAllGrid.innerHTML =
+            "";
+
+
+        await showFrame(
+            targetProjectIndex,
+            targetFrameIndex,
+            "replace"
+        );
+
+
+        manualMode =
+            true;
+
+
+        clearTimeout(
+            slideTimer
+        );
+
+    }
+);
+
+
+/* =====================================================
+   CLICK BACKGROUND = SLIDE NAVIGATION
+   ===================================================== */
+
+body.addEventListener(
+    "click",
+    async event => {
+
+        if (
+            Date.now() <
+            suppressClickUntil
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            aybakEndCardActive ||
+            projectAllMode ||
+            interfaceAnimating ||
+            navigationAnimating ||
+            projectViewAnimating
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            event.target.closest(
+                ".info, #index-button, #info-button, #view-all-button, #project-title, #project-date, #project-counter"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            !manualMode
+        ) {
+
+            stopAutoSlideshow();
 
 
             return;
@@ -7866,1389 +7836,903 @@ function createCaseController(
         }
 
 
-        const start =
-            performance.now();
+        const position =
+            event.clientX /
+            window.innerWidth;
 
 
-        function frame(
-            now
+        if (
+            position < 0.25
         ) {
 
-            const progress =
-                Math.min(
-                    1,
-                    (
-                        now -
-                        start
-                    ) /
-                    CASE_DURATION
-                );
+            await previousFrame();
+
+        }
+
+        else {
+
+            await nextFrame();
+
+        }
+
+    }
+);
 
 
-            state =
-                Math.round(
-                    startState +
-                    (
-                        target -
-                        startState
-                    ) *
-                    progress
-                );
+/* =====================================================
+   KEYBOARD
+   ===================================================== */
 
+document.addEventListener(
+    "keydown",
+    async event => {
 
-            render();
-
+        if (
+            aybakEndCardActive
+        ) {
 
             if (
-                progress < 1
+                event.key === "ArrowUp" ||
+                event.key === "Escape" ||
+                event.key === "PageUp" ||
+                event.key === "Home"
             ) {
 
-                frameId =
-                    requestAnimationFrame(
-                        frame
-                    );
+                event.preventDefault();
+
+                setAybakEndCard(
+                    false
+                );
 
             }
 
-            else {
 
-                state =
-                    target;
-
-
-                render();
-
-
-                frameId =
-                    null;
-
-            }
+            return;
 
         }
 
 
-        frameId =
-            requestAnimationFrame(
-                frame
+        if (
+            projectAllMode
+        ) {
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                event.preventDefault();
+
+
+                await exitProjectAll();
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (
+            interfaceAnimating ||
+            navigationAnimating ||
+            projectViewAnimating
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            event.key === "ArrowDown" ||
+            event.key === "PageDown" ||
+            event.key === "End"
+        ) {
+
+            event.preventDefault();
+
+            setAybakEndCard(
+                true
             );
+
+
+            return;
+
+        }
+
+
+        if (
+            event.code ===
+            "Space"
+        ) {
+
+            event.preventDefault();
+
+
+            await performPrimarySlideAction();
+
+
+            return;
+
+        }
+
+
+        if (
+            event.key ===
+            "ArrowLeft"
+        ) {
+
+            event.preventDefault();
+
+
+            stopAutoSlideshow();
+
+
+            await previousFrame();
+
+        }
+
+
+        else if (
+            event.key ===
+            "ArrowRight"
+        ) {
+
+            event.preventDefault();
+
+
+            stopAutoSlideshow();
+
+
+            await nextFrame();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   TOUCH
+   ===================================================== */
+
+document.addEventListener(
+    "touchstart",
+    event => {
+
+        if (
+            projectAllMode
+        ) {
+
+            return;
+
+        }
+
+
+        const touch =
+            event.changedTouches[
+                0
+            ];
+
+
+        touchStartX =
+            touch.clientX;
+
+
+        touchStartY =
+            touch.clientY;
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+document.addEventListener(
+    "touchend",
+    async event => {
+
+        if (
+            projectAllMode ||
+            interfaceAnimating ||
+            navigationAnimating ||
+            projectViewAnimating ||
+            touchStartX === null ||
+            touchStartY === null
+        ) {
+
+            return;
+
+        }
+
+
+        const touch =
+            event.changedTouches[
+                0
+            ];
+
+
+        const deltaX =
+            touch.clientX -
+            touchStartX;
+
+
+        const deltaY =
+            touch.clientY -
+            touchStartY;
+
+
+        touchStartX =
+            null;
+
+
+        touchStartY =
+            null;
+
+
+        if (
+            Math.abs(
+                deltaX
+            ) <=
+            Math.abs(
+                deltaY
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            Math.abs(
+                deltaX
+            ) < 45
+        ) {
+
+            return;
+
+        }
+
+
+        suppressClickUntil =
+            Date.now() +
+            500;
+
+
+        stopAutoSlideshow();
+
+
+        if (
+            deltaX < 0
+        ) {
+
+            await nextFrame();
+
+        }
+
+        else {
+
+            await previousFrame();
+
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+/* =====================================================
+   LOGO (LİNKSİZ, ANİMASYONLU)
+   ===================================================== */
+
+const logo =
+    document.querySelector(
+        ".logo"
+    );
+
+
+const logoName =
+    document.getElementById(
+        "logo-name"
+    );
+
+
+const letters =
+    [
+
+        document.getElementById(
+            "letter-a"
+        ),
+
+        document.getElementById(
+            "letter-y"
+        ),
+
+        document.getElementById(
+            "letter-b"
+        ),
+
+        document.getElementById(
+            "letter-a2"
+        ),
+
+        document.getElementById(
+            "letter-k"
+        )
+
+    ];
+
+
+const lowercase =
+    [
+        "a",
+        "y",
+        "b",
+        "a",
+        "k"
+    ];
+
+
+const uppercase =
+    [
+        "A",
+        "Y",
+        "B",
+        "A",
+        "K"
+    ];
+
+
+let logoState =
+    0;
+
+
+let logoTarget =
+    0;
+
+
+let logoTimer =
+    null;
+
+
+let logoResolve =
+    null;
+
+
+function setLogoState(
+    state
+) {
+
+    logoState =
+        state;
+
+
+    logoName.textContent =
+        state === 0
+            ? "Denizalp"
+            : "denizalp";
+
+
+    for (
+        let i = 0;
+        i < letters.length;
+        i++
+    ) {
+
+        const isMorphUpper =
+            i < state;
+
+
+        letters[i].textContent =
+            isMorphUpper
+                ? uppercase[i]
+                : lowercase[i];
+
+
+        letters[i].style.fontFamily =
+            isMorphUpper
+                ? 'var(--morph-font)'
+                : 'var(--sans-font)';
+
+
+        letters[i].style.fontWeight =
+            isMorphUpper
+                ? 'var(--morph-weight)'
+                : 'var(--sans-weight)';
+
+    }
+
+}
+
+
+function moveLogo() {
+
+    if (
+        logoState ===
+        logoTarget
+    ) {
+
+        logoTimer =
+            null;
+
+
+        if (
+            logoResolve
+        ) {
+
+            const resolve =
+                logoResolve;
+
+
+            logoResolve =
+                null;
+
+
+            resolve();
+
+        }
+
+
+        return;
 
     }
 
 
-    render();
+    setLogoState(
+        logoState <
+        logoTarget
+            ? logoState + 1
+            : logoState - 1
+    );
 
 
-    return {
+    logoTimer =
+        setTimeout(
+            moveLogo,
+            LOGO_STEP_DURATION
+        );
 
-        upper() {
+}
 
-            animateTo(
-                total
+
+function animateLogoTo(
+    target
+) {
+
+    logoTarget =
+        target;
+
+
+    if (
+        logoTimer !== null
+    ) {
+
+        clearTimeout(
+            logoTimer
+        );
+
+    }
+
+
+    if (
+        logoResolve
+    ) {
+
+        logoResolve();
+
+        logoResolve =
+            null;
+
+    }
+
+
+    return new Promise(
+        resolve => {
+
+            logoResolve =
+                resolve;
+
+
+            moveLogo();
+
+        }
+    );
+
+}
+
+
+logo.addEventListener(
+    "mouseenter",
+    () => {
+
+        if (
+            !isPhoneLayout()
+        ) {
+
+            animateLogoTo(
+                5
             );
 
-        },
+        }
 
-        lower() {
+    }
+);
 
-            animateTo(
+
+logo.addEventListener(
+    "mouseleave",
+    () => {
+
+        if (
+            !isPhoneLayout()
+        ) {
+
+            animateLogoTo(
                 0
             );
 
         }
 
-    };
+    }
+);
 
-}
+
+logo.addEventListener(
+    "click",
+    async event => {
+
+        event.preventDefault();
+
+        if (
+            !isPhoneLayout()
+        ) {
+
+            return;
+
+        }
+
+
+        await animateLogoTo(
+            5
+        );
+
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    MOBILE_NAV_HOLD
+                )
+        );
+
+        await animateLogoTo(
+            0
+        );
+
+    }
+);
 
 
 /* =====================================================
-   INDEX GEOMETRY
+   VIEW ALL CONTROLS & SWITCHES
    ===================================================== */
 
-/*
-    Same visual logic as the film index:
+let projectAllSwitching = false;
+let projectTitleHovering = false;
+let projectAllTouchX = null;
+let projectAllTouchY = null;
+let projectAllSlideOrigin = null;
 
-    - every project owns the same invisible media stage height
-    - portrait images can use almost all of that height
-    - landscape images are width-limited instead of becoming tiny
-    - the actual image is vertically centered inside the common stage
-    - title/date always begin after the common stage
-*/
-
-function clampNumber(
-    value,
-    min,
-    max
-) {
-
-    return Math.min(
-        max,
-        Math.max(
-            min,
-            value
-        )
-    );
-
-}
-
-
-function getPhotoIndexGeometry() {
-
-    if (
-        isPhonePortrait()
-    ) {
-
-        return {
-
-            mediaHeight:
-                clampNumber(
-                    window.innerHeight * 0.31,
-                    230,
-                    285
-                ),
-
-            maxLandscapeWidth:
-                window.innerWidth * 0.50
-
-        };
-
-    }
-
-
-    if (
-        isPhoneLandscape()
-    ) {
-
-        /*
-            IMPORTANT:
-            Landscape already has a dedicated safe-area calculation
-            in updateLandscapeGeometry().
-
-            That function computes the exact image height that fits:
-                info/contact block
-                +
-                thumbnail
-                +
-                two caption lines
-                +
-                INDEX button
-
-            The previous index rewrite ignored that calculated value
-            and introduced a second viewport-based height. On some
-            landscape phones that second value was taller than the
-            actual available space, so the whole card was vertically
-            clipped by the index viewport. It looked like the JPEG
-            itself was cropped, and the date disappeared below the
-            viewport.
-
-            Use the ONE authoritative landscape height here.
-        */
-
-        const computed =
-            getComputedStyle(
-                document.documentElement
-            );
-
-
-        const safeMediaHeight =
-            parseFloat(
-                computed.getPropertyValue(
-                    "--landscape-index-image-height"
-                )
-            ) || 136;
-
-
-        const safeCardWidth =
-            parseFloat(
-                computed.getPropertyValue(
-                    "--landscape-index-card-width"
-                )
-            ) || 205;
-
-
-        return {
-
-            mediaHeight:
-                safeMediaHeight,
-
-            /*
-                Keep landscape images broad enough to have the same
-                visual weight as the film index, but NEVER wider than
-                the safe card produced by updateLandscapeGeometry().
-            */
-
-            maxLandscapeWidth:
-                Math.min(
-                    safeCardWidth,
-                    Math.max(
-                        138,
-                        safeMediaHeight * 1.05
-                    )
-                ),
-
-            cardWidth:
-                safeCardWidth
-
-        };
-
-    }
-
-
-    return {
-
-        mediaHeight:
-            clampNumber(
-                window.innerHeight * 0.395,
-                320,
-                430
-            ),
-
-        maxLandscapeWidth:
-            Math.min(
-                window.innerWidth * 0.33,
-                540
-            )
-
-    };
-
-}
-
-
-function getPhotoIndexItemMetrics(
-    ratio
-) {
-
-    const geometry =
-        getPhotoIndexGeometry();
-
-
-    let displayHeight =
-        geometry.mediaHeight;
-
-
-    let displayWidth =
-        displayHeight *
-        ratio;
-
-
-    if (
-        displayWidth >
-        geometry.maxLandscapeWidth
-    ) {
-
-        displayWidth =
-            geometry.maxLandscapeWidth;
-
-
-        displayHeight =
-            displayWidth /
-            ratio;
-
-    }
-
-
-    return {
-
-        mediaHeight:
-            geometry.mediaHeight,
-
-        displayWidth,
-
-        displayHeight
-
-    };
-
-}
-
-
-function syncPhotoIndexCardSize(
-    img,
-    button,
-    wrap
-) {
-
-    if (
-        !img.naturalWidth ||
-        !img.naturalHeight
-    ) {
-
+function setProjectAllNavigationCopy() {
+    if (!projectAllMode && !body.classList.contains("project-all-preparing")) {
         return;
-
     }
 
+    renderBaseTypography(projectCounter, "next project");
+    projectCounter.dataset.rawText = projectCounter.textContent;
+    projectCounter.setAttribute("aria-label", "Next project");
 
-    const ratio =
-        img.naturalWidth /
-        img.naturalHeight;
-
-
-    const metrics =
-        getPhotoIndexItemMetrics(
-            ratio
-        );
-
-
-    const width =
-        Math.max(
-            1,
-            Math.round(
-                metrics.displayWidth
-            )
-        );
-
-
-    const height =
-        Math.max(
-            1,
-            Math.round(
-                metrics.displayHeight
-            )
-        );
-
-
-    const mediaHeight =
-        Math.max(
-            height,
-            Math.round(
-                metrics.mediaHeight
-            )
-        );
-
-
-    const geometry =
-        getPhotoIndexGeometry();
-
-
-    const cardWidth =
-        isPhoneLandscape()
-            ? Math.max(
-                width,
-                geometry.cardWidth ||
-                    width
-            )
-            : width;
-
-
-    button.style.width =
-        `${cardWidth}px`;
-
-    button.style.flex =
-        `0 0 ${cardWidth}px`;
-
-    button.style.minWidth =
-        `${cardWidth}px`;
-
-    button.style.maxWidth =
-        `${cardWidth}px`;
-
-
-    wrap.style.width =
-        `${cardWidth}px`;
-
-    wrap.style.height =
-        `${mediaHeight}px`;
-
-    wrap.style.flexBasis =
-        `${mediaHeight}px`;
-
-
-    /*
-        IMPORTANT:
-        Never force both pixel width AND pixel height on index images.
-
-        Some portrait files can carry orientation / rendering metadata
-        that makes an explicit width+height pair look visually cropped
-        on mobile landscape.
-
-        The wrapper already defines the exact available media area.
-        Let the browser preserve the image's intrinsic aspect ratio and
-        fit the whole frame inside that area.
-    */
-
-    img.style.width =
-        "auto";
-
-    img.style.height =
-        "auto";
-
-    img.style.maxWidth =
-        "100%";
-
-    img.style.maxHeight =
-        "100%";
-
-    img.style.objectFit =
-        "contain";
-
-
-    if (
-        isPhoneLandscape()
-    ) {
-
-        const previewOffset =
-            Math.max(
-                0,
-                (
-                    cardWidth -
-                    width
-                ) / 2
-            );
-
-
-        button.style.setProperty(
-            "--landscape-preview-offset",
-            button ===
-                indexGrid.firstElementChild
-                    ? "0px"
-                    : `${previewOffset}px`
-        );
-
-    }
-
-    else {
-
-        button.style.removeProperty(
-            "--landscape-preview-offset"
-        );
-
-    }
-
+    renderBaseTypography(viewAllButton, "previous project");
+    viewAllButton.dataset.rawText = viewAllButton.textContent;
+    viewAllButton.setAttribute("aria-label", "Previous project");
 }
 
+const enterProjectAllV19 = enterProjectAll;
+enterProjectAll = async function() {
+    if (!projectAllMode) {
+        projectAllSlideOrigin = {
+            projectIndex,
+            frameIndex
+        };
+    }
 
-function resizePhotoIndexCards() {
+    const result = await enterProjectAllV19();
+    setProjectAllNavigationCopy();
+    return result;
+};
 
-    document
-        .querySelectorAll(
-            ".project-card"
+async function switchProjectAll(direction) {
+    if (!projectAllMode || projectAllSwitching || projectViewAnimating) {
+        return;
+    }
+
+    projectAllSwitching = true;
+    stopAutoSlideshow();
+
+    const targetIndex = normalizeProjectIndex(projectIndex + direction);
+    const targetProject = projects[targetIndex];
+
+    projectIndex = targetIndex;
+    frameIndex = 0;
+    renderedProjectIndex = targetIndex;
+
+    leaveFocusedProjectMode();
+    syncProjectUrl("push");
+
+    projectAllGrid.innerHTML = "";
+    buildProjectAllGrid();
+    syncProjectAllBounds(true);
+    layoutProjectAllGrid(true);
+
+    await Promise.all([
+        morphSequential(
+            projectTitle,
+            targetProject.title.toUpperCase(),
+            TEXT_MORPH_DURATION
+        ),
+        morphSequential(
+            projectDate,
+            (targetProject.date || "").toUpperCase(),
+            TEXT_MORPH_DURATION
         )
-        .forEach(
-            card => {
+    ]);
 
-                const img =
-                    card.querySelector(
-                        ".card-image-wrap img"
-                    );
-
-
-                const wrap =
-                    card.querySelector(
-                        ".card-image-wrap"
-                    );
-
-
-                if (
-                    img &&
-                    wrap &&
-                    img.naturalWidth &&
-                    img.naturalHeight
-                ) {
-
-                    syncPhotoIndexCardSize(
-                        img,
-                        card,
-                        wrap
-                    );
-
-                }
-
-            }
-        );
-
+    setProjectAllNavigationCopy();
+    preloadAhead();
+    projectAllSwitching = false;
 }
+
+async function animateProjectClientState(toAlternateState) {
+    const project = currentProject();
+    await Promise.all([
+        animateCase(projectTitle, project.title, toAlternateState),
+        animateCase(projectDate, project.date || "", toAlternateState)
+    ]);
+}
+
+projectTitle.addEventListener("mouseenter", async () => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || projectViewAnimating) {
+        return;
+    }
+    projectTitleHovering = true;
+    await animateProjectClientState(!projectAllMode);
+});
+
+projectTitle.addEventListener("mouseleave", async () => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || projectViewAnimating) {
+        return;
+    }
+    projectTitleHovering = false;
+    await animateProjectClientState(projectAllMode);
+});
+
+projectTitle.addEventListener("click", async event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) {
+        return;
+    }
+
+    if (projectAllMode) {
+        await animateProjectClientState(false);
+        const origin = projectAllSlideOrigin;
+        await exitProjectAll();
+
+        if (origin) {
+            await showFrame(
+                origin.projectIndex,
+                origin.frameIndex,
+                "replace"
+            );
+            projectAllSlideOrigin = null;
+        }
+    } else {
+        stopAutoSlideshow();
+        await animateProjectClientState(true);
+        await enterProjectAll();
+    }
+}, true);
+
+projectCounter.addEventListener("mouseenter", async event => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+    if (projectAllMode) {
+        await animateCase(projectCounter, "next project", true);
+        return;
+    }
+
+    if (isSlideViewAllControlElement(event.relatedTarget)) return;
+    await animateSlideViewAllControl(true);
+});
+
+projectCounter.addEventListener("mouseleave", async event => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+
+    if (projectAllMode) {
+        await animateCase(projectCounter, "next project", false);
+        return;
+    }
+
+    if (isSlideViewAllControlElement(event.relatedTarget)) return;
+    await animateSlideViewAllControl(false);
+});
+
+projectCounter.addEventListener("click", async event => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (projectViewAnimating || interfaceAnimating || navigationAnimating || projectAllSwitching) return;
+
+    if (projectAllMode) {
+        await animateCase(projectCounter, "next project", true);
+        await switchProjectAll(1);
+        return;
+    }
+
+    stopAutoSlideshow();
+    await animateSlideViewAllControl(true);
+    await enterProjectAll();
+}, true);
+
+document.addEventListener("keydown", async event => {
+    stopProjectAutoplayFromInteraction();
+
+    if (projectAllMode && !aybakEndCardActive) {
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            await switchProjectAll(1);
+        } else if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            await switchProjectAll(-1);
+        }
+    }
+}, true);
+
+document.addEventListener("touchstart", event => {
+    if (!projectAllMode || aybakEndCardActive || !event.changedTouches.length) return;
+    projectAllTouchX = event.changedTouches[0].clientX;
+    projectAllTouchY = event.changedTouches[0].clientY;
+}, { passive: true, capture: true });
+
+document.addEventListener("touchend", async event => {
+    if (!projectAllMode || aybakEndCardActive || projectAllTouchX === null || projectAllTouchY === null || !event.changedTouches.length) {
+        return;
+    }
+
+    const x = event.changedTouches[0].clientX;
+    const y = event.changedTouches[0].clientY;
+    const dx = x - projectAllTouchX;
+    const dy = y - projectAllTouchY;
+
+    projectAllTouchX = null;
+    projectAllTouchY = null;
+
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) >= 45) {
+        suppressClickUntil = Date.now() + 500;
+        await switchProjectAll(dx < 0 ? 1 : -1);
+    }
+}, { passive: true, capture: true });
 
 
 /* =====================================================
-   BUILD TYPOGRAPHIC INDEX
+   AUTOPLAY STABILISATION
    ===================================================== */
+const PROJECT_AUTOPLAY_DURATION = 4000;
+let projectAutoplayTimer = null;
+let projectAutoplayEnabled = true;
 
-function resetIndexSelection() {
-
-    selectedIndexProject =
-        null;
-
-
-    indexProjectRows.forEach(
-        rowState => {
-
-            rowState.titleCase.lower();
-            rowState.dateCase.lower();
-
-        }
-    );
-
-
-    indexPreview.classList.remove(
-        "visible"
-    );
-
-
-    indexPreview.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-
-    indexProjectAction.classList.remove(
-        "visible"
-    );
-
-
-    indexProjectAction.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-
-    indexPreviewImage.removeAttribute(
-        "src"
-    );
-
-
-    indexProjectCount.textContent =
-        "";
-
-
-    indexProjectCount.dataset.rawText =
-        "";
-
-
-    if (
-        indexViewAllCase
-    ) {
-
-        indexViewAllCase.lower();
-
-    }
-
+function stopProjectAutoplayFromInteraction() {
+    if (!projectAutoplayEnabled) return;
+    projectAutoplayEnabled = false;
+    clearTimeout(projectAutoplayTimer);
 }
 
+function scheduleProjectAutoplay() {
+    clearTimeout(projectAutoplayTimer);
 
-function layoutTypographicIndex() {
-
-    if (
-        !indexGrid ||
-        !indexScroller
-    ) {
-
+    if (!projectAutoplayEnabled || !projectAllMode || aybakEndCardActive) {
         return;
-
     }
 
-
-    const total =
-        indexProjectRows.length;
-
-
-    if (
-        total === 0
-    ) {
-
-        return;
-
-    }
-
-
-    const computed =
-        getComputedStyle(
-            document.documentElement
-        );
-
-
-    const fontSize =
-        parseFloat(
-            computed.getPropertyValue(
-                "--font-size"
-            )
-        ) || 13;
-
-
-    const lineHeightMultiplier =
-        parseFloat(
-            computed.getPropertyValue(
-                "--line-height"
-            )
-        ) || 1.15;
-
-
-    const lineHeight =
-        fontSize *
-        lineHeightMultiplier;
-
-
-    const gridComputed =
-        getComputedStyle(
-            indexGrid
-        );
-
-
-    const edgeGap =
-        parseFloat(
-            gridComputed.getPropertyValue(
-                "--index-list-edge-gap"
-            )
-        ) || lineHeight;
-
-
-    const minimumGap =
-        lineHeight;
-
-
-    body.classList.remove(
-        "index-needs-scroll"
-    );
-
-
-    indexProjectRows.forEach(
-        state => {
-
-            state.row.style.removeProperty(
-                "grid-column"
-            );
-
-
-            state.row.style.removeProperty(
-                "grid-row"
-            );
-
+    projectAutoplayTimer = setTimeout(async () => {
+        if (!projectAutoplayEnabled || !projectAllMode || aybakEndCardActive) {
+            return;
         }
-    );
 
-
-    /* =================================================
-       PHONES — PORTRAIT + LANDSCAPE
-       Always one text column: client/project on top,
-       date directly below. Rows breathe as much as the
-       viewport allows; once the gap would fall below one
-       text line, the list becomes vertically scrollable.
-       ================================================= */
-
-    if (
-        isPhoneLayout()
-    ) {
-
-        indexGrid.style.removeProperty(
-            "--index-row-count"
-        );
-
-
-        indexGrid.style.removeProperty(
-            "--index-column-count"
-        );
-
-
-        const availableHeight =
-            Math.max(
-                1,
-                indexScroller.clientHeight -
-                edgeGap * 2
-            );
-
-
-        const rowHeights =
-            indexProjectRows.map(
-                state =>
-                    Math.max(
-                        state.row.scrollHeight,
-                        lineHeight * 2
-                    )
-            );
-
-
-        const occupiedHeight =
-            rowHeights.reduce(
-                (
-                    sum,
-                    value
-                ) =>
-                    sum + value,
-                0
-            );
-
-
-        const gapCount =
-            Math.max(
-                0,
-                total - 1
-            );
-
-
-        const idealGap =
-            gapCount
-                ? (
-                    availableHeight -
-                    occupiedHeight
-                ) /
-                gapCount
-                : 0;
-
-
-        const needsScroll =
-            gapCount > 0 &&
-            idealGap <
-            minimumGap;
-
-
-        const rowGap =
-            gapCount
-                ? (
-                    needsScroll
-                        ? minimumGap
-                        : Math.max(
-                            minimumGap,
-                            idealGap
-                        )
-                )
-                : 0;
-
-
-        indexGrid.style.setProperty(
-            "--index-portrait-gap",
-            `${rowGap}px`
-        );
-
-
-        body.classList.toggle(
-            "index-needs-scroll",
-            needsScroll
-        );
-
-        requestAnimationFrame(
-            placeIndexScrollHintInLastVisibleSlot
-        );
-
-        return;
-
-    }
-
-
-    /* =================================================
-       DESKTOP + MOBILE LANDSCAPE
-       Text occupies the left field, preview the right.
-       Use as many columns as comfortably fit that field,
-       never fewer than two when two are possible.
-       If the resulting rows cannot keep a one-line gap,
-       the text field scrolls vertically.
-       ================================================= */
-
-    const usableWidth =
-        Math.max(
-            1,
-            indexScroller.clientWidth
-        );
-
-
-    const widestProjectText =
-        Math.max(
-            1,
-            ...indexProjectRows.map(
-                state =>
-                    Math.max(
-                        state.titleButton.scrollWidth,
-                        state.dateButton.scrollWidth
-                    )
-            )
-        );
-
-
-    const columnGap =
-        Math.max(
-            22,
-            Math.min(
-                72,
-                usableWidth * 0.06
-            )
-        );
-
-
-    const preferredColumnWidth =
-        widestProjectText +
-        Math.max(
-            18,
-            fontSize * 1.25
-        );
-
-
-    const maxColumnsByWidth =
-        Math.max(
-            1,
-            Math.floor(
-                (
-                    usableWidth +
-                    columnGap
-                ) /
-                (
-                    preferredColumnWidth +
-                    columnGap
-                )
-            )
-        );
-
-
-    const minimumColumns =
-        total > 1 &&
-        maxColumnsByWidth >= 2
-            ? 2
-            : 1;
-
-
-    const columnCount =
-        Math.max(
-            minimumColumns,
-            Math.min(
-                total,
-                maxColumnsByWidth
-            )
-        );
-
-
-    const rowCount =
-        Math.ceil(
-            total /
-            columnCount
-        );
-
-
-    const itemHeight =
-        lineHeight * 2;
-
-
-    const availableHeight =
-        Math.max(
-            1,
-            indexScroller.clientHeight -
-            edgeGap * 2
-        );
-
-
-    const occupiedHeight =
-        rowCount *
-        itemHeight;
-
-
-    const gapCount =
-        Math.max(
-            0,
-            rowCount - 1
-        );
-
-
-    const idealGap =
-        gapCount
-            ? (
-                availableHeight -
-                occupiedHeight
-            ) /
-            gapCount
-            : 0;
-
-
-    const needsScroll =
-        gapCount > 0 &&
-        idealGap <
-        minimumGap;
-
-
-    const rowGap =
-        gapCount
-            ? (
-                needsScroll
-                    ? minimumGap
-                    : Math.max(
-                        minimumGap,
-                        idealGap
-                    )
-            )
-            : 0;
-
-
-    indexGrid.style.setProperty(
-        "--index-row-count",
-        String(rowCount)
-    );
-
-
-    indexGrid.style.setProperty(
-        "--index-column-count",
-        String(columnCount)
-    );
-
-
-    indexGrid.style.setProperty(
-        "--index-column-gap",
-        `${columnGap}px`
-    );
-
-
-    indexGrid.style.setProperty(
-        "--index-row-gap",
-        `${rowGap}px`
-    );
-
-
-    body.classList.toggle(
-        "index-needs-scroll",
-        needsScroll
-    );
-
-
-    indexProjectRows.forEach(
-        (
-            state,
-            itemIndex
-        ) => {
-
-            const columnIndex =
-                Math.floor(
-                    itemIndex /
-                    rowCount
-                );
-
-
-            const localRow =
-                itemIndex %
-                rowCount;
-
-
-            state.row.style.gridColumn =
-                String(
-                    columnIndex + 1
-                );
-
-
-            state.row.style.gridRow =
-                String(
-                    localRow + 1
-                );
-
-        }
-    );
-
+        await switchProjectAll(1);
+        scheduleProjectAutoplay();
+    }, PROJECT_AUTOPLAY_DURATION);
 }
 
-function selectIndexProject(
-    rowState
-) {
+["pointerdown", "wheel", "keydown", "touchstart"].forEach(type => {
+    document.addEventListener(type, stopProjectAutoplayFromInteraction, {
+        capture: true,
+        passive: type === "wheel" || type === "touchstart"
+    });
+});
 
-    if (
-        !rowState
-    ) {
+const AUTOPLAY_INTERACTIVE_SELECTOR = [
+    "a",
+    "button",
+    ".project-all-thumb",
+    "#project-title",
+    "#project-date"
+].join(",");
 
-        return;
-
+document.addEventListener("pointerover", event => {
+    if (event.target.closest?.(AUTOPLAY_INTERACTIVE_SELECTOR)) {
+        stopProjectAutoplayFromInteraction();
     }
+}, { capture: true, passive: true });
 
+document.addEventListener("focusin", event => {
+    if (event.target.closest?.(AUTOPLAY_INTERACTIVE_SELECTOR)) {
+        stopProjectAutoplayFromInteraction();
+    }
+}, true);
 
-    const previousSelection =
-        selectedIndexProject;
+async function waitForProjectAllImageDimensions() {
+    const images = Array.from(projectAllGrid.querySelectorAll("img"));
 
-    
-
-    selectedIndexProject =
-        rowState;
-
-
-    indexProjectRows.forEach(
-        state => {
-
-            if (
-                state === rowState
-            ) {
-
-                state.titleCase.upper();
-                state.dateCase.upper();
-
-            }
-
-            else {
-
-                state.titleCase.lower();
-                state.dateCase.lower();
-
-            }
-
+    await Promise.all(images.map(img => {
+        if (img.naturalWidth && img.naturalHeight) {
+            return Promise.resolve();
         }
-    );
 
+        return new Promise(resolve => {
+            const done = () => resolve();
+            img.addEventListener("load", done, { once: true });
+            img.addEventListener("error", done, { once: true });
+        });
+    }));
 
-    const project =
-        rowState.project;
-
-
-    const previewUrl =
-        getPhotoThumbnailUrl(
-            project.cover ||
-            project.images[0]
-        );
-
-
-    if (
-        indexPreviewImage.src !==
-        previewUrl
-    ) {
-
-        indexPreviewImage.src =
-            previewUrl;
-
-    }
-
-
-    indexPreview.classList.add(
-        "visible"
-    );
-
-
-    indexPreview.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
-    const photoCount =
-        project.images.length;
-
-
-    const nextViewText =
-        getViewVerbText(
-            photoCount
-        );
-
-
-    if (
-        previousSelection &&
-        previousSelection !== rowState &&
-        indexProjectViewAll.textContent
-    ) {
-
-        morphSequential(
-            indexProjectViewAll,
-            nextViewText,
-            STATE_MORPH_DURATION
-        ).catch(
-            () => {}
-        );
-
-    }
-
-    else {
-
-        renderBaseTypography(
-            indexProjectViewAll,
-            nextViewText
-        );
-
-
-        indexProjectViewAll.dataset.rawText =
-            nextViewText;
-
-    }
-
-
-    const nextCountText =
-        getPhotoCountText(
-            photoCount
-        );
-
-
-    if (
-        previousSelection &&
-        previousSelection !== rowState &&
-        indexProjectCount.textContent
-    ) {
-
-        morphSequential(
-            indexProjectCount,
-            nextCountText,
-            STATE_MORPH_DURATION
-        ).catch(
-            () => {}
-        );
-
-    }
-
-    else {
-
-        renderBaseTypography(
-            indexProjectCount,
-            nextCountText
-        );
-
-
-        indexProjectCount.dataset.rawText =
-            nextCountText;
-
-    }
-
-
-    indexProjectAction.classList.add(
-        "visible"
-    );
-
-
-    indexProjectAction.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
-    if (
-        indexViewAllCase
-    ) {
-
-        indexViewAllCase.lower();
-
-    }
-
+    layoutProjectAllGrid(true);
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 }
 
-
-function buildIndex() {
-
-    indexGrid.innerHTML =
-        "";
-
-
-    indexProjectRows =
-        [];
-
-
-    resetIndexSelection();
-
-
-    getChronologicalProjects()
-        .forEach(
-            item => {
-
-                const project =
-                    item.project;
-
-
-                const originalIndex =
-                    item.originalIndex;
-
-
-                const row =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                row.className =
-                    "index-project-row";
-
-
-                const titleButton =
-                    document.createElement(
-                        "button"
-                    );
-
-
-                titleButton.type =
-                    "button";
-
-
-                titleButton.className =
-                    "index-project-title";
-
-
-                const titleBase =
-                    project.title.toLowerCase();
-
-
-                renderBaseTypography(
-                    titleButton,
-                    titleBase
-                );
-
-
-                const dateButton =
-                    document.createElement(
-                        "button"
-                    );
-
-
-                dateButton.type =
-                    "button";
-
-
-                dateButton.className =
-                    "index-project-date";
-
-
-                const dateBase =
-                    (
-                        project.date ||
-                        ""
-                    ).toLowerCase();
-
-
-                renderBaseTypography(
-                    dateButton,
-                    dateBase
-                );
-
-
-                const rowState =
-                    {
-                        row,
-                        project,
-                        originalIndex,
-                        titleButton,
-                        dateButton,
-                        titleCase:
-                            createCaseController(
-                                titleButton,
-                                titleBase
-                            ),
-                        dateCase:
-                            createCaseController(
-                                dateButton,
-                                dateBase
-                            )
-                    };
-
-
-                indexProjectRows.push(
-                    rowState
-                );
-
-
-                [
-                    titleButton,
-                    dateButton
-                ].forEach(
-                    button => {
-
-                        button.addEventListener(
-                            "mouseenter",
-                            () => {
-
-                                if (
-                                    !window.matchMedia(
-                                        "(hover: hover)"
-                                    ).matches
-                                ) {
-
-                                    return;
-
-                                }
-
-
-                                selectIndexProject(
-                                    rowState
-                                );
-
-                            }
-                        );
-
-
-                        button.addEventListener(
-                            "focus",
-                            () => {
-
-                                if (
-                                    !window.matchMedia(
-                                        "(hover: hover)"
-                                    ).matches
-                                ) {
-
-                                    return;
-
-                                }
-
-
-                                selectIndexProject(
-                                    rowState
-                                );
-
-                            }
-                        );
-
-
-                        button.addEventListener(
-                            "click",
-                            async event => {
-
-                                event.stopPropagation();
-
-
-                                const mobileTwoTap =
-                                    isPhoneLayout();
-
-
-                                if (
-                                    !mobileTwoTap
-                                ) {
-
-                                    selectIndexProject(
-                                        rowState
-                                    );
-
-
-                                    await new Promise(
-                                        resolve =>
-                                            requestAnimationFrame(
-                                                resolve
-                                            )
-                                    );
-
-
-                                    await openSelectedIndexProjectAll();
-
-                                }
-
-                                else if (
-                                    selectedIndexProject ===
-                                    rowState
-                                ) {
-
-                                    await openSelectedIndexProjectAll();
-
-                                }
-
-                                else {
-
-                                    selectIndexProject(
-                                        rowState
-                                    );
-
-                                }
-
-                            }
-                        );
-
-                    }
-                );
-
-
-                row.append(
-                    titleButton,
-                    dateButton
-                );
-
-
-                indexGrid.appendChild(
-                    row
-                );
-
-            }
-        );
-
-
-    requestAnimationFrame(
-        layoutTypographicIndex
-    );
-
+function syncSinglePhotoViewCopy() {
+    if (projectAllMode || body.classList.contains("project-all-preparing") || !projects.length) return;
+    const total = currentProject().images.length;
+    renderBaseTypography(viewAllButton, getViewVerbText(total));
+    renderBaseTypography(projectCounter, getProjectPhotoCountText(total));
+    viewAllButton.dataset.rawText = viewAllButton.textContent;
+    projectCounter.dataset.rawText = projectCounter.textContent;
 }
+
+const syncMetadataAfterRenderV24 = syncMetadataAfterRender;
+syncMetadataAfterRender = function() {
+    const result = syncMetadataAfterRenderV24.apply(this, arguments);
+    syncSinglePhotoViewCopy();
+    return result;
+};
 
 
 /* =====================================================
-   INDEX & INFO HOVER VE TIKLAMA YENİ MİMARİ
+   INDEX & INFO HOVER VE TEK TIK YÖNLENDİRME (YENİ)
    ===================================================== */
 const indexCase = createCaseController(indexButton, "index");
 const infoCase = createCaseController(infoButton, "info");
 
-/* Mobilde çift tıklama (double-tap) hatasını önlemek için animasyon sadece gerçek farelerde çalışır */
 function isHoverDevice() { return window.matchMedia("(hover: hover) and (pointer: fine)").matches; }
 
 indexButton.addEventListener("mouseenter", () => { if (isHoverDevice()) indexCase.upper(); });
@@ -9257,7 +8741,6 @@ indexButton.addEventListener("mouseleave", () => { if (isHoverDevice()) indexCas
 infoButton.addEventListener("mouseenter", () => { if (isHoverDevice()) infoCase.upper(); });
 infoButton.addEventListener("mouseleave", () => { if (isHoverDevice()) infoCase.lower(); });
 
-/* Butonlara tıklandığında anında (beklemeden) yönlendirir */
 function routeLink(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -9269,180 +8752,554 @@ infoButton.addEventListener("click", routeLink);
 
 
 /* =====================================================
-   LOAD PROJECTS (KAYBEDİLEN ANA FOTOĞRAF MOTORU GERİ GELDİ)
+   LOAD PROJECTS
    ===================================================== */
 
 async function loadProjects() {
-    try {
-        const response = await fetch(PROJECTS_JSON, { cache: "no-store" });
-        if (!response.ok) { throw new Error("projects.json could not be loaded."); }
-        const data = await response.json();
 
-        projects = data.filter(project => project && Array.isArray(project.images) && project.images.length > 0).map(prepareProject);
-        if (projects.length === 0) { return; }
+    try {
+
+        const response =
+            await fetch(
+                PROJECTS_JSON,
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                "projects.json could not be loaded."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        projects =
+            data
+                .filter(
+                    project =>
+                        project &&
+                        Array.isArray(
+                            project.images
+                        ) &&
+                        project.images.length > 0
+                )
+                .map(
+                    prepareProject
+                );
+
+
+        if (
+            projects.length === 0
+        ) {
+
+            return;
+
+        }
+
 
         updateResponsiveMode();
 
-        const deepLink = getDeepLinkRequest();
-        const requestedProjectIndex = findProjectIndexById(deepLink.projectId);
-        projectIndex = requestedProjectIndex >= 0 ? requestedProjectIndex : 0;
-        const requestedProject = currentProject();
-        let requestedRuntimeFrameIndex = -1;
 
-        if (requestedProjectIndex >= 0 && deepLink.imageNumber !== null) {
-            requestedRuntimeFrameIndex = getRuntimeFrameIndexFromOriginalNumber(requestedProject, deepLink.imageNumber);
+        const deepLink =
+            getDeepLinkRequest();
+
+
+        const requestedProjectIndex =
+            findProjectIndexById(
+                deepLink.projectId
+            );
+
+
+        projectIndex =
+            requestedProjectIndex >= 0
+                ? requestedProjectIndex
+                : 0;
+
+
+        const requestedProject =
+            currentProject();
+
+
+        let requestedRuntimeFrameIndex =
+            -1;
+
+
+        if (
+            requestedProjectIndex >= 0 &&
+            deepLink.imageNumber !==
+                null
+        ) {
+
+            requestedRuntimeFrameIndex =
+                getRuntimeFrameIndexFromOriginalNumber(
+                    requestedProject,
+                    deepLink.imageNumber
+                );
+
         }
 
-        frameIndex = requestedRuntimeFrameIndex >= 0 ? requestedRuntimeFrameIndex : 0;
 
-        if (deepLink.projectId && requestedProjectIndex < 0) {
-            const cleanUrl = new URL(window.location.href);
-            cleanUrl.searchParams.delete("project");
-            cleanUrl.searchParams.delete("image");
-            window.history.replaceState({}, "", cleanUrl);
-        } else if (requestedProjectIndex >= 0 && !deepLink.viewAll) {
-            syncProjectUrl("replace");
+        frameIndex =
+            requestedRuntimeFrameIndex >= 0
+                ? requestedRuntimeFrameIndex
+                : 0;
+
+
+        if (
+            deepLink.projectId &&
+            requestedProjectIndex < 0
+        ) {
+
+            const cleanUrl =
+                new URL(
+                    window.location.href
+                );
+
+
+            cleanUrl.searchParams.delete(
+                "project"
+            );
+
+
+            cleanUrl.searchParams.delete(
+                "image"
+            );
+
+
+            window.history.replaceState(
+                {},
+                "",
+                cleanUrl
+            );
+
         }
 
-        const hasValidImageDeepLink = requestedProjectIndex >= 0 && requestedRuntimeFrameIndex >= 0 && !deepLink.viewAll;
 
-        if (hasValidImageDeepLink) {
-            frameIndex = requestedRuntimeFrameIndex;
-            enterFocusedProjectMode(projectIndex);
-            autoplayPermanentlyDisabled = true;
-            manualMode = true;
-            clearTimeout(slideTimer);
-        } else {
-            buildNormalProjectSequence(projectIndex);
-            normalSequencePosition = 0;
-            frameIndex = normalSequenceFrames[0];
+        else if (
+            requestedProjectIndex >= 0 &&
+            !deepLink.viewAll
+        ) {
+
+            syncProjectUrl(
+                "replace"
+            );
+
         }
 
-        const firstImage = await preloadImage(currentProject().images[frameIndex]);
-        renderedProjectIndex = projectIndex;
 
-        /* 
-           FLASH BUG ÇÖZÜMÜ:
-           Doğrudan View All ile açılıyorsa arka planda 
-           büyük slayt görselini ekrana patlatmayı engelliyoruz.
-        */
+        const hasValidImageDeepLink =
+            requestedProjectIndex >= 0 &&
+            requestedRuntimeFrameIndex >= 0 &&
+            !deepLink.viewAll;
+
+
+        if (
+            hasValidImageDeepLink
+        ) {
+
+            frameIndex =
+                requestedRuntimeFrameIndex;
+
+
+            enterFocusedProjectMode(
+                projectIndex
+            );
+
+
+            autoplayPermanentlyDisabled =
+                true;
+
+
+            manualMode =
+                true;
+
+
+            clearTimeout(
+                slideTimer
+            );
+
+        }
+
+        else {
+
+            buildNormalProjectSequence(
+                projectIndex
+            );
+
+
+            normalSequencePosition =
+                0;
+
+
+            frameIndex =
+                normalSequenceFrames[0];
+
+        }
+
+
+        const firstImage =
+            await preloadImage(
+                currentProject().images[
+                    frameIndex
+                ]
+            );
+
+
+        renderedProjectIndex =
+            projectIndex;
+
+
         const bootDirectlyToViewAll = deepLink.viewAll || !hasValidImageDeepLink;
         if (!bootDirectlyToViewAll) {
             renderImage(firstImage);
         }
 
-        markFrameSeen(projectIndex, frameIndex);
 
-        const title = currentProject().title.toLowerCase();
-        const date = (currentProject().date || "").toLowerCase();
-        renderBaseTypography(projectTitle, title);
-        projectTitle.dataset.rawText = title;
-        renderBaseTypography(projectDate, date);
-        projectDate.dataset.rawText = date;
-        renderBaseTypography(projectCounter, getProjectPhotoCountText(currentProject().images.length));
-        projectCounter.dataset.rawText = projectCounter.textContent;
-        viewAllButton.textContent = "view all";
-        viewAllButton.dataset.rawText = "view all";
+        markFrameSeen(
+            projectIndex,
+            frameIndex
+        );
+
+
+        const title =
+            currentProject()
+                .title
+                .toLowerCase();
+
+
+        const date =
+            (
+                currentProject().date ||
+                ""
+            ).toLowerCase();
+
+
+        renderBaseTypography(
+            projectTitle,
+            title
+        );
+
+
+        projectTitle.dataset.rawText =
+            title;
+
+
+        renderBaseTypography(
+            projectDate,
+            date
+        );
+
+
+        projectDate.dataset.rawText =
+            date;
+
+
+        renderBaseTypography(
+            projectCounter,
+            getProjectPhotoCountText(
+                currentProject()
+                    .images.length
+            )
+        );
+
+
+        projectCounter.dataset.rawText =
+            projectCounter.textContent;
+
+
+        viewAllButton.textContent =
+            "view all";
+
+
+        viewAllButton.dataset.rawText =
+            "view all";
+
 
         preloadAhead();
 
-        const warmInitialIndexCovers = () => {
-            projects.slice(0, isPhoneLayout() ? 2 : 3).forEach(project => {
-                preloadImage(project.cover).catch(() => {});
-            });
-        };
 
-        if ("requestIdleCallback" in window) {
-            requestIdleCallback(warmInitialIndexCovers, { timeout: 1500 });
-        } else {
-            setTimeout(warmInitialIndexCovers, 500);
+        const warmInitialIndexCovers =
+            () => {
+
+                projects
+                    .slice(
+                        0,
+                        isPhoneLayout()
+                            ? 2
+                            : 3
+                    )
+                    .forEach(
+                        project => {
+
+                            preloadImage(
+                                project.cover
+                            ).catch(
+                                () => {}
+                            );
+
+                        }
+                    );
+
+            };
+
+
+        if (
+            "requestIdleCallback" in window
+        ) {
+
+            requestIdleCallback(
+                warmInitialIndexCovers,
+                {
+                    timeout:
+                        1500
+                }
+            );
+
         }
 
-        if (isPhoneLandscape()) {
-            requestAnimationFrame(updateLandscapeGeometry);
+        else {
+
+            setTimeout(
+                warmInitialIndexCovers,
+                500
+            );
+
         }
+
+
+        if (
+            isPhoneLandscape()
+        ) {
+
+            requestAnimationFrame(
+                updateLandscapeGeometry
+            );
+
+        }
+
 
         syncMetadataAfterRender();
 
-        if (hasValidImageDeepLink) {
-            clearTimeout(slideTimer);
-            manualMode = true;
-        } else {
-            startAutoSlideshow();
+
+        if (
+            hasValidImageDeepLink
+        ) {
+
+            clearTimeout(
+                slideTimer
+            );
+
+
+            manualMode =
+                true;
+
         }
 
-    } catch (error) {
-        console.error(error);
+        else {
+
+            startAutoSlideshow();
+
+        }
+
+
     }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+    }
+
 }
 
 
 /* =====================================================
-   START (MOBİL VE DESKTOP ORTAK VIEW ALL AÇILIŞI)
+   START
    ===================================================== */
 
 (function openInitialProjectViewWhenReady() {
-    const tryOpen = async () => {
-        if (!projects.length || (!spread.firstChild && getDeepLinkRequest().imageNumber !== null)) {
-            requestAnimationFrame(tryOpen);
-            return;
-        }
 
-        const requestedDeepLink = getDeepLinkRequest();
-        const requestedDeepProjectIndex = findProjectIndexById(requestedDeepLink.projectId);
-        const requestedDeepFrameIndex = requestedDeepProjectIndex >= 0 && requestedDeepLink.imageNumber !== null
-            ? getRuntimeFrameIndexFromOriginalNumber(projects[requestedDeepProjectIndex], requestedDeepLink.imageNumber)
-            : -1;
+    const tryOpen =
+        async () => {
 
-        const requestedViewAll = requestedDeepLink.viewAll ||
-            !(requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0);
+            if (
+                !projects.length ||
+                (!spread.firstChild && getDeepLinkRequest().imageNumber !== null)
+            ) {
 
-        if (requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0 && !requestedDeepLink.viewAll) {
-            document.documentElement.classList.remove("desktop-viewall-boot");
-            stopProjectAutoplayFromInteraction();
-            stopAutoSlideshow();
-            return;
-        }
+                requestAnimationFrame(
+                    tryOpen
+                );
 
-        if (requestedViewAll) {
-            if (!projectAllMode && !indexMode) {
+                return;
+
+            }
+
+
+            const requestedDeepLink =
+                getDeepLinkRequest();
+
+
+            const requestedDeepProjectIndex =
+                findProjectIndexById(
+                    requestedDeepLink.projectId
+                );
+
+
+            const requestedDeepFrameIndex =
+                requestedDeepProjectIndex >= 0 &&
+                requestedDeepLink.imageNumber !== null
+                    ? getRuntimeFrameIndexFromOriginalNumber(
+                        projects[
+                            requestedDeepProjectIndex
+                        ],
+                        requestedDeepLink.imageNumber
+                    )
+                    : -1;
+
+
+            const requestedViewAll =
+                requestedDeepLink.viewAll ||
+                !(requestedDeepProjectIndex >= 0 && requestedDeepFrameIndex >= 0);
+
+
+            if (
+                requestedDeepProjectIndex >= 0 &&
+                requestedDeepFrameIndex >= 0 &&
+                !requestedDeepLink.viewAll
+            ) {
+
+                document.documentElement.classList.remove(
+                    "desktop-viewall-boot"
+                );
+
+
                 stopProjectAutoplayFromInteraction();
                 stopAutoSlideshow();
-                await enterProjectAll();
-                setProjectAllNavigationCopy();
-                await waitForProjectAllImageDimensions();
+
+
+                return;
+
             }
-            document.documentElement.classList.remove("desktop-viewall-boot");
-            scheduleProjectAutoplay();
-            return;
-        }
 
-        if (!indexMode && !projectAllMode) {
-            await enterProjectAll();
-            setProjectAllNavigationCopy();
-            await waitForProjectAllImageDimensions();
-            document.documentElement.classList.remove("desktop-viewall-boot");
-            scheduleProjectAutoplay();
-        } else {
-            document.documentElement.classList.remove("desktop-viewall-boot");
-        }
-    };
 
-    requestAnimationFrame(tryOpen);
+            if (
+                requestedViewAll
+            ) {
+
+                if (
+                    !projectAllMode
+                ) {
+
+                    stopProjectAutoplayFromInteraction();
+                    stopAutoSlideshow();
+
+
+                    await enterProjectAll();
+
+
+                    setProjectAllNavigationCopy();
+
+
+                    await waitForProjectAllImageDimensions();
+
+                }
+
+
+                document.documentElement.classList.remove(
+                    "desktop-viewall-boot"
+                );
+
+
+                scheduleProjectAutoplay();
+
+
+                return;
+
+            }
+
+
+            if (
+                !projectAllMode
+            ) {
+
+                await enterProjectAll();
+
+
+                setProjectAllNavigationCopy();
+
+
+                await waitForProjectAllImageDimensions();
+
+
+                document.documentElement.classList.remove(
+                    "desktop-viewall-boot"
+                );
+
+
+                scheduleProjectAutoplay();
+
+            }
+
+            else {
+
+                document.documentElement.classList.remove(
+                    "desktop-viewall-boot"
+                );
+
+            }
+
+        };
+
+
+    requestAnimationFrame(
+        tryOpen
+    );
+
 })();
 
-projectAllGrid.addEventListener("load", event => {
-    if ((projectAllMode || body.classList.contains("project-all-preparing")) && event.target instanceof HTMLImageElement) {
-        requestAnimationFrame(() => {
-            layoutProjectAllGrid(true);
-        });
-    }
-}, true);
 
-setLogoState(0);
+projectAllGrid.addEventListener(
+    "load",
+    event => {
+        if (
+            (projectAllMode || body.classList.contains("project-all-preparing")) &&
+            event.target instanceof HTMLImageElement
+        ) {
+            requestAnimationFrame(() => {
+                layoutProjectAllGrid(true);
+            });
+        }
+    },
+    true
+);
+
+
+setLogoState(
+    0
+);
+
+
 loadProjects();
 
 </script>
+
+<style>
+body:not(.project-all-mode):not(.project-all-preparing) #view-all-button,
+body:not(.project-all-mode):not(.project-all-preparing) #project-counter { cursor: pointer; }
+</style>
 
 </body>
 </html>
