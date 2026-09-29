@@ -2735,6 +2735,16 @@ body.phone-landscape.index-mode:not(.index-needs-scroll) #index-scroller {
     }
 </style>
 
+<style>
+/* View All modunda "next project" ve "previous project" yazılarını gizler */
+body.project-all-mode #project-counter,
+body.project-all-mode #view-all-button {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+</style>
+    
 </head>
 
 <body>
