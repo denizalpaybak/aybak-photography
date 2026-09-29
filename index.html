@@ -12650,13 +12650,13 @@ function setProjectAllNavigationCopy() {
         return;
     }
 
-    renderBaseTypography(projectCounter, "");
+    renderBaseTypography(projectCounter, "next project");
     projectCounter.dataset.rawText = projectCounter.textContent;
-    projectCounter.setAttribute("aria-label", "");
+    projectCounter.setAttribute("aria-label", "Next project");
 
-    renderBaseTypography(viewAllButton, "");
+    renderBaseTypography(viewAllButton, "previous project");
     viewAllButton.dataset.rawText = viewAllButton.textContent;
-    viewAllButton.setAttribute("aria-label", "");
+    viewAllButton.setAttribute("aria-label", "Previous project");
 }
 
 const enterProjectAllV19 = enterProjectAll;
